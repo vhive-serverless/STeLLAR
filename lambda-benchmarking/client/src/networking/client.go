@@ -9,11 +9,13 @@ import (
 	"os"
 )
 
-func CallAPIGateway(execMilliseconds int) string {
+func CallAPIGateway(execMilliseconds int, payloadLengthBytes int) string {
 	req, err := http.NewRequest("GET",
-		fmt.Sprintf("%s/benchmarking?ExecMilliseconds=%d",
+		fmt.Sprintf("%s/benchmarking?ExecMilliseconds=%d&PayloadLengthBytes=%d",
 			CheckAndReturnEnvVar("AWS_API_GATEWAY_ENDPOINT"),
-			execMilliseconds),
+			execMilliseconds,
+			payloadLengthBytes,
+		),
 		nil,
 	)
 	if err != nil {
@@ -46,6 +48,7 @@ func processResponse(resp *http.Response) string {
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("API Gateway response had status %s", resp.Status)
 	}
+
 
 	var lambdaFunctionResponse LambdaFunctionResponse
 	if err := json.Unmarshal(bytes, &lambdaFunctionResponse); err != nil {

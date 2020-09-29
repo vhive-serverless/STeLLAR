@@ -14,12 +14,12 @@ type SafeWriter struct {
 	mux    sync.Mutex
 }
 
-func (writer *SafeWriter) GenerateLatencyRecord(reqChannel chan<- int, id int, execMilliseconds int) {
+func (writer *SafeWriter) GenerateLatencyRecord(reqChannel chan<- int, id int, execMilliseconds int, payloadLength int) {
 	start := time.Now()
 
 	log.Printf("Making request with id %d to API Gateway", id)
 	writer.WriteRowToFile(
-		networking.CallAPIGateway(execMilliseconds),
+		networking.CallAPIGateway(execMilliseconds, payloadLength),
 		strconv.FormatInt(time.Since(start).Milliseconds(), 10),
 	)
 
