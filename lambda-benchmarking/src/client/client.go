@@ -1,7 +1,46 @@
 package main
 
-// /benchmarking?ExecMilliseconds=50
-// Endpoint request URI: https://lambda.eu-west-2.amazonaws.com/2015-03-31/functions/arn:aws:lambda:eu-west-2:335329526041:function:benchmarking/invocations
+import (
+	"encoding/csv"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+	"time"
+)
+
+//Note: those variables are pointers
+var requestsFlag = flag.Int("requests", 1, "The number of outstanding requests.")
+var execMillisecondsFlag = flag.Int("execMilliseconds", 80, "The number of milliseconds for the lambda function to busy spin.")
+var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written for this run.")
+
 func main() {
-	
+	flag.Parse()
+	log.Printf("Started benchmarking HTTP client started with %d outstanding requests and %dms busy spin. Output path was set to %s",
+		*requestsFlag, *execMillisecondsFlag, *outputPathFlag)
+
+	file, err := os.Create(fmt.Sprintf("%s/%s.csv", *outputPathFlag, time.Now().Format(time.RFC850)))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// Create writer, make it safe for concurrent use and flush it when program finishes
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+	safeWriter := BenchmarkWriter{writer: writer}
+	safeWriter.writeRowToFile("Request ID", "Latency")
+
+	// Generate as many requests (and thus benchmark records) as specified in the arguments
+	reqChannel := make(chan int)
+	for i := 0; i < *requestsFlag; i++ {
+		go safeWriter.generateLatencyRecord(reqChannel, i)
+	}
+
+	// Wait until all responses have been received before flushing records to disk
+	for *requestsFlag > 0 {
+		requestFinished := <-reqChannel
+		*requestsFlag--
+		log.Printf("Received response for request %d, %d responses remaining\n", requestFinished, *requestsFlag)
+	}
 }
