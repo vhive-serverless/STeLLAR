@@ -5,7 +5,7 @@ build:
 
 run_client:
 	@mkdir -p $(LATENCY_SAMPLES_OUT)
-	@./client --requests 100 -execMilliseconds 50 -outputPath $(LATENCY_SAMPLES_OUT)
+	@./client --requests 5 --execMilliseconds 50 --payloadLengthBytes 5 --outputPath $(LATENCY_SAMPLES_OUT)
 
 build_and_run_client: build run_client
 
