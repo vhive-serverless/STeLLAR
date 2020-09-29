@@ -18,15 +18,14 @@ type ProducerOutput struct {
 }
 
 func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	// ExecMilliseconds is a required Query String Parameter
+	// "ExecMilliseconds" is a required Query String Parameter
 	executionDuration, err := strconv.Atoi(request.QueryStringParameters["ExecMilliseconds"])
 	if err != nil {
 		return serverError(err)
 	}
 	executionTime := time.Duration(executionDuration) * time.Millisecond
 
-	//ctx context.Context provides runtime information for your Lambda
-	//function invocation (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
+	//ctx context.Context (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
 	lc, _ := lambdacontext.FromContext(ctx)
 	log.Printf(`Received client request with AwsRequestID %s, InvokedFunctionArn %s, 
 		and desired execution time %d`, lc.AwsRequestID, lc.InvokedFunctionArn, executionTime)
@@ -53,9 +52,8 @@ func main() {
 	lambda.Start(BenchmarkingProducer)
 }
 
-// Add a helper for handling errors. This logs any error to os.Stderr
-// and returns a 500 Internal Server Error response that the AWS API
-// Gateway understands.
+//Add a helper for handling errors. This logs any error to os.Stderr and returns a 500
+//Internal Server Error response that the AWS API Gateway understands.
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
 func serverError(err error) (events.APIGatewayProxyResponse, error) {
@@ -64,13 +62,5 @@ func serverError(err error) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusInternalServerError,
 		Body:       http.StatusText(http.StatusInternalServerError),
-	}, nil
-}
-
-// Similarly add a helper for sending responses relating to client errors.
-func clientError(status int) (events.APIGatewayProxyResponse, error) {
-	return events.APIGatewayProxyResponse{
-		StatusCode: status,
-		Body:       http.StatusText(status),
 	}, nil
 }

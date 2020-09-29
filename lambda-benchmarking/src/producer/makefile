@@ -1,28 +1,33 @@
+LAMBDA_FUNCTION_NAME := "benchmarking"
+DEPLOYMENTS_LOG_OUT := "deployments"
+
 download_aws_lambda_library:
 	@go get github.com/aws/aws-lambda-go/lambda
 
 deploy_to_aws:
-	@GOOS=linux go build -o ./producer-handler src/producer/handler.go
-	@zip benchmarking.zip producer-handler
+	@mkdir -p $(DEPLOYMENTS_LOG_OUT)
+	@GOOS=linux go build -o ./producer-handler handler.go
+	@zip $(LAMBDA_FUNCTION_NAME).zip producer-handler
 	@/usr/local/bin/aws lambda create-function \
-		--function-name benchmarking \
+		--function-name $(LAMBDA_FUNCTION_NAME) \
 		--runtime go1.x \
        	--role $$AWS_LAMBDA_ROLE \
        	--handler producer-handler \
-       	--zip-file fileb://benchmarking.zip \
-       	--tracing-config Mode=Active > deployments/create_$$( date '+%F_%H:%M:%S' ).txt
+       	--zip-file fileb://$(LAMBDA_FUNCTION_NAME).zip \
+       	--tracing-config Mode=Active > $(DEPLOYMENTS_LOG_OUT)/created_$$( date '+%F_%H:%M:%S' ).txt
        	# Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
 
 update_aws_deployment:
-	@GOOS=linux go build -o ./producer-handler src/producer/handler.go
-	@zip benchmarking.zip producer-handler
+	@mkdir -p $(DEPLOYMENTS_LOG_OUT)
+	@GOOS=linux go build -o ./producer-handler handler.go
+	@zip $(LAMBDA_FUNCTION_NAME).zip producer-handler
 	@/usr/local/bin/aws lambda update-function-code \
-		--function-name benchmarking \
-       	--zip-file fileb://benchmarking.zip > deployments/update_$$( date '+%F_%H:%M:%S' ).txt
+		--function-name $(LAMBDA_FUNCTION_NAME) \
+       	--zip-file fileb://$(LAMBDA_FUNCTION_NAME).zip > $(DEPLOYMENTS_LOG_OUT)/updated_$$( date '+%F_%H:%M:%S' ).txt
 
 remove_from_aws:
 	@/usr/local/bin/aws lambda delete-function \
-		--function-name benchmarking \
+		--function-name $(LAMBDA_FUNCTION_NAME) \
 
 edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
