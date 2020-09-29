@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,24 +20,25 @@ type ProducerOutput struct {
 }
 
 func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	// "ExecMilliseconds" is a required Query String Parameter
 	executionDuration, err := strconv.Atoi(request.QueryStringParameters["ExecMilliseconds"])
 	if err != nil {
 		return serverError(err)
 	}
-	executionTime := time.Duration(executionDuration) * time.Millisecond
 
-	//ctx context.Context (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
+	time.Sleep(time.Duration(executionDuration) * time.Millisecond)
+
+	randomPayload, err := generatePayload(err, request)
+	if err != nil {
+		return serverError(err)
+	}
+
+	// ctx context.Context provides runtime Gateway information
+	// (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
 	lc, _ := lambdacontext.FromContext(ctx)
-	log.Printf(`Received client request with AwsRequestID %s, InvokedFunctionArn %s, 
-		and desired execution time %d`, lc.AwsRequestID, lc.InvokedFunctionArn, executionTime)
 
-	executionTimer := time.NewTimer(executionTime)
-	<-executionTimer.C
-
-	// The APIGatewayProxyResponse.Body field needs to be a string, so we marshal the Payload into JSON
+	// The APIGatewayProxyResponse.Body fields needs to be a string, so we marshal the Payload into JSON
 	output, err := json.Marshal(ProducerOutput{
-		Payload:      []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+		Payload:      randomPayload,
 		AwsRequestID: lc.AwsRequestID,
 	})
 	if err != nil {
@@ -48,6 +50,17 @@ func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyReq
 		StatusCode:      http.StatusOK,
 		Body:            string(output),
 	}, nil
+}
+
+func generatePayload(err error, request events.APIGatewayProxyRequest) ([]byte, error) {
+	payloadLength, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
+	if err != nil {
+		return nil, err
+	}
+
+	randomPayload := make([]byte, payloadLength)
+	rand.Read(randomPayload)
+	return randomPayload, nil
 }
 
 //Note: on AWS, lambda runtimes are rounded up to the nearest 100ms for usage purposes
