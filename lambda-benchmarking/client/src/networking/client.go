@@ -1,12 +1,18 @@
 package networking
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"time"
+)
+
+const (
+	timeout = 8 * time.Second
 )
 
 func CallAPIGateway(execMilliseconds int, payloadLengthBytes int) string {
@@ -24,7 +30,11 @@ func CallAPIGateway(execMilliseconds int, payloadLengthBytes int) string {
 
 	req.Header.Add("x-api-key", CheckAndReturnEnvVar("AWS_API_GATEWAY_KEY"))
 
-	resp, err := http.DefaultClient.Do(req)
+	//Increase context deadline for when number of configured requests
+	//is large, which usually triggers `dial tcp: i/o timeout`
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(timeout))
+	defer cancel()
+	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
 		log.Fatal(err)
 	}

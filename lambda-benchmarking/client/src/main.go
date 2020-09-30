@@ -29,12 +29,12 @@ func init() {
 		15 * time.Second,
 		30 * time.Second,
 		time.Minute,
-		//10 * time.Minute,
-		//15 * time.Minute,
-		//30 * time.Minute,
-		//45 * time.Minute,
-		//time.Hour,
-		//2 * time.Hour,
+		10 * time.Minute,
+		15 * time.Minute,
+		30 * time.Minute,
+		45 * time.Minute,
+		time.Hour,
+		2 * time.Hour,
 	}
 
 	burstRelativeDeltas = []time.Duration{burstDeltas[0]}
@@ -49,8 +49,9 @@ func main() {
 	log.Printf("Parameters entered: %d requests in a burst, %dbytes payload length, %dms busy spin, output path was set to `%s`.",
 		*requestsFlag, *payloadLengthFlag, *execMillisecondsFlag, *outputPathFlag)
 
-	file, err := os.Create(fmt.Sprintf("%s/payload%dbytes_exec%dms_%s.csv",
+	file, err := os.Create(fmt.Sprintf("%s/%drequests_payload%dbytes_exec%dms_%s.csv",
 		*outputPathFlag,
+		*requestsFlag,
 		*payloadLengthFlag,
 		*execMillisecondsFlag,
 		time.Now().Format(time.RFC850)))
