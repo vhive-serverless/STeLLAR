@@ -3,12 +3,13 @@ LATENCY_SAMPLES_OUT := "../latency-samples"
 build:
 	@GOOS=linux go build -race -v -a
 
+# 500 requests max to avoid `race: limit on 8128 simultaneously alive goroutines is exceeded, dying`
 run_client:
 	@mkdir -p $(LATENCY_SAMPLES_OUT)
 	@./client \
-		--requests 10 \
+		--requests 500 \
 		--execMilliseconds 50 \
-		--payloadLengthBytes 5 \
+		--payloadLengthBytes 3 \
 		--outputPath $(LATENCY_SAMPLES_OUT)
 
 build_and_run_client: build run_client
