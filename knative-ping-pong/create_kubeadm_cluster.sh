@@ -26,3 +26,5 @@ kn service create helloworld-go --image gcr.io/knative-samples/helloworld-go --e
 
 kubectl --namespace kong get service kong-proxy
 
+NODE_PORT=$(kubectl --namespace kong get service kong-proxy -o go-template='{{(index .spec.ports 0).nodePort}}')
+cat proxy_template.yaml | sed 's/EXTERNALIP/'$(curl ifconfig.me)'/g' | sed 's/NODEPORT/'${NODE_PORT}'/g' > proxy.yaml
