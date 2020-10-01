@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1 # Current version of Knative
+kind: Service
+metadata:
+  name: ping-pong # The name of the app
+  namespace: default # The namespace the app will use
+spec:
+  template:
+    spec:
+      containers:
+        - image: plamenppetrov/knative-ping-pong # Reference to the image of the app
+          env:
+            - name: SERVERPORT # The environment variable printed out by the sample app
+              value: "32547"
+            - name: SERVERHOST
+              value: helloworld-go.default.example.com
+            - name: SERVERADDR
+              value: 128.110.154.97 
