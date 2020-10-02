@@ -10,8 +10,8 @@ spec:
         - image: plamenppetrov/knative-ping-pong # Reference to the image of the app
           env:
             - name: SERVERPORT # The environment variable printed out by the sample app
-              value: NODEPORT
+              value: "NODEPORT"
             - name: SERVERHOST
-              value: helloworld-go.default.example.com
+              value: "helloworld-go.default.example.com"
             - name: SERVERADDR
-              value: EXTERNALIP 
+              value: "EXTERNALIP"
