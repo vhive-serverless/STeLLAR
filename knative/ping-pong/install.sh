@@ -10,13 +10,9 @@ wget https://golang.org/dl/go1.15.2.linux-amd64.tar.gz
 tar -C /usr/local -xzf go1.15.2.linux-amd64.tar.gz
 
 export PATH=$PATH:/usr/local/go/bin
-echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
-echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
 echo 'export PATH=$PATH:/usr/local/go/bin' >> /etc/profile
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
-echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' >> ~/.bashrc
-echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' >> ~/.profile
 echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' >> /etc/profile
 
 # Build and install runc and containerd
@@ -44,14 +40,8 @@ echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.l
 apt update
 apt install -y cri-tools ebtables ethtool kubeadm kubectl kubelet kubernetes-cni
 
+# Use containerd for crictl
 echo "runtime-endpoint: unix:///run/containerd/containerd.sock" > /etc/crictl.yaml
-
-# Create kubelet service
-cat <<EOF > /etc/systemd/system/kubelet.service.d/0-containerd.conf
-[Service]                                                 
-Environment="KUBELET_EXTRA_ARGS=--container-runtime=remote --runtime-request-timeout=15m --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
-EOF
-systemctl daemon-reload
 
 # Install knative CLI
 git clone https://github.com/knative/client.git $HOME/client
