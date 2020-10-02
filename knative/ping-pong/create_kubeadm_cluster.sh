@@ -32,11 +32,10 @@ kubectl patch svc kong-proxy -n kong -p '{"spec": {"type": "LoadBalancer", "exte
 
 
 # Create services
-kn service create helloworld-go --image gcr.io/knative-samples/helloworld-go --env TARGET="Go Sample v1"
+kubectl apply -f f2/f2.yaml
 
-kubectl --namespace kong get service kong-proxy
 
 NODE_PORT=$(kubectl --namespace kong get service kong-proxy -o go-template='{{(index .spec.ports 0).nodePort}}')
-cat proxy_template.yaml | sed 's/EXTERNALIP/'$(curl ifconfig.me)'/g' | sed 's/NODEPORT/'${NODE_PORT}'/g' > proxy.yaml
+cat f1/f1_template.yaml | sed 's/EXTERNALIP/'$(curl ifconfig.me)'/g' | sed 's/NODEPORT/'${NODE_PORT}'/g' > f1/f1.yaml
 
-kubectl apply -f proxy.yaml
+kubectl apply -f f1/f1.yaml

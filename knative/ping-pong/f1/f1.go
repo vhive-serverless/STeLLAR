@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,7 +24,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Error doing request: %v", err)
 	}
 
-	fmt.Fprintf(w, "Status code: %d\n", resp.StatusCode)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+
+	fmt.Fprint(w, buf.String())
 }
 
 func main() {
