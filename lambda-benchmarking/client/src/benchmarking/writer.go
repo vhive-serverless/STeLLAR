@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"lambda-benchmarking/client/networking"
 	"log"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -12,6 +13,20 @@ import (
 type SafeWriter struct {
 	Writer *csv.Writer
 	mux    sync.Mutex
+}
+
+var SafeWriterInstance *SafeWriter
+
+func (writer *SafeWriter) Initialize(file *os.File) {
+	SafeWriterInstance = &SafeWriter{Writer: csv.NewWriter(file)}
+	// writer.WriteRowToFile would fail because the instance Initialize was called on didn't have the Writer initialized
+	SafeWriterInstance.WriteRowToFile(
+		"AWS Request ID",
+		"Sent At",
+		"Received At",
+		"Client Latency (ms)",
+		"Burst ID",
+	)
 }
 
 func (writer *SafeWriter) GenerateLatencyRecord(requestsWaitGroup *sync.WaitGroup, execMilliseconds int, payloadLength int, burstId int) {

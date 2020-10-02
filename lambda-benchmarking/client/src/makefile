@@ -7,10 +7,12 @@ build:
 run_client:
 	@mkdir -p $(LATENCY_SAMPLES_OUT)
 	@./client \
-		--requests 500 \
-		--execMilliseconds 50 \
+		--requests 50 \
+		--execMs 50 \
 		--payloadLengthBytes 3 \
-		--outputPath $(LATENCY_SAMPLES_OUT)
+		--outputPath $(LATENCY_SAMPLES_OUT) \
+		--isProfiler=false \
+		--frequencySeconds 120 \
 
 build_and_run_client: build run_client
 
