@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func triggerRelativeAsyncBurstGroups(burstRelativeDeltas []time.Duration, requests int, lambdaIncrementLimit int, payloadLengthBytes int) {
+func TriggerRelativeAsyncBurstGroups(burstRelativeDeltas []time.Duration, requests int, lambdaIncrementLimit int, payloadLengthBytes int) {
 	var burstsWaitGroup sync.WaitGroup
 	for burstId, relativeDelta := range burstRelativeDeltas {
 		log.Printf("Scheduling burst %d (%v) for %v.",

@@ -7,12 +7,10 @@ build:
 run_client:
 	@mkdir -p $(LATENCY_SAMPLES_OUT)
 	@./client \
-		--requests 500 \
+		--requests 400 \
 		--payloadLengthBytes 3 \
 		--outputPath $(LATENCY_SAMPLES_OUT) \
 		--bursts 16 \
-#		--lambdaIncrementLimit 50000000 \
-#		--frequencySeconds 20 \ # default -1 (delta cold run identifier)
 
 build_and_run_client: build run_client
 
