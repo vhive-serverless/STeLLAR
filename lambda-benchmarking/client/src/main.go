@@ -17,18 +17,14 @@ var payloadLengthFlag = flag.Int("payloadLengthBytes", 8, "Length of the payload
 var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written.")
 var frequencySecondsFlag = flag.Int("frequencySeconds", -1, "Frequency at which the latency profiler operates.")
 var burstsNumberFlag = flag.Int("bursts", 5, "Number of bursts which the latency profiler will trigger.")
-
-// TODO: replace those 2 flags
-var execMsFlag = flag.Int("execMs", 80, "Time duration for the lambda function to busy spin.")
-
-//var lambdaIncrementLimitFlag = flag.Int("lambdaIncrementLimit", 2e8, "Increment limit for the lambda function to busy spin on.")
+var lambdaIncrementLimitFlag = flag.Int("lambdaIncrementLimit", 3e8, "Increment limit for the lambda function to busy spin on.")
 
 func init() {
 	log.Printf("Started benchmarking HTTP client on %v.", time.Now().Format(time.RFC850))
 
 	flag.Parse()
-	log.Printf("Parameters entered: %d requests in a burst, %dbytes payload length, %dms busy spin, %d profiler run frequency, output path was set to `%s`.",
-		*requestsFlag, *payloadLengthFlag, *execMsFlag, *frequencySecondsFlag, *outputPathFlag)
+	log.Printf("Parameters entered: %d requests in a burst, %dbytes payload length, %d busy spin counter, %d profiler run frequency, output path was set to `%s`.",
+		*requestsFlag, *payloadLengthFlag, *lambdaIncrementLimitFlag, *frequencySecondsFlag, *outputPathFlag)
 }
 
 func main() {
@@ -39,12 +35,12 @@ func main() {
 	}
 
 	csvFile, err := os.Create(filepath.Join(outputDirectoryPath, fmt.Sprintf(
-		"%dbursts_%dreqs_freq%ds_payload%db_exec%dms.csv",
+		"%dbursts_%dreqs_freq%ds_payload%db_%dcounterBusySpin.csv",
 		*burstsNumberFlag,
 		*requestsFlag,
 		*frequencySecondsFlag,
 		*payloadLengthFlag,
-		*execMsFlag)))
+		*lambdaIncrementLimitFlag)))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +54,7 @@ func main() {
 
 	log.Println("Running profiler...")
 	benchmarking.SafeWriterInstance.Initialize(csvFile)
-	benchmarking.RunProfiler(burstDeltas, *requestsFlag, *execMsFlag, *payloadLengthFlag)
+	benchmarking.RunProfiler(burstDeltas, *requestsFlag, *lambdaIncrementLimitFlag, *payloadLengthFlag)
 
 	log.Println("Flushing results to CSV file...")
 	benchmarking.SafeWriterInstance.Writer.Flush()
