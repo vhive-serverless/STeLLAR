@@ -17,7 +17,7 @@ var payloadLengthFlag = flag.Int("payloadLengthBytes", 8, "Length of the payload
 var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written.")
 var frequencySecondsFlag = flag.Int("frequencySeconds", -1, "Frequency at which the latency profiler operates.")
 var burstsNumberFlag = flag.Int("bursts", 5, "Number of bursts which the latency profiler will trigger.")
-var lambdaIncrementLimitFlag = flag.Int("lambdaIncrementLimit", 3e8, "Increment limit for the lambda function to busy spin on.")
+var lambdaIncrementLimitFlag = flag.Int("lambdaIncrementLimit", 5e7, "Increment limit for the lambda function to busy spin on.")
 
 func init() {
 	log.Printf("Started benchmarking HTTP client on %v.", time.Now().Format(time.RFC850))
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	csvFile, err := os.Create(filepath.Join(outputDirectoryPath, fmt.Sprintf(
-		"%dbursts_%dreqs_freq%ds_payload%db_%dcounterBusySpin.csv",
+		"%dbursts_%dreqs_freq%ds_payload%db_counter%d.csv",
 		*burstsNumberFlag,
 		*requestsFlag,
 		*frequencySecondsFlag,
