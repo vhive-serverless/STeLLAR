@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 )
 
 type ProducerOutput struct {
@@ -20,12 +19,13 @@ type ProducerOutput struct {
 }
 
 func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	executionDuration, err := strconv.Atoi(request.QueryStringParameters["ExecMilliseconds"])
+	lambdaIncrementLimit, err := strconv.Atoi(request.QueryStringParameters["LambdaIncrementLimit"])
 	if err != nil {
 		return serverError(err)
 	}
 
-	time.Sleep(time.Duration(executionDuration) * time.Millisecond)
+	for i := 0; i < lambdaIncrementLimit; i++ {
+	}
 
 	randomPayload, err := generatePayload(err, request)
 	if err != nil {
