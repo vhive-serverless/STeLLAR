@@ -19,15 +19,13 @@ var frequencySecondsFlag = flag.Int("frequencySeconds", -1, "Frequency at which 
 var burstsNumberFlag = flag.Int("bursts", 5, "Number of bursts which the latency profiler will trigger.")
 var lambdaIncrementLimitFlag = flag.Int("lambdaIncrementLimit", 5e7, "Increment limit for the lambda function to busy spin on.")
 
-func init() {
+func main() {
 	log.Printf("Started benchmarking HTTP client on %v.", time.Now().Format(time.RFC850))
 
 	flag.Parse()
 	log.Printf("Parameters entered: %d requests in a burst, %dbytes payload length, %d busy spin counter, %d profiler run frequency, output path was set to `%s`.",
 		*requestsFlag, *payloadLengthFlag, *lambdaIncrementLimitFlag, *frequencySecondsFlag, *outputPathFlag)
-}
 
-func main() {
 	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))
 	log.Printf("Creating working directory at %s", outputDirectoryPath)
 	if err := os.Mkdir(outputDirectoryPath, os.ModePerm); err != nil {
@@ -50,50 +48,18 @@ func main() {
 		}
 	}()
 
-	burstDeltas := createBurstDeltas()
+	burstDeltas := benchmarking.CreateBurstDeltas(*frequencySecondsFlag, *burstsNumberFlag)
+	relativeBurstDeltas := benchmarking.MakeBurstDeltasRelative(burstDeltas)
 
 	log.Println("Running profiler...")
 	benchmarking.SafeWriterInstance.Initialize(csvFile)
-	benchmarking.RunProfiler(burstDeltas, *requestsFlag, *lambdaIncrementLimitFlag, *payloadLengthFlag)
+	benchmarking.TriggerRelativeAsyncBurstGroups(relativeBurstDeltas, *requestsFlag, *lambdaIncrementLimitFlag, *payloadLengthFlag)
 
 	log.Println("Flushing results to CSV file...")
 	benchmarking.SafeWriterInstance.Writer.Flush()
 
 	log.Println("Plotting bursts from CSV file...")
-	visualization.ExtractBurstsAndGeneratePlots(*burstsNumberFlag, burstDeltas, csvFile, outputDirectoryPath)
+	visualization.ExtractBurstsAndGeneratePlots(*burstsNumberFlag, burstDeltas, relativeBurstDeltas, csvFile, outputDirectoryPath)
 
 	log.Println("Exiting...")
-}
-
-func createBurstDeltas() []time.Duration {
-	var burstDeltas []time.Duration
-	if *frequencySecondsFlag != -1 {
-		// latency profiler run, delta is constant
-		burstDeltas = make([]time.Duration, *burstsNumberFlag)
-		for i := range burstDeltas {
-			burstDeltas[i] = time.Duration(*frequencySecondsFlag) * time.Second
-		}
-	} else {
-		// cold start delta identifier run, delta varies so that the exact timeout can be identified
-		burstDeltas = []time.Duration{
-			time.Duration(0),
-			500 * time.Millisecond,
-			time.Second,
-			5 * time.Second,
-			15 * time.Second,
-			30 * time.Second,
-			45 * time.Second,
-			time.Minute,
-			5 * time.Minute,
-			8 * time.Minute,
-			10 * time.Minute,
-			12 * time.Minute,
-			20 * time.Minute,
-			30 * time.Minute,
-			time.Hour,
-			2 * time.Hour,
-		}
-		burstDeltas = burstDeltas[:*burstsNumberFlag]
-	}
-	return burstDeltas
 }

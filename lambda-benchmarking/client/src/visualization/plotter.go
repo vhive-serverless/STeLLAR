@@ -1,21 +1,23 @@
 package visualization
 
 import (
+	"fmt"
 	"github.com/go-gota/gota/series"
 	"log"
+	"time"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
-func PlotBurstLatencies(plotPath string, latencySeries series.Series) {
+func PlotBurstLatencies(plotPath string, latencySeries series.Series, burstIndex int, duration time.Duration) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
 
-	plotInstance.Title.Text = "AWS Requests Histogram"
+	plotInstance.Title.Text = fmt.Sprintf("Burst %v Histogram (%v since last)", burstIndex, duration)
 	plotInstance.X.Label.Text = "latency (ms)"
 	plotInstance.Y.Label.Text = "requests"
 

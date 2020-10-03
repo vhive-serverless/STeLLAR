@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func ExtractBurstsAndGeneratePlots(burstsNumber int, deltas []time.Duration, csvFile *os.File, path string) {
+func ExtractBurstsAndGeneratePlots(burstsNumber int, deltas []time.Duration, relativeDeltas []time.Duration, csvFile *os.File, path string) {
 	_, err := csvFile.Seek(0, io.SeekStart)
 	if err != nil {
 		log.Fatal(err)
@@ -22,8 +22,10 @@ func ExtractBurstsAndGeneratePlots(burstsNumber int, deltas []time.Duration, csv
 	for burstIndex := 0; burstIndex < burstsNumber; burstIndex++ {
 		burstDF := df.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 		PlotBurstLatencies(
-			filepath.Join(path, fmt.Sprintf("burst%d_delta%v.png", burstIndex, deltas[burstIndex])),
+			filepath.Join(path, fmt.Sprintf("burst%d_delta%v_relativeDelta%v.png", burstIndex, deltas[burstIndex], relativeDeltas[burstIndex])),
 			burstDF.Col("Client Latency (ms)"),
+			burstIndex,
+			deltas[burstIndex],
 		)
 	}
 }
