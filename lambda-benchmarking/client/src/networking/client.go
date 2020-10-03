@@ -48,7 +48,11 @@ type LambdaFunctionResponse struct {
 }
 
 func processResponse(resp *http.Response) string {
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -56,7 +60,7 @@ func processResponse(resp *http.Response) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("API Gateway response had status %s", resp.Status)
+		log.Fatalf("API Gateway response had status %s:\n %s", resp.Status, resp.Body)
 	}
 
 	var lambdaFunctionResponse LambdaFunctionResponse
