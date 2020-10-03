@@ -11,8 +11,8 @@ run_client:
 		--execMs 50 \
 		--payloadLengthBytes 3 \
 		--outputPath $(LATENCY_SAMPLES_OUT) \
-		--isProfiler=false \
-		--frequencySeconds 120 \
+		--bursts 13 \
+#		--frequencySeconds 20 \
 
 build_and_run_client: build run_client
 
