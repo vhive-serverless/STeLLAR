@@ -14,7 +14,7 @@ deploy_to_aws:
        	--role $$AWS_LAMBDA_ROLE \
        	--handler producer-handler \
        	--zip-file fileb://$(LAMBDA_FUNCTION_NAME).zip \
-       	--tracing-config Mode=Active > $(DEPLOYMENTS_LOG_OUT)/created_$$( date '+%F_%H:%M:%S' ).txt
+       	--tracing-config Mode=PassThrough > $(DEPLOYMENTS_LOG_OUT)/created_$$( date '+%F_%H:%M:%S' ).txt
        	# Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
 
 update_aws_deployment:

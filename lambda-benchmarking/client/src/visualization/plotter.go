@@ -47,21 +47,24 @@ func plotLatenciesCDF(plotPath string, latencySeries series.Series) {
 	}
 
 	plotInstance.Title.Text = fmt.Sprintf("Empirical CDF of Latencies")
-	plotInstance.X.Label.Text = "portion of requests"
-	plotInstance.Y.Label.Text = "latency (ms)"
+	plotInstance.Y.Label.Text = "portion of requests"
+	plotInstance.X.Label.Text = "latency (ms)"
+	plotInstance.X.Min = 0
 
 	latencies := latencySeries.Float()
 	sort.Float64s(latencies)
 
+	plotInstance.X.Max = latencies[len(latencies)-1]
+
 	latenciesToPlot := make(plotter.XYs, len(latencies))
 	for i := 0; i < len(latencies); i++ {
-		latenciesToPlot[i].X = stat.CDF(
+		latenciesToPlot[i].X = latencies[i]
+		latenciesToPlot[i].Y = stat.CDF(
 			latencies[i],
 			stat.Empirical,
 			latencies,
 			nil,
 		)
-		latenciesToPlot[i].Y = latencies[i]
 	}
 
 	err = plotutil.AddLinePoints(plotInstance, latenciesToPlot)

@@ -24,11 +24,12 @@ func burst(gatewayEndpoint string, burstsWaitGroup *sync.WaitGroup, burstRelativ
 	defer burstsWaitGroup.Done()
 	time.Sleep(relativeDelta)
 
-	log.Printf("Starting burst %d (%v) on %v: making %d requests to API Gateway.",
+	log.Printf("Starting burst %d (%v) on %v: making %d requests to API Gateway (%s).",
 		burstId,
 		burstRelativeDeltas[burstId],
 		time.Now().Format(time.StampNano),
 		requests,
+		gatewayEndpoint,
 	)
 
 	var requestsWaitGroup sync.WaitGroup
