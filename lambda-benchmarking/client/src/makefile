@@ -9,18 +9,16 @@ run_client:
 	@./client \
 		--payloadLengthBytes 3 \
 		--outputPath $(LATENCY_SAMPLES_OUT) \
-		--requests 10 \
-		--bursts 10 \
+		--requests 15 \
+		--bursts 2 \
 		--frequencySeconds 1 \
 		--randomized=true \
 		--visualization "CDF" \
 		--gatewayEndpoint https://xw5co672m6.execute-api.eu-west-2.amazonaws.com/default
-
-# Gateway 1: https://xw5co672m6.execute-api.eu-west-2.amazonaws.com/default
-# Gateway 2:
-# Gateway 3:
-# Gateway 4:
-# Gateway 5:
+#		--gatewayEndpoint https://2szwlepb1j.execute-api.eu-west-2.amazonaws.com/default
+#		--gatewayEndpoint https://q5boxdpf2d.execute-api.eu-west-2.amazonaws.com/default
+#		--gatewayEndpoint https://hydwazqc6j.execute-api.eu-west-2.amazonaws.com/default
+#		--gatewayEndpoint https://zcnmx4h9da.execute-api.eu-west-2.amazonaws.com/default
 
 build_and_run_client: build run_client
 
