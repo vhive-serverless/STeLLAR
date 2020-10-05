@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TriggerRelativeAsyncBurstGroups(burstRelativeDeltas []time.Duration, requests int, lambdaIncrementLimit int, payloadLengthBytes int) {
+func TriggerRelativeAsyncBurstGroups(gatewayEndpoint string, burstRelativeDeltas []time.Duration, requests int, lambdaIncrementLimit int, payloadLengthBytes int) {
 	var burstsWaitGroup sync.WaitGroup
 	for burstId, relativeDelta := range burstRelativeDeltas {
 		log.Printf("Scheduling burst %d (%v) for %v.",
@@ -14,12 +14,12 @@ func TriggerRelativeAsyncBurstGroups(burstRelativeDeltas []time.Duration, reques
 			burstRelativeDeltas[burstId],
 			time.Now().Add(burstRelativeDeltas[burstId]).Format(time.StampNano))
 		burstsWaitGroup.Add(1)
-		go burst(&burstsWaitGroup, burstRelativeDeltas, burstId, relativeDelta, requests, lambdaIncrementLimit, payloadLengthBytes)
+		go burst(gatewayEndpoint, &burstsWaitGroup, burstRelativeDeltas, burstId, relativeDelta, requests, lambdaIncrementLimit, payloadLengthBytes)
 	}
 	burstsWaitGroup.Wait()
 }
 
-func burst(burstsWaitGroup *sync.WaitGroup, burstRelativeDeltas []time.Duration, burstId int,
+func burst(gatewayEndpoint string, burstsWaitGroup *sync.WaitGroup, burstRelativeDeltas []time.Duration, burstId int,
 	relativeDelta time.Duration, requests int, lambdaIncrementLimit int, payloadLengthBytes int) {
 	defer burstsWaitGroup.Done()
 	time.Sleep(relativeDelta)
@@ -34,7 +34,7 @@ func burst(burstsWaitGroup *sync.WaitGroup, burstRelativeDeltas []time.Duration,
 	var requestsWaitGroup sync.WaitGroup
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
-		go SafeWriterInstance.GenerateLatencyRecord(&requestsWaitGroup, lambdaIncrementLimit, payloadLengthBytes, burstId)
+		go SafeWriterInstance.GenerateLatencyRecord(gatewayEndpoint, &requestsWaitGroup, lambdaIncrementLimit, payloadLengthBytes, burstId)
 	}
 	requestsWaitGroup.Wait()
 	log.Printf("Received all responses for burst %d.", burstId)

@@ -7,10 +7,20 @@ build:
 run_client:
 	@mkdir -p $(LATENCY_SAMPLES_OUT)
 	@./client \
-		--requests 400 \
 		--payloadLengthBytes 3 \
 		--outputPath $(LATENCY_SAMPLES_OUT) \
-		--bursts 16 \
+		--requests 10 \
+		--bursts 10 \
+		--frequencySeconds 1 \
+		--randomized=true \
+		--visualization "CDF" \
+		--gatewayEndpoint https://xw5co672m6.execute-api.eu-west-2.amazonaws.com/default
+
+# Gateway 1: https://xw5co672m6.execute-api.eu-west-2.amazonaws.com/default
+# Gateway 2:
+# Gateway 3:
+# Gateway 4:
+# Gateway 5:
 
 build_and_run_client: build run_client
 

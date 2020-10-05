@@ -3,7 +3,10 @@ package visualization
 import (
 	"fmt"
 	"github.com/go-gota/gota/series"
+	"gonum.org/v1/gonum/stat"
+	"gonum.org/v1/plot/plotutil"
 	"log"
+	"sort"
 	"time"
 
 	"gonum.org/v1/plot"
@@ -11,7 +14,7 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-func PlotBurstLatencies(plotPath string, latencySeries series.Series, burstIndex int, duration time.Duration) {
+func plotBurstLatenciesHistogram(plotPath string, latencySeries series.Series, burstIndex int, duration time.Duration) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		panic(err)
@@ -32,7 +35,42 @@ func PlotBurstLatencies(plotPath string, latencySeries series.Series, burstIndex
 	}
 
 	plotInstance.Add(histogram)
-	if err := plotInstance.Save(5*vg.Inch, 5*vg.Inch, plotPath); err != nil {
+	if err := plotInstance.Save(6*vg.Inch, 6*vg.Inch, plotPath); err != nil {
+		panic(err)
+	}
+}
+
+func plotLatenciesCDF(plotPath string, latencySeries series.Series) {
+	plotInstance, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+
+	plotInstance.Title.Text = fmt.Sprintf("Empirical CDF of Latencies")
+	plotInstance.X.Label.Text = "portion of requests"
+	plotInstance.Y.Label.Text = "latency (ms)"
+
+	latencies := latencySeries.Float()
+	sort.Float64s(latencies)
+
+	latenciesToPlot := make(plotter.XYs, len(latencies))
+	for i := 0; i < len(latencies); i++ {
+		latenciesToPlot[i].X = stat.CDF(
+			latencies[i],
+			stat.Empirical,
+			latencies,
+			nil,
+		)
+		latenciesToPlot[i].Y = latencies[i]
+	}
+
+	err = plotutil.AddLinePoints(plotInstance, latenciesToPlot)
+	if err != nil {
+		panic(err)
+	}
+
+	// Save the plot to a PNG file.
+	if err := plotInstance.Save(6*vg.Inch, 6*vg.Inch, plotPath); err != nil {
 		panic(err)
 	}
 }
