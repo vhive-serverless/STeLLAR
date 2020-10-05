@@ -15,10 +15,10 @@ const (
 	timeout = 8 * time.Second
 )
 
-func CallAPIGateway(lambdaIncrementLimit int, payloadLengthBytes int) string {
+func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLengthBytes int) string {
 	req, err := http.NewRequest("GET",
 		fmt.Sprintf("%s/benchmarking?LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
-			CheckAndReturnEnvVar("AWS_API_GATEWAY_ENDPOINT"),
+			gatewayEndpoint,
 			lambdaIncrementLimit,
 			payloadLengthBytes,
 		),
