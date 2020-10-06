@@ -27,7 +27,7 @@ func burst(gatewayEndpoint string, burstsWaitGroup *sync.WaitGroup, burstRelativ
 	log.Printf("Starting burst %d (%v) on %v: making %d requests to API Gateway (%s).",
 		burstId,
 		burstRelativeDeltas[burstId],
-		time.Now().Format(time.StampNano),
+		time.Now().Format(time.RFC3339),
 		requests,
 		gatewayEndpoint,
 	)
