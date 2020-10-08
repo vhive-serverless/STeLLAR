@@ -7,6 +7,6 @@ This folder contains the necessary scripts to set up/stabilize a clean CloudLab 
 ## Stabilization
 1. `./stabilize.sh`
 2. Start a new login shell,
-3. `./setup_containerd.sh
+3. `./setup_containerd.sh`
 
 You can now start firecracker-containerd, clone the fccd-orchestrator repo, and start developing or testing.
