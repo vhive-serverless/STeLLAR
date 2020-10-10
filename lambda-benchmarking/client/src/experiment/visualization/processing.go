@@ -5,13 +5,14 @@ import (
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 	"io"
+	"lambda-benchmarking/client/experiment/configuration"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
 )
 
-func GenerateVisualization(visualizationType string, burstsNumber int, deltas []time.Duration, relativeDeltas []time.Duration, csvFile *os.File, path string) {
+func GenerateVisualization(visualizationType string, config configuration.ExperimentConfig, deltas []time.Duration, relativeDeltas []time.Duration, csvFile *os.File, path string) {
 	_, err := csvFile.Seek(0, io.SeekStart)
 	if err != nil {
 		log.Fatal(err)
@@ -20,7 +21,7 @@ func GenerateVisualization(visualizationType string, burstsNumber int, deltas []
 	df := dataframe.ReadCSV(csvFile)
 
 	if visualizationType == "histogram" {
-		for burstIndex := 0; burstIndex < burstsNumber; burstIndex++ {
+		for burstIndex := 0; burstIndex < config.Bursts; burstIndex++ {
 			burstDF := df.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 			plotBurstLatenciesHistogram(
 				filepath.Join(path, fmt.Sprintf("burst%d_delta%v_relativeDelta%v.png", burstIndex, deltas[burstIndex], relativeDeltas[burstIndex])),
@@ -33,6 +34,7 @@ func GenerateVisualization(visualizationType string, burstsNumber int, deltas []
 		plotLatenciesCDF(
 			filepath.Join(path, fmt.Sprintf("empirical_CDF.png")),
 			df.Col("Client Latency (ms)"),
+			config,
 		)
 	}
 }
