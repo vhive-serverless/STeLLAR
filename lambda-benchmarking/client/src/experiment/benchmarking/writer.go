@@ -2,7 +2,7 @@ package benchmarking
 
 import (
 	"encoding/csv"
-	"lambda-benchmarking/client/networking"
+	"lambda-benchmarking/client/experiment/networking"
 	"log"
 	"os"
 	"strconv"
@@ -15,18 +15,18 @@ type SafeWriter struct {
 	mux    sync.Mutex
 }
 
-var SafeWriterInstance *SafeWriter
-
-func (writer *SafeWriter) Initialize(file *os.File) {
-	SafeWriterInstance = &SafeWriter{Writer: csv.NewWriter(file)}
+func InitializeExperimentWriter(file *os.File) *SafeWriter {
+	safeExperimentWriter := &SafeWriter{Writer: csv.NewWriter(file)}
 	// writer.WriteRowToFile would fail because the instance Initialize was called on didn't have the Writer initialized
-	SafeWriterInstance.WriteRowToFile(
+	safeExperimentWriter.WriteRowToFile(
 		"AWS Request ID",
+		"Gateway Endpoint",
 		"Sent At",
 		"Received At",
 		"Client Latency (ms)",
 		"Burst ID",
 	)
+	return safeExperimentWriter
 }
 
 func (writer *SafeWriter) GenerateLatencyRecord(gatewayEndpoint string, requestsWaitGroup *sync.WaitGroup, lambdaIncrementLimit int, payloadLength int, burstId int) {
@@ -35,6 +35,7 @@ func (writer *SafeWriter) GenerateLatencyRecord(gatewayEndpoint string, requests
 
 	writer.WriteRowToFile(
 		networking.CallAPIGateway(gatewayEndpoint, lambdaIncrementLimit, payloadLength),
+		gatewayEndpoint,
 		start.Format(time.StampNano),
 		time.Now().Format(time.StampNano),
 		strconv.FormatInt(time.Since(start).Milliseconds(), 10),
@@ -44,12 +45,13 @@ func (writer *SafeWriter) GenerateLatencyRecord(gatewayEndpoint string, requests
 
 func (writer *SafeWriter) WriteRowToFile(
 	AwsRequestID string,
+	gatewayEndpoint string,
 	SentAt string,
 	ReceivedAt string,
 	ClientLatencyMs string,
 	BurstID string) {
 	writer.mux.Lock()
-	if err := writer.Writer.Write([]string{AwsRequestID, SentAt, ReceivedAt, ClientLatencyMs, BurstID}); err != nil {
+	if err := writer.Writer.Write([]string{AwsRequestID, gatewayEndpoint, SentAt, ReceivedAt, ClientLatencyMs, BurstID}); err != nil {
 		log.Fatal(err)
 	}
 	writer.mux.Unlock()

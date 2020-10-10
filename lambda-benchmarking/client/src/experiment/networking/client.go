@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	timeout = 8 * time.Second
+	timeout = 10 * time.Second
 )
 
 func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLengthBytes int) string {

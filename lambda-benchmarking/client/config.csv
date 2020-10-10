@@ -1,0 +1,6 @@
+Bursts,Burst Size,Payload Length (bytes),Lambda Increment Limit,Frequency (seconds),URLs
+5000,1,5,50000000,1,https://xw5co672m6.execute-api.eu-west-2.amazonaws.com/default https://2szwlepb1j.execute-api.eu-west-2.amazonaws.com/default https://q5boxdpf2d.execute-api.eu-west-2.amazonaws.com/default https://hydwazqc6j.execute-api.eu-west-2.amazonaws.com/default
+50,100,5,50000000,1,https://zcnmx4h9da.execute-api.eu-west-2.amazonaws.com/default
+5000,1,5,50000000,600,
+50,100,5,50000000,600,
+167,10 20,5,50000000,600,

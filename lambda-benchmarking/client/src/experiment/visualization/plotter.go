@@ -5,6 +5,7 @@ import (
 	"github.com/go-gota/gota/series"
 	"gonum.org/v1/gonum/stat"
 	"gonum.org/v1/plot/plotutil"
+	"lambda-benchmarking/client/experiment/configuration"
 	"log"
 	"sort"
 	"time"
@@ -35,26 +36,27 @@ func plotBurstLatenciesHistogram(plotPath string, latencySeries series.Series, b
 	}
 
 	plotInstance.Add(histogram)
-	if err := plotInstance.Save(6*vg.Inch, 6*vg.Inch, plotPath); err != nil {
+	if err := plotInstance.Save(5*vg.Inch, 5*vg.Inch, plotPath); err != nil {
 		panic(err)
 	}
 }
 
-func plotLatenciesCDF(plotPath string, latencySeries series.Series) {
+func plotLatenciesCDF(plotPath string, latencySeries series.Series, config configuration.ExperimentConfig) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
 
-	plotInstance.Title.Text = fmt.Sprintf("Empirical CDF of Latencies")
+	plotInstance.Title.Text = fmt.Sprintf("Freq ~%ds, Burst sizes %s", config.FrequencySeconds, config.BurstSizes)
 	plotInstance.Y.Label.Text = "portion of requests"
+	plotInstance.Y.Min = 0.
+	plotInstance.Y.Max = 1.
 	plotInstance.X.Label.Text = "latency (ms)"
-	plotInstance.X.Min = 0
+	plotInstance.X.Min = 0.
+	plotInstance.X.Max = 2000.
 
 	latencies := latencySeries.Float()
 	sort.Float64s(latencies)
-
-	plotInstance.X.Max = latencies[len(latencies)-1]
 
 	latenciesToPlot := make(plotter.XYs, len(latencies))
 	for i := 0; i < len(latencies); i++ {
@@ -73,7 +75,7 @@ func plotLatenciesCDF(plotPath string, latencySeries series.Series) {
 	}
 
 	// Save the plot to a PNG file.
-	if err := plotInstance.Save(6*vg.Inch, 6*vg.Inch, plotPath); err != nil {
+	if err := plotInstance.Save(5*vg.Inch, 5*vg.Inch, plotPath); err != nil {
 		panic(err)
 	}
 }

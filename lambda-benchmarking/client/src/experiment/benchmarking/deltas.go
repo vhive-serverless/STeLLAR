@@ -25,7 +25,7 @@ func CreateBurstDeltas(frequencySeconds int, burstsNumber int, randomization boo
 				// scale and shift the standard normal distribution by frequencySeconds
 				// make sure result is positive
 				sampleBurst := math.Max(rand.NormFloat64()*float64(frequencySeconds)+float64(frequencySeconds), 0)
-				burstDeltas[i] = time.Duration(sampleBurst * 1000) * time.Millisecond
+				burstDeltas[i] = time.Duration(sampleBurst*1000) * time.Millisecond
 			} else {
 				burstDeltas[i] = time.Duration(frequencySeconds) * time.Second
 			}
