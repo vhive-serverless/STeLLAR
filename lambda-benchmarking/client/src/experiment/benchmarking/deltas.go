@@ -6,15 +6,6 @@ import (
 	"time"
 )
 
-func MakeBurstDeltasRelative(burstDeltas []time.Duration) []time.Duration {
-	burstRelativeDeltas := []time.Duration{burstDeltas[0]}
-	for _, burstDelta := range burstDeltas[1:] {
-		burstRelativeDeltas = append(burstRelativeDeltas,
-			burstRelativeDeltas[len(burstRelativeDeltas)-1]+burstDelta)
-	}
-	return burstRelativeDeltas
-}
-
 func CreateBurstDeltas(frequencySeconds int, burstsNumber int, randomization bool) []time.Duration {
 	var burstDeltas []time.Duration
 	if frequencySeconds != -1 {

@@ -20,11 +20,10 @@ func RunExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath str
 	defer csvFile.Close()
 
 	burstDeltas := benchmarking.CreateBurstDeltas(config.FrequencySeconds, config.Bursts, randomized)
-	burstRelativeDeltas := benchmarking.MakeBurstDeltasRelative(burstDeltas)
 
 	log.Printf("Starting experiment %d...", config.Id)
 	safeExperimentWriter := benchmarking.InitializeExperimentWriter(csvFile)
-	benchmarking.RunProfiler(config, burstRelativeDeltas, safeExperimentWriter)
+	benchmarking.RunProfiler(config, burstDeltas, safeExperimentWriter)
 
 	log.Printf("Experiment %d: flushing results to CSV file.", config.Id)
 	safeExperimentWriter.Writer.Flush()
@@ -38,7 +37,6 @@ func RunExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath str
 			visualizationType,
 			config,
 			burstDeltas,
-			burstRelativeDeltas,
 			csvFile,
 			experimentDirectoryPath,
 		)
