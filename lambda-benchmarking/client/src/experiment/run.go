@@ -2,16 +2,39 @@ package experiment
 
 import (
 	"fmt"
+	"github.com/go-gota/gota/dataframe"
 	"lambda-benchmarking/client/experiment/benchmarking"
 	"lambda-benchmarking/client/experiment/configuration"
 	"lambda-benchmarking/client/experiment/visualization"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
-func RunExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath string, config configuration.ExperimentConfig,
+func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentIndex int, experimentsWaitGroup *sync.WaitGroup,
+	outputDirectoryPath string, gateways []string, experimentsGatewayIndex int, visualization string, randomization bool) int {
+	bursts, _ := df.Elem(experimentIndex, 0).Int()
+	burstSize := strings.Split(df.Elem(experimentIndex, 1).String(), " ")
+	payloadLengthBytes, _ := df.Elem(experimentIndex, 2).Int()
+	lambdaIncrementLimit, _ := df.Elem(experimentIndex, 3).Int()
+	frequencySeconds, _ := df.Elem(experimentIndex, 4).Int()
+	endpointsAssigned, _ := df.Elem(experimentIndex, 5).Int()
+
+	go runExperiment(experimentsWaitGroup, outputDirectoryPath, configuration.ExperimentConfig{
+		Bursts:               bursts,
+		BurstSizes:           burstSize,
+		PayloadLengthBytes:   payloadLengthBytes,
+		FrequencySeconds:     frequencySeconds,
+		LambdaIncrementLimit: lambdaIncrementLimit,
+		GatewayEndpoints:     gateways[experimentsGatewayIndex : experimentsGatewayIndex+endpointsAssigned],
+		Id:                   experimentIndex,
+	}, visualization, randomization)
+	return endpointsAssigned
+}
+
+func runExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath string, config configuration.ExperimentConfig,
 	visualizationType string, randomized bool) {
 	defer experimentsWaitGroup.Done()
 
