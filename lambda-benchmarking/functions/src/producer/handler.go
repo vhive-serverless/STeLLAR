@@ -69,8 +69,7 @@ func main() {
 	lambda.Start(BenchmarkingProducer)
 }
 
-//Add a helper for handling errors. This logs any error to os.Stderr and returns a 500
-//Internal Server Error response that the AWS API Gateway understands.
+//This logs any error to os.Stderr and returns a 500 Internal Server Error response that the AWS API Gateway understands.
 var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
 
 func serverError(err error) (events.APIGatewayProxyResponse, error) {
