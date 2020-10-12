@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func GenerateVisualization(visualizationType string, config configuration.ExperimentConfig, deltas []time.Duration, relativeDeltas []time.Duration, csvFile *os.File, path string) {
+func GenerateVisualization(visualizationType string, config configuration.ExperimentConfig, deltas []time.Duration, csvFile *os.File, path string) {
 	_, err := csvFile.Seek(0, io.SeekStart)
 	if err != nil {
 		log.Fatal(err)
@@ -24,7 +24,7 @@ func GenerateVisualization(visualizationType string, config configuration.Experi
 		for burstIndex := 0; burstIndex < config.Bursts; burstIndex++ {
 			burstDF := df.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 			plotBurstLatenciesHistogram(
-				filepath.Join(path, fmt.Sprintf("burst%d_delta%v_relativeDelta%v.png", burstIndex, deltas[burstIndex], relativeDeltas[burstIndex])),
+				filepath.Join(path, fmt.Sprintf("burst%d_delta%v.png", burstIndex, deltas[burstIndex])),
 				burstDF.Col("Client Latency (ms)"),
 				burstIndex,
 				deltas[burstIndex],

@@ -29,13 +29,13 @@ func InitializeExperimentWriter(file *os.File) *SafeWriter {
 	return safeExperimentWriter
 }
 
-func (writer *SafeWriter) GenerateLatencyRecord(gatewayEndpoint string, requestsWaitGroup *sync.WaitGroup, lambdaIncrementLimit int, payloadLength int, burstId int) {
+func (writer *SafeWriter) GenerateLatencyRecord(gatewayEndpointURL string, requestsWaitGroup *sync.WaitGroup, lambdaIncrementLimit int, payloadLength int, burstId int) {
 	defer requestsWaitGroup.Done()
 	start := time.Now()
 
 	writer.WriteRowToFile(
-		networking.CallAPIGateway(gatewayEndpoint, lambdaIncrementLimit, payloadLength),
-		gatewayEndpoint,
+		networking.CallAPIGateway(gatewayEndpointURL, lambdaIncrementLimit, payloadLength),
+		gatewayEndpointURL,
 		start.Format(time.StampNano),
 		time.Now().Format(time.StampNano),
 		strconv.FormatInt(time.Since(start).Milliseconds(), 10),

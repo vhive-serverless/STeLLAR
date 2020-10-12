@@ -16,7 +16,7 @@ const (
 )
 
 func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLengthBytes int) string {
-	req, err := http.NewRequest("GET",
+	req, err := http.NewRequest("POST",
 		fmt.Sprintf("%s/benchmarking?LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
 			gatewayEndpoint,
 			lambdaIncrementLimit,
