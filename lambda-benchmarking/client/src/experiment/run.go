@@ -64,6 +64,7 @@ func runExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath str
 			experimentDirectoryPath,
 		)
 	}
+	log.Printf("Experiment %d: done", config.Id)
 }
 
 func createExperimentLatenciesFile(experimentDirectoryPath string) *os.File {
