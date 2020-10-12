@@ -16,8 +16,10 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 		estimateTime += burstDelta
 	}
 
-	log.Printf("Experiment %d: scheduling %d bursts, estimated to complete on %v", config.Id, config.Bursts,
-		time.Now().Add(estimateTime).Format(time.RFC3339))
+	log.Printf("Experiment %d: scheduling %d bursts with freq %ds and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
+		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
+		config.Bursts/len(config.GatewayEndpoints)*config.FrequencySeconds,
+		time.Now().Add(estimateTime).UTC().Format(time.RFC3339))
 
 	var burstsWaitGroup sync.WaitGroup
 	burstId := 0
@@ -44,7 +46,7 @@ func burst(burstsWaitGroup *sync.WaitGroup, config configuration.ExperimentConfi
 	safeExperimentWriter *SafeWriter) {
 	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.eu-west-2.amazonaws.com/prod", gatewayEndpointID)
 	defer burstsWaitGroup.Done()
-	log.Printf("Experiment %d: starting burst %d: making %d requests to API Gateway (%s).",
+	log.Printf("Experiment %d: starting burst %d, making %d requests to API Gateway (%s).",
 		config.Id,
 		burstId,
 		requests,

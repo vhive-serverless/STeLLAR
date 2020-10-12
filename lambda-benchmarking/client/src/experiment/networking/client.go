@@ -39,7 +39,7 @@ func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLen
 		log.Fatal(err)
 	}
 
-	return processResponse(resp)
+	return processResponse(resp, gatewayEndpoint)
 }
 
 type LambdaFunctionResponse struct {
@@ -47,7 +47,7 @@ type LambdaFunctionResponse struct {
 	Payload      []byte `json:"Payload"`
 }
 
-func processResponse(resp *http.Response) string {
+func processResponse(resp *http.Response, endpoint string) string {
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
 			log.Fatal(err)
@@ -60,7 +60,7 @@ func processResponse(resp *http.Response) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("API Gateway response had status %s:\n %s", resp.Status, resp.Body)
+		log.Fatalf("API Gateway response from %s had status %s:\n %s", endpoint, resp.Status, resp.Body)
 	}
 
 	var lambdaFunctionResponse LambdaFunctionResponse

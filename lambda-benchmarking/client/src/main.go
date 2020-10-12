@@ -19,6 +19,7 @@ var randomizationFlag = flag.Bool("randomized", true, "If true, sample deltas fr
 var visualizationFlag = flag.String("visualization", "CDF", "The type of visualization to create (per-burst histogram \"histogram\" or empirical CDF \"CDF\").")
 var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written.")
 var configPathFlag = flag.String("configPath", "config.csv", "Configuration file with details of experiments.")
+var gatewaysPathFlag = flag.String("gatewaysPath", "gateways.csv", "File containing ids of gateways to be used.")
 
 func main() {
 	//rand.Seed(time.Now().Unix()) not sure if we want irreproducible deltas?
@@ -37,11 +38,19 @@ func main() {
 	log.Printf("Parameters entered: visualization %v, randomization %v, config path was set to `%s`, output path was set to `%s`.",
 		*visualizationFlag, *randomizationFlag, *configPathFlag, *outputPathFlag)
 
+	gatewaysFile, err := os.Open(*gatewaysPathFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	df := dataframe.ReadCSV(gatewaysFile)
+	gateways := df.Col("Gateway IDs").Records()
+	experimentsGatewayIndex:=0
+
 	configFile, err := os.Open(*configPathFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
-	df := dataframe.ReadCSV(configFile)
+	df = dataframe.ReadCSV(configFile)
 
 	var experimentsWaitGroup sync.WaitGroup
 	for experimentIndex := 0; experimentIndex < df.Nrow(); experimentIndex++ {
@@ -50,7 +59,7 @@ func main() {
 		payloadLengthBytes, _ := df.Elem(experimentIndex, 2).Int()
 		lambdaIncrementLimit, _ := df.Elem(experimentIndex, 3).Int()
 		frequencySeconds, _ := df.Elem(experimentIndex, 4).Int()
-		gatewayEndpoints := strings.Split(df.Elem(experimentIndex, 5).String(), " ")
+		endpointsAssigned, _ := df.Elem(experimentIndex, 5).Int()
 
 		experimentsWaitGroup.Add(1)
 		go experiment.RunExperiment(&experimentsWaitGroup, outputDirectoryPath, configuration.ExperimentConfig{
@@ -59,9 +68,11 @@ func main() {
 			PayloadLengthBytes:   payloadLengthBytes,
 			FrequencySeconds:     frequencySeconds,
 			LambdaIncrementLimit: lambdaIncrementLimit,
-			GatewayEndpoints:     gatewayEndpoints,
+			GatewayEndpoints:     gateways[experimentsGatewayIndex:experimentsGatewayIndex+endpointsAssigned],
 			Id:                   experimentIndex,
 		}, *visualizationFlag, *randomizationFlag)
+
+		experimentsGatewayIndex+=endpointsAssigned
 	}
 	experimentsWaitGroup.Wait()
 
