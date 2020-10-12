@@ -13,7 +13,7 @@ rm ${NAME}.zip
 zip ${NAME}.zip producer-handler
 mkdir -p ${DIRECTORY_PATH}
 
-for ((deployIndex = 0; deployIndex < $1; deployIndex++)); do
+for ((deployIndex = $1; deployIndex < $2; deployIndex++)); do
   echo "Creating producer lambda: ${NAME}-${deployIndex}"
   /usr/local/bin/aws lambda create-function \
     --function-name "${NAME}-${deployIndex}" \
@@ -82,7 +82,7 @@ for ((deployIndex = 0; deployIndex < $1; deployIndex++)); do
     --source-arn "${APIARN}/prod/ANY/benchmarking" \
     --region ${REGION} >>"${LOG_PATH}"
 
-  echo "${APIID}" >>"${GATEWAYS_PATH}"
+  echo -n "${APIID} " >>"${GATEWAYS_PATH}"
 done
 
-echo "All $1 producer Lambda functions were deployed to AWS."
+echo "All producer Lambda functions from $1 to $2 were deployed to AWS."

@@ -2,13 +2,13 @@ download_aws_lambda_library:
 	@go get github.com/aws/aws-lambda-go/lambda
 
 deploy:
-	./deployment_scripts/deploy-producers.sh 25
+	./deployment_scripts/deploy-producers.sh 0 75
 
 update:
-	./deployment_scripts/update-producers.sh 25
+	./deployment_scripts/update-producers.sh 0 75
 
 remove:
-	./deployment_scripts/remove-producers.sh 25
+	./deployment_scripts/remove-producers.sh 0 75
 
 edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
