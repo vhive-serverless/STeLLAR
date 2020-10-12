@@ -82,7 +82,7 @@ for ((deployIndex = 0; deployIndex < $1; deployIndex++)); do
     --source-arn "${APIARN}/prod/ANY/benchmarking" \
     --region ${REGION} >>"${LOG_PATH}"
 
-  echo "https://${APIID}.execute-api.${REGION}.amazonaws.com/${STAGE}" >>"${GATEWAYS_PATH}"
+  echo "${APIID}" >>"${GATEWAYS_PATH}"
 done
 
 echo "All $1 producer Lambda functions were deployed to AWS."
