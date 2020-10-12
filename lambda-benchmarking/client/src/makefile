@@ -6,7 +6,8 @@ run_client:
 	@./client \
 		--outputPath "../latency-samples" \
 		--configPath "../config.csv"\
-		--gatewaysPath "../gateways.csv"
+		--gatewaysPath "../gateways.csv" \
+		--runExperiment 2
 
 build_and_run_client: build run_client
 
