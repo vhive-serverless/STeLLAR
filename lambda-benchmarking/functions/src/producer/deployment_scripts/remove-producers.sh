@@ -1,7 +1,7 @@
 #!/bin/bash
 NAME=benchmarking
 
-for ((deployIndex = 0; deployIndex < $1; deployIndex++)); do
+for ((deployIndex = $1; deployIndex < $2; deployIndex++)); do
   echo "Removing producer ${NAME}-$deployIndex"
   /usr/local/bin/aws lambda delete-function \
     --function-name "${NAME}-$deployIndex"
@@ -16,4 +16,4 @@ for ((deployIndex = 0; deployIndex < $1; deployIndex++)); do
     --rest-api-id "${APIID}"
 done
 
-echo "All $1 producer Lambda functions were removed from AWS!"
+echo "All producer Lambda functions from $1 to $2 were removed from AWS!"

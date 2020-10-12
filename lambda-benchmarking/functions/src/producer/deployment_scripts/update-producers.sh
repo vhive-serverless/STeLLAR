@@ -8,11 +8,11 @@ rm $NAME.zip
 zip $NAME.zip producer-handler
 mkdir -p $DIRECTORY_PATH
 
-for ((deployIndex = 0; deployIndex < $1; deployIndex++)); do
+for ((deployIndex = $1; deployIndex < $2; deployIndex++)); do
   echo "Updating lambda producer $NAME-$deployIndex with newest code"
   /usr/local/bin/aws lambda update-function-code \
     --function-name "$NAME-$deployIndex" \
     --zip-file fileb://$NAME.zip >>"${LOG_PATH}"
 done
 
-echo "All $1 producer Lambda functions were updated on AWS."
+echo "All producer Lambda functions from $1 to $2 were updated on AWS."
