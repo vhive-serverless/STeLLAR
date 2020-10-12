@@ -18,7 +18,7 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 
 	log.Printf("Experiment %d: scheduling %d bursts with freq %ds and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
-		config.Bursts/len(config.GatewayEndpoints)*config.FrequencySeconds,
+		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*float64(config.FrequencySeconds),
 		time.Now().Add(estimateTime).UTC().Format(time.RFC3339))
 
 	var burstsWaitGroup sync.WaitGroup
