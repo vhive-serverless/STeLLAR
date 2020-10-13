@@ -5,7 +5,7 @@ type ExperimentConfig struct {
 	BurstSizes           []string
 	PayloadLengthBytes   int
 	FrequencySeconds     int
-	LambdaIncrementLimit int
+	LambdaIncrementLimit []string
 	GatewayEndpoints     []string
 	Id                   int
 }

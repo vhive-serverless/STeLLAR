@@ -11,7 +11,7 @@ import (
 
 // TriggerRelativeAsyncBursts
 func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
-	estimateTime := estimateDuration(config, deltas)
+	estimateTime := estimateTotalDuration(config, deltas)
 
 	log.Printf("Experiment %d: scheduling %d bursts with freq %ds and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
@@ -28,7 +28,8 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 		for gatewayId := 0; gatewayId < len(config.GatewayEndpoints) && burstId < config.Bursts; gatewayId++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
 			burstSize, _ := strconv.Atoi(config.BurstSizes[deltaIndex%len(config.BurstSizes)])
-			burst(config, burstId, burstSize, config.GatewayEndpoints[gatewayId], safeExperimentWriter)
+			serviceLoad, _ := strconv.Atoi(config.LambdaIncrementLimit[deltaIndex%len(config.LambdaIncrementLimit)])
+			burst(config, burstId, burstSize, config.GatewayEndpoints[gatewayId], serviceLoad, safeExperimentWriter)
 			burstId++
 		}
 
@@ -37,7 +38,7 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 	}
 }
 
-func estimateDuration(config configuration.ExperimentConfig, deltas []time.Duration) time.Duration {
+func estimateTotalDuration(config configuration.ExperimentConfig, deltas []time.Duration) time.Duration {
 	estimateTime := deltas[0]
 	for _, burstDelta := range deltas[1 : config.Bursts/len(config.GatewayEndpoints)] {
 		estimateTime += burstDelta
@@ -45,20 +46,21 @@ func estimateDuration(config configuration.ExperimentConfig, deltas []time.Durat
 	return estimateTime
 }
 
-func burst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string,
+func burst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string, serviceLoad int,
 	safeExperimentWriter *SafeWriter) {
-	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.eu-west-2.amazonaws.com/prod", gatewayEndpointID)
-	log.Printf("Experiment %d: starting burst %d, making %d requests to API Gateway (%s).",
+	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.us-east-2.amazonaws.com/prod", gatewayEndpointID)
+	log.Printf("Experiment %d: starting burst %d, making %d requests with service load %v to API Gateway (%s).",
 		config.Id,
 		burstId,
 		requests,
+		serviceLoad,
 		gatewayEndpointURL,
 	)
 
 	var requestsWaitGroup sync.WaitGroup
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
-		go safeExperimentWriter.GenerateLatencyRecord(gatewayEndpointURL, &requestsWaitGroup, config.LambdaIncrementLimit,
+		go safeExperimentWriter.GenerateLatencyRecord(gatewayEndpointURL, &requestsWaitGroup, serviceLoad,
 			config.PayloadLengthBytes, burstId)
 	}
 	requestsWaitGroup.Wait()
