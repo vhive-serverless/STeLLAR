@@ -11,41 +11,43 @@ import (
 
 // TriggerRelativeAsyncBursts
 func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
-	estimateTime := deltas[0]
-	for _, burstDelta := range deltas[1 : config.Bursts/len(config.GatewayEndpoints)] {
-		estimateTime += burstDelta
-	}
+	estimateTime := estimateDuration(config, deltas)
 
 	log.Printf("Experiment %d: scheduling %d bursts with freq %ds and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
 		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*float64(config.FrequencySeconds),
 		time.Now().Add(estimateTime).UTC().Format(time.RFC3339))
 
-	var burstsWaitGroup sync.WaitGroup
 	burstId := 0
 	deltaIndex := 0
 	// Schedule all bursts for this experiment
 	for burstId < config.Bursts {
+		time.Sleep(deltas[deltaIndex])
+
 		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
 		for gatewayId := 0; gatewayId < len(config.GatewayEndpoints) && burstId < config.Bursts; gatewayId++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
 			burstSize, _ := strconv.Atoi(config.BurstSizes[deltaIndex%len(config.BurstSizes)])
-			burstsWaitGroup.Add(1)
-			go burst(&burstsWaitGroup, config, burstId, burstSize, config.GatewayEndpoints[gatewayId], safeExperimentWriter)
+			burst(config, burstId, burstSize, config.GatewayEndpoints[gatewayId], safeExperimentWriter)
 			burstId++
 		}
 
-		// After all gateways have been used for bursts, a new refresh period starts right away irrespective of burst statuses
-		time.Sleep(deltas[deltaIndex])
-		burstsWaitGroup.Wait()
+		// After all gateways have been used for bursts, sleep again
 		deltaIndex++
 	}
 }
 
-func burst(burstsWaitGroup *sync.WaitGroup, config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string,
+func estimateDuration(config configuration.ExperimentConfig, deltas []time.Duration) time.Duration {
+	estimateTime := deltas[0]
+	for _, burstDelta := range deltas[1 : config.Bursts/len(config.GatewayEndpoints)] {
+		estimateTime += burstDelta
+	}
+	return estimateTime
+}
+
+func burst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string,
 	safeExperimentWriter *SafeWriter) {
 	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.eu-west-2.amazonaws.com/prod", gatewayEndpointID)
-	defer burstsWaitGroup.Done()
 	log.Printf("Experiment %d: starting burst %d, making %d requests to API Gateway (%s).",
 		config.Id,
 		burstId,

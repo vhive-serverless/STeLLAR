@@ -33,9 +33,10 @@ func main() {
 	logFile := setupClientLogging(outputDirectoryPath)
 	defer logFile.Close()
 
-	log.Printf("Started benchmarking HTTP client on %v.", time.Now().Format(time.RFC850))
-	log.Printf("Parameters entered: visualization %v, randomization %v, config path was set to `%s`, output path was set to `%s`, runExperiment is %d",
-		*visualizationFlag, *randomizationFlag, *configPathFlag, *outputPathFlag, *runExperimentFlag)
+	log.Printf("Started benchmarking HTTP client on %v.", time.Now().UTC().Format(time.RFC850))
+	log.Printf(`Parameters entered: visualization %v, randomization %v, config path was set to %s,
+		output path was set to %s, runExperiment is %d`, *visualizationFlag, *randomizationFlag, *configPathFlag,
+		*outputPathFlag, *runExperimentFlag)
 
 	gatewaysFile, err := os.Open(*gatewaysPathFlag)
 	if err != nil {
