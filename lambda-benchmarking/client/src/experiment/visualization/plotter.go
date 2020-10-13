@@ -47,16 +47,23 @@ func plotLatenciesCDF(plotPath string, latencySeries series.Series, config confi
 		panic(err)
 	}
 
+	maxLatencyPlotted := 2000.0
+
 	plotInstance.Title.Text = fmt.Sprintf("Freq ~%ds, Burst sizes %s", config.FrequencySeconds, config.BurstSizes)
 	plotInstance.Y.Label.Text = "portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.
 	plotInstance.X.Label.Text = "latency (ms)"
 	plotInstance.X.Min = 0.
-	plotInstance.X.Max = 2000.
+	plotInstance.X.Max = maxLatencyPlotted
 
 	latencies := latencySeries.Float()
 	sort.Float64s(latencies)
+
+	var maxIndexKept int
+	for maxIndexKept = 0; maxIndexKept < len(latencies) && latencies[maxIndexKept] <= maxLatencyPlotted; maxIndexKept++ {
+	}
+	latencies = latencies[:maxIndexKept]
 
 	latenciesToPlot := make(plotter.XYs, len(latencies))
 	for i := 0; i < len(latencies); i++ {

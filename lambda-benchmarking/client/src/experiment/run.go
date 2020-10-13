@@ -18,7 +18,7 @@ func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentInde
 	bursts, _ := df.Elem(experimentIndex, 0).Int()
 	burstSize := strings.Split(df.Elem(experimentIndex, 1).String(), " ")
 	payloadLengthBytes, _ := df.Elem(experimentIndex, 2).Int()
-	lambdaIncrementLimit, _ := df.Elem(experimentIndex, 3).Int()
+	lambdaIncrementLimit := strings.Split(df.Elem(experimentIndex, 3).String(), " ")
 	frequencySeconds, _ := df.Elem(experimentIndex, 4).Int()
 	endpointsAssigned, _ := df.Elem(experimentIndex, 5).Int()
 
