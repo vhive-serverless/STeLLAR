@@ -77,6 +77,6 @@ func serverError(err error) (events.APIGatewayProxyResponse, error) {
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusInternalServerError,
-		Body:       http.StatusText(http.StatusInternalServerError),
+		Body:       err.Error(),
 	}, nil
 }

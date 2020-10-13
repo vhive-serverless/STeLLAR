@@ -1,16 +1,12 @@
 download_aws_lambda_library:
 	@go get github.com/aws/aws-lambda-go/lambda
 
-deploy:
-	./deployment_scripts/deploy-producers.sh 0 75
-
-update:
-	./deployment_scripts/update-producers.sh 0 75
-
-remove:
-	./deployment_scripts/remove-producers.sh 0 75
+build:
+	@GOOS=linux go build -v -race -o producer-handler handler.go
+	@rm -f benchmarking.zip
+	@zip benchmarking.zip producer-handler
 
 edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
 
-.PHONY: download_aws_lambda_library deploy_to_aws update_aws_deployment remove_from_aws edit_local_env_vars
+.PHONY: download_aws_lambda_library edit_local_env_vars build
