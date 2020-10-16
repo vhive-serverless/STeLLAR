@@ -1,53 +1,42 @@
 package benchmarking
 
 import (
+	"log"
 	"math"
 	"math/rand"
 	"time"
 )
 
-func CreateBurstDeltas(frequencySeconds int, burstsNumber int, randomization bool) []time.Duration {
+func CreateBurstDeltas(frequencySeconds float64, burstsNumber int, iatType string) []time.Duration {
+	step := 1.0
+	maxStep := frequencySeconds
+	runningDelta := math.Min(maxStep, frequencySeconds)
+
 	var burstDeltas []time.Duration
-	if frequencySeconds != -1 {
-		// latency profiler run, delta is constant
-		burstDeltas = make([]time.Duration, burstsNumber)
-		for i := range burstDeltas {
-			if randomization {
-				sampleBurst := getGaussianSleepTime(frequencySeconds)
-				burstDeltas[i] = time.Duration(sampleBurst*1000) * time.Millisecond
+	burstDeltas = make([]time.Duration, burstsNumber)
+	for i := range burstDeltas {
+		switch iatType {
+		case "stochastic":
+			// TODO: allow customization for mean (currently frequencySeconds) and stddev (currently frequencySeconds)
+			burstDeltas[i] = time.Duration(getGaussianSleepTime(frequencySeconds)*1000) * time.Millisecond
+		case "deterministic":
+			burstDeltas[i] = time.Duration(frequencySeconds) * time.Second
+		case "step":
+			// TODO: TEST THIS and allow customization for runningDelta & step
+			if i == 0 {
+				burstDeltas[0] = time.Duration(runningDelta) * time.Second
 			} else {
-				burstDeltas[i] = time.Duration(frequencySeconds) * time.Second
+				burstDeltas[i] = time.Duration(math.Min(maxStep, runningDelta)) * time.Second
 			}
+			runningDelta += step
+		default:
+			log.Fatalf("Unrecognized inter-arrival time type %s", iatType)
 		}
-	} else {
-		// cold start delta identifier run, delta varies so that the exact timeout can be identified
-		burstDeltas = []time.Duration{
-			time.Duration(0), // COLD START
-			500 * time.Millisecond,
-			time.Second, // WAIT A BIT MORE FOR INITIALIZATION
-			time.Second,
-			time.Second,
-			5 * time.Second,
-			15 * time.Second,
-			30 * time.Second,
-			45 * time.Second,
-			time.Minute,
-			5 * time.Minute,
-			8 * time.Minute,
-			10 * time.Minute,
-			12 * time.Minute,
-			20 * time.Minute,
-			30 * time.Minute,
-			time.Hour,
-			2 * time.Hour,
-		}
-		burstDeltas = burstDeltas[:burstsNumber]
 	}
 	return burstDeltas
 }
 
-// scale and shift the standard normal distribution by frequencySeconds
-// make sure result is positive
-func getGaussianSleepTime(frequencySeconds int) float64 {
-	return math.Max(rand.NormFloat64()*float64(frequencySeconds)+float64(frequencySeconds), 0)
+// scale and shift the standard normal distribution, make sure result is positive
+func getGaussianSleepTime(frequencySeconds float64) float64 {
+	return math.Max(rand.NormFloat64()*frequencySeconds+frequencySeconds, 0)
 }
