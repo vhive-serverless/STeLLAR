@@ -14,13 +14,14 @@ import (
 )
 
 func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentIndex int, experimentsWaitGroup *sync.WaitGroup,
-	outputDirectoryPath string, gateways []string, experimentsGatewayIndex int, visualization string, randomization bool) int {
+	outputDirectoryPath string, gateways []string, experimentsGatewayIndex int, visualization string) int {
 	bursts, _ := df.Elem(experimentIndex, 0).Int()
 	burstSize := strings.Split(df.Elem(experimentIndex, 1).String(), " ")
-	payloadLengthBytes, _ := df.Elem(experimentIndex, 2).Int()
-	lambdaIncrementLimit := strings.Split(df.Elem(experimentIndex, 3).String(), " ")
-	frequencySeconds, _ := df.Elem(experimentIndex, 4).Int()
-	endpointsAssigned, _ := df.Elem(experimentIndex, 5).Int()
+	iatType := df.Elem(experimentIndex, 2).String()
+	payloadLengthBytes, _ := df.Elem(experimentIndex, 3).Int()
+	lambdaIncrementLimit := strings.Split(df.Elem(experimentIndex, 4).String(), " ")
+	frequencySeconds := df.Elem(experimentIndex, 5).Float()
+	endpointsAssigned, _ := df.Elem(experimentIndex, 6).Int()
 
 	go runExperiment(experimentsWaitGroup, outputDirectoryPath, configuration.ExperimentConfig{
 		Bursts:               bursts,
@@ -30,19 +31,20 @@ func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentInde
 		LambdaIncrementLimit: lambdaIncrementLimit,
 		GatewayEndpoints:     gateways[experimentsGatewayIndex : experimentsGatewayIndex+endpointsAssigned],
 		Id:                   experimentIndex,
-	}, visualization, randomization)
+		IatType:              iatType,
+	}, visualization)
 	return endpointsAssigned
 }
 
 func runExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath string, config configuration.ExperimentConfig,
-	visualizationType string, randomized bool) {
+	visualizationType string) {
 	defer experimentsWaitGroup.Done()
 
 	experimentDirectoryPath := createExperimentDirectory(outputDirectoryPath, config.Id)
 	csvFile := createExperimentLatenciesFile(experimentDirectoryPath)
 	defer csvFile.Close()
 
-	burstDeltas := benchmarking.CreateBurstDeltas(config.FrequencySeconds, config.Bursts, randomized)
+	burstDeltas := benchmarking.CreateBurstDeltas(config.FrequencySeconds, config.Bursts, config.IatType)
 
 	log.Printf("Starting experiment %d...", config.Id)
 	safeExperimentWriter := benchmarking.InitializeExperimentWriter(csvFile)

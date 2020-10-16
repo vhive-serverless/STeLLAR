@@ -13,7 +13,6 @@ import (
 )
 
 //Note: those variables are pointers
-var randomizationFlag = flag.Bool("randomized", true, "If true, sample deltas from a scaled and shifted standard normal distribution.")
 var visualizationFlag = flag.String("visualization", "CDF", "The type of visualization to create (per-burst histogram \"histogram\" or empirical CDF \"CDF\").")
 var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written.")
 var configPathFlag = flag.String("configPath", "config.csv", "Configuration file with details of experiments.")
@@ -34,8 +33,8 @@ func main() {
 	defer logFile.Close()
 
 	log.Printf("Started benchmarking HTTP client on %v.", time.Now().UTC().Format(time.RFC850))
-	log.Printf(`Parameters entered: visualization %v, randomization %v, config path was set to %s,
-		output path was set to %s, runExperiment is %d`, *visualizationFlag, *randomizationFlag, *configPathFlag,
+	log.Printf(`Parameters entered: visualization %v, config path was set to %s,
+		output path was set to %s, runExperiment is %d`, *visualizationFlag, *configPathFlag,
 		*outputPathFlag, *runExperimentFlag)
 
 	gatewaysFile, err := os.Open(*gatewaysPathFlag)
@@ -59,12 +58,12 @@ func main() {
 		}
 		experimentsWaitGroup.Add(1)
 		experiment.ExtractConfigurationAndRunExperiment(df, *runExperimentFlag, &experimentsWaitGroup, outputDirectoryPath,
-			gateways, experimentsGatewayIndex, *visualizationFlag, *randomizationFlag)
+			gateways, experimentsGatewayIndex, *visualizationFlag)
 	} else {
 		for experimentIndex := 0; experimentIndex < df.Nrow(); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
 			endpointsAssigned := experiment.ExtractConfigurationAndRunExperiment(df, experimentIndex, &experimentsWaitGroup,
-				outputDirectoryPath, gateways, experimentsGatewayIndex, *visualizationFlag, *randomizationFlag)
+				outputDirectoryPath, gateways, experimentsGatewayIndex, *visualizationFlag)
 
 			experimentsGatewayIndex += endpointsAssigned
 		}
