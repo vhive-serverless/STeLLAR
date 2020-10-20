@@ -34,9 +34,18 @@ func main() {
 	logFile := setupManagerLogging(outputDirectoryPath)
 	defer logFile.Close()
 
+	if *actionFlag == "deploy" {
+		csvFile, err := os.Create(filepath.Join(outputDirectoryPath, "gateways.csv"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		writer.InitializeGatewaysWriter(csvFile)
+		defer csvFile.Close()
+	}
+
 	connection := &provider.Connection{ProviderName: *providerFlag}
 
-	rateLimiter := 1
+	rateLimiter := 15
 	var deployWaitGroup sync.WaitGroup
 	for i := start; i < end; {
 		for requests := 0; requests < rateLimiter && i < end; requests++ {
@@ -46,13 +55,6 @@ func main() {
 
 				switch *actionFlag {
 				case "deploy":
-					csvFile, err := os.Create(filepath.Join(outputDirectoryPath, "gateways.csv"))
-					if err != nil {
-						log.Fatal(err)
-					}
-					writer.InitializeGatewaysWriter(csvFile)
-					defer csvFile.Close()
-
 					connection.DeployFunction(i)
 				case "remove":
 					connection.RemoveFunction(i)

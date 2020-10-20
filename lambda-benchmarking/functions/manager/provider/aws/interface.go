@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -22,7 +24,7 @@ func (lambda Interface) GetAPIID(i int) string {
 		fmt.Sprintf("items[?name==`%s-API-%v`].id", name, i), "--output", "text",
 		"--region", region)
 	apiID := runCommandAndReturnOutput(cmd)
-	apiID = apiID[:len(apiID)-1]
+	apiID, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(apiID), `\n`, ""))
 	log.Printf("API ID of %s-API-%v is %s", name, i, apiID)
 	return apiID
 }

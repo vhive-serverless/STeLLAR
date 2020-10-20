@@ -5,6 +5,7 @@ import (
 	"functions/manager/util"
 	"log"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
@@ -29,7 +30,7 @@ func (lambda Interface) getFunctionARN(i int) string {
 		fmt.Sprintf("Functions[?FunctionName==`%s-%v`].FunctionArn", name, i), "--output", "text",
 		"--region", region)
 	arn := runCommandAndReturnOutput(cmd)
-	arn = arn[:len(arn)-1]
+	arn, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(arn), `\n`, ""))
 	log.Printf("ARN of lambda %s-%v is %s", name, i, arn)
 	return arn
 }
@@ -38,7 +39,7 @@ func (lambda Interface) createFunction(i int) {
 	log.Printf("Creating producer lambda %s-%v", name, i)
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "create-function", "--function-name",
 		fmt.Sprintf("%s-%v", name, i), "--runtime", "go1.x", "--role", util.CheckAndReturnEnvVar("AWS_LAMBDA_ROLE"),
-		"--handler", "code/producer-handler", "--zip-file", fmt.Sprintf("fileb://code/%s.zip", name),
+		"--handler", "producer-handler", "--zip-file", fmt.Sprintf("fileb://code/%s.zip", name),
 		"--tracing-config", "Mode=PassThrough")
 	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray.PassThrough otherwise.
 	runCommandAndLog(cmd)
@@ -59,7 +60,7 @@ func (lambda Interface) getResourceID(i int, apiID string) string {
 	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "get-resources", "--rest-api-id",
 		apiID, "--query", "items[1].id", "--output", "text", "--region", region)
 	resourceID := runCommandAndReturnOutput(cmd)
-	resourceID = resourceID[:len(resourceID)-1]
+	resourceID, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(resourceID), `\n`, ""))
 	log.Printf("RESOURCEID of %s-API-%v is %s", name, i, resourceID)
 	return resourceID
 }
