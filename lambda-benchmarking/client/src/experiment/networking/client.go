@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	timeout = 10 * time.Second
+	timeout = 900 * time.Second
 )
 
 func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLengthBytes int) string {
@@ -60,7 +60,11 @@ func processResponse(resp *http.Response, endpoint string) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("API Gateway response from %s had status %s:\n %s", endpoint, resp.Status, resp.Body)
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Fatalf("API Gateway response from %s had status %s:\n %s", endpoint, resp.Status, string(bodyBytes))
 	}
 
 	var lambdaFunctionResponse LambdaFunctionResponse

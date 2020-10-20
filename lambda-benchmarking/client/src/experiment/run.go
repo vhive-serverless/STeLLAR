@@ -80,7 +80,7 @@ func createExperimentLatenciesFile(experimentDirectoryPath string) *os.File {
 func createExperimentDirectory(path string, id int) string {
 	experimentDirectoryPath := filepath.Join(path, fmt.Sprintf("experiment_%d", id))
 	log.Printf("Creating directory for experiment %d at `%s`", id, experimentDirectoryPath)
-	if err := os.Mkdir(experimentDirectoryPath, os.ModePerm); err != nil {
+	if err := os.MkdirAll(experimentDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 	return experimentDirectoryPath

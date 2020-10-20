@@ -25,7 +25,7 @@ func main() {
 
 	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))
 	log.Printf("Creating directory for this run at `%s`", outputDirectoryPath)
-	if err := os.Mkdir(outputDirectoryPath, os.ModePerm); err != nil {
+	if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
@@ -42,7 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 	df := dataframe.ReadCSV(gatewaysFile)
-	gateways := df.Col("Gateway IDs").Records()
+	gateways := df.Col("Gateway ID").Records()
 	experimentsGatewayIndex := 0
 
 	configFile, err := os.Open(*configPathFlag)

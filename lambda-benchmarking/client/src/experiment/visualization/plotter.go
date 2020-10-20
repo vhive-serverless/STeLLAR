@@ -49,7 +49,7 @@ func plotLatenciesCDF(plotPath string, latencySeries series.Series, config confi
 
 	maxLatencyPlotted := 2000.0
 
-	plotInstance.Title.Text = fmt.Sprintf("Freq ~%ds, Burst sizes %s", config.FrequencySeconds, config.BurstSizes)
+	plotInstance.Title.Text = fmt.Sprintf("Freq ~%vs, Burst sizes %s", config.FrequencySeconds, config.BurstSizes)
 	plotInstance.Y.Label.Text = "portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.
