@@ -3,6 +3,9 @@ This client tests the performance of
 AWS Lambda busy-spinning microVM containers by sending requests and benchmarking the
 latencies. 
 
+### Design
+![design](design/diagram.png)
+
 ### Parameters
 - `visualization` (default "CDF"): The type of visualization to create (per-burst histogram "histogram" 
 or empirical CDF "CDF").

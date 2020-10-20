@@ -9,13 +9,17 @@ import (
 	"time"
 )
 
+const (
+	region = "us-west-1"
+)
+
 // TriggerRelativeAsyncBursts
 func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
 	estimateTime := estimateTotalDuration(config, deltas)
 
-	log.Printf("Experiment %d: scheduling %d bursts with freq %ds and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
+	log.Printf("Experiment %d: scheduling %d bursts with freq %vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
-		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*float64(config.FrequencySeconds),
+		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.FrequencySeconds,
 		time.Now().Add(estimateTime).UTC().Format(time.RFC3339))
 
 	burstId := 0
@@ -48,7 +52,7 @@ func estimateTotalDuration(config configuration.ExperimentConfig, deltas []time.
 
 func burst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string, serviceLoad int,
 	safeExperimentWriter *SafeWriter) {
-	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.us-east-2.amazonaws.com/prod", gatewayEndpointID)
+	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com/prod", gatewayEndpointID, region)
 	log.Printf("Experiment %d: starting burst %d, making %d requests with service load %v to API Gateway (%s).",
 		config.Id,
 		burstId,

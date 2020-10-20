@@ -14,24 +14,23 @@ edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
 
 # Cloudlab deployment
-username=theodor
-remote=hp060.utah.cloudlab.us
+remote=theodor@hp104.utah.cloudlab.us
 
 send_code_to_cloudlab:
-	@scp ../configure_cloudlab_machine.sh $(username)@$(remote):~/
-	@scp ../gateways.csv $(username)@$(remote):~/
-	@scp ../config.csv $(username)@$(remote):~/
-	@scp ./client $(username)@$(remote):~/
+	@scp ../initialize_machine.sh $(remote):~/
+	@scp ../gateways.csv $(remote):~/
+	@scp ../config.csv $(remote):~/
+	@scp ./client $(remote):~/
 
 send_timer_to_cloudlab:
 	@GOOS=linux go build -race -v -a -o ../timer ../timer.go
-	@scp ../timer $(username)@$(remote):~/
+	@scp ../timer $(remote):~/
 
 connect_to_cloudlab:
-	@ssh -X -p 22 $(username)@$(remote)
+	@ssh -X -p 22 $(remote)
 
 download_cloudlab_results:
-	@mkdir -p "../cloudlab-latency-samples"
-	@scp -r $(username)@$(remote):~/latency-samples/ "../cloudlab-latency-samples/"
+	@mkdir -p "../latency-samples/cloudlab"
+	@scp -r $(remote):~/latency-samples/* "../latency-samples/cloudlab/"
 
 .PHONY: build run_client build_and_run_client edit_local_env_vars send_code_to_cloudlab send_timer_to_cloudlab connect_to_cloudlab download_cloudlab_results
