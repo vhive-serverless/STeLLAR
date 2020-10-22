@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
-	"functions/manager/provider"
-	"functions/manager/writer"
+	"functions/provider"
+	"functions/util"
+	"functions/writer"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -14,11 +16,16 @@ import (
 	"time"
 )
 
-var rangeFlag = flag.String("range", "0_300", "Action functions with IDs in the given interval.")
+var rangeFlag = flag.String("range", "1_2", "Action functions with IDs in the given interval.")
 var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions.")
-var providerFlag = flag.String("provider", "aws", "ProviderName where functions are located.")
+var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
+var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, in bytes.")
+
+// https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
+var languageFlag = flag.String("language", "go1.x", "Programming language to deploy in.")
 
 func main() {
+	rand.Seed(1896564)
 	flag.Parse()
 
 	interval := strings.Split(*rangeFlag, "_")
@@ -55,10 +62,12 @@ func main() {
 
 				switch *actionFlag {
 				case "deploy":
-					connection.DeployFunction(i)
+					util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+					connection.DeployFunction(i, *languageFlag)
 				case "remove":
 					connection.RemoveFunction(i)
 				case "update":
+					util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
 					connection.UpdateFunction(i)
 				default:
 					log.Fatalf("Unrecognized function action %s", *actionFlag)

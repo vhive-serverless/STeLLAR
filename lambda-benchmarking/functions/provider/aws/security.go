@@ -3,6 +3,7 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
+	"functions/util"
 	"log"
 	"os"
 	"os/exec"
@@ -39,7 +40,7 @@ func (lambda Interface) setSessionToken() {
 
 	cmd := exec.Command("/usr/local/bin/aws", "sts", "get-session-token",
 		"--serial-number", user, "--token-code", strconv.Itoa(tokenCode))
-	responseJSON := runCommandAndReturnOutput(cmd)
+	responseJSON := util.RunCommandAndReturnOutput(cmd)
 
 	var response Response
 	if err := json.Unmarshal([]byte(responseJSON), &response); err != nil {
