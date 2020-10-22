@@ -1,8 +1,8 @@
 package provider
 
 import (
-	"functions/manager/provider/aws"
-	"functions/manager/writer"
+	"functions/provider/aws"
+	"functions/writer"
 	"log"
 )
 
@@ -10,11 +10,11 @@ type Connection struct {
 	ProviderName string
 }
 
-func (p Connection) DeployFunction(i int) {
+func (p Connection) DeployFunction(i int, language string) {
 	switch p.ProviderName {
 	case "aws":
 		awsInterface := aws.Interface{}
-		apiID := awsInterface.DeployFunction(i)
+		apiID := awsInterface.DeployFunction(i, language)
 		writer.GatewaysWriterSingleton.WriteRowToFile(apiID)
 	default:
 		log.Fatalf("Unrecognized provider %s", p.ProviderName)

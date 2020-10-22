@@ -1,14 +1,26 @@
-package aws
+package util
 
 import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 )
 
-// Logging
-func runCommandAndLog(cmd *exec.Cmd) {
+const (
+	name = "benchmarking"
+)
+
+func CheckAndReturnEnvVar(key string) string {
+	envVar, isSet := os.LookupEnv(key)
+	if !isSet {
+		log.Fatalf("Environment variable %s is not set.", key)
+	}
+	return envVar
+}
+
+func RunCommandAndLog(cmd *exec.Cmd) {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -20,7 +32,7 @@ func runCommandAndLog(cmd *exec.Cmd) {
 	log.Printf("Result: %s", out.String())
 }
 
-func runCommandAndReturnOutput(cmd *exec.Cmd) string {
+func RunCommandAndReturnOutput(cmd *exec.Cmd) string {
 	stdout, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err.Error())
