@@ -19,9 +19,7 @@ func (lambda Interface) DeployFunction(i int, language string) string {
 
 	lambda.createAPIFunctionIntegration(i, apiID, resourceID, arn)
 	lambda.createAPIDeployment(i, apiID)
-	lambda.addAPIDToUsagePlan(i, apiID)
-	apiARN := lambda.getAPIARN(i, arn, apiID)
-	lambda.addExecutionPermissions(i, apiARN)
+	lambda.addExecutionPermissions(i)
 	return apiID
 }
 
@@ -29,7 +27,7 @@ func (lambda Interface) getFunctionARN(i int) string {
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "list-functions", "--query",
 		fmt.Sprintf("Functions[?FunctionName==`%s-%v`].FunctionArn", name, i), "--output", "text",
 		"--region", region)
-	arn := util.RunCommandAndReturnOutput(cmd)
+	arn := util.RunCommandAndLog(cmd)
 	arn, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(arn), `\n`, ""))
 	log.Printf("ARN of lambda %s-%v is %s", name, i, arn)
 	return arn
@@ -39,7 +37,7 @@ func (lambda Interface) createFunction(i int, language string) {
 	log.Printf("Creating producer lambda %s-%v", name, i)
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "create-function", "--function-name",
 		fmt.Sprintf("%s-%v", name, i), "--runtime", language, "--role", util.CheckAndReturnEnvVar("AWS_LAMBDA_ROLE"),
-		"--handler", "producer-handler", "--zip-file", fmt.Sprintf("fileb://code/%s.zip", name),
+		"--handler", "producer-handler", "--zip-file", fmt.Sprintf("fileb://%s.zip", name),
 		"--tracing-config", "Mode=PassThrough")
 	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray.PassThrough otherwise.
 	util.RunCommandAndLog(cmd)
@@ -59,7 +57,7 @@ func (lambda Interface) getResourceID(i int, apiID string) string {
 	// items[0].id needed in eu-west-2
 	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "get-resources", "--rest-api-id",
 		apiID, "--query", "items[1].id", "--output", "text", "--region", region)
-	resourceID := util.RunCommandAndReturnOutput(cmd)
+	resourceID := util.RunCommandAndLog(cmd)
 	resourceID, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(resourceID), `\n`, ""))
 	log.Printf("RESOURCEID of %s-API-%v is %s", name, i, resourceID)
 	return resourceID
@@ -71,7 +69,7 @@ func (lambda Interface) createAPIFunctionIntegration(i int, apiID string, resour
 		apiID, "--resource-id", resourceID, "--http-method", "ANY", "--type", "AWS_PROXY", "--integration-http-method",
 		"ANY", "--uri", fmt.Sprintf("arn:aws:apigateway:%s:lambda:path/2015-03-31/functions/%s/invocations",
 			region, arn), "--request-templates",
-		"{\"application/x-www-form-urlencoded\":\"{\\\"body\\\": $input.json(\\\"$\\\")}\"}", "--region", region)
+		`{"application/x-www-form-urlencoded":"{\"body\": $input.json(\"$\")}"}`, "--region", region)
 	util.RunCommandAndLog(cmd)
 }
 
@@ -82,26 +80,10 @@ func (lambda Interface) createAPIDeployment(i int, apiID string) {
 	util.RunCommandAndLog(cmd)
 }
 
-func (lambda Interface) addAPIDToUsagePlan(i int, apiID string) {
-	log.Printf("Adding API %s-API-%v to general usage plan", name, i)
-	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "update-usage-plan", "--usage-plan-id",
-		usagePlanID, "--patch-operations",
-		fmt.Sprintf("[{\"op\":\"add\",\"path\":\"/apiStages\",\"value\":\"%s:%s\"}]", apiID, stage))
-	util.RunCommandAndLog(cmd)
-}
-
-func (lambda Interface) getAPIARN(i int, arn string, apiID string) string {
-	apiARN := strings.ReplaceAll(arn, "s/lambda/execute-api/", "")
-	apiARN = strings.ReplaceAll(apiARN, fmt.Sprintf("s/function:%s-%v/%s/", name, i, apiID), "")
-	log.Printf("APIARN of %s-API-%v is %s", name, i, apiARN)
-	return apiARN
-}
-
-func (lambda Interface) addExecutionPermissions(i int, apiARN string) {
+func (lambda Interface) addExecutionPermissions(i int) {
 	log.Printf("Adding permissions to execute lambda function %s-%v", name, i)
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "add-permission", "--function-name",
 		fmt.Sprintf("%s-%v", name, i), "--statement-id", "apigateway-benchmarking", "--action",
-		"lambda:InvokeFunction", "--principal", "apigateway.amazonaws.com", "--source-arn",
-		fmt.Sprintf("%s/%s/ANY/%s", apiARN, stage, name), "--region", region)
+		"lambda:InvokeFunction", "--principal", "apigateway.amazonaws.com", "--region", region)
 	util.RunCommandAndLog(cmd)
 }

@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-var rangeFlag = flag.String("range", "1_2", "Action functions with IDs in the given interval.")
+var rangeFlag = flag.String("range", "0_300", "Action functions with IDs in the given interval.")
 var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions.")
 var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
 var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, in bytes.")
@@ -25,6 +25,7 @@ var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, i
 var languageFlag = flag.String("language", "go1.x", "Programming language to deploy in.")
 
 func main() {
+	startTime := time.Now()
 	rand.Seed(1896564)
 	flag.Parse()
 
@@ -38,7 +39,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logFile := setupManagerLogging(outputDirectoryPath)
+	logFile := setupLogging(outputDirectoryPath)
 	defer logFile.Close()
 
 	if *actionFlag == "deploy" {
@@ -48,31 +49,34 @@ func main() {
 		}
 		writer.InitializeGatewaysWriter(csvFile)
 		defer csvFile.Close()
+
+		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+	} else if *actionFlag == "update" {
+		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
 	}
 
 	connection := &provider.Connection{ProviderName: *providerFlag}
 
-	rateLimiter := 15
+	// Issuing requests at the same time poses problems with AWS
+	rateLimiter := 1
 	var deployWaitGroup sync.WaitGroup
 	for i := start; i < end; {
 		for requests := 0; requests < rateLimiter && i < end; requests++ {
 			deployWaitGroup.Add(1)
-			go func(deployWaitGroup *sync.WaitGroup, i int) {
+			go func(deployWaitGroup *sync.WaitGroup, i int, requestOrder int) {
 				defer deployWaitGroup.Done()
 
 				switch *actionFlag {
 				case "deploy":
-					util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
 					connection.DeployFunction(i, *languageFlag)
 				case "remove":
 					connection.RemoveFunction(i)
 				case "update":
-					util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
 					connection.UpdateFunction(i)
 				default:
 					log.Fatalf("Unrecognized function action %s", *actionFlag)
 				}
-			}(&deployWaitGroup, i)
+			}(&deployWaitGroup, i, requests)
 			i++
 		}
 		deployWaitGroup.Wait()
@@ -83,10 +87,10 @@ func main() {
 		writer.GatewaysWriterSingleton.Writer.Flush()
 	}
 
-	log.Println("Done, exiting...")
+	log.Printf("Done in %v, exiting...", time.Since(startTime))
 }
 
-func setupManagerLogging(path string) *os.File {
+func setupLogging(path string) *os.File {
 	logFile, err := os.Create(filepath.Join(path, "run_logs.txt"))
 	if err != nil {
 		log.Fatal(err)
