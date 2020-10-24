@@ -29,8 +29,11 @@ func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
 	}
 
 	switch language {
-	case "golang":
-		RunCommandAndLog(exec.Command("go", "build", "-v", "-race", "-o", "producer-handler"))
+	case "go1.x":
+		RunCommandAndLog(exec.Command("go", "build", "-v", "-race", "-o", "producer-handler",
+			"code/producer/go1.x/aws-handler.go"))
+	//case "python3.8":
+	//	RunCommandAndLog(exec.Command("go", "build", "-v", "-race", "-o", "producer-handler"))
 	default:
 		log.Fatalf("Unrecognized language %s", language)
 	}

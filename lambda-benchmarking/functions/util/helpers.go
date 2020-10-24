@@ -20,7 +20,7 @@ func CheckAndReturnEnvVar(key string) string {
 	return envVar
 }
 
-func RunCommandAndLog(cmd *exec.Cmd) {
+func RunCommandAndLog(cmd *exec.Cmd) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -30,12 +30,5 @@ func RunCommandAndLog(cmd *exec.Cmd) {
 		log.Fatalf("%s: %s", fmt.Sprint(err), stderr.String())
 	}
 	log.Printf("Result: %s", out.String())
-}
-
-func RunCommandAndReturnOutput(cmd *exec.Cmd) string {
-	stdout, err := cmd.Output()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	return string(stdout)
+	return out.String()
 }
