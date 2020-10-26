@@ -60,10 +60,10 @@ func plotLatenciesCDF(plotPath string, latencySeries series.Series, config confi
 	latencies := latencySeries.Float()
 	sort.Float64s(latencies)
 
-	var maxIndexKept int
-	for maxIndexKept = 0; maxIndexKept < len(latencies) && latencies[maxIndexKept] <= maxLatencyPlotted; maxIndexKept++ {
-	}
-	latencies = latencies[:maxIndexKept]
+	//var maxIndexKept int
+	//for maxIndexKept = 0; maxIndexKept < len(latencies) && latencies[maxIndexKept] <= maxLatencyPlotted; maxIndexKept++ {
+	//}
+	//latencies = latencies[:maxIndexKept]
 
 	latenciesToPlot := make(plotter.XYs, len(latencies))
 	for i := 0; i < len(latencies); i++ {

@@ -38,5 +38,5 @@ func CreateBurstDeltas(frequencySeconds float64, burstsNumber int, iatType strin
 
 // scale and shift the standard normal distribution, make sure result is positive
 func getGaussianSleepTime(frequencySeconds float64) float64 {
-	return math.Max(rand.NormFloat64()*frequencySeconds+frequencySeconds, 0)
+	return math.Max(rand.NormFloat64()*frequencySeconds/10+frequencySeconds, 0)
 }
