@@ -3,19 +3,15 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
-)
-
-const (
-	name = "benchmarking"
 )
 
 func CheckAndReturnEnvVar(key string) string {
 	envVar, isSet := os.LookupEnv(key)
 	if !isSet {
-		log.Fatalf("Environment variable %s is not set.", key)
+		log.Errorf("Environment variable %s is not set.", key)
 	}
 	return envVar
 }
@@ -29,6 +25,6 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	if err != nil {
 		log.Fatalf("%s: %s", fmt.Sprint(err), stderr.String())
 	}
-	log.Printf("Result: %s", out.String())
+	log.Debugf("Command result: %s", out.String())
 	return out.String()
 }

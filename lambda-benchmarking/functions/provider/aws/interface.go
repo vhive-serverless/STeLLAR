@@ -9,24 +9,34 @@ import (
 	"strings"
 )
 
-const (
-	userid      = "335329526041"
-	username    = "theodor"
-	user        = "arn:aws:iam::" + userid + ":mfa/" + username
-	name        = "benchmarking"
-	region      = "us-west-1"
-	cloneAPIID  = "hjnwqihyo1"
-	stage       = "prod"
-)
+type Interface struct {
+	userID       string
+	username     string
+	user         string
+	familiarName string
+	region       string
+	cloneAPIID   string
+	stage        string
+}
 
-type Interface struct{}
+func Initialize() *Interface {
+	return &Interface{
+		userID:       "335329526041",
+		username:     "theodor",
+		user:         "arn:aws:iam::335329526041:mfa/theodor",
+		familiarName: "benchmarking",
+		region:       "us-west-1",
+		cloneAPIID:   "hjnwqihyo1",
+		stage:        "prod",
+	}
+}
 
 func (lambda Interface) GetAPIID(i int) string {
 	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "get-rest-apis", "--query",
-		fmt.Sprintf("items[?name==`%s-API-%v`].id", name, i), "--output", "text",
-		"--region", region)
+		fmt.Sprintf("items[?name==`%s-API-%v`].id", lambda.familiarName, i), "--output", "text",
+		"--region", lambda.region)
 	apiID := util.RunCommandAndLog(cmd)
 	apiID, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(apiID), `\n`, ""))
-	log.Printf("API ID of %s-API-%v is %s", name, i, apiID)
+	log.Printf("API ID of %s-API-%v is %s", lambda.familiarName, i, apiID)
 	return apiID
 }

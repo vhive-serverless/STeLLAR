@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"lambda-benchmarking/client/experiment/configuration"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -15,7 +15,7 @@ import (
 func GenerateVisualization(visualizationType string, config configuration.ExperimentConfig, deltas []time.Duration, csvFile *os.File, path string) {
 	_, err := csvFile.Seek(0, io.SeekStart)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	df := dataframe.ReadCSV(csvFile)

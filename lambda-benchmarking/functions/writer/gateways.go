@@ -2,7 +2,7 @@ package writer
 
 import (
 	"encoding/csv"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"sync"
 )

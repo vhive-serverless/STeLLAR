@@ -39,7 +39,7 @@ func (lambda Interface) setSessionToken() {
 	}
 
 	cmd := exec.Command("/usr/local/bin/aws", "sts", "get-session-token",
-		"--serial-number", user, "--token-code", strconv.Itoa(tokenCode))
+		"--serial-number", lambda.user, "--token-code", strconv.Itoa(tokenCode))
 	responseJSON := util.RunCommandAndLog(cmd)
 
 	var response Response

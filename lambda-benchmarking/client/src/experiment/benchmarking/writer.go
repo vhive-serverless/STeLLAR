@@ -2,8 +2,8 @@ package benchmarking
 
 import (
 	"encoding/csv"
+	log "github.com/sirupsen/logrus"
 	"lambda-benchmarking/client/experiment/networking"
-	"log"
 	"os"
 	"strconv"
 	"sync"
