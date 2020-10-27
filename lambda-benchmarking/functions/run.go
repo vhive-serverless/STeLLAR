@@ -5,14 +5,12 @@ import (
 	"functions/provider"
 	"functions/util"
 	"functions/writer"
+	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -20,13 +18,13 @@ var rangeFlag = flag.String("range", "0_300", "Action functions with IDs in the 
 var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions.")
 var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
 var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, in bytes.")
+var logLevelFlag = flag.String("logLevel", "info", "Select logging level.")
 
 // https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
 var languageFlag = flag.String("language", "go1.x", "Programming language to deploy in.")
 
 func main() {
 	startTime := time.Now()
-	rand.Seed(1896564)
 	flag.Parse()
 
 	interval := strings.Split(*rangeFlag, "_")
@@ -34,7 +32,7 @@ func main() {
 	end, _ := strconv.Atoi(interval[1])
 
 	outputDirectoryPath := filepath.Join("logs", time.Now().Format(time.RFC850))
-	log.Printf("Creating directory for this run at `%s`", outputDirectoryPath)
+	log.Infof("Creating directory for this run at `%s`", outputDirectoryPath)
 	if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
@@ -42,52 +40,52 @@ func main() {
 	logFile := setupLogging(outputDirectoryPath)
 	defer logFile.Close()
 
-	if *actionFlag == "deploy" {
-		csvFile, err := os.Create(filepath.Join(outputDirectoryPath, "gateways.csv"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		writer.InitializeGatewaysWriter(csvFile)
-		defer csvFile.Close()
-
-		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
-	} else if *actionFlag == "update" {
-		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+	if deploymentFile := setupDeployment(outputDirectoryPath); deploymentFile != nil {
+		defer deploymentFile.Close()
 	}
 
 	connection := &provider.Connection{ProviderName: *providerFlag}
 
-	// Issuing requests at the same time poses problems with AWS
-	rateLimiter := 1
-	var deployWaitGroup sync.WaitGroup
-	for i := start; i < end; {
-		for requests := 0; requests < rateLimiter && i < end; requests++ {
-			deployWaitGroup.Add(1)
-			go func(deployWaitGroup *sync.WaitGroup, i int, requestOrder int) {
-				defer deployWaitGroup.Done()
-
-				switch *actionFlag {
-				case "deploy":
-					connection.DeployFunction(i, *languageFlag)
-				case "remove":
-					connection.RemoveFunction(i)
-				case "update":
-					connection.UpdateFunction(i)
-				default:
-					log.Fatalf("Unrecognized function action %s", *actionFlag)
-				}
-			}(&deployWaitGroup, i, requests)
-			i++
+	for i := start; i < end; i++ {
+		switch *actionFlag {
+		case "deploy":
+			connection.DeployFunction(i, *languageFlag)
+		case "remove":
+			connection.RemoveFunction(i)
+		case "update":
+			connection.UpdateFunction(i)
+		default:
+			log.Fatalf("Unrecognized function action %s", *actionFlag)
 		}
-		deployWaitGroup.Wait()
 	}
 
 	if *actionFlag == "deploy" {
-		log.Println("Flushing gateways to CSV file.")
+		log.Info("Flushing gateways to CSV file.")
 		writer.GatewaysWriterSingleton.Writer.Flush()
 	}
 
-	log.Printf("Done in %v, exiting...", time.Since(startTime))
+	log.Infof("Done in %v, exiting...", time.Since(startTime))
+}
+
+func setupDeployment(outputDirectoryPath string) *os.File {
+	switch *actionFlag {
+	case "deploy":
+		deploymentFile, err := os.Create(filepath.Join(outputDirectoryPath, "gateways.csv"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		writer.InitializeGatewaysWriter(deploymentFile)
+
+		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+		return deploymentFile
+	case "update":
+		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+	case "remove":
+		// No setup required for removing functions
+	default:
+		log.Fatalf("Unrecognized function action %s", *actionFlag)
+	}
+	return nil
 }
 
 func setupLogging(path string) *os.File {
@@ -95,7 +93,18 @@ func setupLogging(path string) *os.File {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	switch *logLevelFlag {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	}
+
 	stdoutFileMultiWriter := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(stdoutFileMultiWriter)
+
 	return logFile
 }

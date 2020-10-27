@@ -3,43 +3,46 @@ package provider
 import (
 	"functions/provider/aws"
 	"functions/writer"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 type Connection struct {
 	ProviderName string
 }
 
-func (p Connection) DeployFunction(i int, language string) {
-	switch p.ProviderName {
+func (c Connection) DeployFunction(i int, language string) {
+	switch c.ProviderName {
 	case "aws":
-		awsInterface := aws.Interface{}
+		awsInterface := aws.Initialize()
+
 		apiID := awsInterface.DeployFunction(i, language)
 		writer.GatewaysWriterSingleton.WriteRowToFile(apiID)
 	default:
-		log.Fatalf("Unrecognized provider %s", p.ProviderName)
+		log.Fatalf("Unrecognized provider %s", c.ProviderName)
 	}
 }
 
-func (p Connection) RemoveFunction(i int) {
-	switch p.ProviderName {
+func (c Connection) RemoveFunction(i int) {
+	switch c.ProviderName {
 	case "aws":
-		awsInterface := aws.Interface{}
+		awsInterface := aws.Initialize()
+
 		awsInterface.RemoveFunction(i)
 		apiID := awsInterface.GetAPIID(i)
 		awsInterface.RemoveAPI(i, apiID)
 	default:
-		log.Fatalf("Unrecognized provider %s", p.ProviderName)
+		log.Fatalf("Unrecognized provider %s", c.ProviderName)
 	}
 }
 
-func (p Connection) UpdateFunction(i int) {
-	switch p.ProviderName {
+func (c Connection) UpdateFunction(i int) {
+	switch c.ProviderName {
 	case "aws":
-		awsInterface := aws.Interface{}
+		awsInterface := aws.Initialize()
+
 		awsInterface.UpdateFunction(i)
 		awsInterface.UpdateFunctionConfiguration(i)
 	default:
-		log.Fatalf("Unrecognized provider %s", p.ProviderName)
+		log.Fatalf("Unrecognized provider %s", c.ProviderName)
 	}
 }

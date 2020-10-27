@@ -4,15 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
 const (
-	timeout = 900 * time.Second
+	timeout = 15 * time.Minute
 )
 
 func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLengthBytes int) string {
@@ -25,7 +25,7 @@ func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLen
 		nil,
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	req.Header.Add("x-api-key", CheckAndReturnEnvVar("AWS_API_GATEWAY_KEY"))
@@ -36,7 +36,7 @@ func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLen
 	defer cancel()
 	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	return processResponse(resp, gatewayEndpoint)
@@ -50,26 +50,26 @@ type LambdaFunctionResponse struct {
 func processResponse(resp *http.Response, endpoint string) string {
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
 	}()
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatal(err)
+			log.Error(err)
 		}
-		log.Fatalf("API Gateway response from %s had status %s:\n %s", endpoint, resp.Status, string(bodyBytes))
+		log.Errorf("API Gateway response from %s had status %s:\n %s", endpoint, resp.Status, string(bodyBytes))
 	}
 
 	var lambdaFunctionResponse LambdaFunctionResponse
 	if err := json.Unmarshal(bytes, &lambdaFunctionResponse); err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	return lambdaFunctionResponse.AwsRequestID
 }
@@ -77,7 +77,7 @@ func processResponse(resp *http.Response, endpoint string) string {
 func CheckAndReturnEnvVar(key string) string {
 	envVar, isSet := os.LookupEnv(key)
 	if !isSet {
-		log.Fatalf("Environment variable %s is not set.", key)
+		log.Debugf("Environment variable %s is not set.", key)
 	}
 	return envVar
 }

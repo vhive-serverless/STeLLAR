@@ -3,10 +3,10 @@ package visualization
 import (
 	"fmt"
 	"github.com/go-gota/gota/series"
+	log "github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat"
 	"gonum.org/v1/plot/plotutil"
 	"lambda-benchmarking/client/experiment/configuration"
-	"log"
 	"sort"
 	"time"
 
@@ -32,7 +32,7 @@ func plotBurstLatenciesHistogram(plotPath string, latencySeries series.Series, b
 
 	histogram, err := plotter.NewHist(latencies, 1<<5)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 
 	plotInstance.Add(histogram)
@@ -47,23 +47,16 @@ func plotLatenciesCDF(plotPath string, latencySeries series.Series, config confi
 		panic(err)
 	}
 
-	maxLatencyPlotted := 2000.0
-
 	plotInstance.Title.Text = fmt.Sprintf("Freq ~%vs, Burst sizes %s", config.FrequencySeconds, config.BurstSizes)
 	plotInstance.Y.Label.Text = "portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.
 	plotInstance.X.Label.Text = "latency (ms)"
 	plotInstance.X.Min = 0.
-	plotInstance.X.Max = maxLatencyPlotted
+	plotInstance.X.Max = 2000.0
 
 	latencies := latencySeries.Float()
 	sort.Float64s(latencies)
-
-	//var maxIndexKept int
-	//for maxIndexKept = 0; maxIndexKept < len(latencies) && latencies[maxIndexKept] <= maxLatencyPlotted; maxIndexKept++ {
-	//}
-	//latencies = latencies[:maxIndexKept]
 
 	latenciesToPlot := make(plotter.XYs, len(latencies))
 	for i := 0; i < len(latencies); i++ {

@@ -2,8 +2,8 @@ package util
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -11,18 +11,19 @@ import (
 
 const (
 	randomFileName = "random.file"
+	zipName        = "benchmarking"
 )
 
 func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
-	zipPath := fmt.Sprintf("%s.zip", name)
+	zipPath := fmt.Sprintf("%s.zip", zipName)
 	if fileExists(zipPath) {
-		log.Printf("ZIP archive `%s` already exists, removing...", zipPath)
+		log.Infof("ZIP archive `%s` already exists, removing...", zipPath)
 		if err := os.Remove(zipPath); err != nil {
 			log.Fatalf("Failed to remove ZIP archive `%s`", zipPath)
 		}
 	}
 
-	log.Printf("Building %s handler...", language)
+	log.Infof("Building %s handler...", language)
 	codePath := fmt.Sprintf("code/producer/%s/%s-handler.go", language, provider)
 	if !fileExists(codePath) {
 		log.Fatalf("Code path `%s` does not exist, cannot deploy/update code.", codePath)
@@ -39,7 +40,7 @@ func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
 	}
 
 	GenerateRandomFile(sizeBytes)
-	RunCommandAndLog(exec.Command("zip", fmt.Sprintf("%s.zip", name), "producer-handler", randomFileName))
+	RunCommandAndLog(exec.Command("zip", fmt.Sprintf("%s.zip", zipName), "producer-handler", randomFileName))
 }
 
 func fileExists(filename string) bool {
@@ -51,14 +52,13 @@ func fileExists(filename string) bool {
 }
 
 func GenerateRandomFile(sizeBytes int) {
-	//
-	if sizeBytes > 50000000 {
+	if sizeBytes > 50*1000*1000 {
 		log.Fatalf(`Deployment package is larger than 50 MB (~%dMB), you must use Amazon S3 (https://docs.aws.amazon.com/lambda/latest/dg/python-package.html).`,
 			sizeBytes/1000000.0)
 	}
 
 	if fileExists(randomFileName) {
-		log.Printf("Random file `%s` already exists, removing...", randomFileName)
+		log.Infof("Random file `%s` already exists, removing...", randomFileName)
 		if err := os.Remove(randomFileName); err != nil {
 			log.Fatalf("Failed to remove random file `%s`", randomFileName)
 		}

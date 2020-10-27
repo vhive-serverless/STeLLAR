@@ -1,5 +1,5 @@
 build:
-	@GOOS=linux go build -race -v -a
+	@GOOS=linux go build -v -a
 
 run_client:
 	@mkdir -p "../latency-samples"
@@ -23,7 +23,7 @@ send_code_to_cloudlab:
 	@scp ./client $(remote):~/
 
 send_timer_to_cloudlab:
-	@GOOS=linux go build -race -v -a -o ../timer ../timer.go
+	@GOOS=linux go build -v -a -o ../timer ../timer.go
 	@scp ../timer $(remote):~/
 
 connect_to_cloudlab:

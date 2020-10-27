@@ -2,22 +2,18 @@ package benchmarking
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"lambda-benchmarking/client/experiment/configuration"
-	"log"
 	"strconv"
 	"sync"
 	"time"
-)
-
-const (
-	region = "us-west-1"
 )
 
 // TriggerRelativeAsyncBursts
 func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
 	estimateTime := estimateTotalDuration(config, deltas)
 
-	log.Printf("Experiment %d: scheduling %d bursts with freq %vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
+	log.Infof("Experiment %d: scheduling %d bursts with freq %vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
 		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.FrequencySeconds,
 		time.Now().Add(estimateTime).UTC().Format(time.RFC3339))
@@ -28,12 +24,12 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 	for burstId < config.Bursts {
 		time.Sleep(deltas[deltaIndex])
 
-		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
+		// Send one sendBurst to each available gateway (the more gateways used, the faster the experiment)
 		for gatewayId := 0; gatewayId < len(config.GatewayEndpoints) && burstId < config.Bursts; gatewayId++ {
-			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
+			// Every refresh period, we cycle through sendBurst sizes if they're dynamic i.e. more than 1 element
 			burstSize, _ := strconv.Atoi(config.BurstSizes[deltaIndex%len(config.BurstSizes)])
-			serviceLoad, _ := strconv.Atoi(config.LambdaIncrementLimit[deltaIndex%len(config.LambdaIncrementLimit)])
-			burst(config, burstId, burstSize, config.GatewayEndpoints[gatewayId], serviceLoad, safeExperimentWriter)
+			serviceLoad := config.FunctionIncrementLimits[deltaIndex%len(config.FunctionIncrementLimits)]
+			sendBurst(config, burstId, burstSize, config.GatewayEndpoints[gatewayId], serviceLoad, safeExperimentWriter)
 			burstId++
 		}
 
@@ -50,10 +46,10 @@ func estimateTotalDuration(config configuration.ExperimentConfig, deltas []time.
 	return estimateTime
 }
 
-func burst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string, serviceLoad int,
+func sendBurst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string, serviceLoad int,
 	safeExperimentWriter *SafeWriter) {
-	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com/prod", gatewayEndpointID, region)
-	log.Printf("Experiment %d: starting burst %d, making %d requests with service load %v to API Gateway (%s).",
+	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.us-west-1.amazonaws.com/prod", gatewayEndpointID)
+	log.Infof("Experiment %d: starting sendBurst %d, making %d requests with service load %dms to API Gateway (%s).",
 		config.Id,
 		burstId,
 		requests,
@@ -68,5 +64,5 @@ func burst(config configuration.ExperimentConfig, burstId int, requests int, gat
 			config.PayloadLengthBytes, burstId)
 	}
 	requestsWaitGroup.Wait()
-	log.Printf("Experiment %d: received all responses for burst %d.", config.Id, burstId)
+	log.Infof("Experiment %d: received all responses for burst %d.", config.Id, burstId)
 }
