@@ -15,7 +15,8 @@ import (
 )
 
 var rangeFlag = flag.String("range", "0_300", "Action functions with IDs in the given interval.")
-var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions.")
+var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions (deploy, "+
+	"remove, update_func, update_func_conf).")
 var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
 var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, in bytes.")
 var logLevelFlag = flag.String("logLevel", "info", "Select logging level.")
@@ -53,8 +54,10 @@ func main() {
 			connection.DeployFunction(i, *languageFlag)
 		case "remove":
 			connection.RemoveFunction(i)
-		case "update":
+		case "update_func":
 			connection.UpdateFunction(i)
+		case "update_func_conf":
+			connection.UpdateFunctionConfiguration(i)
 		default:
 			log.Fatalf("Unrecognized function action %s", *actionFlag)
 		}
@@ -79,7 +82,9 @@ func setupDeployment(outputDirectoryPath string) *os.File {
 
 		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
 		return deploymentFile
-	case "update":
+	case "update_func":
+		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+	case "update_func_conf":
 		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
 	case "remove":
 		// No setup required for removing functions

@@ -10,7 +10,7 @@ import (
 func (lambda Interface) UpdateFunction(i int) {
 	log.Printf("Updating producer lambda code %s-%v", lambda.familiarName, i)
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "update-function-code", "--function-name",
-		fmt.Sprintf("%s-%v", lambda.familiarName, i), "--zip-file", fmt.Sprintf("fileb://code/%s.zip", lambda.familiarName))
+		fmt.Sprintf("%s-%v", lambda.familiarName, i), "--zip-file", fmt.Sprintf("fileb://%s.zip", lambda.familiarName))
 	util.RunCommandAndLog(cmd)
 }
 

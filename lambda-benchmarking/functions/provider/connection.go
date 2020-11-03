@@ -41,6 +41,16 @@ func (c Connection) UpdateFunction(i int) {
 		awsInterface := aws.Initialize()
 
 		awsInterface.UpdateFunction(i)
+	default:
+		log.Fatalf("Unrecognized provider %s", c.ProviderName)
+	}
+}
+
+func (c Connection) UpdateFunctionConfiguration(i int) {
+	switch c.ProviderName {
+	case "aws":
+		awsInterface := aws.Initialize()
+
 		awsInterface.UpdateFunctionConfiguration(i)
 	default:
 		log.Fatalf("Unrecognized provider %s", c.ProviderName)
