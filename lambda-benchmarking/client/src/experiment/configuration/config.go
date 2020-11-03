@@ -9,4 +9,5 @@ type ExperimentConfig struct {
 	GatewayEndpoints        []string
 	Id                      int
 	IatType                 string
+	Provider                string
 }

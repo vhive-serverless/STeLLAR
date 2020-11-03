@@ -1,3 +1,0 @@
-[36mINFO[0m[0000] Started benchmarking HTTP client on Tuesday, 03-Nov-20 11:48:22 UTC. 
-[36mINFO[0m[0000] Parameters entered: visualization CDF, gateways path was set to gateways.csv, config path was set to config.csv, output path was set to latency-samples, runExperiment is -1 
-[31mFATA[0m[0000] open gateways.csv: no such file or directory 

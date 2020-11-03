@@ -6,8 +6,9 @@ run_client:
 	@mkdir -p "../latency-samples"
 	@./client \
 		--outputPath "../latency-samples" \
-		--configPath "../config.csv"\
-		--gatewaysPath "../gateways.csv"
+		--configPath "../experiments/test.csv"\
+		--gatewaysPath "../gateways.csv" \
+		--visualization "all"
 
 build_and_run_client: build run_client
 
