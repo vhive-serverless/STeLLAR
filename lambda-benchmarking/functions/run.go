@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var rangeFlag = flag.String("range", "0_300", "Action functions with IDs in the given interval.")
+var rangeFlag = flag.String("range", "0_5", "Action functions with IDs in the given interval.")
 var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions (deploy, "+
 	"remove, update_func, update_func_conf).")
 var providerFlag = flag.String("provider", "aws", "Provider to interact with.")

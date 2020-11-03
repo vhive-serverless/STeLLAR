@@ -3,7 +3,7 @@ package aws
 import (
 	"fmt"
 	"functions/util"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -37,6 +37,6 @@ func (lambda Interface) GetAPIID(i int) string {
 		"--region", lambda.region)
 	apiID := util.RunCommandAndLog(cmd)
 	apiID, _ = strconv.Unquote(strings.ReplaceAll(strconv.Quote(apiID), `\n`, ""))
-	log.Printf("API ID of %s-API-%v is %s", lambda.familiarName, i, apiID)
+	log.Infof("API ID of %s-API-%v is %s", lambda.familiarName, i, apiID)
 	return apiID
 }

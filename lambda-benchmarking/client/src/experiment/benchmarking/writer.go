@@ -3,7 +3,6 @@ package benchmarking
 import (
 	"encoding/csv"
 	log "github.com/sirupsen/logrus"
-	"lambda-benchmarking/client/experiment/networking"
 	"os"
 	"strconv"
 	"sync"
@@ -16,11 +15,12 @@ type SafeWriter struct {
 }
 
 func InitializeExperimentWriter(file *os.File) *SafeWriter {
+	log.Debugf("Creating experiment writer to file `%s`", file.Name())
 	safeExperimentWriter := &SafeWriter{Writer: csv.NewWriter(file)}
 	// writer.WriteRowToFile would fail because the instance Initialize was called on didn't have the Writer initialized
 	safeExperimentWriter.WriteRowToFile(
 		"AWS Request ID",
-		"Gateway Endpoint",
+		"Host",
 		"Sent At",
 		"Received At",
 		"Client Latency (ms)",
@@ -29,30 +29,20 @@ func InitializeExperimentWriter(file *os.File) *SafeWriter {
 	return safeExperimentWriter
 }
 
-func (writer *SafeWriter) GenerateLatencyRecord(gatewayEndpointURL string, requestsWaitGroup *sync.WaitGroup,
-	functionIncrementLimit int64, payloadLength int, burstId int) {
-	defer requestsWaitGroup.Done()
-	start := time.Now()
-
+func (writer *SafeWriter) RecordLatencyRecord(host string, startTime time.Time, endTime time.Time, responseID string, burstId int) {
 	writer.WriteRowToFile(
-		networking.CallAPIGateway(gatewayEndpointURL, functionIncrementLimit, payloadLength),
-		gatewayEndpointURL,
-		start.Format(time.StampNano),
-		time.Now().Format(time.StampNano),
-		strconv.FormatInt(time.Since(start).Milliseconds(), 10),
+		responseID,
+		host,
+		startTime.Format(time.RFC3339),
+		endTime.Format(time.RFC3339),
+		strconv.FormatInt(endTime.Sub(startTime).Milliseconds(), 10),
 		strconv.Itoa(burstId),
 	)
 }
 
-func (writer *SafeWriter) WriteRowToFile(
-	AwsRequestID string,
-	gatewayEndpoint string,
-	SentAt string,
-	ReceivedAt string,
-	ClientLatencyMs string,
-	BurstID string) {
+func (writer *SafeWriter) WriteRowToFile(awsRequestID string, host string, sentAt string, receivedAt string, clientLatencyMs string, burstID string) {
 	writer.mux.Lock()
-	if err := writer.Writer.Write([]string{AwsRequestID, gatewayEndpoint, SentAt, ReceivedAt, ClientLatencyMs, BurstID}); err != nil {
+	if err := writer.Writer.Write([]string{awsRequestID, host, sentAt, receivedAt, clientLatencyMs, burstID}); err != nil {
 		log.Fatal(err)
 	}
 	writer.mux.Unlock()

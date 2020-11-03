@@ -1,4 +1,4 @@
-package benchmarking
+package experiment
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -7,11 +7,12 @@ import (
 	"time"
 )
 
-func CreateIAT(frequencySeconds float64, burstsNumber int, iatType string) []time.Duration {
+func generateIAT(frequencySeconds float64, burstsNumber int, iatType string, experimentId int) []time.Duration {
 	step := 1.0
 	maxStep := frequencySeconds
 	runningDelta := math.Min(maxStep, frequencySeconds)
 
+	log.Debugf("Experiment %d: Generating %s IATs", experimentId, iatType)
 	burstDeltas := make([]time.Duration, burstsNumber)
 	for i := range burstDeltas {
 		switch iatType {
@@ -37,6 +38,6 @@ func CreateIAT(frequencySeconds float64, burstsNumber int, iatType string) []tim
 
 // use a shifted and scaled exponential distribution to guarantee a minimum sleep time
 func getSleepTime(frequencySeconds float64) float64 {
-	rateParameter := 1 / math.Log(frequencySeconds) // experimentally deduced formula to accommodate 2s but also 600s
+	rateParameter := 1 / math.Log(frequencySeconds) // experimentally deduced formula
 	return frequencySeconds + rand.ExpFloat64()/rateParameter
 }
