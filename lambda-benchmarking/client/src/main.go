@@ -8,8 +8,10 @@ import (
 	"lambda-benchmarking/client/experiment"
 	"math/rand"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -31,39 +33,39 @@ func main() {
 	}
 
 	logFile := setupClientLogging(outputDirectoryPath)
-	defer logFile.Close()
+
+	SetupCtrlCHandler()
 
 	log.Infof("Started benchmarking HTTP client on %v.", time.Now().UTC().Format(time.RFC850))
-	log.Infof(`Parameters entered: visualization %v, config path was set to %s,
-		output path was set to %s, runExperiment is %d`, *visualizationFlag, *configPathFlag,
+	log.Infof(`Parameters entered: visualization %v, gateways path was set to %s, config path was set to %s, output path was set to %s, runExperiment is %d`, *visualizationFlag, *gatewaysPathFlag, *configPathFlag,
 		*outputPathFlag, *runExperimentFlag)
 
 	gatewaysFile, err := os.Open(*gatewaysPathFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
-	df := dataframe.ReadCSV(gatewaysFile)
-	gateways := df.Col("Gateway ID").Records()
+	gatewaysDF := dataframe.ReadCSV(gatewaysFile)
+	gateways := gatewaysDF.Col("Gateway ID").Records()
 	experimentsGatewayIndex := 0
 
 	configFile, err := os.Open(*configPathFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
-	df = dataframe.ReadCSV(configFile)
+	configDF := dataframe.ReadCSV(configFile)
 
 	var experimentsWaitGroup sync.WaitGroup
 	if *runExperimentFlag != -1 {
-		if *runExperimentFlag < 0 || *runExperimentFlag >= df.Nrow() {
+		if *runExperimentFlag < 0 || *runExperimentFlag >= configDF.Nrow() {
 			panic("runExperiment parameter is invalid")
 		}
 		experimentsWaitGroup.Add(1)
-		experiment.ExtractConfigurationAndRunExperiment(df, *runExperimentFlag, &experimentsWaitGroup, outputDirectoryPath,
+		experiment.ExtractConfigurationAndRunExperiment(configDF, *runExperimentFlag, &experimentsWaitGroup, outputDirectoryPath,
 			gateways, experimentsGatewayIndex, *visualizationFlag)
 	} else {
-		for experimentIndex := 0; experimentIndex < df.Nrow(); experimentIndex++ {
+		for experimentIndex := 0; experimentIndex < configDF.Nrow(); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			endpointsAssigned := experiment.ExtractConfigurationAndRunExperiment(df, experimentIndex, &experimentsWaitGroup,
+			endpointsAssigned := experiment.ExtractConfigurationAndRunExperiment(configDF, experimentIndex, &experimentsWaitGroup,
 				outputDirectoryPath, gateways, experimentsGatewayIndex, *visualizationFlag)
 
 			experimentsGatewayIndex += endpointsAssigned
@@ -71,7 +73,23 @@ func main() {
 	}
 	experimentsWaitGroup.Wait()
 
-	log.Infof("Exiting...")
+	if err := logFile.Close(); err != nil {
+		log.Fatal(err)
+	}
+	log.Info("Exiting...")
+}
+
+// SetupCtrlCHandler creates a 'listener' on a new goroutine which will notify the
+// program if it receives an interrupt from the OS.
+func SetupCtrlCHandler() {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Info("Ctrl+C pressed in Terminal")
+		log.Info("Exiting...")
+		os.Exit(0)
+	}()
 }
 
 func setupClientLogging(path string) *os.File {

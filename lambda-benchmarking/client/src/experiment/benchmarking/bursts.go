@@ -13,7 +13,7 @@ import (
 func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
 	estimateTime := estimateTotalDuration(config, deltas)
 
-	log.Infof("Experiment %d: scheduling %d bursts with freq %vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
+	log.Infof("Experiment %d: scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
 		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.FrequencySeconds,
 		time.Now().Add(estimateTime).UTC().Format(time.RFC3339))
@@ -33,7 +33,8 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 			burstId++
 		}
 
-		// After all gateways have been used for bursts, sleep again
+		// After all gateways have been used for bursts, flush and sleep again
+		safeExperimentWriter.Writer.Flush()
 		deltaIndex++
 	}
 }
@@ -49,7 +50,7 @@ func estimateTotalDuration(config configuration.ExperimentConfig, deltas []time.
 func sendBurst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string,
 	functionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
 	gatewayEndpointURL := fmt.Sprintf("https://%s.execute-api.us-west-1.amazonaws.com/prod", gatewayEndpointID)
-	log.Infof("Experiment %d: starting burst %d, making %d requests with service load %dms to API Gateway (%s).",
+	log.Infof("Experiment %d: starting burst %d, making %d requests with increment limit %d to API Gateway (%s).",
 		config.Id,
 		burstId,
 		requests,

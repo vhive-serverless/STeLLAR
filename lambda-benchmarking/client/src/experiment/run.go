@@ -13,8 +13,11 @@ import (
 	"sync"
 )
 
-func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentIndex int, experimentsWaitGroup *sync.WaitGroup,
-	outputDirectoryPath string, gateways []string, experimentsGatewayIndex int, visualization string) int {
+func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentIndex int, experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath string, gateways []string, experimentsGatewayIndex int, visualization string) int {
+	experimentDirectoryPath := createExperimentDirectory(outputDirectoryPath, experimentIndex)
+	latenciesFile := createExperimentLatenciesFile(experimentDirectoryPath)
+	safeExperimentWriter := benchmarking.InitializeExperimentWriter(latenciesFile)
+
 	bursts, _ := df.Elem(experimentIndex, 0).Int()
 	burstSize := strings.Split(df.Elem(experimentIndex, 1).String(), " ")
 	iatType := df.Elem(experimentIndex, 2).String()
@@ -23,7 +26,7 @@ func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentInde
 	frequencySeconds := df.Elem(experimentIndex, 5).Float()
 	endpointsAssigned, _ := df.Elem(experimentIndex, 6).Int()
 
-	go runExperiment(experimentsWaitGroup, outputDirectoryPath, configuration.ExperimentConfig{
+	go runExperiment(experimentsWaitGroup, latenciesFile, experimentDirectoryPath, configuration.ExperimentConfig{
 		Bursts:                  bursts,
 		BurstSizes:              burstSize,
 		PayloadLengthBytes:      payloadLengthBytes,
@@ -32,44 +35,12 @@ func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentInde
 		GatewayEndpoints:        gateways[experimentsGatewayIndex : experimentsGatewayIndex+endpointsAssigned],
 		Id:                      experimentIndex,
 		IatType:                 iatType,
-	}, visualization)
-	return endpointsAssigned
-}
+	}, visualization, safeExperimentWriter)
 
-func runExperiment(experimentsWaitGroup *sync.WaitGroup, outputDirectoryPath string, config configuration.ExperimentConfig,
-	visualizationType string) {
-	defer experimentsWaitGroup.Done()
-
-	experimentDirectoryPath := createExperimentDirectory(outputDirectoryPath, config.Id)
-	csvFile := createExperimentLatenciesFile(experimentDirectoryPath)
-	defer csvFile.Close()
-
-	burstDeltas := benchmarking.CreateIAT(config.FrequencySeconds, config.Bursts, config.IatType)
-
-	log.Infof("Starting experiment %d...", config.Id)
-	safeExperimentWriter := benchmarking.InitializeExperimentWriter(csvFile)
-	benchmarking.RunProfiler(config, burstDeltas, safeExperimentWriter)
-
-	log.Infof("Experiment %d: flushing results to CSV file.", config.Id)
-	safeExperimentWriter.Writer.Flush()
-
-	switch visualizationType {
-	case "":
-		log.Infof("Experiment %d: skipping visualization", config.Id)
-	case "CDF":
-		log.Infof("Experiment %d: creating %ss from CSV file `%s`", config.Id, visualizationType,
-			csvFile.Name())
-		visualization.GenerateVisualization(
-			visualizationType,
-			config,
-			burstDeltas,
-			csvFile,
-			experimentDirectoryPath,
-		)
-	default:
-		log.Errorf("Experiment %d: unrecognized visualization %s, skipping", config.Id, visualizationType)
+	if err := latenciesFile.Close(); err != nil {
+		log.Fatal(err)
 	}
-	log.Infof("Experiment %d: done", config.Id)
+	return endpointsAssigned
 }
 
 func createExperimentLatenciesFile(experimentDirectoryPath string) *os.File {
@@ -87,4 +58,31 @@ func createExperimentDirectory(path string, id int) string {
 		log.Fatal(err)
 	}
 	return experimentDirectoryPath
+}
+
+func runExperiment(experimentsWaitGroup *sync.WaitGroup, latenciesFile *os.File, experimentDirectoryPath string,
+	config configuration.ExperimentConfig, visualizationType string, safeExperimentWriter *benchmarking.SafeWriter) {
+	defer experimentsWaitGroup.Done()
+
+	burstDeltas := benchmarking.CreateIAT(config.FrequencySeconds, config.Bursts, config.IatType)
+
+	log.Infof("Starting experiment %d...", config.Id)
+	benchmarking.RunProfiler(config, burstDeltas, safeExperimentWriter)
+
+	switch visualizationType {
+	case "":
+		log.Infof("Experiment %d: skipping visualization", config.Id)
+	case "CDF":
+		log.Infof("Experiment %d: creating %ss from CSV file `%s`", config.Id, visualizationType, latenciesFile.Name())
+		visualization.GenerateVisualization(
+			visualizationType,
+			config,
+			burstDeltas,
+			latenciesFile,
+			experimentDirectoryPath,
+		)
+	default:
+		log.Errorf("Experiment %d: unrecognized visualization %s, skipping", config.Id, visualizationType)
+	}
+	log.Infof("Experiment %d: done", config.Id)
 }

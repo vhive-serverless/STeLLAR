@@ -36,7 +36,7 @@ func CallAPIGateway(gatewayEndpoint string, functionIncrementLimit int64, payloa
 	defer cancel()
 	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 
 	return processResponse(resp, gatewayEndpoint)
