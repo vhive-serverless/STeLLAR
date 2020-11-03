@@ -32,7 +32,7 @@ func GenerateVisualization(visualizationType string, config configuration.Experi
 		}
 	} else {
 		plotLatenciesCDF(
-			filepath.Join(path, fmt.Sprintf("empirical_CDF.png")),
+			filepath.Join(path, "empirical_CDF.png"),
 			df.Col("Client Latency (ms)"),
 			config,
 		)

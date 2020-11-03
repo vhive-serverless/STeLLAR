@@ -5,7 +5,7 @@ type ExperimentConfig struct {
 	BurstSizes              []string
 	PayloadLengthBytes      int
 	FrequencySeconds        float64
-	FunctionIncrementLimits []int // If more than one, service time is dynamic
+	FunctionIncrementLimits []int64 // If more than one, service time is dynamic
 	GatewayEndpoints        []string
 	Id                      int
 	IatType                 string

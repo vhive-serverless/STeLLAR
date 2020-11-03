@@ -19,7 +19,7 @@ func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentInde
 	burstSize := strings.Split(df.Elem(experimentIndex, 1).String(), " ")
 	iatType := df.Elem(experimentIndex, 2).String()
 	payloadLengthBytes, _ := df.Elem(experimentIndex, 3).Int()
-	serviceTimesStrings := strings.Split(df.Elem(experimentIndex, 4).String(), " ")
+	functionIncrementLimits := strings.Split(df.Elem(experimentIndex, 4).String(), " ")
 	frequencySeconds := df.Elem(experimentIndex, 5).Float()
 	endpointsAssigned, _ := df.Elem(experimentIndex, 6).Int()
 
@@ -28,7 +28,7 @@ func ExtractConfigurationAndRunExperiment(df dataframe.DataFrame, experimentInde
 		BurstSizes:              burstSize,
 		PayloadLengthBytes:      payloadLengthBytes,
 		FrequencySeconds:        frequencySeconds,
-		FunctionIncrementLimits: GetIncrementLimits(experimentIndex, serviceTimesStrings),
+		FunctionIncrementLimits: getIncrementLimits(functionIncrementLimits),
 		GatewayEndpoints:        gateways[experimentsGatewayIndex : experimentsGatewayIndex+endpointsAssigned],
 		Id:                      experimentIndex,
 		IatType:                 iatType,

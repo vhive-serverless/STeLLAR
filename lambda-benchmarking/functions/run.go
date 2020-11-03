@@ -46,6 +46,7 @@ func main() {
 
 	connection := &provider.Connection{ProviderName: *providerFlag}
 
+	// Issuing simultaneous requests poses problems with AWS
 	for i := start; i < end; i++ {
 		switch *actionFlag {
 		case "deploy":

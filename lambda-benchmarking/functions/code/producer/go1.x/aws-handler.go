@@ -27,7 +27,7 @@ func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyReq
 	for i := 0; i < lambdaIncrementLimit; i++ {
 	}
 
-	randomPayload, err := generatePayload(err, request)
+	randomPayload, err := generatePayload(request)
 	if err != nil {
 		return serverError(err)
 	}
@@ -52,7 +52,7 @@ func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyReq
 	}, nil
 }
 
-func generatePayload(err error, request events.APIGatewayProxyRequest) ([]byte, error) {
+func generatePayload(request events.APIGatewayProxyRequest) ([]byte, error) {
 	payloadLength, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
 	if err != nil {
 		return nil, err

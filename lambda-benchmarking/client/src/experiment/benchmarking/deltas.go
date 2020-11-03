@@ -7,21 +7,15 @@ import (
 	"time"
 )
 
-const (
-	defaultIAT = "stochastic"
-)
-
 func CreateIAT(frequencySeconds float64, burstsNumber int, iatType string) []time.Duration {
 	step := 1.0
 	maxStep := frequencySeconds
 	runningDelta := math.Min(maxStep, frequencySeconds)
 
-	var burstDeltas []time.Duration
-	burstDeltas = make([]time.Duration, burstsNumber)
+	burstDeltas := make([]time.Duration, burstsNumber)
 	for i := range burstDeltas {
 		switch iatType {
 		case "stochastic":
-			// TODO: allow customization for mean (currently frequencySeconds) and stddev (currently frequencySeconds)
 			burstDeltas[i] = time.Duration(getSleepTime(frequencySeconds)*1000) * time.Millisecond
 		case "deterministic":
 			burstDeltas[i] = time.Duration(frequencySeconds) * time.Second
@@ -34,13 +28,15 @@ func CreateIAT(frequencySeconds float64, burstsNumber int, iatType string) []tim
 			}
 			runningDelta += step
 		default:
-			log.Errorf("Unrecognized inter-arrival time type %s, using default %s", iatType, defaultIAT)
+			log.Errorf("Unrecognized inter-arrival time type %s, using default: stochastic", iatType)
+			burstDeltas[i] = time.Duration(getSleepTime(frequencySeconds)*1000) * time.Millisecond
 		}
 	}
 	return burstDeltas
 }
 
-// scale and shift the standard normal distribution, make sure result is positive
+// use a shifted and scaled exponential distribution to guarantee a minimum sleep time
 func getSleepTime(frequencySeconds float64) float64 {
-	return math.Max(rand.NormFloat64()*frequencySeconds/10+frequencySeconds, 0)
+	rateParameter := 1 / math.Log(frequencySeconds) // experimentally deduced formula to accommodate 2s but also 600s
+	return frequencySeconds + rand.ExpFloat64()/rateParameter
 }
