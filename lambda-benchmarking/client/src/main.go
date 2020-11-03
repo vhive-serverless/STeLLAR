@@ -21,7 +21,7 @@ var runExperimentFlag = flag.Int("runExperiment", -1, "Only run this particular 
 var logLevelFlag = flag.String("logLevel", "info", "Select logging level.")
 
 func main() {
-	rand.Seed(time.Now().Unix()) // remove for reproducible deltas
+	rand.Seed(time.Now().Unix()) // comment line for reproducible deltas
 	flag.Parse()
 
 	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))

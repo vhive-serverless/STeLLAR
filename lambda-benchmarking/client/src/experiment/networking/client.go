@@ -15,11 +15,11 @@ const (
 	timeout = 15 * time.Minute
 )
 
-func CallAPIGateway(gatewayEndpoint string, lambdaIncrementLimit int, payloadLengthBytes int) string {
+func CallAPIGateway(gatewayEndpoint string, functionIncrementLimit int64, payloadLengthBytes int) string {
 	req, err := http.NewRequest("POST",
 		fmt.Sprintf("%s/benchmarking?LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
 			gatewayEndpoint,
-			lambdaIncrementLimit,
+			functionIncrementLimit,
 			payloadLengthBytes,
 		),
 		nil,

@@ -1,5 +1,6 @@
 build:
 	@GOOS=linux go build -v -a
+	@golangci-lint run ./...
 
 run_client:
 	@mkdir -p "../latency-samples"
