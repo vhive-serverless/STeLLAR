@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func sendBurst(config configuration.ExperimentConfig, burstId int, requests int, gatewayEndpointID string,
+func sendBurst(config configuration.Experiment, burstId int, requests int, gatewayEndpointID string,
 	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
 	request := generateRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
 
@@ -51,7 +51,7 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	safeExperimentWriter.RecordLatencyRecord(request.URL.Hostname(), startTime, endTime, responseID, burstId)
 }
 
-func generateRequest(config configuration.ExperimentConfig, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func generateRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
 	switch config.Provider {
 	case "aws":
 		request, err := http.NewRequest(

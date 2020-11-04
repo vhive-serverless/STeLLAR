@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func GenerateVisualization(visualizationType string, config configuration.ExperimentConfig, deltas []time.Duration, csvFile *os.File, path string) {
+func GenerateVisualization(visualizationType string, config configuration.Experiment, deltas []time.Duration, csvFile *os.File, path string) {
 	switch visualizationType {
 	case "all":
 		log.Infof("Experiment %d: creating all visualizations", config.Id)
@@ -31,7 +31,7 @@ func GenerateVisualization(visualizationType string, config configuration.Experi
 	}
 }
 
-func generateHistograms(config configuration.ExperimentConfig, csvFile *os.File, path string, deltas []time.Duration) {
+func generateHistograms(config configuration.Experiment, csvFile *os.File, path string, deltas []time.Duration) {
 	log.Debugf("Experiment %d: reading written latencies file %s", config.Id, csvFile.Name())
 	latenciesDF := readWrittenLatenciesFile(csvFile)
 
@@ -47,7 +47,7 @@ func generateHistograms(config configuration.ExperimentConfig, csvFile *os.File,
 	}
 }
 
-func generateCDFs(config configuration.ExperimentConfig, csvFile *os.File, path string) {
+func generateCDFs(config configuration.Experiment, csvFile *os.File, path string) {
 	log.Debugf("Experiment %d: reading written latencies file %s", config.Id, csvFile.Name())
 	latenciesDF := readWrittenLatenciesFile(csvFile)
 

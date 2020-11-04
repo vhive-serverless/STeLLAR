@@ -1,0 +1,20 @@
+[
+  {
+    "Bursts": 6,
+    "BurstSizes": [
+      "1",
+      "2",
+      "4",
+      "8",
+      "16"
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 5,
+    "FunctionIncrementLimits": [
+      100
+    ],
+    "IATType": "stochastic",
+    "Provider": "test",
+    "GatewaysNumber": 2
+  }
+]
