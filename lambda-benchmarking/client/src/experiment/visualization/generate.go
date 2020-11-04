@@ -12,49 +12,61 @@ import (
 	"time"
 )
 
-func GenerateVisualization(visualizationType string, config configuration.Experiment, deltas []time.Duration, csvFile *os.File, path string) {
+func GenerateVisualization(visualizationType string, experiment configuration.Experiment, deltas []time.Duration, csvFile *os.File, path string) {
+	log.Debugf("Experiment %d: reading written latencies file %s", experiment.Id, csvFile.Name())
+	latenciesDF := readWrittenLatenciesFile(csvFile)
+
 	switch visualizationType {
 	case "all":
-		log.Infof("Experiment %d: creating all visualizations", config.Id)
-		generateCDFs(config, csvFile, path)
-		generateHistograms(config, csvFile, path, deltas)
+		log.Infof("Experiment %d: generating all visualizations", experiment.Id)
+		generateCDFs(experiment, latenciesDF, path)
+		generateHistograms(experiment, latenciesDF, path, deltas)
+		generateBarCharts(experiment, latenciesDF, path)
+	case "bar":
+		log.Infof("Experiment %d: generating burst bar chart visualization", experiment.Id)
+		generateBarCharts(experiment, latenciesDF, path)
 	case "CDF":
-		log.Infof("Experiment %d: creating CDF visualizations", config.Id)
-		generateCDFs(config, csvFile, path)
+		log.Infof("Experiment %d: generating CDF visualization", experiment.Id)
+		generateCDFs(experiment, latenciesDF, path)
 	case "histogram":
-		log.Infof("Experiment %d: creating histograms visualizations (per-burst)", config.Id)
-		generateHistograms(config, csvFile, path, deltas)
+		log.Infof("Experiment %d: generating histograms visualizations (per-burst)", experiment.Id)
+		generateHistograms(experiment, latenciesDF, path, deltas)
 	case "":
-		fallthrough
+		log.Errorf("Experiment %d: no visualization selected, skipping", experiment.Id)
 	default:
-		log.Errorf("Experiment %d: unrecognized visualization `%s`, skipping", config.Id, visualizationType)
+		log.Errorf("Experiment %d: unrecognized visualization `%s`, skipping", experiment.Id, visualizationType)
 	}
 }
 
-func generateHistograms(config configuration.Experiment, csvFile *os.File, path string, deltas []time.Duration) {
-	log.Debugf("Experiment %d: reading written latencies file %s", config.Id, csvFile.Name())
-	latenciesDF := readWrittenLatenciesFile(csvFile)
+func generateBarCharts(experiment configuration.Experiment, latenciesDF dataframe.DataFrame, path string) {
+	log.Debugf("Experiment %d: plotting characterization bar chart", experiment.Id)
+	plotBurstsBarChart(filepath.Join(path, "bursts_characterization.png"), experiment, latenciesDF)
+}
 
-	log.Debugf("Experiment %d: plotting latencies burst histograms", config.Id)
+func generateHistograms(config configuration.Experiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
+	histogramsDirectoryPath := filepath.Join(path, "histograms")
+	log.Infof("Creating directory for histograms at `%s`", histogramsDirectoryPath)
+	if err := os.MkdirAll(histogramsDirectoryPath, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Debugf("Experiment %d: plotting latency histograms for each burst", config.Id)
 	for burstIndex := 0; burstIndex < config.Bursts; burstIndex++ {
 		burstDF := latenciesDF.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 		plotBurstLatenciesHistogram(
-			filepath.Join(path, fmt.Sprintf("burst%d_delta%v.png", burstIndex, deltas[burstIndex])),
-			burstDF.Col("Client Latency (ms)"),
+			filepath.Join(histogramsDirectoryPath, fmt.Sprintf("burst%d_delta%v.png", burstIndex, deltas[burstIndex])),
+			burstDF.Col("Client Latency (ms)").Float(),
 			burstIndex,
 			deltas[burstIndex],
 		)
 	}
 }
 
-func generateCDFs(config configuration.Experiment, csvFile *os.File, path string) {
-	log.Debugf("Experiment %d: reading written latencies file %s", config.Id, csvFile.Name())
-	latenciesDF := readWrittenLatenciesFile(csvFile)
-
+func generateCDFs(config configuration.Experiment, latenciesDF dataframe.DataFrame, path string) {
 	log.Debugf("Experiment %d: plotting latencies CDF", config.Id)
 	plotLatenciesCDF(
 		filepath.Join(path, "empirical_CDF.png"),
-		latenciesDF.Col("Client Latency (ms)"),
+		latenciesDF.Col("Client Latency (ms)").Float(),
 		config,
 	)
 }

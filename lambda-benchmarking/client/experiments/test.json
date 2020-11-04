@@ -2,11 +2,11 @@
   {
     "Bursts": 6,
     "BurstSizes": [
-      "1",
-      "2",
-      "4",
-      "8",
-      "16"
+      1,
+      2,
+      4,
+      8,
+      16
     ],
     "PayloadLengthBytes": 5,
     "CooldownSeconds": 5,
@@ -14,7 +14,7 @@
       100
     ],
     "IATType": "stochastic",
-    "Provider": "test",
-    "GatewaysNumber": 2
+    "Provider": "www.google.com",
+    "GatewaysNumber": 1
   }
 ]

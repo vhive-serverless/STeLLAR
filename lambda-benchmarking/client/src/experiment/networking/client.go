@@ -2,8 +2,10 @@ package networking
 
 import (
 	"context"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"lambda-benchmarking/client/experiment/configuration"
 	"net/http"
 	"time"
 )
@@ -31,4 +33,45 @@ func MakeHTTPRequest(req http.Request) *http.Response {
 	}
 
 	return resp
+}
+
+func GenerateRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+	switch config.Provider {
+	case "aws":
+		return generateAWSRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
+	default:
+		return generateCustomRequest(config.Provider)
+	}
+}
+
+func generateCustomRequest(hostname string) *http.Request {
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s/", hostname), nil)
+	if err != nil {
+		log.Error(err)
+	}
+	return request
+}
+
+func generateAWSRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+	request, err := http.NewRequest(
+		http.MethodPost,
+		fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, Region),
+		nil,
+	)
+	if err != nil {
+		log.Error(err)
+	}
+
+	request.URL.Path = "/prod/benchmarking"
+	request.URL.RawQuery = fmt.Sprintf("LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
+		assignedFunctionIncrementLimit,
+		config.PayloadLengthBytes,
+	)
+
+	_, err = GetAWSSignerSingleton().Sign(request, nil, "execute-api", Region, time.Now())
+	if err != nil {
+		log.Error(err)
+	}
+
+	return request
 }

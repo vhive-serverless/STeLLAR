@@ -1,7 +1,6 @@
 package benchmarking
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"lambda-benchmarking/client/experiment/configuration"
 	"lambda-benchmarking/client/experiment/networking"
@@ -12,7 +11,7 @@ import (
 
 func sendBurst(config configuration.Experiment, burstId int, requests int, gatewayEndpointID string,
 	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
-	request := generateRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
+	request := networking.GenerateRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
 
 	log.Infof("Experiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
 		config.Id,
@@ -42,47 +41,9 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	switch provider {
 	case "aws":
 		responseID = networking.GetAWSRequestID(resp)
-	case "test":
-		fallthrough
 	default:
 		responseID = ""
 	}
 
-	safeExperimentWriter.RecordLatencyRecord(request.URL.Hostname(), startTime, endTime, responseID, burstId)
-}
-
-func generateRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
-	switch config.Provider {
-	case "aws":
-		request, err := http.NewRequest(
-			http.MethodPost,
-			fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, networking.Region),
-			nil,
-		)
-		if err != nil {
-			log.Error(err)
-		}
-
-		request.URL.Path = "/prod/benchmarking"
-		request.URL.RawQuery = fmt.Sprintf("LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
-			assignedFunctionIncrementLimit,
-			config.PayloadLengthBytes,
-		)
-
-		_, err = networking.GetAWSSignerSingleton().Sign(request, nil, "execute-api", networking.Region, time.Now())
-		if err != nil {
-			log.Error(err)
-		}
-
-		return request
-	case "test":
-		request, err := http.NewRequest(http.MethodGet, "https://www.google.com/", nil)
-		if err != nil {
-			log.Error(err)
-		}
-		return request
-	}
-
-	log.Fatalf("Unrecognized provider %s", config.Provider)
-	return nil
+	safeExperimentWriter.recordLatencyRecord(request.URL.Hostname(), startTime, endTime, responseID, burstId)
 }

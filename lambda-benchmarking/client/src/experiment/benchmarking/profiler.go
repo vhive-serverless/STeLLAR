@@ -3,10 +3,11 @@ package benchmarking
 import (
 	log "github.com/sirupsen/logrus"
 	"lambda-benchmarking/client/experiment/configuration"
-	"strconv"
 	"time"
 )
 
+//RunProfiler will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
+//selected interval and start the process all over again.
 func RunProfiler(config configuration.Experiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
 	log.Infof("Experiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.CooldownSeconds, len(config.GatewayEndpoints),
@@ -21,8 +22,8 @@ func RunProfiler(config configuration.Experiment, deltas []time.Duration, safeEx
 		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
 		for gatewayId := 0; gatewayId < len(config.GatewayEndpoints) && burstId < config.Bursts; gatewayId++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
-			burstSize, _ := strconv.Atoi(config.BurstSizes[deltaIndex%len(config.BurstSizes)])
-			serviceLoad := config.FunctionIncrementLimits[deltaIndex%len(config.FunctionIncrementLimits)]
+			serviceLoad := config.FunctionIncrementLimits[Min(deltaIndex, len(config.FunctionIncrementLimits)-1)]
+			burstSize := config.BurstSizes[Min(deltaIndex, len(config.BurstSizes)-1)]
 			sendBurst(config, burstId, burstSize, config.GatewayEndpoints[gatewayId], serviceLoad, safeExperimentWriter)
 			burstId++
 		}
@@ -31,6 +32,13 @@ func RunProfiler(config configuration.Experiment, deltas []time.Duration, safeEx
 		log.Debugf("Experiment %d: all %d gateways have been used for bursts, flushing and sleeping for %v...", config.Id, len(config.GatewayEndpoints), deltas[deltaIndex-1])
 		safeExperimentWriter.Writer.Flush()
 	}
+}
+
+func Min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }
 
 func estimateTotalDuration(config configuration.Experiment, deltas []time.Duration) time.Duration {
