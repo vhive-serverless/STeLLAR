@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
+func RunProfiler(config configuration.Experiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
 	log.Infof("Experiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
-		config.Id, config.Bursts, config.FrequencySeconds, len(config.GatewayEndpoints),
-		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.FrequencySeconds,
+		config.Id, config.Bursts, config.CooldownSeconds, len(config.GatewayEndpoints),
+		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.CooldownSeconds,
 		time.Now().Add(estimateTotalDuration(config, deltas)).UTC().Format(time.RFC3339))
 
 	burstId := 0
@@ -33,7 +33,7 @@ func RunProfiler(config configuration.ExperimentConfig, deltas []time.Duration, 
 	}
 }
 
-func estimateTotalDuration(config configuration.ExperimentConfig, deltas []time.Duration) time.Duration {
+func estimateTotalDuration(config configuration.Experiment, deltas []time.Duration) time.Duration {
 	log.Debugf("Experiment %d: estimating total duration with deltas %v", config.Id, deltas)
 	estimateTime := deltas[0]
 	for _, burstDelta := range deltas[1 : config.Bursts/len(config.GatewayEndpoints)] {

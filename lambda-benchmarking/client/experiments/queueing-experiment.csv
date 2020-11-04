@@ -1,2 +1,0 @@
-Bursts,Burst Size,IAT Type,Payload Length (bytes),Function Increment Limit,Frequency (seconds),Gateways, Provider Benchmarked
-5000,1 2 4 8 16 32 64 128 256 512 1024 2048 4096,stochastic,5,100,1,1,aws

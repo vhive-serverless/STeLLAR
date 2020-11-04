@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"lambda-benchmarking/client/experiment"
+	"lambda-benchmarking/client/experiment/configuration"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -36,30 +37,30 @@ func main() {
 	logFile := setupClientLogging(outputDirectoryPath)
 	defer logFile.Close()
 
-	log.Infof("Started benchmarking HTTP client on %v (random seed %d).", time.Now().UTC().Format(time.RFC850), randomSeed)
-	log.Infof(`Parameters entered: visualization %v, gateways path was set to %s, config path was set to %s, output path was set to %s, runExperiment is %d`, *visualizationFlag, *gatewaysPathFlag, *configPathFlag,
-		*outputPathFlag, *runExperimentFlag)
+	log.Infof("Started benchmarking HTTP client on %v (random seed %d).",
+		time.Now().UTC().Format(time.RFC850), randomSeed)
+	log.Infof("Selected visualization: %v", *visualizationFlag)
+	log.Infof("Selected gateways path: %s", *gatewaysPathFlag)
+	log.Infof("Selected config path: %s", *configPathFlag)
+	log.Infof("Selected output path: %s", *outputPathFlag)
+	log.Infof("Selected experiment (-1 for all): %d", *runExperimentFlag)
 
 	log.Debug("Creating Ctrl-C handler")
 	SetupCtrlCHandler()
 
-	gateways, configDF := readInstructions()
-	experimentsGatewayIndex := 0
+	experiments := readInstructions()
 
 	var experimentsWaitGroup sync.WaitGroup
 	if *runExperimentFlag != -1 {
-		if *runExperimentFlag < 0 || *runExperimentFlag >= configDF.Nrow() {
-			panic("runExperiment parameter is invalid")
+		if *runExperimentFlag < 0 || *runExperimentFlag >= len(experiments) {
+			log.Fatalf("Parameter `runExperiment` is invalid: %d", *runExperimentFlag)
 		}
 		experimentsWaitGroup.Add(1)
-		experiment.TriggerExperiment(configDF, *runExperimentFlag, &experimentsWaitGroup, outputDirectoryPath, gateways, experimentsGatewayIndex, *visualizationFlag)
+		go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[*runExperimentFlag], outputDirectoryPath, *visualizationFlag)
 	} else {
-		for experimentIndex := 0; experimentIndex < configDF.Nrow(); experimentIndex++ {
+		for experimentIndex := 0; experimentIndex < len(experiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			endpointsAssigned := experiment.TriggerExperiment(configDF, experimentIndex, &experimentsWaitGroup,
-				outputDirectoryPath, gateways, experimentsGatewayIndex, *visualizationFlag)
-
-			experimentsGatewayIndex += endpointsAssigned
+			go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[experimentIndex], outputDirectoryPath, *visualizationFlag)
 		}
 	}
 	experimentsWaitGroup.Wait()
@@ -67,23 +68,31 @@ func main() {
 	log.Info("Exiting...")
 }
 
-func readInstructions() ([]string, dataframe.DataFrame) {
-	log.Debugf("Reading config file for this run from `%s`", *configPathFlag)
-	configFile, err := os.Open(*configPathFlag)
-	if err != nil {
-		log.Fatal(err)
-	}
-	configDF := dataframe.ReadCSV(configFile)
-
+func readInstructions() []configuration.Experiment {
 	log.Debugf("Reading gateways file for this run from `%s`", *gatewaysPathFlag)
 	gatewaysFile, err := os.Open(*gatewaysPathFlag)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Could not read gateways file: %s", err.Error())
 	}
 	gatewaysDF := dataframe.ReadCSV(gatewaysFile)
 	gateways := gatewaysDF.Col("Gateway ID").Records()
 
-	return gateways, configDF
+	log.Debugf("Reading config file for this run from `%s`", *configPathFlag)
+	configFile, err := os.Open(*configPathFlag)
+	if err != nil {
+		log.Fatalf("Could not read config file: %s", err.Error())
+	}
+
+	experimentsGatewayIndex := 0
+	experiments := configuration.Extract(configFile)
+	for index, exp := range experiments {
+		experiments[index].Id = index
+		experiments[index].GatewayEndpoints = gateways[experimentsGatewayIndex : experimentsGatewayIndex+exp.GatewaysNumber]
+		experimentsGatewayIndex += exp.GatewaysNumber
+	}
+
+	log.Debugf("Extracted %d experiments from given configuration file.", len(experiments))
+	return experiments
 }
 
 // SetupCtrlCHandler creates a 'listener' on a new goroutine which will notify the

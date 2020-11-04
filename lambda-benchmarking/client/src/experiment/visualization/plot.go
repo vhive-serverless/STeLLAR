@@ -18,7 +18,8 @@ import (
 func plotBurstLatenciesHistogram(plotPath string, latencySeries series.Series, burstIndex int, duration time.Duration) {
 	plotInstance, err := plot.New()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Creating a new histogram plot failed with error %s", err.Error())
+		return
 	}
 
 	plotInstance.Title.Text = fmt.Sprintf("Burst %v Histogram (%v since last)", burstIndex, duration)
@@ -41,13 +42,14 @@ func plotBurstLatenciesHistogram(plotPath string, latencySeries series.Series, b
 	}
 }
 
-func plotLatenciesCDF(plotPath string, latencySeries series.Series, config configuration.ExperimentConfig) {
+func plotLatenciesCDF(plotPath string, latencySeries series.Series, config configuration.Experiment) {
 	plotInstance, err := plot.New()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Creating a new CDF plot failed with error %s", err.Error())
+		return
 	}
 
-	plotInstance.Title.Text = fmt.Sprintf("Freq ~%vs, Burst sizes %s", config.FrequencySeconds, config.BurstSizes)
+	plotInstance.Title.Text = fmt.Sprintf("Freq ~%vs, Burst sizes %s", config.CooldownSeconds, config.BurstSizes)
 	plotInstance.Y.Label.Text = "portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.

@@ -18,7 +18,8 @@ func MakeHTTPRequest(req http.Request) *http.Response {
 
 	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("HTTP request failed with error %s", err.Error())
+		return nil
 	}
 
 	if resp.StatusCode != http.StatusOK {
