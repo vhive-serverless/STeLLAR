@@ -8,14 +8,14 @@ import (
 )
 
 type Experiment struct {
-	Bursts                  int      `json:"Bursts"`
-	BurstSizes              []string `json:"BurstSizes"`
-	PayloadLengthBytes      int      `json:"PayloadLengthBytes"`
-	CooldownSeconds         float64  `json:"CooldownSeconds"`
-	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
-	IATType                 string   `json:"IATType"`
-	Provider                string   `json:"Provider"`
-	GatewaysNumber          int      `json:"GatewaysNumber"`
+	Bursts                  int     `json:"Bursts"`
+	BurstSizes              []int   `json:"BurstSizes"`
+	PayloadLengthBytes      int     `json:"PayloadLengthBytes"`
+	CooldownSeconds         float64 `json:"CooldownSeconds"`
+	FunctionIncrementLimits []int64 `json:"FunctionIncrementLimits"`
+	IATType                 string  `json:"IATType"`
+	Provider                string  `json:"Provider"`
+	GatewaysNumber          int     `json:"GatewaysNumber"`
 	GatewayEndpoints        []string
 	Id                      int
 }

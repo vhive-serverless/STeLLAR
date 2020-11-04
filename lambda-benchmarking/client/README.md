@@ -19,7 +19,7 @@ or empirical CDF "CDF").
 
 | Bursts | Burst Size | IAT Type      | Payload Length (bytes) | Lambda Increment Limit | Frequency (seconds) | Gateways | Provider
 |--------|------------|---------------|------------------------|------------------------|---------------------|----------|---------
-| 5000   | 1          | deterministic | 5                      | 310000000              | 1                   | 50       | test
+| 5000   | 1          | deterministic | 5                      | 310000000              | 1                   | 50       | www.google.com
 | 50     | 100        | stochastic    | 5                      | 650000000              | 300                 | 150      | aws
 | 1000   | 5          | step          | 5                      | 1350000000             | 600                 | 100      | aws
 
@@ -30,7 +30,7 @@ or empirical CDF "CDF").
 - `Lambda Increment Limit` Increment limit for the lambda function to busy spin on.
 - `Frequency (seconds)` Frequency at which the latency profiler operates.
 - `Gateways` Integer representing how many gateways to use from the gateways file.
-- `Provider` String representing the provider to be benchmarked (`aws`, `test`).
+- `Provider` String representing the provider to be benchmarked (`aws`, misc. hostname).
 
 ## tmux tips
 - To create a new session `tmux new -s cloudlab`

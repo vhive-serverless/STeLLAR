@@ -2,27 +2,26 @@
   {
     "Bursts": 5000,
     "BurstSizes": [
-      "1",
-      "2",
-      "4",
-      "8",
-      "16",
-      "32",
-      "64",
-      "128",
-      "256",
-      "512",
-      "1024",
-      "2048",
-      "4096"
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
     ],
     "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
+    "CooldownSeconds": 15,
     "FunctionIncrementLimits": [
       100
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 2
+    "GatewaysNumber": 1
   }
 ]

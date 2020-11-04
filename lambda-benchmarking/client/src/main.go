@@ -46,26 +46,34 @@ func main() {
 	log.Infof("Selected experiment (-1 for all): %d", *runExperimentFlag)
 
 	log.Debug("Creating Ctrl-C handler")
-	SetupCtrlCHandler()
+	setupCtrlCHandler()
 
 	experiments := readInstructions()
 
+	triggerExperiments(experiments, outputDirectoryPath)
+
+	log.Info("Exiting...")
+}
+
+func triggerExperiments(experiments []configuration.Experiment, outputDirectoryPath string) {
 	var experimentsWaitGroup sync.WaitGroup
-	if *runExperimentFlag != -1 {
-		if *runExperimentFlag < 0 || *runExperimentFlag >= len(experiments) {
-			log.Fatalf("Parameter `runExperiment` is invalid: %d", *runExperimentFlag)
-		}
-		experimentsWaitGroup.Add(1)
-		go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[*runExperimentFlag], outputDirectoryPath, *visualizationFlag)
-	} else {
+
+	switch *runExperimentFlag {
+	case -1: // run all experiments
 		for experimentIndex := 0; experimentIndex < len(experiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
 			go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[experimentIndex], outputDirectoryPath, *visualizationFlag)
 		}
-	}
-	experimentsWaitGroup.Wait()
+	default:
+		if *runExperimentFlag < 0 || *runExperimentFlag >= len(experiments) {
+			log.Fatalf("Parameter `runExperiment` is invalid: %d", *runExperimentFlag)
+		}
 
-	log.Info("Exiting...")
+		experimentsWaitGroup.Add(1)
+		go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[*runExperimentFlag], outputDirectoryPath, *visualizationFlag)
+	}
+
+	experimentsWaitGroup.Wait()
 }
 
 func readInstructions() []configuration.Experiment {
@@ -95,9 +103,9 @@ func readInstructions() []configuration.Experiment {
 	return experiments
 }
 
-// SetupCtrlCHandler creates a 'listener' on a new goroutine which will notify the
+// setupCtrlCHandler creates a 'listener' on a new goroutine which will notify the
 // program if it receives an interrupt from the OS.
-func SetupCtrlCHandler() {
+func setupCtrlCHandler() {
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
