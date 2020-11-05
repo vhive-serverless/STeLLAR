@@ -7,11 +7,11 @@ latencies.
 ![design](design/diagram.png)
 
 ### Parameters
-- `outputPath` (default "latency-samples"): The directory path where latency samples should be written.
-- `configPath` (default "config.csv"): Configuration file specifying what experiments the client should run (details below).
-- `gatewaysPath` (default "gateways.csv"): File containing ids of gateways to be used.
-- `runExperiment` (default -1): Client will only run this particular experiment.
-- `logLevel` (default info): Client will use this level for logging information.
+- `o` (default "latency-samples"): The directory path where latency samples should be written.
+- `c` (default "config.csv"): Configuration file specifying what experiments the client should run (details below).
+- `g` (default "gateways.csv"): File containing ids of gateways to be used.
+- `r` (default -1): Client will only run this particular experiment.
+- `l` (default info): Client will use this level for logging information.
 
 ### Configuration example 
 
