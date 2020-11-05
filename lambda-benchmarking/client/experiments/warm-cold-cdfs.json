@@ -1,0 +1,32 @@
+[
+  {
+    "Title": "warm-cdf-1sec",
+    "Bursts": 3000,
+    "BurstSizes": [
+      1
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 1,
+    "FunctionIncrementLimits": [
+      310000000
+    ],
+    "IATType": "stochastic",
+    "Provider": "aws",
+    "GatewaysNumber": 1
+  },
+  {
+    "Title": "cold-cdf-10min",
+    "Bursts": 3000,
+    "BurstSizes": [
+      1
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 600,
+    "FunctionIncrementLimits": [
+      310000000
+    ],
+    "IATType": "stochastic",
+    "Provider": "aws",
+    "GatewaysNumber": 299
+  }
+]
