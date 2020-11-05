@@ -29,7 +29,7 @@ func Extract(configFile *os.File) []SubExperiment {
 
 	var parsedConfigs []SubExperiment
 	if err := json.Unmarshal(configByteValue, &parsedConfigs); err != nil {
-		log.Error(err)
+		log.Fatalf("Could not extract configuration from file: %s", err.Error())
 	}
 
 	return parsedConfigs

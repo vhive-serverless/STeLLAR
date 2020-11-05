@@ -27,7 +27,7 @@ func plotBurstsBarChart(plotPath string, experiment configuration.SubExperiment,
 	coldThreshold := 150.0
 
 	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold)", coldThreshold)
-	plotInstance.X.Label.Text = "Burst Sizes"
+	plotInstance.X.Label.Text = "Sequential Burst Sizes"
 	plotInstance.Y.Label.Text = "Requests"
 
 	coldResponses := plotter.Values{}
@@ -124,7 +124,7 @@ func plotLatenciesCDF(plotPath string, latencies []float64, experiment configura
 		return
 	}
 
-	plotInstance.Title.Text = fmt.Sprintf("Freq ~%vs, Burst sizes %v", experiment.CooldownSeconds, experiment.BurstSizes)
+	plotInstance.Title.Text = fmt.Sprintf("Cooldown ~%vs, Burst sizes %v", experiment.CooldownSeconds, experiment.BurstSizes)
 	plotInstance.Y.Label.Text = "Portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.

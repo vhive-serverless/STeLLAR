@@ -5,9 +5,9 @@ build:
 run_client:
 	@mkdir -p "../latency-samples"
 	@./client \
-		--outputPath "../latency-samples" \
-		--configPath "../experiments/test.json"\
-		--gatewaysPath "../gateways.csv"
+		--o "../latency-samples" \
+		--c "../experiments/test.json"\
+		--g "../gateways.csv"
 
 build_and_run_client: build run_client
 
@@ -24,12 +24,12 @@ edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
 
 # Cloudlab deployment
-remote=theodor@hp188.utah.cloudlab.us
+remote=theodor@hp163.utah.cloudlab.us
 
 send_to_cloudlab:
 	@scp ../initialize_machine.sh $(remote):~/
 	@scp ../gateways.csv $(remote):~/
-	@scp ../experiments/composite.csv $(remote):~/
+	@scp ../experiments/* $(remote):~/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a -o ../timer ../timer.go

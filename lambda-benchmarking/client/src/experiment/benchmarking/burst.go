@@ -35,13 +35,13 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	defer requestsWaitGroup.Done()
 
 	startTime := time.Now()
-	resp := networking.MakeHTTPRequest(request)
+	respBody := networking.MakeHTTPRequest(request)
 	endTime := time.Now()
 
 	var responseID string
 	switch provider {
 	case "aws":
-		responseID = networking.GetAWSRequestID(resp)
+		responseID = networking.GetAWSRequestID(respBody)
 	default:
 		responseID = ""
 	}
