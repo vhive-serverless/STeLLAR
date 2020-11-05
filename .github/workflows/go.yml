@@ -1,0 +1,48 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build Client
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Move to client directory
+      run: |
+        cd lambda-benchmarking/client/src
+    
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.15
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+        
+    - name: Build
+      run: CGO_ENABLED=0 GOOS=linux go build -race -v -a
+        
+    - name: Check Syntax
+      run: golangci-lint run ./...
+
+    - name: Unit Tests
+      run: go test -v ./...
+
+    - name: Integration Test
+      run: |
+        mkdir -p "../latency-samples"
+        ./client --outputPath "../latency-samples" --configPath "../experiments/test.json" --gatewaysPath "../gateways.csv" 
