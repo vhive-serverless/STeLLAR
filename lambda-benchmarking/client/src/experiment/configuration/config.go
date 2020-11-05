@@ -7,7 +7,9 @@ import (
 	"os"
 )
 
-type Experiment struct {
+//SubExperiment is the schema for all sub-experiment configurations.
+type SubExperiment struct {
+	Title                   string  `json:"Title"`
 	Bursts                  int     `json:"Bursts"`
 	BurstSizes              []int   `json:"BurstSizes"`
 	PayloadLengthBytes      int     `json:"PayloadLengthBytes"`
@@ -16,14 +18,16 @@ type Experiment struct {
 	IATType                 string  `json:"IATType"`
 	Provider                string  `json:"Provider"`
 	GatewaysNumber          int     `json:"GatewaysNumber"`
+	Visualization           string  `json:"Visualization"`
 	GatewayEndpoints        []string
-	Id                      int
+	ID                      int
 }
 
-func Extract(configFile *os.File) []Experiment {
+//Extract will read the given JSON configuration file and load it as an array of sub-experiment configurations.
+func Extract(configFile *os.File) []SubExperiment {
 	configByteValue, _ := ioutil.ReadAll(configFile)
 
-	var parsedConfigs []Experiment
+	var parsedConfigs []SubExperiment
 	if err := json.Unmarshal(configByteValue, &parsedConfigs); err != nil {
 		log.Error(err)
 	}

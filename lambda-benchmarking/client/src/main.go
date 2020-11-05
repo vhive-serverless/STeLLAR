@@ -16,7 +16,6 @@ import (
 	"time"
 )
 
-var visualizationFlag = flag.String("visualization", "all", "The type of visualization to create (`histogram`, `CDF`, `all`).")
 var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written.")
 var configPathFlag = flag.String("configPath", "config.csv", "Configuration file with details of experiments.")
 var gatewaysPathFlag = flag.String("gatewaysPath", "gateways.csv", "File containing ids of gateways to be used.")
@@ -39,7 +38,6 @@ func main() {
 
 	log.Infof("Started benchmarking HTTP client on %v (random seed %d).",
 		time.Now().UTC().Format(time.RFC850), randomSeed)
-	log.Infof("Selected visualization: %v", *visualizationFlag)
 	log.Infof("Selected gateways path: %s", *gatewaysPathFlag)
 	log.Infof("Selected config path: %s", *configPathFlag)
 	log.Infof("Selected output path: %s", *outputPathFlag)
@@ -55,14 +53,14 @@ func main() {
 	log.Info("Exiting...")
 }
 
-func triggerExperiments(experiments []configuration.Experiment, outputDirectoryPath string) {
+func triggerExperiments(experiments []configuration.SubExperiment, outputDirectoryPath string) {
 	var experimentsWaitGroup sync.WaitGroup
 
 	switch *runExperimentFlag {
 	case -1: // run all experiments
 		for experimentIndex := 0; experimentIndex < len(experiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[experimentIndex], outputDirectoryPath, *visualizationFlag)
+			go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[experimentIndex], outputDirectoryPath)
 		}
 	default:
 		if *runExperimentFlag < 0 || *runExperimentFlag >= len(experiments) {
@@ -70,13 +68,13 @@ func triggerExperiments(experiments []configuration.Experiment, outputDirectoryP
 		}
 
 		experimentsWaitGroup.Add(1)
-		go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[*runExperimentFlag], outputDirectoryPath, *visualizationFlag)
+		go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[*runExperimentFlag], outputDirectoryPath)
 	}
 
 	experimentsWaitGroup.Wait()
 }
 
-func readInstructions() []configuration.Experiment {
+func readInstructions() []configuration.SubExperiment {
 	log.Debugf("Reading gateways file for this run from `%s`", *gatewaysPathFlag)
 	gatewaysFile, err := os.Open(*gatewaysPathFlag)
 	if err != nil {
@@ -94,13 +92,22 @@ func readInstructions() []configuration.Experiment {
 	experimentsGatewayIndex := 0
 	experiments := configuration.Extract(configFile)
 	for index, exp := range experiments {
-		experiments[index].Id = index
-		experiments[index].GatewayEndpoints = gateways[experimentsGatewayIndex : experimentsGatewayIndex+exp.GatewaysNumber]
+		experiments[index].ID = index
+		assignGatewaysToExperiment(gateways, experimentsGatewayIndex, exp.GatewaysNumber, gatewaysFile.Name(), &experiments[index])
 		experimentsGatewayIndex += exp.GatewaysNumber
 	}
 
 	log.Debugf("Extracted %d experiments from given configuration file.", len(experiments))
 	return experiments
+}
+
+func assignGatewaysToExperiment(gateways []string, currExpGatewayIndex int, experimentGatewaysReq int,
+	gatewaysFileName string, experiment *configuration.SubExperiment) {
+	if currExpGatewayIndex+experimentGatewaysReq > len(gateways) {
+		log.Warnf("Not enough gateways were found in the given gateways file `%s`, found %d but trying to assign from %d to %d. Experiment `%s` will be assigned 0 gateways.",
+			gatewaysFileName, len(gateways), currExpGatewayIndex, currExpGatewayIndex+experimentGatewaysReq, experiment.Title)
+	}
+	experiment.GatewayEndpoints = gateways[currExpGatewayIndex : currExpGatewayIndex+experimentGatewaysReq]
 }
 
 // setupCtrlCHandler creates a 'listener' on a new goroutine which will notify the

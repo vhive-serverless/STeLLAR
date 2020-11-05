@@ -17,14 +17,16 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-func plotBurstsBarChart(plotPath string, experiment configuration.Experiment, latenciesDF dataframe.DataFrame) {
+func plotBurstsBarChart(plotPath string, experiment configuration.SubExperiment, latenciesDF dataframe.DataFrame) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		log.Errorf("Creating a new bar chart failed with error %s", err.Error())
 		return
 	}
 
-	plotInstance.Title.Text = "Bursts Characterization"
+	coldThreshold := 150.0
+
+	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold)", coldThreshold)
 	plotInstance.X.Label.Text = "Burst Sizes"
 	plotInstance.Y.Label.Text = "Requests"
 
@@ -34,8 +36,9 @@ func plotBurstsBarChart(plotPath string, experiment configuration.Experiment, la
 		burstDF := latenciesDF.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 		burstLatencies := burstDF.Col("Client Latency (ms)").Float()
 
-		sort.Float64s(burstLatencies)
-		coldThreshold := stat.Quantile(0.8, stat.Empirical, burstLatencies, nil)
+		// This always generated same proportion of cold/warm, wrong:
+		// sort.Float64s(burstLatencies)
+		// coldThreshold := stat.Quantile(0.8, stat.Empirical, burstLatencies, nil)
 
 		burstColdResponses := 0
 		burstWarmResponses := 0
@@ -114,7 +117,7 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 	}
 }
 
-func plotLatenciesCDF(plotPath string, latencies []float64, experiment configuration.Experiment) {
+func plotLatenciesCDF(plotPath string, latencies []float64, experiment configuration.SubExperiment) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		log.Errorf("Creating a new CDF plot failed with error %s", err.Error())
