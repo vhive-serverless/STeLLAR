@@ -30,5 +30,6 @@ func (writer *gatewaysWriter) WriteGatewayID(ID string) {
 	if err := writer.Writer.Write([]string{ID}); err != nil {
 		log.Fatal(err)
 	}
+	writer.Writer.Flush()
 	writer.mux.Unlock()
 }

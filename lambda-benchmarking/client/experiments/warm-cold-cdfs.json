@@ -12,7 +12,8 @@
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 1
+    "GatewaysNumber": 1,
+    "Visualization": "all"
   },
   {
     "Title": "cold-cdf-10min",
@@ -27,6 +28,7 @@
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 299
+    "GatewaysNumber": 599,
+    "Visualization": "all"
   }
 ]

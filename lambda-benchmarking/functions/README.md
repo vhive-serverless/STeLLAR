@@ -7,3 +7,6 @@ This manager deploys benchmarking-oriented serverless functions to various provi
 - `provider` (default "aws"): What provider should the manager interact with?
 - `sizeBytes` (default "0"): The size of the image to deploy together with functional code, in bytes.
 - `logLevel` (default info): Client will use this level for logging information.
+
+#### Notes
+- `AWS` has a limit of 600 apis for REGIONAL endpoint type. 

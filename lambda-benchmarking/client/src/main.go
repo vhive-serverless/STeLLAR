@@ -20,7 +20,7 @@ var outputPathFlag = flag.String("o", "latency-samples", "The path where latency
 var configPathFlag = flag.String("c", "config.csv", "Configuration file with details of experiments.")
 var gatewaysPathFlag = flag.String("g", "gateways.csv", "File containing ids of gateways to be used.")
 var runExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
-var sequentialFlag = flag.Bool("s", true, "Run the experiments sequentially or simultaneously.")
+var sequentialFlag = flag.Bool("s", false, "Run the experiments sequentially? (alternative is simultaneously)")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 
 func main() {
@@ -39,6 +39,7 @@ func main() {
 
 	log.Infof("Started benchmarking HTTP client on %v (random seed %d).",
 		time.Now().UTC().Format(time.RFC850), randomSeed)
+	log.Infof("Running experiments sequentially? %v", *sequentialFlag)
 	log.Infof("Selected gateways path: %s", *gatewaysPathFlag)
 	log.Infof("Selected config path: %s", *configPathFlag)
 	log.Infof("Selected output path: %s", *outputPathFlag)
@@ -62,6 +63,10 @@ func triggerExperiments(experiments []configuration.SubExperiment, outputDirecto
 		for experimentIndex := 0; experimentIndex < len(experiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
 			go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[experimentIndex], outputDirectoryPath)
+
+			if *sequentialFlag {
+				experimentsWaitGroup.Wait()
+			}
 		}
 	default:
 		if *runExperimentFlag < 0 || *runExperimentFlag >= len(experiments) {

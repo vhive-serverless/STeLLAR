@@ -34,7 +34,7 @@ func GenerateVisualization(experiment configuration.SubExperiment, deltas []time
 		log.Infof("SubExperiment %d: generating histograms visualizations (per-burst)", experiment.ID)
 		generateHistograms(experiment, latenciesDF, path, deltas)
 	case "":
-		log.Errorf("SubExperiment %d: no visualization selected, skipping", experiment.ID)
+		log.Warnf("SubExperiment %d: no visualization selected, skipping", experiment.ID)
 	default:
 		log.Errorf("SubExperiment %d: unrecognized visualization `%s`, skipping", experiment.ID, experiment.Visualization)
 	}
