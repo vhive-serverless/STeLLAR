@@ -7,8 +7,6 @@ latencies.
 ![design](design/diagram.png)
 
 ### Parameters
-- `visualization` (default "all"): The type of visualization to create (per-burst histogram "histogram" 
-or empirical CDF "CDF").
 - `outputPath` (default "latency-samples"): The directory path where latency samples should be written.
 - `configPath` (default "config.csv"): Configuration file specifying what experiments the client should run (details below).
 - `gatewaysPath` (default "gateways.csv"): File containing ids of gateways to be used.
@@ -17,12 +15,13 @@ or empirical CDF "CDF").
 
 ### Configuration example 
 
-| Bursts | Burst Size | IAT Type      | Payload Length (bytes) | Lambda Increment Limit | Frequency (seconds) | Gateways | Provider
-|--------|------------|---------------|------------------------|------------------------|---------------------|----------|---------
-| 5000   | 1          | deterministic | 5                      | 310000000              | 1                   | 50       | www.google.com
-| 50     | 100        | stochastic    | 5                      | 650000000              | 300                 | 150      | aws
-| 1000   | 5          | step          | 5                      | 1350000000             | 600                 | 100      | aws
+| Title        | Bursts | Burst Size | IAT Type      | Payload Length (bytes) | Lambda Increment Limit | Frequency (seconds) | Gateways | Provider        | Visualization
+|--------------|--------|------------|---------------|------------------------|------------------------|---------------------|----------|-----------------|---------
+| google       | 5000   | 1          | deterministic | 0                      | 310000000              | 1                   | 1       | www.google.com  | all
+| attempt1     | 50     | 100        | stochastic    | 5                      | 650000000              | 300                 | 150      | aws             | cdf
+| attempt2     | 1000   | 5          | step          | 5                      | 1350000000             | 600                 | 100      | aws             | histogram
 
+- `Title` Title of each experiment (used for naming folders).
 - `Bursts` Number of bursts which the latency profiler will trigger.
 - `Burst Size` Number of requests to send in a burst.
 - `IAT Type` Whether the inter-arrival time should be `deterministic`, a `step` function or `stochastic` (Gaussian).
@@ -31,6 +30,7 @@ or empirical CDF "CDF").
 - `Frequency (seconds)` Frequency at which the latency profiler operates.
 - `Gateways` Integer representing how many gateways to use from the gateways file.
 - `Provider` String representing the provider to be benchmarked (`aws`, misc. hostname).
+- `Visualization` The type of visualization to create (`histogram`, `CDF`, `bar`, `all`).
 
 ## tmux tips
 - To create a new session `tmux new -s cloudlab`

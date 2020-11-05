@@ -8,8 +8,8 @@ import (
 
 //RunProfiler will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
 //selected interval and start the process all over again.
-func RunProfiler(config configuration.Experiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
-	log.Infof("Experiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
+func RunProfiler(config configuration.SubExperiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
+	log.Infof("SubExperiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
 		config.Id, config.Bursts, config.CooldownSeconds, len(config.GatewayEndpoints),
 		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.CooldownSeconds,
 		time.Now().Add(estimateTotalDuration(config, deltas)).UTC().Format(time.RFC3339))
@@ -29,7 +29,7 @@ func RunProfiler(config configuration.Experiment, deltas []time.Duration, safeEx
 		}
 
 		deltaIndex++
-		log.Debugf("Experiment %d: all %d gateways have been used for bursts, flushing and sleeping for %v...", config.Id, len(config.GatewayEndpoints), deltas[deltaIndex-1])
+		log.Debugf("SubExperiment %d: all %d gateways have been used for bursts, flushing and sleeping for %v...", config.Id, len(config.GatewayEndpoints), deltas[deltaIndex-1])
 		safeExperimentWriter.Writer.Flush()
 	}
 }
@@ -41,8 +41,8 @@ func Min(x, y int) int {
 	return y
 }
 
-func estimateTotalDuration(config configuration.Experiment, deltas []time.Duration) time.Duration {
-	log.Debugf("Experiment %d: estimating total duration with deltas %v", config.Id, deltas)
+func estimateTotalDuration(config configuration.SubExperiment, deltas []time.Duration) time.Duration {
+	log.Debugf("SubExperiment %d: estimating total duration with deltas %v", config.Id, deltas)
 	estimateTime := deltas[0]
 	for _, burstDelta := range deltas[1 : config.Bursts/len(config.GatewayEndpoints)] {
 		estimateTime += burstDelta

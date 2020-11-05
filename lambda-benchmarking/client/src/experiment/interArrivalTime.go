@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func generateIAT(experiment configuration.Experiment) []time.Duration {
+func generateIAT(experiment configuration.SubExperiment) []time.Duration {
 	step := 1.0
 	maxStep := experiment.CooldownSeconds
 	runningDelta := math.Min(maxStep, experiment.CooldownSeconds)
 
-	log.Debugf("Experiment %d: Generating %s IATs", experiment.Id, experiment.IATType)
+	log.Debugf("SubExperiment %d: Generating %s IATs", experiment.Id, experiment.IATType)
 	burstDeltas := make([]time.Duration, experiment.Bursts)
 	for i := range burstDeltas {
 		switch experiment.IATType {

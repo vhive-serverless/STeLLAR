@@ -12,45 +12,45 @@ import (
 	"time"
 )
 
-func GenerateVisualization(visualizationType string, experiment configuration.Experiment, deltas []time.Duration, csvFile *os.File, path string) {
-	log.Debugf("Experiment %d: reading written latencies file %s", experiment.Id, csvFile.Name())
+func GenerateVisualization(experiment configuration.SubExperiment, deltas []time.Duration, csvFile *os.File, path string) {
+	log.Debugf("SubExperiment %d: reading written latencies file %s", experiment.Id, csvFile.Name())
 	latenciesDF := readWrittenLatenciesFile(csvFile)
 
-	switch visualizationType {
+	switch experiment.Visualization {
 	case "all":
-		log.Infof("Experiment %d: generating all visualizations", experiment.Id)
+		log.Infof("SubExperiment %d: generating all visualizations", experiment.Id)
 		generateCDFs(experiment, latenciesDF, path)
 		generateHistograms(experiment, latenciesDF, path, deltas)
 		generateBarCharts(experiment, latenciesDF, path)
 	case "bar":
-		log.Infof("Experiment %d: generating burst bar chart visualization", experiment.Id)
+		log.Infof("SubExperiment %d: generating burst bar chart visualization", experiment.Id)
 		generateBarCharts(experiment, latenciesDF, path)
 	case "CDF":
-		log.Infof("Experiment %d: generating CDF visualization", experiment.Id)
+		log.Infof("SubExperiment %d: generating CDF visualization", experiment.Id)
 		generateCDFs(experiment, latenciesDF, path)
 	case "histogram":
-		log.Infof("Experiment %d: generating histograms visualizations (per-burst)", experiment.Id)
+		log.Infof("SubExperiment %d: generating histograms visualizations (per-burst)", experiment.Id)
 		generateHistograms(experiment, latenciesDF, path, deltas)
 	case "":
-		log.Errorf("Experiment %d: no visualization selected, skipping", experiment.Id)
+		log.Errorf("SubExperiment %d: no visualization selected, skipping", experiment.Id)
 	default:
-		log.Errorf("Experiment %d: unrecognized visualization `%s`, skipping", experiment.Id, visualizationType)
+		log.Errorf("SubExperiment %d: unrecognized visualization `%s`, skipping", experiment.Id, experiment.Visualization)
 	}
 }
 
-func generateBarCharts(experiment configuration.Experiment, latenciesDF dataframe.DataFrame, path string) {
-	log.Debugf("Experiment %d: plotting characterization bar chart", experiment.Id)
+func generateBarCharts(experiment configuration.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
+	log.Debugf("SubExperiment %d: plotting characterization bar chart", experiment.Id)
 	plotBurstsBarChart(filepath.Join(path, "bursts_characterization.png"), experiment, latenciesDF)
 }
 
-func generateHistograms(config configuration.Experiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
+func generateHistograms(config configuration.SubExperiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
 	histogramsDirectoryPath := filepath.Join(path, "histograms")
 	log.Infof("Creating directory for histograms at `%s`", histogramsDirectoryPath)
 	if err := os.MkdirAll(histogramsDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Debugf("Experiment %d: plotting latency histograms for each burst", config.Id)
+	log.Debugf("SubExperiment %d: plotting latency histograms for each burst", config.Id)
 	for burstIndex := 0; burstIndex < config.Bursts; burstIndex++ {
 		burstDF := latenciesDF.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 		plotBurstLatenciesHistogram(
@@ -62,8 +62,8 @@ func generateHistograms(config configuration.Experiment, latenciesDF dataframe.D
 	}
 }
 
-func generateCDFs(config configuration.Experiment, latenciesDF dataframe.DataFrame, path string) {
-	log.Debugf("Experiment %d: plotting latencies CDF", config.Id)
+func generateCDFs(config configuration.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
+	log.Debugf("SubExperiment %d: plotting latencies CDF", config.Id)
 	plotLatenciesCDF(
 		filepath.Join(path, "empirical_CDF.png"),
 		latenciesDF.Col("Client Latency (ms)").Float(),

@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-func sendBurst(config configuration.Experiment, burstId int, requests int, gatewayEndpointID string,
+func sendBurst(config configuration.SubExperiment, burstId int, requests int, gatewayEndpointID string,
 	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
 	request := networking.GenerateRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
 
-	log.Infof("Experiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
+	log.Infof("SubExperiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
 		config.Id,
 		burstId,
 		requests,
@@ -27,7 +27,7 @@ func sendBurst(config configuration.Experiment, burstId int, requests int, gatew
 		go generateLatencyRecord(&requestsWaitGroup, config.Provider, *request, safeExperimentWriter, burstId)
 	}
 	requestsWaitGroup.Wait()
-	log.Infof("Experiment %d: received all responses for burst %d.", config.Id, burstId)
+	log.Infof("SubExperiment %d: received all responses for burst %d.", config.Id, burstId)
 }
 
 func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, request http.Request, safeExperimentWriter *SafeWriter, burstId int) {

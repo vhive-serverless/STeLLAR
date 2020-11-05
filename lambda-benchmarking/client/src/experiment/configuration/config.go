@@ -7,7 +7,8 @@ import (
 	"os"
 )
 
-type Experiment struct {
+type SubExperiment struct {
+	Title                   string  `json:"Title"`
 	Bursts                  int     `json:"Bursts"`
 	BurstSizes              []int   `json:"BurstSizes"`
 	PayloadLengthBytes      int     `json:"PayloadLengthBytes"`
@@ -16,14 +17,15 @@ type Experiment struct {
 	IATType                 string  `json:"IATType"`
 	Provider                string  `json:"Provider"`
 	GatewaysNumber          int     `json:"GatewaysNumber"`
+	Visualization           string  `json:"Visualization"`
 	GatewayEndpoints        []string
 	Id                      int
 }
 
-func Extract(configFile *os.File) []Experiment {
+func Extract(configFile *os.File) []SubExperiment {
 	configByteValue, _ := ioutil.ReadAll(configFile)
 
-	var parsedConfigs []Experiment
+	var parsedConfigs []SubExperiment
 	if err := json.Unmarshal(configByteValue, &parsedConfigs); err != nil {
 		log.Error(err)
 	}

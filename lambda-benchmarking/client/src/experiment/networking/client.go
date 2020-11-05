@@ -35,7 +35,7 @@ func MakeHTTPRequest(req http.Request) *http.Response {
 	return resp
 }
 
-func GenerateRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func GenerateRequest(config configuration.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
 	switch config.Provider {
 	case "aws":
 		return generateAWSRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
@@ -52,7 +52,7 @@ func generateCustomRequest(hostname string) *http.Request {
 	return request
 }
 
-func generateAWSRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func generateAWSRequest(config configuration.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
 	request, err := http.NewRequest(
 		http.MethodPost,
 		fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, Region),
