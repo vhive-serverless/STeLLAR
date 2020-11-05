@@ -7,8 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
-	"net/http"
 	"os"
 )
 
@@ -45,17 +43,10 @@ type lambdaFunctionResponse struct {
 	Payload      []byte `json:"Payload"`
 }
 
-//GetAWSRequestID will process an HTTP response coming from an AWS integration, extracting its ID.
-func GetAWSRequestID(resp *http.Response) string {
-	defer resp.Body.Close()
-
-	bytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Error(err)
-	}
-
+//GetAWSRequestID will process an HTTP response body coming from an AWS integration, extracting its ID.
+func GetAWSRequestID(respBody []byte) string {
 	var lambdaFunctionResponse lambdaFunctionResponse
-	if err := json.Unmarshal(bytes, &lambdaFunctionResponse); err != nil {
+	if err := json.Unmarshal(respBody, &lambdaFunctionResponse); err != nil {
 		log.Error(err)
 	}
 	return lambdaFunctionResponse.AwsRequestID

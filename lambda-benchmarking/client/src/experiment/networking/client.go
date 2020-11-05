@@ -14,8 +14,8 @@ const (
 	timeout = 15 * time.Minute
 )
 
-//MakeHTTPRequest will send an HTTP request, check its status code and return the response.
-func MakeHTTPRequest(req http.Request) *http.Response {
+//MakeHTTPRequest will send an HTTP request, check its status code and return the response body.
+func MakeHTTPRequest(req http.Request) []byte {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(timeout))
 	defer cancel()
 
@@ -33,7 +33,12 @@ func MakeHTTPRequest(req http.Request) *http.Response {
 		log.Errorf("Response from %s had status %s:\n %s", req.URL.Hostname(), resp.Status, string(bodyBytes))
 	}
 
-	return resp
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return bytes
 }
 
 //GenerateRequest will generate an HTTP request according to the provider passed in the sub-experiment

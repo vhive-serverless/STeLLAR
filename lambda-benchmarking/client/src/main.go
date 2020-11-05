@@ -16,11 +16,12 @@ import (
 	"time"
 )
 
-var outputPathFlag = flag.String("outputPath", "latency-samples", "The path where latency samples should be written.")
-var configPathFlag = flag.String("configPath", "config.csv", "Configuration file with details of experiments.")
-var gatewaysPathFlag = flag.String("gatewaysPath", "gateways.csv", "File containing ids of gateways to be used.")
-var runExperimentFlag = flag.Int("runExperiment", -1, "Only run this particular experiment.")
-var logLevelFlag = flag.String("logLevel", "info", "Select logging level.")
+var outputPathFlag = flag.String("o", "latency-samples", "The path where latency samples should be written.")
+var configPathFlag = flag.String("c", "config.csv", "Configuration file with details of experiments.")
+var gatewaysPathFlag = flag.String("g", "gateways.csv", "File containing ids of gateways to be used.")
+var runExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
+var sequentialFlag = flag.Bool("s", true, "Run the experiments sequentially or simultaneously.")
+var logLevelFlag = flag.String("l", "info", "Select logging level.")
 
 func main() {
 	randomSeed := time.Now().Unix()
