@@ -8,11 +8,12 @@
     "PayloadLengthBytes": 5,
     "CooldownSeconds": 1,
     "FunctionIncrementLimits": [
-      3e8
+      300000000
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 10
+    "GatewaysNumber": 5,
+    "Visualization": "all"
   },
   {
     "Title": "service-time-400ms",
@@ -23,11 +24,12 @@
     "PayloadLengthBytes": 5,
     "CooldownSeconds": 1,
     "FunctionIncrementLimits": [
-      1.33e9
+      1330000000
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 30
+    "GatewaysNumber": 20,
+    "Visualization": "all"
   },
   {
     "Title": "service-time-1600ms",
@@ -38,11 +40,12 @@
     "PayloadLengthBytes": 5,
     "CooldownSeconds": 1,
     "FunctionIncrementLimits": [
-      5.36e9
+      5360000000
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 60
+    "GatewaysNumber": 75,
+    "Visualization": "all"
   },
   {
     "Title": "service-time-6400ms",
@@ -53,10 +56,11 @@
     "PayloadLengthBytes": 5,
     "CooldownSeconds": 1,
     "FunctionIncrementLimits": [
-      2.16e10
+      21600000000
     ],
     "IATType": "stochastic",
     "Provider": "aws",
-    "GatewaysNumber": 200
+    "GatewaysNumber": 200,
+    "Visualization": "all"
   }
 ]

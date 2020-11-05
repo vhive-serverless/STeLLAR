@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+const maxFunctionTimeout = "900"
+
 //DeployFunction will create a new serverless function in the specified language, with id `i`. An API for it will
 //then be created, as well as corresponding interactions between them and specific permissions.
 func (lambda Instance) DeployFunction(i int, language string) string {
@@ -26,6 +28,28 @@ func (lambda Instance) DeployFunction(i int, language string) string {
 	return apiID
 }
 
+// Functions
+func (lambda Instance) createFunction(i int, language string) {
+	log.Infof("Creating producer lambda %s-%v", lambda.familiarName, i)
+
+	var memoryAssigned string
+	if i < 300 {
+		log.Info("Function has index < 300, assigning 128MB")
+		memoryAssigned = "128"
+	} else {
+		log.Info("Function has index >= 300, assigning 1536MB")
+		memoryAssigned = "1536"
+	}
+
+	cmd := exec.Command("/usr/local/bin/aws", "lambda", "create-function", "--function-name",
+		fmt.Sprintf("%s-%v", lambda.familiarName, i), "--runtime", language, "--role",
+		checkAndReturnEnvVar("AWS_LAMBDA_ROLE"), "--handler", "producer-handler", "--zip-file",
+		fmt.Sprintf("fileb://%s.zip", lambda.familiarName), "--tracing-config", "Mode=PassThrough",
+		"--timeout", maxFunctionTimeout, "--memory-size", memoryAssigned)
+	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray.PassThrough otherwise.
+	util.RunCommandAndLog(cmd)
+}
+
 func (lambda Instance) getFunctionARN(i int) string {
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "list-functions", "--query",
 		fmt.Sprintf("Functions[?FunctionName==`%s-%v`].FunctionArn", lambda.familiarName, i), "--output", "text",
@@ -36,16 +60,7 @@ func (lambda Instance) getFunctionARN(i int) string {
 	return arn
 }
 
-func (lambda Instance) createFunction(i int, language string) {
-	log.Infof("Creating producer lambda %s-%v", lambda.familiarName, i)
-	cmd := exec.Command("/usr/local/bin/aws", "lambda", "create-function", "--function-name",
-		fmt.Sprintf("%s-%v", lambda.familiarName, i), "--runtime", language, "--role",
-		checkAndReturnEnvVar("AWS_LAMBDA_ROLE"), "--handler", "producer-handler", "--zip-file",
-		fmt.Sprintf("fileb://%s.zip", lambda.familiarName), "--tracing-config", "Mode=PassThrough")
-	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray.PassThrough otherwise.
-	util.RunCommandAndLog(cmd)
-}
-
+// APIs
 func (lambda Instance) createRESTAPI(i int) {
 	log.Infof("Creating corresponding API %s-API-%v (clone of %s)", lambda.familiarName, i, lambda.cloneAPIID)
 	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "create-rest-api", "--name",

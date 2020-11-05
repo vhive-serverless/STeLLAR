@@ -11,7 +11,8 @@ latencies.
 - `c` (default "config.csv"): Configuration file specifying what experiments the client should run (details below).
 - `g` (default "gateways.csv"): File containing ids of gateways to be used.
 - `r` (default -1): Client will only run this particular experiment.
-- `l` (default info): Client will use this level for logging information.
+- `l` (default "info"): Client will use this level for logging information.
+- `s` (default true): Run the experiments sequentially? (alternative is simultaneously)
 
 ### Configuration example 
 

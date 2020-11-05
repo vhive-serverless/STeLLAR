@@ -14,8 +14,8 @@ import (
 	"time"
 )
 
-var rangeFlag = flag.String("range", "5_300", "Action functions with IDs in the given interval.")
-var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions (deploy, "+
+var rangeFlag = flag.String("range", "1_600", "Action functions with IDs in the given interval.")
+var actionFlag = flag.String("action", "remove", "Desired interaction with the functions (deploy, "+
 	"remove, update_func, update_func_conf).")
 var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
 var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, in bytes.")
