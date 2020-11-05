@@ -7,10 +7,18 @@ run_client:
 	@./client \
 		--outputPath "../latency-samples" \
 		--configPath "../experiments/test.json"\
-		--gatewaysPath "../gateways.csv" \
-		--visualization "all"
+		--gatewaysPath "../gateways.csv"
 
 build_and_run_client: build run_client
+
+workflows_edit:
+	@gedit ../../../.github/workflows/go.yml
+
+replace_github_commit:
+	@echo "WARNING: This will latest remote commit with a new one having the newest changes, risks are involved."
+	@git add ../../../.
+	@git commit --no-edit --amend
+	@git push --force
 
 edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
@@ -21,7 +29,7 @@ remote=theodor@hp188.utah.cloudlab.us
 send_to_cloudlab:
 	@scp ../initialize_machine.sh $(remote):~/
 	@scp ../gateways.csv $(remote):~/
-	@scp ../config.csv $(remote):~/
+	@scp ../experiments/composite.csv $(remote):~/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a -o ../timer ../timer.go

@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-func sendBurst(config configuration.Experiment, burstId int, requests int, gatewayEndpointID string,
+func sendBurst(config configuration.SubExperiment, burstID int, requests int, gatewayEndpointID string,
 	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
 	request := networking.GenerateRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
 
-	log.Infof("Experiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
-		config.Id,
-		burstId,
+	log.Infof("SubExperiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
+		config.ID,
+		burstID,
 		requests,
 		assignedFunctionIncrementLimit,
 		request.URL.Hostname(),
@@ -24,13 +24,14 @@ func sendBurst(config configuration.Experiment, burstId int, requests int, gatew
 	var requestsWaitGroup sync.WaitGroup
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
-		go generateLatencyRecord(&requestsWaitGroup, config.Provider, *request, safeExperimentWriter, burstId)
+		go generateLatencyRecord(&requestsWaitGroup, config.Provider, *request, safeExperimentWriter, burstID)
 	}
 	requestsWaitGroup.Wait()
-	log.Infof("Experiment %d: received all responses for burst %d.", config.Id, burstId)
+	log.Infof("SubExperiment %d: received all responses for burst %d.", config.ID, burstID)
 }
 
-func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, request http.Request, safeExperimentWriter *SafeWriter, burstId int) {
+func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, request http.Request,
+	safeExperimentWriter *SafeWriter, burstID int) {
 	defer requestsWaitGroup.Done()
 
 	startTime := time.Now()
@@ -45,5 +46,5 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 		responseID = ""
 	}
 
-	safeExperimentWriter.recordLatencyRecord(request.URL.Hostname(), startTime, endTime, responseID, burstId)
+	safeExperimentWriter.recordLatencyRecord(request.URL.Hostname(), startTime, endTime, responseID, burstID)
 }

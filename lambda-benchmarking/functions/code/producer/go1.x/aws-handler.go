@@ -13,12 +13,12 @@ import (
 	"strconv"
 )
 
-type ProducerOutput struct {
+type producerOutput struct {
 	AwsRequestID string `json:"AwsRequestID"`
 	Payload      []byte `json:"Payload"`
 }
 
-func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func benchmarkingProducer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	lambdaIncrementLimit, err := strconv.Atoi(request.QueryStringParameters["LambdaIncrementLimit"])
 	if err != nil {
 		return serverError(err)
@@ -37,7 +37,7 @@ func BenchmarkingProducer(ctx context.Context, request events.APIGatewayProxyReq
 	lc, _ := lambdacontext.FromContext(ctx)
 
 	// The APIGatewayProxyResponse.Body fields needs to be a string, so we marshal the Payload into JSON
-	output, err := json.Marshal(ProducerOutput{
+	output, err := json.Marshal(producerOutput{
 		Payload:      randomPayload,
 		AwsRequestID: lc.AwsRequestID,
 	})
@@ -66,7 +66,7 @@ func generatePayload(request events.APIGatewayProxyRequest) ([]byte, error) {
 //Note: on AWS, lambda runtimes are rounded up to the nearest 100ms for usage purposes
 //Note: CORS is required to call your API from a webpage that isn’t hosted on the same domain
 func main() {
-	lambda.Start(BenchmarkingProducer)
+	lambda.Start(benchmarkingProducer)
 }
 
 //This logs any error to os.Stderr and returns a 500 Internal Server Error response that the AWS API Gateway understands.

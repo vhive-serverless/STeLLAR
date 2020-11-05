@@ -10,7 +10,7 @@ package aws
 //	} `json:"Credentials"`
 //}
 //
-//func (lambda Interface) setSessionToken() {
+//func (lambda Instance) setSessionToken() {
 //	_, isSet := os.LookupEnv("AWS_SESSION_TOKEN")
 //	if isSet {
 //		return

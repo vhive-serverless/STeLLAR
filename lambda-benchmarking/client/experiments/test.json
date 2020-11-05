@@ -1,20 +1,22 @@
 [
   {
+    "Title": "test",
     "Bursts": 6,
     "BurstSizes": [
       1,
       2,
+      3,
       4,
-      8,
-      16
+      5
     ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 5,
+    "PayloadLengthBytes": 0,
+    "CooldownSeconds": 0,
     "FunctionIncrementLimits": [
-      100
+      0
     ],
-    "IATType": "stochastic",
+    "IATType": "deterministic",
     "Provider": "www.google.com",
-    "GatewaysNumber": 1
+    "GatewaysNumber": 1,
+    "Visualization": "all"
   }
 ]

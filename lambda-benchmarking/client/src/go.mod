@@ -2,6 +2,16 @@ module lambda-benchmarking/client
 
 go 1.15
 
+replace lambda-benchmarking/client/experiment => ./experiment
+
+replace lambda-benchmarking/client/experiment/configuration => ./experiment/configuration
+
+replace lambda-benchmarking/client/experiment/benchmarking => ./experiment/benchmarking
+
+replace lambda-benchmarking/client/experiment/visualization => ./experiment/visualization
+
+replace lambda-benchmarking/client/experiment/networking => ./experiment/networking
+
 require (
 	github.com/aws/aws-sdk-go v1.35.20
 	github.com/go-gota/gota v0.10.1

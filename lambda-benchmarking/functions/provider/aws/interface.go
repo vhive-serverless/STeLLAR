@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-type Interface struct {
+//Instance is an object used to interact with AWS through the methods it exports.
+type Instance struct {
 	userID       string
 	username     string
 	user         string
@@ -19,8 +20,9 @@ type Interface struct {
 	stage        string
 }
 
-func Initialize() *Interface {
-	return &Interface{
+//Initialize will create a new AWS Instance to interact with.
+func Initialize() *Instance {
+	return &Instance{
 		userID:       "335329526041",
 		username:     "theodor",
 		user:         "arn:aws:iam::335329526041:mfa/theodor",
@@ -31,7 +33,7 @@ func Initialize() *Interface {
 	}
 }
 
-func (lambda Interface) GetAPIID(i int) string {
+func (lambda Instance) getAPIID(i int) string {
 	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "get-rest-apis", "--query",
 		fmt.Sprintf("items[?name==`%s-API-%v`].id", lambda.familiarName, i), "--output", "text",
 		"--region", lambda.region)

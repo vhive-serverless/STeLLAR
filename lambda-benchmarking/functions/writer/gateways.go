@@ -7,21 +7,25 @@ import (
 	"sync"
 )
 
-var GatewaysWriterSingleton *GatewaysWriter
+//GatewaysWriterSingleton is the object used to write IDs of created gateways to a file. It is safe to use
+//concurrently (mutual exclusion lock).
+var GatewaysWriterSingleton *gatewaysWriter
 
-type GatewaysWriter struct {
+type gatewaysWriter struct {
 	Writer *csv.Writer
 	mux    sync.Mutex
 }
 
+//InitializeGatewaysWriter create a new writer for given file and writes the header `Gateway ID`.
 func InitializeGatewaysWriter(file *os.File) {
-	GatewaysWriterSingleton = &GatewaysWriter{Writer: csv.NewWriter(file)}
-	GatewaysWriterSingleton.WriteRowToFile(
+	GatewaysWriterSingleton = &gatewaysWriter{Writer: csv.NewWriter(file)}
+	GatewaysWriterSingleton.WriteGatewayID(
 		"Gateway ID",
 	)
 }
 
-func (writer *GatewaysWriter) WriteRowToFile(ID string) {
+//WriteGatewayID is used to write the specified gateway ID to the initialized file.
+func (writer *gatewaysWriter) WriteGatewayID(ID string) {
 	writer.mux.Lock()
 	if err := writer.Writer.Write([]string{ID}); err != nil {
 		log.Fatal(err)

@@ -14,6 +14,8 @@ const (
 	zipName        = "benchmarking"
 )
 
+//GenerateDeploymentZIP will create the serverless function zip deployment for the given provider,
+//in the given language and of the given size in bytes.
 func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
 	zipPath := fmt.Sprintf("%s.zip", zipName)
 	if fileExists(zipPath) {
@@ -39,7 +41,7 @@ func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
 		log.Fatalf("Unrecognized language %s", language)
 	}
 
-	GenerateRandomFile(sizeBytes)
+	generateRandomFile(sizeBytes)
 	RunCommandAndLog(exec.Command("zip", fmt.Sprintf("%s.zip", zipName), "producer-handler", randomFileName))
 }
 
@@ -51,7 +53,7 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
-func GenerateRandomFile(sizeBytes int) {
+func generateRandomFile(sizeBytes int) {
 	if sizeBytes > 50*1000*1000 {
 		log.Fatalf(`Deployment package is larger than 50 MB (~%dMB), you must use Amazon S3 (https://docs.aws.amazon.com/lambda/latest/dg/python-package.html).`,
 			sizeBytes/1000000.0)

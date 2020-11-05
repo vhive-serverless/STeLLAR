@@ -12,11 +12,11 @@ import (
 	"os"
 )
 
-const Region = "us-west-1"
+const awsRegion = "us-west-1"
 
 var signerSingleton *v4.Signer
 
-func GetAWSSignerSingleton() *v4.Signer {
+func getAWSSignerSingleton() *v4.Signer {
 	if signerSingleton != nil {
 		return signerSingleton
 	}
@@ -26,7 +26,7 @@ func GetAWSSignerSingleton() *v4.Signer {
 			checkAndReturnEnvVar("AWS_ACCESS_KEY_ID"),
 			checkAndReturnEnvVar("AWS_SECRET_ACCESS_KEY"),
 			""),
-		Region: aws.String(Region),
+		Region: aws.String(awsRegion),
 	}))
 	signerSingleton = v4.NewSigner(sessionInstance.Config.Credentials)
 	return signerSingleton
@@ -40,11 +40,12 @@ func checkAndReturnEnvVar(key string) string {
 	return envVar
 }
 
-type LambdaFunctionResponse struct {
+type lambdaFunctionResponse struct {
 	AwsRequestID string `json:"AwsRequestID"`
 	Payload      []byte `json:"Payload"`
 }
 
+//GetAWSRequestID will process an HTTP response coming from an AWS integration, extracting its ID.
 func GetAWSRequestID(resp *http.Response) string {
 	defer resp.Body.Close()
 
@@ -53,7 +54,7 @@ func GetAWSRequestID(resp *http.Response) string {
 		log.Error(err)
 	}
 
-	var lambdaFunctionResponse LambdaFunctionResponse
+	var lambdaFunctionResponse lambdaFunctionResponse
 	if err := json.Unmarshal(bytes, &lambdaFunctionResponse); err != nil {
 		log.Error(err)
 	}

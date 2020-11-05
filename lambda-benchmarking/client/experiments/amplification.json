@@ -1,0 +1,17 @@
+[
+  {
+    "Title": "",
+    "Bursts": 15,
+    "BurstSizes": [
+      100
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 25,
+    "FunctionIncrementLimits": [
+      100
+    ],
+    "IATType": "stochastic",
+    "Provider": "aws",
+    "GatewaysNumber": 1
+  }
+]

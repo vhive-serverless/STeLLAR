@@ -4,18 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"os"
 	"os/exec"
 )
 
-func CheckAndReturnEnvVar(key string) string {
-	envVar, isSet := os.LookupEnv(key)
-	if !isSet {
-		log.Errorf("Environment variable %s is not set.", key)
-	}
-	return envVar
-}
-
+//RunCommandAndLog will execute a bash command and log results to the standard logger, as well as return the contents.
 func RunCommandAndLog(cmd *exec.Cmd) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer

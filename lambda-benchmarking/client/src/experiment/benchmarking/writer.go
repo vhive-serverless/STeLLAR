@@ -9,14 +9,15 @@ import (
 	"time"
 )
 
+//SafeWriter makes file-writing safe for concurrent use by using a mutual exclusion lock.
 type SafeWriter struct {
 	Writer *csv.Writer
 	mux    sync.Mutex
 }
 
-//InitializeExperimentWriter will create a new dedicated writer for this experiment as well as write the first header row
+//NewExperimentWriter will create a new dedicated writer for this experiment as well as write the first header row
 //to the given latencies file.
-func InitializeExperimentWriter(file *os.File) *SafeWriter {
+func NewExperimentWriter(file *os.File) *SafeWriter {
 	log.Debugf("Creating experiment writer to file `%s`", file.Name())
 	safeExperimentWriter := &SafeWriter{Writer: csv.NewWriter(file)}
 	// writer.writeRowToFile would fail because the instance Initialize was called on didn't have the Writer initialized
@@ -31,14 +32,14 @@ func InitializeExperimentWriter(file *os.File) *SafeWriter {
 	return safeExperimentWriter
 }
 
-func (writer *SafeWriter) recordLatencyRecord(host string, startTime time.Time, endTime time.Time, responseID string, burstId int) {
+func (writer *SafeWriter) recordLatencyRecord(host string, startTime time.Time, endTime time.Time, responseID string, burstID int) {
 	writer.writeRowToFile(
 		responseID,
 		host,
 		startTime.Format(time.RFC3339),
 		endTime.Format(time.RFC3339),
 		strconv.FormatInt(endTime.Sub(startTime).Milliseconds(), 10),
-		strconv.Itoa(burstId),
+		strconv.Itoa(burstID),
 	)
 }
 

@@ -14,6 +14,7 @@ const (
 	timeout = 15 * time.Minute
 )
 
+//MakeHTTPRequest will send an HTTP request, check its status code and return the response.
 func MakeHTTPRequest(req http.Request) *http.Response {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(timeout))
 	defer cancel()
@@ -27,7 +28,7 @@ func MakeHTTPRequest(req http.Request) *http.Response {
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Error(err)
+			log.Errorf("Could not read HTTP response body: %s", err.Error())
 		}
 		log.Errorf("Response from %s had status %s:\n %s", req.URL.Hostname(), resp.Status, string(bodyBytes))
 	}
@@ -35,12 +36,14 @@ func MakeHTTPRequest(req http.Request) *http.Response {
 	return resp
 }
 
-func GenerateRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
-	switch config.Provider {
+//GenerateRequest will generate an HTTP request according to the provider passed in the sub-experiment
+//configuration object.
+func GenerateRequest(experiment configuration.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+	switch experiment.Provider {
 	case "aws":
-		return generateAWSRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
+		return generateAWSRequest(experiment, gatewayEndpointID, assignedFunctionIncrementLimit)
 	default:
-		return generateCustomRequest(config.Provider)
+		return generateCustomRequest(experiment.Provider)
 	}
 }
 
@@ -52,10 +55,10 @@ func generateCustomRequest(hostname string) *http.Request {
 	return request
 }
 
-func generateAWSRequest(config configuration.Experiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func generateAWSRequest(config configuration.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
 	request, err := http.NewRequest(
 		http.MethodPost,
-		fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, Region),
+		fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, awsRegion),
 		nil,
 	)
 	if err != nil {
@@ -68,7 +71,7 @@ func generateAWSRequest(config configuration.Experiment, gatewayEndpointID strin
 		config.PayloadLengthBytes,
 	)
 
-	_, err = GetAWSSignerSingleton().Sign(request, nil, "execute-api", Region, time.Now())
+	_, err = getAWSSignerSingleton().Sign(request, nil, "execute-api", awsRegion, time.Now())
 	if err != nil {
 		log.Error(err)
 	}
