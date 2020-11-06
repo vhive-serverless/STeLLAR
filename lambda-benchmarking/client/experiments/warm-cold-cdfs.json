@@ -5,15 +5,12 @@
     "BurstSizes": [
       1
     ],
-    "PayloadLengthBytes": 5,
+    "PayloadLengthBytes": 0,
     "CooldownSeconds": 1,
     "FunctionIncrementLimits": [
-      310000000
+      0
     ],
-    "IATType": "stochastic",
-    "Provider": "aws",
-    "GatewaysNumber": 1,
-    "Visualization": "all"
+    "GatewaysNumber": 1
   },
   {
     "Title": "cold-cdf-10min",
@@ -21,14 +18,11 @@
     "BurstSizes": [
       1
     ],
-    "PayloadLengthBytes": 5,
+    "PayloadLengthBytes": 0,
     "CooldownSeconds": 600,
     "FunctionIncrementLimits": [
-      310000000
+      0
     ],
-    "IATType": "stochastic",
-    "Provider": "aws",
-    "GatewaysNumber": 599,
-    "Visualization": "all"
+    "GatewaysNumber": 299
   }
 ]

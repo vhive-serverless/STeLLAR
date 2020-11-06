@@ -32,5 +32,24 @@ func Extract(configFile *os.File) []SubExperiment {
 		log.Fatalf("Could not extract configuration from file: %s", err.Error())
 	}
 
+	setDefaults(parsedConfigs)
 	return parsedConfigs
+}
+
+const defaultVisualization = "all-light"
+const defaultIATType = "stochastic"
+const defaultProvider = "aws"
+
+func setDefaults(parsedConfigs []SubExperiment) {
+	for _, parsedConfig := range parsedConfigs {
+		if parsedConfig.Visualization == "" {
+			parsedConfig.Visualization = defaultVisualization
+		}
+		if parsedConfig.IATType == "" {
+			parsedConfig.IATType = defaultIATType
+		}
+		if parsedConfig.Provider == "" {
+			parsedConfig.Provider = defaultProvider
+		}
+	}
 }

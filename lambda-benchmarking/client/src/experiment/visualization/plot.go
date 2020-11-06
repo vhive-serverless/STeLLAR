@@ -26,8 +26,9 @@ func plotBurstsBarChart(plotPath string, experiment configuration.SubExperiment,
 
 	coldThreshold := 150.0
 
-	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold)", coldThreshold)
-	plotInstance.X.Label.Text = "Sequential Burst Sizes"
+	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold, cooldown ~%vs)",
+		coldThreshold, experiment.CooldownSeconds)
+	plotInstance.X.Label.Text = "Burst Sizes (Sequential)"
 	plotInstance.Y.Label.Text = "Requests"
 
 	coldResponses := plotter.Values{}
@@ -85,7 +86,7 @@ func plotBurstsBarChart(plotPath string, experiment configuration.SubExperiment,
 	}
 	plotInstance.NominalX(strings.Split(strings.Trim(fmt.Sprint(augmentedBurstSizes), "[]"), " ")...)
 
-	if err := plotInstance.Save(8*vg.Inch, 5*vg.Inch, plotPath); err != nil {
+	if err := plotInstance.Save(10*vg.Inch, 5*vg.Inch, plotPath); err != nil {
 		log.Errorf("Could not save bar chart: %s", err.Error())
 	}
 }
