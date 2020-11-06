@@ -24,6 +24,10 @@ func GenerateVisualization(experiment configuration.SubExperiment, deltas []time
 		generateCDFs(experiment, latenciesDF, path)
 		generateHistograms(experiment, latenciesDF, path, deltas)
 		generateBarCharts(experiment, latenciesDF, path)
+	case "all-light":
+		log.Infof("SubExperiment %d: generating all light (fewer files) visualizations", experiment.ID)
+		generateCDFs(experiment, latenciesDF, path)
+		generateBarCharts(experiment, latenciesDF, path)
 	case "bar":
 		log.Infof("SubExperiment %d: generating burst bar chart visualization", experiment.ID)
 		generateBarCharts(experiment, latenciesDF, path)
@@ -33,7 +37,7 @@ func GenerateVisualization(experiment configuration.SubExperiment, deltas []time
 	case "histogram":
 		log.Infof("SubExperiment %d: generating histograms visualizations (per-burst)", experiment.ID)
 		generateHistograms(experiment, latenciesDF, path, deltas)
-	case "":
+	case "none":
 		log.Warnf("SubExperiment %d: no visualization selected, skipping", experiment.ID)
 	default:
 		log.Errorf("SubExperiment %d: unrecognized visualization `%s`, skipping", experiment.ID, experiment.Visualization)

@@ -1,6 +1,6 @@
 [
   {
-    "Title": "service-time-100ms",
+    "Title": "128MB-service-100ms",
     "Bursts": 3000,
     "BurstSizes": [
       1
@@ -8,15 +8,12 @@
     "PayloadLengthBytes": 5,
     "CooldownSeconds": 1,
     "FunctionIncrementLimits": [
-      300000000
+      310000000
     ],
-    "IATType": "stochastic",
-    "Provider": "aws",
-    "GatewaysNumber": 5,
-    "Visualization": "all"
+    "GatewaysNumber": 5
   },
   {
-    "Title": "service-time-400ms",
+    "Title": "128MB-service-400ms",
     "Bursts": 3000,
     "BurstSizes": [
       1
@@ -26,13 +23,10 @@
     "FunctionIncrementLimits": [
       1330000000
     ],
-    "IATType": "stochastic",
-    "Provider": "aws",
-    "GatewaysNumber": 20,
-    "Visualization": "all"
+    "GatewaysNumber": 20
   },
   {
-    "Title": "service-time-1600ms",
+    "Title": "128MB-service-1600ms",
     "Bursts": 3000,
     "BurstSizes": [
       1
@@ -42,13 +36,10 @@
     "FunctionIncrementLimits": [
       5360000000
     ],
-    "IATType": "stochastic",
-    "Provider": "aws",
-    "GatewaysNumber": 75,
-    "Visualization": "all"
+    "GatewaysNumber": 50
   },
   {
-    "Title": "service-time-6400ms",
+    "Title": "128MB-service-6400ms",
     "Bursts": 3000,
     "BurstSizes": [
       1
@@ -58,9 +49,58 @@
     "FunctionIncrementLimits": [
       21600000000
     ],
-    "IATType": "stochastic",
-    "Provider": "aws",
-    "GatewaysNumber": 200,
-    "Visualization": "all"
+    "GatewaysNumber": 225
+  },
+  {
+    "Title": "1.5GB-service-100ms",
+    "Bursts": 3000,
+    "BurstSizes": [
+      1
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 1,
+    "FunctionIncrementLimits": [
+      310000000
+    ],
+    "GatewaysNumber": 5
+  },
+  {
+    "Title": "1.5GB-service-400ms",
+    "Bursts": 3000,
+    "BurstSizes": [
+      1
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 1,
+    "FunctionIncrementLimits": [
+      1330000000
+    ],
+    "GatewaysNumber": 20
+  },
+  {
+    "Title": "1.5GB-service-1600ms",
+    "Bursts": 3000,
+    "BurstSizes": [
+      1
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 1,
+    "FunctionIncrementLimits": [
+      5360000000
+    ],
+    "GatewaysNumber": 50
+  },
+  {
+    "Title": "1.5GB-service-6400ms",
+    "Bursts": 3000,
+    "BurstSizes": [
+      1
+    ],
+    "PayloadLengthBytes": 5,
+    "CooldownSeconds": 1,
+    "FunctionIncrementLimits": [
+      21600000000
+    ],
+    "GatewaysNumber": 224
   }
 ]

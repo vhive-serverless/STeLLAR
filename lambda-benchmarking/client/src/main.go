@@ -20,7 +20,7 @@ var outputPathFlag = flag.String("o", "latency-samples", "The path where latency
 var configPathFlag = flag.String("c", "config.csv", "Configuration file with details of experiments.")
 var gatewaysPathFlag = flag.String("g", "gateways.csv", "File containing ids of gateways to be used.")
 var runExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
-var sequentialFlag = flag.Bool("s", false, "Run the experiments sequentially? (alternative is simultaneously)")
+var sequentialFlag = flag.Bool("s", false, "Run the sub-experiments sequentially? (alternative is simultaneously)")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 
 	log.Infof("Started benchmarking HTTP client on %v (random seed %d).",
 		time.Now().UTC().Format(time.RFC850), randomSeed)
-	log.Infof("Running experiments sequentially? %v", *sequentialFlag)
+	log.Infof("Running sub-experiments sequentially? %v", *sequentialFlag)
 	log.Infof("Selected gateways path: %s", *gatewaysPathFlag)
 	log.Infof("Selected config path: %s", *configPathFlag)
 	log.Infof("Selected output path: %s", *outputPathFlag)
@@ -101,6 +101,14 @@ func readInstructions() []configuration.SubExperiment {
 		experiments[index].ID = index
 		assignGatewaysToExperiment(gateways, experimentsGatewayIndex, exp.GatewaysNumber, gatewaysFile.Name(), &experiments[index])
 		experimentsGatewayIndex += exp.GatewaysNumber
+
+		chosenVisualization := experiments[index].Visualization
+		burstsNumber := experiments[index].Bursts
+		const manyFilesWarningThreshold = 500
+		if burstsNumber >= manyFilesWarningThreshold && (chosenVisualization == "all" || chosenVisualization == "histogram") {
+			log.Warnf("Generating histograms for each burst, this will create a large number (%d) of new files.",
+				burstsNumber)
+		}
 	}
 
 	log.Debugf("Extracted %d experiments from given configuration file.", len(experiments))

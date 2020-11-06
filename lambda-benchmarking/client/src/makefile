@@ -5,9 +5,9 @@ build:
 run_client:
 	@mkdir -p "../latency-samples"
 	@./client \
-		--o "../latency-samples" \
-		--c "../experiments/test.json"\
-		--g "../gateways.csv"
+		-o "../latency-samples" \
+		-c "../experiments/test.json"\
+		-g "../gateways.csv"
 
 build_and_run_client: build run_client
 
@@ -24,7 +24,7 @@ edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
 
 # Cloudlab deployment
-remote=theodor@hp163.utah.cloudlab.us
+remote=theodor@hp084.utah.cloudlab.us
 
 send_to_cloudlab:
 	@scp ../initialize_machine.sh $(remote):~/

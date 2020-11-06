@@ -6,7 +6,6 @@ import (
 	"lambda-benchmarking/client/experiment/networking"
 	"net/http"
 	"sync"
-	"time"
 )
 
 func sendBurst(config configuration.SubExperiment, burstID int, requests int, gatewayEndpointID string,
@@ -34,9 +33,7 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	safeExperimentWriter *SafeWriter, burstID int) {
 	defer requestsWaitGroup.Done()
 
-	startTime := time.Now()
-	respBody := networking.MakeHTTPRequest(request)
-	endTime := time.Now()
+	respBody, reqSentTime, reqReceivedTime := networking.ExecuteHTTPRequest(request)
 
 	var responseID string
 	switch provider {
@@ -46,5 +43,5 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 		responseID = ""
 	}
 
-	safeExperimentWriter.recordLatencyRecord(request.URL.Hostname(), startTime, endTime, responseID, burstID)
+	safeExperimentWriter.recordLatencyRecord(request.URL.Hostname(), reqSentTime, reqReceivedTime, responseID, burstID)
 }
