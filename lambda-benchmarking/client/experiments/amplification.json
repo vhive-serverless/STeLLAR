@@ -1,106 +1,109 @@
-[
-  {
-    "Title": "128MB-service-100ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      310000000
-    ],
-    "GatewaysNumber": 5
-  },
-  {
-    "Title": "128MB-service-400ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      1330000000
-    ],
-    "GatewaysNumber": 20
-  },
-  {
-    "Title": "128MB-service-1600ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      5360000000
-    ],
-    "GatewaysNumber": 50
-  },
-  {
-    "Title": "128MB-service-6400ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      21600000000
-    ],
-    "GatewaysNumber": 225
-  },
-  {
-    "Title": "1.5GB-service-100ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      310000000
-    ],
-    "GatewaysNumber": 5
-  },
-  {
-    "Title": "1.5GB-service-400ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      1330000000
-    ],
-    "GatewaysNumber": 20
-  },
-  {
-    "Title": "1.5GB-service-1600ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      5360000000
-    ],
-    "GatewaysNumber": 50
-  },
-  {
-    "Title": "1.5GB-service-6400ms",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 5,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      21600000000
-    ],
-    "GatewaysNumber": 224
-  }
-]
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "128MB-service-100ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        310000000
+      ],
+      "GatewaysNumber": 5
+    },
+    {
+      "Title": "128MB-service-400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        1330000000
+      ],
+      "GatewaysNumber": 20
+    },
+    {
+      "Title": "128MB-service-1600ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        5360000000
+      ],
+      "GatewaysNumber": 50
+    },
+    {
+      "Title": "128MB-service-6400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        21600000000
+      ],
+      "GatewaysNumber": 225
+    },
+    {
+      "Title": "1.5GB-service-100ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        310000000
+      ],
+      "GatewaysNumber": 5
+    },
+    {
+      "Title": "1.5GB-service-400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        1330000000
+      ],
+      "GatewaysNumber": 20
+    },
+    {
+      "Title": "1.5GB-service-1600ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        5360000000
+      ],
+      "GatewaysNumber": 50
+    },
+    {
+      "Title": "1.5GB-service-6400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        21600000000
+      ],
+      "GatewaysNumber": 224
+    }
+  ]
+}

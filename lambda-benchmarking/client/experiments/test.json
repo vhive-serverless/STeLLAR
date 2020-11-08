@@ -1,21 +1,39 @@
-[
-  {
-    "Title": "test",
-    "Bursts": 6,
-    "BurstSizes": [
-      1,
-      2,
-      3,
-      4,
-      50
-    ],
-    "PayloadLengthBytes": 0,
-    "CooldownSeconds": 0,
-    "FunctionIncrementLimits": [
-      0
-    ],
-    "Provider": "www.google.com",
-    "GatewaysNumber": 1,
-    "Visualization": "all"
-  }
-]
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "test1",
+      "Bursts": 6,
+      "BurstSizes": [
+        1,
+        2,
+        3,
+        4,
+        50
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 0,
+      "FunctionIncrementLimits": [
+        0
+      ],
+      "Provider": "www.google.com",
+      "GatewaysNumber": 1,
+      "Visualization": "all"
+    },
+    {
+      "Title": "test2",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 0,
+      "FunctionIncrementLimits": [
+        0
+      ],
+      "Provider": "www.google.com",
+      "GatewaysNumber": 1,
+      "Visualization": "all"
+    }
+  ]
+}
