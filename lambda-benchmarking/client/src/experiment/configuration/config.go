@@ -7,7 +7,13 @@ import (
 	"os"
 )
 
-//SubExperiment is the schema for all sub-experiment configurations.
+//Configuration is the schema for all experiment configurations.
+type Configuration struct {
+	Sequential     bool            `json:"Sequential"`
+	SubExperiments []SubExperiment `json:"SubExperiments"`
+}
+
+//SubExperiment is the schema for sub-experiment configurations.
 type SubExperiment struct {
 	Title                   string  `json:"Title"`
 	Bursts                  int     `json:"Bursts"`
@@ -24,32 +30,32 @@ type SubExperiment struct {
 }
 
 //Extract will read the given JSON configuration file and load it as an array of sub-experiment configurations.
-func Extract(configFile *os.File) []SubExperiment {
+func Extract(configFile *os.File) Configuration {
 	configByteValue, _ := ioutil.ReadAll(configFile)
 
-	var parsedConfigs []SubExperiment
-	if err := json.Unmarshal(configByteValue, &parsedConfigs); err != nil {
+	var parsedConfiguration Configuration
+	if err := json.Unmarshal(configByteValue, &parsedConfiguration); err != nil {
 		log.Fatalf("Could not extract configuration from file: %s", err.Error())
 	}
 
-	setDefaults(parsedConfigs)
-	return parsedConfigs
+	setDefaults(parsedConfiguration.SubExperiments)
+	return parsedConfiguration
 }
 
 const defaultVisualization = "all-light"
 const defaultIATType = "stochastic"
 const defaultProvider = "aws"
 
-func setDefaults(parsedConfigs []SubExperiment) {
-	for index := range parsedConfigs {
-		if parsedConfigs[index].Visualization == "" {
-			parsedConfigs[index].Visualization = defaultVisualization
+func setDefaults(parsedSubExps []SubExperiment) {
+	for index := range parsedSubExps {
+		if parsedSubExps[index].Visualization == "" {
+			parsedSubExps[index].Visualization = defaultVisualization
 		}
-		if parsedConfigs[index].IATType == "" {
-			parsedConfigs[index].IATType = defaultIATType
+		if parsedSubExps[index].IATType == "" {
+			parsedSubExps[index].IATType = defaultIATType
 		}
-		if parsedConfigs[index].Provider == "" {
-			parsedConfigs[index].Provider = defaultProvider
+		if parsedSubExps[index].Provider == "" {
+			parsedSubExps[index].Provider = defaultProvider
 		}
 	}
 }

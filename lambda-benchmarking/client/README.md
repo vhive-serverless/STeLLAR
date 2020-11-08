@@ -12,9 +12,10 @@ latencies.
 - `g` (default "gateways.csv"): File containing ids of gateways to be used.
 - `r` (default -1): Client will only run this particular experiment.
 - `l` (default "info"): Client will use this level for logging information.
-- `s` (default false): Run the sub-experiments sequentially? (alternative is simultaneously)
 
 ### Configuration example 
+Examples of valid experiment configurations you can find in folder `experiments`. Below is a table and a further discussion
+ about the main elements of a configuration.
 
 | Title        | Bursts | BurstSizes | IATType       | PayloadLengthBytes      | FunctionIncrementLimits| CooldownSeconds     | GatewaysNumber | Provider        | Visualization
 |--------------|--------|------------|---------------|------------------------|------------------------|---------------------|----------------|-----------------|----------------
@@ -31,7 +32,7 @@ latencies.
 - `CooldownSeconds` Frequency at which the latency profiler operates.
 - `GatewaysNumber` Integer representing how many gateways to use from the gateways file.
 - `Provider` (default `aws`) String representing the provider to be benchmarked (`aws`, misc. hostname).
-- `Visualization` (default `all-light`) The type of visualization to create (`histogram`, `CDF`, `bar`, `all`, `all-light`, `none`).
+- `Visualization` (default `cdf`) The type of visualization to create (`histogram`, `cdf`, `bar`, `all`, `none`).
 
 ## tmux tips
 - To create a new session `tmux new -s cloudlab`

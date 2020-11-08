@@ -24,14 +24,10 @@ func GenerateVisualization(experiment configuration.SubExperiment, deltas []time
 		generateCDFs(experiment, latenciesDF, path)
 		generateHistograms(experiment, latenciesDF, path, deltas)
 		generateBarCharts(experiment, latenciesDF, path)
-	case "all-light":
-		log.Infof("SubExperiment %d: generating all light (fewer files) visualizations", experiment.ID)
-		generateCDFs(experiment, latenciesDF, path)
-		generateBarCharts(experiment, latenciesDF, path)
 	case "bar":
 		log.Infof("SubExperiment %d: generating burst bar chart visualization", experiment.ID)
 		generateBarCharts(experiment, latenciesDF, path)
-	case "CDF":
+	case "cdf":
 		log.Infof("SubExperiment %d: generating CDF visualization", experiment.ID)
 		generateCDFs(experiment, latenciesDF, path)
 	case "histogram":

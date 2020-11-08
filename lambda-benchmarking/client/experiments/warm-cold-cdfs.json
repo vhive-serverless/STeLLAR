@@ -1,28 +1,31 @@
-[
-  {
-    "Title": "warm-cdf-1sec",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 0,
-    "CooldownSeconds": 1,
-    "FunctionIncrementLimits": [
-      0
-    ],
-    "GatewaysNumber": 1
-  },
-  {
-    "Title": "cold-cdf-10min",
-    "Bursts": 3000,
-    "BurstSizes": [
-      1
-    ],
-    "PayloadLengthBytes": 0,
-    "CooldownSeconds": 600,
-    "FunctionIncrementLimits": [
-      0
-    ],
-    "GatewaysNumber": 299
-  }
-]
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "warm-cdf-1sec",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 1,
+      "FunctionIncrementLimits": [
+        0
+      ],
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "cold-cdf-10min",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "FunctionIncrementLimits": [
+        0
+      ],
+      "GatewaysNumber": 299
+    }
+  ]
+}

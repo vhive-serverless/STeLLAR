@@ -20,7 +20,6 @@ var outputPathFlag = flag.String("o", "latency-samples", "The path where latency
 var configPathFlag = flag.String("c", "config.csv", "Configuration file with details of experiments.")
 var gatewaysPathFlag = flag.String("g", "gateways.csv", "File containing ids of gateways to be used.")
 var runExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
-var sequentialFlag = flag.Bool("s", false, "Run the sub-experiments sequentially? (alternative is simultaneously)")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 
 func main() {
@@ -39,7 +38,6 @@ func main() {
 
 	log.Infof("Started benchmarking HTTP client on %v (random seed %d).",
 		time.Now().UTC().Format(time.RFC850), randomSeed)
-	log.Infof("Running sub-experiments sequentially? %v", *sequentialFlag)
 	log.Infof("Selected gateways path: %s", *gatewaysPathFlag)
 	log.Infof("Selected config path: %s", *configPathFlag)
 	log.Infof("Selected output path: %s", *outputPathFlag)
@@ -48,39 +46,39 @@ func main() {
 	log.Debug("Creating Ctrl-C handler")
 	setupCtrlCHandler()
 
-	experiments := readInstructions()
+	config := readInstructions()
 
-	triggerExperiments(experiments, outputDirectoryPath)
+	triggerExperiments(config, outputDirectoryPath)
 
 	log.Info("Exiting...")
 }
 
-func triggerExperiments(experiments []configuration.SubExperiment, outputDirectoryPath string) {
+func triggerExperiments(config configuration.Configuration, outputDirectoryPath string) {
 	var experimentsWaitGroup sync.WaitGroup
 
 	switch *runExperimentFlag {
 	case -1: // run all experiments
-		for experimentIndex := 0; experimentIndex < len(experiments); experimentIndex++ {
+		for experimentIndex := 0; experimentIndex < len(config.SubExperiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[experimentIndex], outputDirectoryPath)
+			go experiment.TriggerExperiment(&experimentsWaitGroup, config.SubExperiments[experimentIndex], outputDirectoryPath)
 
-			if *sequentialFlag {
+			if config.Sequential {
 				experimentsWaitGroup.Wait()
 			}
 		}
 	default:
-		if *runExperimentFlag < 0 || *runExperimentFlag >= len(experiments) {
+		if *runExperimentFlag < 0 || *runExperimentFlag >= len(config.SubExperiments) {
 			log.Fatalf("Parameter `runExperiment` is invalid: %d", *runExperimentFlag)
 		}
 
 		experimentsWaitGroup.Add(1)
-		go experiment.TriggerExperiment(&experimentsWaitGroup, experiments[*runExperimentFlag], outputDirectoryPath)
+		go experiment.TriggerExperiment(&experimentsWaitGroup, config.SubExperiments[*runExperimentFlag], outputDirectoryPath)
 	}
 
 	experimentsWaitGroup.Wait()
 }
 
-func readInstructions() []configuration.SubExperiment {
+func readInstructions() configuration.Configuration {
 	log.Debugf("Reading gateways file for this run from `%s`", *gatewaysPathFlag)
 	gatewaysFile, err := os.Open(*gatewaysPathFlag)
 	if err != nil {
@@ -96,14 +94,14 @@ func readInstructions() []configuration.SubExperiment {
 	}
 
 	experimentsGatewayIndex := 0
-	experiments := configuration.Extract(configFile)
-	for index, exp := range experiments {
-		experiments[index].ID = index
-		assignGatewaysToExperiment(gateways, experimentsGatewayIndex, exp.GatewaysNumber, gatewaysFile.Name(), &experiments[index])
+	config := configuration.Extract(configFile)
+	for index, exp := range config.SubExperiments {
+		config.SubExperiments[index].ID = index
+		assignGatewaysToExperiment(gateways, experimentsGatewayIndex, exp.GatewaysNumber, gatewaysFile.Name(), &config.SubExperiments[index])
 		experimentsGatewayIndex += exp.GatewaysNumber
 
-		chosenVisualization := experiments[index].Visualization
-		burstsNumber := experiments[index].Bursts
+		chosenVisualization := config.SubExperiments[index].Visualization
+		burstsNumber := config.SubExperiments[index].Bursts
 		const manyFilesWarningThreshold = 500
 		if burstsNumber >= manyFilesWarningThreshold && (chosenVisualization == "all" || chosenVisualization == "histogram") {
 			log.Warnf("Generating histograms for each burst, this will create a large number (%d) of new files.",
@@ -111,8 +109,8 @@ func readInstructions() []configuration.SubExperiment {
 		}
 	}
 
-	log.Debugf("Extracted %d experiments from given configuration file.", len(experiments))
-	return experiments
+	log.Debugf("Extracted %d sub-experiments from given configuration file.", len(config.SubExperiments))
+	return config
 }
 
 func assignGatewaysToExperiment(gateways []string, currExpGatewayIndex int, experimentGatewaysReq int,
