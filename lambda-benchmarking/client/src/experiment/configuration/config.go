@@ -41,15 +41,15 @@ const defaultIATType = "stochastic"
 const defaultProvider = "aws"
 
 func setDefaults(parsedConfigs []SubExperiment) {
-	for _, parsedConfig := range parsedConfigs {
-		if parsedConfig.Visualization == "" {
-			parsedConfig.Visualization = defaultVisualization
+	for index := range parsedConfigs {
+		if parsedConfigs[index].Visualization == "" {
+			parsedConfigs[index].Visualization = defaultVisualization
 		}
-		if parsedConfig.IATType == "" {
-			parsedConfig.IATType = defaultIATType
+		if parsedConfigs[index].IATType == "" {
+			parsedConfigs[index].IATType = defaultIATType
 		}
-		if parsedConfig.Provider == "" {
-			parsedConfig.Provider = defaultProvider
+		if parsedConfigs[index].Provider == "" {
+			parsedConfigs[index].Provider = defaultProvider
 		}
 	}
 }

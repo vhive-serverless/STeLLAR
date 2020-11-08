@@ -4,8 +4,6 @@ sudo apt-get install tmux
 sudo apt-get install awscli
 mkdir -p "latency-samples"
 aws configure
-tmux new -s cloudlab
 echo "Please now run 'ulimit -n 16384' in this shell before running the client."
-echo "Please now run 'export AWS_ACCESS_KEY_ID=*******' in this shell before running the client."
-echo "Please now run 'export AWS_SECRET_ACCESS_KEY=*******' in this shell before running the client."
-echo "Example client run: ./client -o latency-samples/ -c test.json -g gateways.csv"
+echo "Suggested operation: tmux new -s cloudlab"
+echo "Example client run: ./client -o latency-samples/ -c experiments/test.json -g gateways.csv"

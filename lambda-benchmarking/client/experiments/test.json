@@ -14,7 +14,6 @@
     "FunctionIncrementLimits": [
       0
     ],
-    "IATType": "deterministic",
     "Provider": "www.google.com",
     "GatewaysNumber": 1,
     "Visualization": "all"
