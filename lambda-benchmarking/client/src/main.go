@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"syscall"
 	"time"
@@ -85,7 +86,7 @@ func readInstructions() configuration.Configuration {
 		log.Fatalf("Could not read gateways file: %s", err.Error())
 	}
 	gatewaysDF := dataframe.ReadCSV(gatewaysFile)
-	gateways := gatewaysDF.Col("Gateway ID").Records()
+	memoryToGatewayIDs, memoryToLastAssignedIndex := mapMemoryToGateways(gatewaysDF)
 
 	log.Debugf("Reading config file for this run from `%s`", *configPathFlag)
 	configFile, err := os.Open(*configPathFlag)
@@ -93,16 +94,24 @@ func readInstructions() configuration.Configuration {
 		log.Fatalf("Could not read config file: %s", err.Error())
 	}
 
-	experimentsGatewayIndex := 0
 	config := configuration.Extract(configFile)
-	for index, exp := range config.SubExperiments {
+	for index := range config.SubExperiments {
 		config.SubExperiments[index].ID = index
-		assignGatewaysToExperiment(gateways, experimentsGatewayIndex, exp.GatewaysNumber, gatewaysFile.Name(), &config.SubExperiments[index])
-		experimentsGatewayIndex += exp.GatewaysNumber
+		assignGatewaysToExperiment(memoryToGatewayIDs, memoryToLastAssignedIndex, &config.SubExperiments[index])
 
+		// Issue warning if sending too many requests in a single burst
+		const manyRequestsInBurstThreshold = 2000
+		for _, burstSize := range config.SubExperiments[index].BurstSizes {
+			if burstSize > manyRequestsInBurstThreshold {
+				log.Warnf("Experiment %d has a burst of size %d, NIC (Network Interface Controller) contention may occur.",
+					index, burstSize)
+			}
+		}
+
+		// Issue warning if generating too many files
+		const manyFilesWarningThreshold = 500
 		chosenVisualization := config.SubExperiments[index].Visualization
 		burstsNumber := config.SubExperiments[index].Bursts
-		const manyFilesWarningThreshold = 500
 		if burstsNumber >= manyFilesWarningThreshold && (chosenVisualization == "all" || chosenVisualization == "histogram") {
 			log.Warnf("Generating histograms for each burst, this will create a large number (%d) of new files.",
 				burstsNumber)
@@ -113,13 +122,44 @@ func readInstructions() configuration.Configuration {
 	return config
 }
 
-func assignGatewaysToExperiment(gateways []string, currExpGatewayIndex int, experimentGatewaysReq int,
-	gatewaysFileName string, experiment *configuration.SubExperiment) {
-	if currExpGatewayIndex+experimentGatewaysReq > len(gateways) {
-		log.Warnf("Not enough gateways were found in the given gateways file `%s`, found %d but trying to assign from %d to %d. Experiment `%s` will be assigned 0 gateways.",
-			gatewaysFileName, len(gateways), currExpGatewayIndex, currExpGatewayIndex+experimentGatewaysReq, experiment.Title)
+func mapMemoryToGateways(gatewaysDF dataframe.DataFrame) (map[int64][]string, map[int64]int) {
+	memoryToListOfGatewayIDs := make(map[int64][]string)
+	memoryToLastAssignedIndex := make(map[int64]int)
+	for idx, record := range gatewaysDF.Records() {
+		if idx == 0 {
+			continue
+		}
+
+		desiredMemory, err := strconv.ParseInt(record[1], 10, 64)
+		if err != nil {
+			log.Fatalf("Could not parse function memory %s in configuration file.", record[1])
+		}
+		memoryToLastAssignedIndex[desiredMemory] = 0
+		memoryToListOfGatewayIDs[desiredMemory] = append(memoryToListOfGatewayIDs[desiredMemory], record[0])
 	}
-	experiment.GatewayEndpoints = gateways[currExpGatewayIndex : currExpGatewayIndex+experimentGatewaysReq]
+	return memoryToListOfGatewayIDs, memoryToLastAssignedIndex
+}
+
+func assignGatewaysToExperiment(gateways map[int64][]string, memoryToLastAssignedIndex map[int64]int, experiment *configuration.SubExperiment) {
+	lastAssignedIndexExcl := memoryToLastAssignedIndex[experiment.FunctionMemoryMB]
+	newLastAssignedIndexExcl := lastAssignedIndexExcl + experiment.GatewaysNumber
+	nrGatewaysWithDesiredMemory := len(gateways[experiment.FunctionMemoryMB])
+
+	if newLastAssignedIndexExcl > nrGatewaysWithDesiredMemory {
+		remainingGatewaysToAssign := nrGatewaysWithDesiredMemory - lastAssignedIndexExcl
+		log.Errorf("Not enough remaining gateways were found in the given gateways file with requested memory %dMB, found %d but trying to assign from %d to %d. Experiment `%s` will be assigned %d gateways.",
+			experiment.FunctionMemoryMB, remainingGatewaysToAssign,
+			lastAssignedIndexExcl, newLastAssignedIndexExcl,
+			experiment.Title, remainingGatewaysToAssign)
+
+		if remainingGatewaysToAssign <= 0 {
+			log.Fatalf("Cannot assign %d gateways to an experiment.", remainingGatewaysToAssign)
+		}
+
+		newLastAssignedIndexExcl = nrGatewaysWithDesiredMemory
+	}
+	memoryToLastAssignedIndex[experiment.FunctionMemoryMB] = newLastAssignedIndexExcl
+	experiment.GatewayEndpoints = gateways[experiment.FunctionMemoryMB][lastAssignedIndexExcl:newLastAssignedIndexExcl]
 }
 
 // setupCtrlCHandler creates a 'listener' on a new goroutine which will notify the

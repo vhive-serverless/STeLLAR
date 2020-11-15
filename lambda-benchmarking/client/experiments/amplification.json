@@ -9,8 +9,8 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        310000000
+      "DesiredServiceTimes": [
+        "100ms"
       ],
       "GatewaysNumber": 5
     },
@@ -22,8 +22,8 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        1330000000
+      "DesiredServiceTimes": [
+        "400ms"
       ],
       "GatewaysNumber": 20
     },
@@ -35,8 +35,8 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        5360000000
+      "DesiredServiceTimes": [
+        "1600ms"
       ],
       "GatewaysNumber": 50
     },
@@ -48,8 +48,8 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        21600000000
+      "DesiredServiceTimes": [
+        "6400ms"
       ],
       "GatewaysNumber": 225
     },
@@ -61,10 +61,11 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        310000000
+      "DesiredServiceTimes": [
+        "100ms"
       ],
-      "GatewaysNumber": 5
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 1500
     },
     {
       "Title": "1.5GB-service-400ms",
@@ -74,10 +75,11 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        1330000000
+      "DesiredServiceTimes": [
+        "400ms"
       ],
-      "GatewaysNumber": 20
+      "GatewaysNumber": 20,
+      "FunctionMemoryMB": 1500
     },
     {
       "Title": "1.5GB-service-1600ms",
@@ -87,10 +89,11 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        5360000000
+      "DesiredServiceTimes": [
+        "1600ms"
       ],
-      "GatewaysNumber": 50
+      "GatewaysNumber": 50,
+      "FunctionMemoryMB": 1500
     },
     {
       "Title": "1.5GB-service-6400ms",
@@ -100,10 +103,11 @@
       ],
       "PayloadLengthBytes": 5,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        21600000000
+      "DesiredServiceTimes": [
+        "6400ms"
       ],
-      "GatewaysNumber": 224
+      "GatewaysNumber": 224,
+      "FunctionMemoryMB": 1500
     }
   ]
 }
