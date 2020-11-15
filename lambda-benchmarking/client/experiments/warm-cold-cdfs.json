@@ -9,8 +9,8 @@
       ],
       "PayloadLengthBytes": 0,
       "CooldownSeconds": 1,
-      "FunctionIncrementLimits": [
-        0
+      "DesiredServiceTimes": [
+        "0ms"
       ],
       "GatewaysNumber": 1
     },
@@ -22,8 +22,8 @@
       ],
       "PayloadLengthBytes": 0,
       "CooldownSeconds": 600,
-      "FunctionIncrementLimits": [
-        0
+      "DesiredServiceTimes": [
+        "0ms"
       ],
       "GatewaysNumber": 299
     }

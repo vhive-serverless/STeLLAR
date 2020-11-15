@@ -9,10 +9,9 @@ import (
 //RunProfiler will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
 //selected interval and start the process all over again.
 func RunProfiler(config configuration.SubExperiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
-	log.Infof("SubExperiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v), estimated to complete on %v",
+	log.Infof("SubExperiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v)",
 		config.ID, config.Bursts, config.CooldownSeconds, len(config.GatewayEndpoints),
-		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.CooldownSeconds,
-		time.Now().Add(estimateTotalDuration(config, deltas)).UTC().Format(time.RFC3339))
+		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.CooldownSeconds)
 
 	burstID := 0
 	deltaIndex := 0
@@ -39,13 +38,4 @@ func min(x, y int) int {
 		return x
 	}
 	return y
-}
-
-func estimateTotalDuration(config configuration.SubExperiment, deltas []time.Duration) time.Duration {
-	log.Debugf("SubExperiment %d: estimating total duration with deltas %v", config.ID, deltas)
-	estimateTime := deltas[0]
-	for _, burstDelta := range deltas[1 : config.Bursts/len(config.GatewayEndpoints)] {
-		estimateTime += burstDelta
-	}
-	return estimateTime
 }

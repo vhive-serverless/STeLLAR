@@ -13,11 +13,10 @@
       ],
       "PayloadLengthBytes": 0,
       "CooldownSeconds": 0,
-      "FunctionIncrementLimits": [
-        0
+      "DesiredServiceTimes": [
+        "0ms"
       ],
       "Provider": "www.google.com",
-      "GatewaysNumber": 1,
       "Visualization": "all"
     },
     {
@@ -28,11 +27,10 @@
       ],
       "PayloadLengthBytes": 0,
       "CooldownSeconds": 0,
-      "FunctionIncrementLimits": [
-        0
+      "DesiredServiceTimes": [
+        "0ms"
       ],
       "Provider": "www.google.com",
-      "GatewaysNumber": 1,
       "Visualization": "all"
     }
   ]
