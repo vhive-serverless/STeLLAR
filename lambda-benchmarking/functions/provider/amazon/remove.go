@@ -1,4 +1,4 @@
-package aws
+package amazon
 
 import (
 	"fmt"
@@ -8,17 +8,17 @@ import (
 )
 
 //RemoveFunction will remove the serverless function with id `i`.
-func (lambda Instance) RemoveFunction(i int) {
-	log.Infof("Removing producer lambda %s-%v", lambda.familiarName, i)
+func (amazon Instance) RemoveFunction(i int) {
+	log.Infof("Removing producer lambda %s-%v", amazon.appName, i)
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "delete-function", "--function-name",
-		fmt.Sprintf("%s-%v", lambda.familiarName, i))
+		fmt.Sprintf("%s-%v", amazon.appName, i))
 	util.RunCommandAndLog(cmd)
 }
 
 //RemoveAPI will remove the API corresponding to the serverless function with id `i`.
-func (lambda Instance) RemoveAPI(i int) {
-	log.Infof("Removing API %s-API-%v", lambda.familiarName, i)
+func (amazon Instance) RemoveAPI(i int) {
+	log.Infof("Removing API %s-API-%v", amazon.appName, i)
 	cmd := exec.Command("/usr/local/bin/aws", "apigateway", "delete-rest-api", "--rest-api-id",
-		lambda.getAPIID(i))
+		amazon.getAPIID(i))
 	util.RunCommandAndLog(cmd)
 }

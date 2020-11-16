@@ -14,11 +14,11 @@ import (
 	"time"
 )
 
-var rangeFlag = flag.String("range", "1_600", "Action functions with IDs in the given interval.")
-var actionFlag = flag.String("action", "deploy", "Desired interaction with the functions (deploy, "+
+var rangeFlag = flag.String("range", "1_151", "Action functions with IDs in the given interval.")
+var actionFlag = flag.String("action", "update_func_conf", "Desired interaction with the functions (deploy, "+
 	"remove, update_func, update_func_conf).")
 var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
-var sizeBytesFlag = flag.Int("sizeBytes", 0, "The size of the image to deploy, in bytes.")
+var sizeBytesFlag = flag.Int("sizeBytes", 252100000, "The size of the image to deploy, in bytes.")
 var logLevelFlag = flag.String("logLevel", "info", "Select logging level.")
 
 // https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
@@ -41,9 +41,7 @@ func main() {
 	logFile := setupLogging(outputDirectoryPath)
 	defer logFile.Close()
 
-	if deploymentFile := setupDeployment(outputDirectoryPath); deploymentFile != nil {
-		defer deploymentFile.Close()
-	}
+	zipLocation := setupDeployment(outputDirectoryPath)
 
 	connection := &provider.Connection{ProviderName: *providerFlag}
 
@@ -51,11 +49,11 @@ func main() {
 	for i := start; i < end; i++ {
 		switch *actionFlag {
 		case "deploy":
-			connection.DeployFunction(i, *languageFlag)
+			connection.DeployFunction(i, *languageFlag, zipLocation)
 		case "remove":
 			connection.RemoveFunction(i)
 		case "update_func":
-			connection.UpdateFunction(i)
+			connection.UpdateFunction(i, zipLocation)
 		case "update_func_conf":
 			connection.UpdateFunctionConfiguration(i)
 		default:
@@ -71,27 +69,25 @@ func main() {
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
 }
 
-func setupDeployment(outputDirectoryPath string) *os.File {
+func setupDeployment(outputDirectoryPath string) string {
 	switch *actionFlag {
 	case "deploy":
+		fallthrough
+	case "update_func_conf":
 		deploymentFile, err := os.Create(filepath.Join(outputDirectoryPath, "gateways.csv"))
 		if err != nil {
 			log.Fatal(err)
 		}
 		writer.InitializeGatewaysWriter(deploymentFile)
-
-		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
-		return deploymentFile
+		return util.GenerateZIPLocation(*providerFlag, *languageFlag, *sizeBytesFlag)
 	case "update_func":
-		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
-	case "update_func_conf":
-		util.GenerateDeploymentZIP(*providerFlag, *languageFlag, *sizeBytesFlag)
+		return util.GenerateZIPLocation(*providerFlag, *languageFlag, *sizeBytesFlag)
 	case "remove":
 		// No setup required for removing functions
 	default:
 		log.Fatalf("Unrecognized function action %s", *actionFlag)
 	}
-	return nil
+	return ""
 }
 
 func setupLogging(path string) *os.File {

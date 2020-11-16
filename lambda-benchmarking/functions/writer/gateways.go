@@ -21,13 +21,14 @@ func InitializeGatewaysWriter(file *os.File) {
 	GatewaysWriterSingleton = &gatewaysWriter{Writer: csv.NewWriter(file)}
 	GatewaysWriterSingleton.WriteGatewayID(
 		"Gateway ID",
+		"Memory (MB)",
 	)
 }
 
 //WriteGatewayID is used to write the specified gateway ID to the initialized file.
-func (writer *gatewaysWriter) WriteGatewayID(ID string) {
+func (writer *gatewaysWriter) WriteGatewayID(ID string, memory string) {
 	writer.mux.Lock()
-	if err := writer.Writer.Write([]string{ID}); err != nil {
+	if err := writer.Writer.Write([]string{ID, memory}); err != nil {
 		log.Fatal(err)
 	}
 	writer.Writer.Flush()

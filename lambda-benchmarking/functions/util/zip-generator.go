@@ -2,26 +2,33 @@ package util
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
+	awsRegion      = "us-west-1"
+	S3Bucket       = "benchmarking-aws"
+	localZipName = "benchmarking.zip"
 	randomFileName = "random.file"
-	zipName        = "benchmarking"
 )
 
-//GenerateDeploymentZIP will create the serverless function zip deployment for the given provider,
+var S3ZipName string
+
+//GenerateZIPLocation will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes.
-func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
-	zipPath := fmt.Sprintf("%s.zip", zipName)
-	if fileExists(zipPath) {
-		log.Infof("ZIP archive `%s` already exists, removing...", zipPath)
-		if err := os.Remove(zipPath); err != nil {
-			log.Fatalf("Failed to remove ZIP archive `%s`", zipPath)
+func GenerateZIPLocation(provider string, language string, sizeBytes int) string {
+	if fileExists(localZipName) {
+		log.Infof("Local ZIP archive `%s` already exists, removing...", localZipName)
+		if err := os.Remove(localZipName); err != nil {
+			log.Fatalf("Failed to remove local ZIP archive `%s`", localZipName)
 		}
 	}
 
@@ -42,7 +49,34 @@ func GenerateDeploymentZIP(provider string, language string, sizeBytes int) {
 	}
 
 	generateRandomFile(sizeBytes)
-	RunCommandAndLog(exec.Command("zip", fmt.Sprintf("%s.zip", zipName), "producer-handler", randomFileName))
+	RunCommandAndLog(exec.Command("zip", localZipName, "producer-handler", randomFileName))
+
+	if strings.Compare(provider, "aws") == 0 && sizeBytes > 50_000_000 {
+		log.Infof(`Deploying to AWS and package size (~%dMB) > 50 MB, will now attempt to upload to Amazon S3.`, sizeBytes/1_000_000.0)
+		S3ZipName = fmt.Sprintf("benchmarking%d.zip", sizeBytes)
+
+		zipFile, err := os.Open(localZipName)
+		if err != nil {
+			log.Fatalf("Failed to open zip file %q: %v", localZipName, err)
+		}
+
+		sessionInstance := session.Must(session.NewSession(&aws.Config{
+			Region: aws.String(awsRegion),
+		}))
+		uploader := s3manager.NewUploader(sessionInstance)
+		uploadOutput, err := uploader.Upload(&s3manager.UploadInput{
+			Bucket: aws.String("benchmarking-aws"),
+			Key:    aws.String(S3ZipName),
+			Body:   zipFile,
+		})
+		if err != nil {
+			log.Fatalf("Unable to upload %q to %q, %v", S3ZipName, S3Bucket, err.Error())
+		}
+
+		log.Infof("Successfully uploaded %q to bucket %q (%s)", S3ZipName, S3Bucket, uploadOutput.Location)
+		return uploadOutput.Location
+	}
+	return fmt.Sprintf("fileb://%s", localZipName)
 }
 
 func fileExists(filename string) bool {
@@ -54,11 +88,6 @@ func fileExists(filename string) bool {
 }
 
 func generateRandomFile(sizeBytes int) {
-	if sizeBytes > 50*1000*1000 {
-		log.Fatalf(`Deployment package is larger than 50 MB (~%dMB), you must use Amazon S3 (https://docs.aws.amazon.com/lambda/latest/dg/python-package.html).`,
-			sizeBytes/1000000.0)
-	}
-
 	if fileExists(randomFileName) {
 		log.Infof("Random file `%s` already exists, removing...", randomFileName)
 		if err := os.Remove(randomFileName); err != nil {
