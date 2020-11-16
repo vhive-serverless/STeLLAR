@@ -1,4 +1,4 @@
-package aws
+package amazon
 
 // Security (unused at the moment)
 //type Response struct {
