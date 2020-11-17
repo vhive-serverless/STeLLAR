@@ -1,12 +1,10 @@
 package configuration
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
+	"lambda-benchmarking/client/prompts"
 	"math"
 	"math/big"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -39,17 +37,9 @@ func determineFunctionIncrementLimits(subExperiment *SubExperiment, standardIncr
 			log.Warnf("Suggested increment %d (duration %dms) is not within 2%% of desired duration %dms",
 				suggestedIncrement, suggestedDurationMs, desiredDurationMs)
 
-			log.Print("Please enter a better increment (leave empty for unchanged): ")
-			var response string
-			_, err := fmt.Scanln(&response)
-			if err != nil && strings.Compare(err.Error(), "unexpected newline") != 0 {
-				log.Fatalf("Could not read response: %s.", err.Error())
-			} else if err == nil {
-				parsedManualIncrement, err := strconv.ParseInt(response, 10, 64)
-				if err != nil {
-					log.Fatalf("Could not parse integer %s: %s.", response, err.Error())
-				}
-				suggestedIncrement = parsedManualIncrement
+			promptedIncrement := prompts.PromptForNumber("Please enter a better increment (leave empty for unchanged): ")
+			if promptedIncrement != nil {
+				suggestedIncrement = *promptedIncrement
 			}
 		}
 

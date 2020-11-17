@@ -25,7 +25,7 @@ func (amazon Instance) UpdateFunction(i int, zipLocation string) {
 //UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
 func (amazon Instance) UpdateFunctionConfiguration(i int) (string, string) {
 	log.Infof("Updating producer lambda configuration %s-%v", amazon.appName, i)
-	assignedMemory := "1638"
+	assignedMemory := "128"
 	cmd := exec.Command("/usr/local/bin/aws", "lambda", "update-function-configuration",
 		"--function-name", fmt.Sprintf("%s-%v", amazon.appName, i), "--timeout", "900", "--memory-size", assignedMemory)
 	util.RunCommandAndLog(cmd)

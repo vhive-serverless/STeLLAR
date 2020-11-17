@@ -45,17 +45,6 @@ func (c Connection) UpdateFunction(i int, zipLocation string) {
 		awsInterface := amazon.Initialize()
 
 		awsInterface.UpdateFunction(i, zipLocation)
-	default:
-		log.Fatalf("Unrecognized provider %s", c.ProviderName)
-	}
-}
-
-//UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
-func (c Connection) UpdateFunctionConfiguration(i int) {
-	switch c.ProviderName {
-	case "aws":
-		awsInterface := amazon.Initialize()
-
 		apiID, memoryAssigned := awsInterface.UpdateFunctionConfiguration(i)
 		writer.GatewaysWriterSingleton.WriteGatewayID(apiID, memoryAssigned)
 	default:

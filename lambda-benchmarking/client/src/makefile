@@ -24,7 +24,7 @@ edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
 
 # Cloudlab deployment
-remote=theodor@hp185.utah.cloudlab.us
+remote=theodor@hp024.utah.cloudlab.us
 
 send_to_cloudlab:
 	@ssh $(remote) "mkdir -p ~/.aws/"
@@ -35,8 +35,6 @@ send_to_cloudlab:
 	@scp ../experiments/* $(remote):~/experiments/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
-	@CGO_ENABLED=0 GOOS=linux go build -v -a -o ../timer ../timer.go
-	@scp ../timer $(remote):~/
 
 connect_to_cloudlab:
 	@ssh -X -p 22 $(remote)

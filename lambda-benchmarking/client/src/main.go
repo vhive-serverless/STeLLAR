@@ -7,6 +7,7 @@ import (
 	"io"
 	"lambda-benchmarking/client/experiment"
 	"lambda-benchmarking/client/experiment/configuration"
+	"lambda-benchmarking/client/prompts"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -154,6 +155,10 @@ func assignGatewaysToExperiment(gateways map[int64][]string, memoryToLastAssigne
 
 		if remainingGatewaysToAssign <= 0 {
 			log.Fatalf("Cannot assign %d gateways to an experiment.", remainingGatewaysToAssign)
+		}
+
+		if !prompts.PromptForConfirmation("Would you like to continue with this setting?") {
+			os.Exit(0)
 		}
 
 		newLastAssignedIndexExcl = nrGatewaysWithDesiredMemory
