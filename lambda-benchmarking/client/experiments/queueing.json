@@ -22,7 +22,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -42,7 +42,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -70,7 +70,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -98,7 +98,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -122,7 +122,7 @@
       "DesiredServiceTimes": [
         "100ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -142,7 +142,7 @@
       "DesiredServiceTimes": [
         "100ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -170,7 +170,7 @@
       "DesiredServiceTimes": [
         "100ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     },
     {
@@ -198,7 +198,7 @@
       "DesiredServiceTimes": [
         "100ms"
       ],
-      "FunctionMemoryMB": 1600,
+      "FunctionMemoryMB": 1638,
       "Visualization": "all"
     }
   ]

@@ -65,7 +65,7 @@
         "100ms"
       ],
       "GatewaysNumber": 5,
-      "FunctionMemoryMB": 1500
+      "FunctionMemoryMB": 1536
     },
     {
       "Title": "1.5GB-service-400ms",
@@ -79,7 +79,7 @@
         "400ms"
       ],
       "GatewaysNumber": 20,
-      "FunctionMemoryMB": 1500
+      "FunctionMemoryMB": 1536
     },
     {
       "Title": "1.5GB-service-1600ms",
@@ -93,7 +93,7 @@
         "1600ms"
       ],
       "GatewaysNumber": 50,
-      "FunctionMemoryMB": 1500
+      "FunctionMemoryMB": 1536
     },
     {
       "Title": "1.5GB-service-6400ms",
@@ -107,7 +107,7 @@
         "6400ms"
       ],
       "GatewaysNumber": 224,
-      "FunctionMemoryMB": 1500
+      "FunctionMemoryMB": 1536
     }
   ]
 }
