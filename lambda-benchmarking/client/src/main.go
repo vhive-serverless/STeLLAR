@@ -5,8 +5,8 @@ import (
 	"github.com/go-gota/gota/dataframe"
 	log "github.com/sirupsen/logrus"
 	"io"
+	"lambda-benchmarking/client/configuration"
 	"lambda-benchmarking/client/experiment"
-	"lambda-benchmarking/client/experiment/configuration"
 	"lambda-benchmarking/client/prompts"
 	"math/rand"
 	"os"
@@ -157,7 +157,7 @@ func assignGatewaysToExperiment(gateways map[int64][]string, memoryToLastAssigne
 			log.Fatalf("Cannot assign %d gateways to an experiment.", remainingGatewaysToAssign)
 		}
 
-		if !prompts.PromptForConfirmation("Would you like to continue with this setting?") {
+		if !prompts.PromptForBool("Would you like to continue with this setting?") {
 			os.Exit(0)
 		}
 

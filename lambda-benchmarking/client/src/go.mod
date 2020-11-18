@@ -2,9 +2,11 @@ module lambda-benchmarking/client
 
 go 1.15
 
-replace lambda-benchmarking/client/experiment => ./experiment
+replace lambda-benchmarking/client/prompts => ./prompts
 
-replace lambda-benchmarking/client/experiment/configuration => ./experiment/configuration
+replace lambda-benchmarking/client/configuration => ./configuration
+
+replace lambda-benchmarking/client/experiment => ./experiment
 
 replace lambda-benchmarking/client/experiment/benchmarking => ./experiment/benchmarking
 

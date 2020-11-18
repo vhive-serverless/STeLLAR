@@ -3,8 +3,8 @@ package experiment
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"lambda-benchmarking/client/configuration"
 	"lambda-benchmarking/client/experiment/benchmarking"
-	"lambda-benchmarking/client/experiment/configuration"
 	"lambda-benchmarking/client/experiment/visualization"
 	"os"
 	"path/filepath"

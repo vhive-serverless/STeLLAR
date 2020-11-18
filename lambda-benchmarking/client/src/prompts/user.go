@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func PromptForConfirmation(prompt string) bool {
+func PromptForBool(prompt string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
