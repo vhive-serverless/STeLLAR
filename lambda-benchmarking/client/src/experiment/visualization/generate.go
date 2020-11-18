@@ -6,7 +6,7 @@ import (
 	"github.com/go-gota/gota/series"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"lambda-benchmarking/client/experiment/configuration"
+	"lambda-benchmarking/client/configuration"
 	"os"
 	"path/filepath"
 	"time"

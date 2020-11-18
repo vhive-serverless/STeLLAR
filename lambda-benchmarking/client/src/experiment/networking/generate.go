@@ -3,7 +3,7 @@ package networking
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"lambda-benchmarking/client/experiment/configuration"
+	"lambda-benchmarking/client/configuration"
 	"net/http"
 	"time"
 )

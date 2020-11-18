@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat"
 	"gonum.org/v1/plot/plotutil"
-	"lambda-benchmarking/client/experiment/configuration"
+	"lambda-benchmarking/client/configuration"
 	"sort"
 	"strings"
 	"time"
