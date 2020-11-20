@@ -20,56 +20,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package prompts
+package http
 
 import (
-	"bufio"
+	"encoding/json"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"strconv"
-	"strings"
 )
 
-func PromptForBool(prompt string) bool {
-	reader := bufio.NewReader(os.Stdin)
+const awsRegion = "us-west-1"
 
-	for {
-		log.Printf("%s [y/n]: ", prompt)
+var signerSingleton *v4.Signer
 
-		response, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err.Error())
-		}
-
-		response = strings.ToLower(strings.TrimSpace(response))
-
-		if response == "y" || response == "yes" {
-			return true
-		} else if response == "n" || response == "no" {
-			return false
-		}
+func getAWSSignerSingleton() *v4.Signer {
+	if signerSingleton != nil {
+		return signerSingleton
 	}
+
+	sessionInstance := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String(awsRegion),
+	}))
+	signerSingleton = v4.NewSigner(sessionInstance.Config.Credentials)
+	return signerSingleton
 }
 
-func PromptForNumber(prompt string) *int64 {
-	reader := bufio.NewReader(os.Stdin)
+type lambdaFunctionResponse struct {
+	AwsRequestID string `json:"AwsRequestID"`
+	Payload      []byte `json:"Payload"`
+}
 
-	log.Print(prompt)
-
-	response, err := reader.ReadString('\n')
-	if err != nil {
-		log.Fatalf("Could not read response: %s.", err.Error())
+//GetAWSRequestID will process an HTTP response body coming from an AWS integration, extracting its ID.
+func GetAWSRequestID(respBody []byte) string {
+	var lambdaFunctionResponse lambdaFunctionResponse
+	if err := json.Unmarshal(respBody, &lambdaFunctionResponse); err != nil {
+		log.Error(err)
 	}
-
-	if response == "\n" {
-		return nil
-	} else {
-		response = strings.ReplaceAll(response, "\n", "")
-	}
-
-	parsedNumber, err := strconv.ParseInt(response, 10, 64)
-	if err != nil {
-		log.Fatalf("Could not parse integer %s: %s.", response, err.Error())
-	}
-	return &parsedNumber
+	return lambdaFunctionResponse.AwsRequestID
 }
