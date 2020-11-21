@@ -20,30 +20,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package util
+package generator
 
 import (
-	"bytes"
-	"fmt"
+	"functions/connection/amazon"
+	"functions/util"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"os/exec"
 )
 
-//RunCommandAndLog will execute a bash command and log results to the standard logger, as well as return the contents.
-func RunCommandAndLog(cmd *exec.Cmd) string {
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalf("%s: %s", fmt.Sprint(err), stderr.String())
+
+func generateZIP(provider string, randomFileName string, sizeBytes int) {
+	localZipPath := "benchmarking.zip"
+
+	if fileExists(localZipPath) {
+		log.Infof("Local ZIP archive `%s` already exists, removing...", localZipPath)
+		if err := os.Remove(localZipPath); err != nil {
+			log.Fatalf("Failed to remove local ZIP archive `%s`", localZipPath)
+		}
 	}
-	log.Debugf("Command result: %s", out.String())
-	return out.String()
+	util.RunCommandAndLog(exec.Command("zip", localZipPath, "producer-handler", randomFileName))
+
+	switch provider {
+	case "aws":
+		if sizeBytes > 50_000_000 {
+			amazon.UploadZIPToS3(localZipPath, sizeBytes)
+		} else {
+			amazon.SetLocalZip(localZipPath)
+		}
+	default:
+		log.Fatalf("Unrecognized provider %s", provider)
+	}
 }
 
-//BytesToMB transforms bytes into megabytes
-func BytesToMB(sizeBytes int) int {
-	return sizeBytes / 1_000_000.0
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
