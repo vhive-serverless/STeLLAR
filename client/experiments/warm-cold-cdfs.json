@@ -1,0 +1,57 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "warm-cdf-1sec-size100",
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "cold-cdf-10min-size100",
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "warm-cdf-1sec-size1",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "cold-cdf-10min-size1",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 147
+    }
+  ]
+}

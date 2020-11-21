@@ -12,7 +12,7 @@ jobs:
     name: Build Client
     runs-on: ubuntu-18.04
     env:
-      working-directory: ./lambda-benchmarking/client/src
+      working-directory: ./client/src
     steps:
     
     - name: Set up Go 1.x

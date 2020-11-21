@@ -1,0 +1,113 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "128MB-service-100ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "GatewaysNumber": 5
+    },
+    {
+      "Title": "128MB-service-400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "400ms"
+      ],
+      "GatewaysNumber": 20
+    },
+    {
+      "Title": "128MB-service-1600ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "1600ms"
+      ],
+      "GatewaysNumber": 50
+    },
+    {
+      "Title": "128MB-service-6400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "6400ms"
+      ],
+      "GatewaysNumber": 225
+    },
+    {
+      "Title": "1.5GB-service-100ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Title": "1.5GB-service-400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "400ms"
+      ],
+      "GatewaysNumber": 20,
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Title": "1.5GB-service-1600ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "1600ms"
+      ],
+      "GatewaysNumber": 50,
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Title": "1.5GB-service-6400ms",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 1,
+      "DesiredServiceTimes": [
+        "6400ms"
+      ],
+      "GatewaysNumber": 224,
+      "FunctionMemoryMB": 1536
+    }
+  ]
+}
