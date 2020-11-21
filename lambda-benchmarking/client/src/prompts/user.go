@@ -30,6 +30,7 @@ import (
 	"strings"
 )
 
+//PromptForBool asks user for a boolean from the stdin
 func PromptForBool(prompt string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -51,6 +52,7 @@ func PromptForBool(prompt string) bool {
 	}
 }
 
+//PromptForNumber asks user for a number from the stdin
 func PromptForNumber(prompt string) *int64 {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -63,9 +65,9 @@ func PromptForNumber(prompt string) *int64 {
 
 	if response == "\n" {
 		return nil
-	} else {
-		response = strings.ReplaceAll(response, "\n", "")
 	}
+
+	response = strings.ReplaceAll(response, "\n", "")
 
 	parsedNumber, err := strconv.ParseInt(response, 10, 64)
 	if err != nil {

@@ -14,12 +14,15 @@ import (
 )
 
 const (
-	awsRegion      = "us-west-1"
-	S3Bucket       = "benchmarking-aws"
-	localZipName = "benchmarking.zip"
-	randomFileName = "random.file"
+	awsRegion        = "us-west-1"
+	//S3Bucket defines the name of the S3 bucket used to store the zipped binary file
+	S3Bucket         = "benchmarking-aws"
+	localZipName     = "benchmarking.zip"
+	randomFileName   = "random.file"
+	producerFileName = "producer-handler"
 )
 
+//S3ZipName will point to the location of the S3 zipped binary file
 var S3ZipName string
 
 //GenerateZIPLocation will create the serverless function zip deployment for the given provider,
@@ -40,7 +43,7 @@ func GenerateZIPLocation(provider string, language string, sizeBytes int) string
 
 	switch language {
 	case "go1.x":
-		RunCommandAndLog(exec.Command("go", "build", "-v", "-o", "producer-handler",
+		RunCommandAndLog(exec.Command("go", "build", "-v", "-o", producerFileName,
 			"code/producer/go1.x/aws-handler.go"))
 	//case "python3.8":
 	//	RunCommandAndLog(exec.Command("go", "build", "-v", "-race", "-o", "producer-handler"))
@@ -48,11 +51,18 @@ func GenerateZIPLocation(provider string, language string, sizeBytes int) string
 		log.Fatalf("Unrecognized language %s", language)
 	}
 
-	generateRandomFile(sizeBytes)
+	zippedBinarySize := int(getZippedBinarySize())
+	if sizeBytes < zippedBinarySize {
+		log.Fatalf("Total size (~%dMB) cannot be smaller than zipped binary size (~%dMB).",
+			bytesToMB(sizeBytes),
+			bytesToMB(zippedBinarySize))
+	}
+	generateRandomFile(sizeBytes - zippedBinarySize)
+
 	RunCommandAndLog(exec.Command("zip", localZipName, "producer-handler", randomFileName))
 
 	if strings.Compare(provider, "aws") == 0 && sizeBytes > 50_000_000 {
-		log.Infof(`Deploying to AWS and package size (~%dMB) > 50 MB, will now attempt to upload to Amazon S3.`, sizeBytes/1_000_000.0)
+		log.Infof(`Deploying to AWS and package size (~%dMB) > 50 MB, will now attempt to upload to Amazon S3.`, bytesToMB(sizeBytes))
 		S3ZipName = fmt.Sprintf("benchmarking%d.zip", sizeBytes)
 
 		zipFile, err := os.Open(localZipName)
@@ -77,6 +87,21 @@ func GenerateZIPLocation(provider string, language string, sizeBytes int) string
 		return uploadOutput.Location
 	}
 	return fmt.Sprintf("fileb://%s", localZipName)
+}
+
+func bytesToMB(sizeBytes int) int {
+	return sizeBytes / 1_000_000.0
+}
+
+func getZippedBinarySize() int64 {
+	log.Info("Zipping binary file to find its size...")
+	RunCommandAndLog(exec.Command("zip", "zipped-binary", "producer-handler"))
+
+	fi, err := os.Stat("zipped-binary")
+	if err != nil {
+		log.Fatalf("Could not get size of zipped binary file: %s", err.Error())
+	}
+	return fi.Size()
 }
 
 func fileExists(filename string) bool {

@@ -16,7 +16,7 @@ run_client:
 	@./client \
 		-o "../latency-samples" \
 		-c "../experiments/test.json"\
-		-g "../endpoints/aws.json"
+		-g "../endpoints"
 
 build_and_run_client: build_client run_client
 

@@ -34,9 +34,10 @@ import (
 type Endpoint struct {
 	GatewayID        string  `json:"GatewayID"`
 	FunctionMemoryMB int64   `json:"FunctionMemoryMB"`
+	ImageSizeMB      float64 `json:"ImageSizeMB"`
 }
 
-func extractEndpoints(endpointsFile *os.File) []Endpoint {
+func extractProviderEndpoints(endpointsFile *os.File) []Endpoint {
 	configByteValue, _ := ioutil.ReadAll(endpointsFile)
 
 	var parsedEndpoints []Endpoint
@@ -47,43 +48,41 @@ func extractEndpoints(endpointsFile *os.File) []Endpoint {
 	return parsedEndpoints
 }
 
-func assignEndpoints(gateways map[int64][]string, memoryToLastAssignedIndex map[int64]int, experiment *SubExperiment) {
-	lastAssignedIndexExcl := memoryToLastAssignedIndex[experiment.FunctionMemoryMB]
-	newLastAssignedIndexExcl := lastAssignedIndexExcl + experiment.GatewaysNumber
-	nrGatewaysWithDesiredMemory := len(gateways[experiment.FunctionMemoryMB])
+func assignEndpoints(availableEndpoints []Endpoint, experiment *SubExperiment) {
+	if experiment.GatewaysNumber > len(availableEndpoints) {
+		log.Fatalf("Cannot assign %d endpoints to experiment %d: only %d available endpoints for provider %s.",
+			experiment.GatewaysNumber,
+			experiment.ID,
+			len(availableEndpoints),
+			experiment.Provider,
+		)
+	}
 
-	if newLastAssignedIndexExcl > nrGatewaysWithDesiredMemory {
-		remainingGatewaysToAssign := nrGatewaysWithDesiredMemory - lastAssignedIndexExcl
-		log.Errorf("Not enough remaining gateways were found in the given gateways file with requested memory %dMB, found %d but trying to assign from %d to %d. Experiment `%s` will be assigned %d gateways.",
-			experiment.FunctionMemoryMB, remainingGatewaysToAssign,
-			lastAssignedIndexExcl, newLastAssignedIndexExcl,
-			experiment.Title, remainingGatewaysToAssign)
-
-		if remainingGatewaysToAssign <= 0 {
-			log.Fatalf("Cannot assign %d gateways to an experiment.", remainingGatewaysToAssign)
+	var assignedEndpoints []string
+	for i := 0; i < experiment.GatewaysNumber; i++ {
+		for index, availableEndpoint := range availableEndpoints {
+			if availableEndpoint.FunctionMemoryMB == experiment.FunctionMemoryMB &&
+				(experiment.FunctionImageSizeMB == 0 || almostEqual(availableEndpoint.ImageSizeMB,
+					float64(experiment.FunctionImageSizeMB),
+					0.5)) {
+				assignedEndpoints = append(assignedEndpoints, availableEndpoint.GatewayID)
+				removeEndpoint(availableEndpoints, index)
+			}
 		}
 
-		if !prompts.PromptForBool("Would you like to continue with this setting?") {
+		log.Warnf("Could not find a function to assign with %dMB memory and %dMB image size.",
+			experiment.FunctionMemoryMB,
+			experiment.FunctionImageSizeMB,
+		)
+		if !prompts.PromptForBool("Do you wish to continue?") {
 			os.Exit(0)
 		}
-
-		newLastAssignedIndexExcl = nrGatewaysWithDesiredMemory
 	}
-	memoryToLastAssignedIndex[experiment.FunctionMemoryMB] = newLastAssignedIndexExcl
-	experiment.GatewayEndpoints = gateways[experiment.FunctionMemoryMB][lastAssignedIndexExcl:newLastAssignedIndexExcl]
+
+	experiment.GatewayEndpoints = assignedEndpoints
 }
 
-func mapMemoryToGateways(parsedEndpoints []Endpoint) (map[int64][]string, map[int64]int) {
-	memoryToListOfGatewayIDs := make(map[int64][]string)
-	memoryToLastAssignedIndex := make(map[int64]int)
-	for idx, endpoint := range parsedEndpoints {
-		if idx == 0 {
-			continue
-		}
-
-		memoryToLastAssignedIndex[endpoint.FunctionMemoryMB] = 0
-		memoryToListOfGatewayIDs[endpoint.FunctionMemoryMB] =
-			append(memoryToListOfGatewayIDs[endpoint.FunctionMemoryMB], endpoint.GatewayID)
-	}
-	return memoryToListOfGatewayIDs, memoryToLastAssignedIndex
+func removeEndpoint(s []Endpoint, i int) []Endpoint {
+	s[len(s)-1], s[i] = s[i], s[len(s)-1]
+	return s[:len(s)-1]
 }
