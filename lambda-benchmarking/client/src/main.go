@@ -38,7 +38,7 @@ import (
 
 var outputPathFlag = flag.String("o", "latency-samples", "The path where latency samples should be written.")
 var configPathFlag = flag.String("c", "config.csv", "Configuration file with details of experiments.")
-var endpointsPathFlag = flag.String("g", "gateways.csv", "File containing ids of gateways to be used.")
+var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 
@@ -58,14 +58,14 @@ func main() {
 
 	log.Infof("Started benchmarking HTTP client on %v with random seed %d.",
 		time.Now().UTC().Format(time.RFC850), randomSeed)
-	log.Infof("Selected endpoints path: %s", *endpointsPathFlag)
+	log.Infof("Selected endpoints directory path: %s", *endpointsDirectoryPathFlag)
 	log.Infof("Selected config path: %s", *configPathFlag)
 	log.Infof("Selected output path: %s", *outputPathFlag)
 	log.Infof("Selected experiment (-1 for all): %d", *specificExperimentFlag)
 
 	setupCtrlCHandler()
 
-	config := configuration.ReadInstructions(*endpointsPathFlag, *configPathFlag)
+	config := configuration.ReadInstructions(*endpointsDirectoryPathFlag, *configPathFlag)
 
 	experiment.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 

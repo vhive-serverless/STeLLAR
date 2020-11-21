@@ -3,6 +3,9 @@ package amazon
 import (
 	"fmt"
 	"functions/util"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/lambda"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
 	"strconv"
@@ -15,15 +18,23 @@ type Instance struct {
 	region     string
 	cloneAPIID string
 	stage      string
+	lambdaSvc  *lambda.Lambda
 }
+
+const awsRegion = "us-west-1"
 
 //Initialize will create a new AWS Instance to interact with.
 func Initialize() *Instance {
+	sessionInstance := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String(awsRegion),
+	}))
+
 	return &Instance{
 		appName:    "benchmarking",
-		region:     "us-west-1",
+		region:     awsRegion,
 		cloneAPIID: "hjnwqihyo1",
 		stage:      "prod",
+		lambdaSvc:  lambda.New(sessionInstance),
 	}
 }
 

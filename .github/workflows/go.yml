@@ -49,4 +49,4 @@ jobs:
         mkdir -p "../latency-samples"
         touch ../gateways.csv
         echo "Gateway ID" >> ../gateways.csv
-        ./client --outputPath "../latency-samples" --configPath "../experiments/test.json" --gatewaysPath "../gateways.csv" 
+        ./client --o "../latency-samples" --c "../experiments/test.json" --g "../endpoints" 

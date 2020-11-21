@@ -53,6 +53,7 @@ type SubExperiment struct {
 	GatewaysNumber          int      `json:"GatewaysNumber"`
 	Visualization           string   `json:"Visualization"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
+	FunctionImageSizeMB     int64    `json:"FunctionImageSizeMB"`
 	GatewayEndpoints        []string
 	ID                      int
 }
@@ -129,8 +130,8 @@ func determineFunctionIncrementLimits(subExperiment *SubExperiment, standardIncr
 		suggestedIncrementFloat, _ := currentIncrement.Float64()
 		suggestedIncrement := int64(suggestedIncrementFloat)
 		suggestedDurationMs := timeSession(suggestedIncrement).Milliseconds()
-		if !almostEqual(suggestedDurationMs, desiredDurationMs, float64(desiredDurationMs)*0.02) {
-			log.Warnf("Suggested increment %d (duration %dms) is not within 2%% of desired duration %dms",
+		if !almostEqual(float64(suggestedDurationMs), float64(desiredDurationMs), float64(desiredDurationMs)*0.05) {
+			log.Warnf("Suggested increment %d (duration %dms) is not within 5%% of desired duration %dms",
 				suggestedIncrement, suggestedDurationMs, desiredDurationMs)
 
 			promptedIncrement := prompts.PromptForNumber("Please enter a better increment (leave empty for unchanged): ")
@@ -152,6 +153,6 @@ func timeSession(increment int64) time.Duration {
 	return time.Since(start)
 }
 
-func almostEqual(a, b int64, float64EqualityThreshold float64) bool {
-	return math.Abs(float64(a-b)) <= float64EqualityThreshold
+func almostEqual(a, b float64, float64EqualityThreshold float64) bool {
+	return math.Abs(a-b) <= float64EqualityThreshold
 }

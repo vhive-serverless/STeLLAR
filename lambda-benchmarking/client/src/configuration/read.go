@@ -24,49 +24,76 @@ package configuration
 
 import (
 	log "github.com/sirupsen/logrus"
+	"lambda-benchmarking/client/prompts"
 	"os"
+	"path"
 )
 
-func ReadInstructions(endpointsPath string, configPath string) Configuration {
-	log.Debugf("Reading endpoints file for this run from `%s`", endpointsPath)
-	endpointsFile, err := os.Open(endpointsPath)
-	if err != nil {
-		log.Fatalf("Could not read endpoints file: %s", err.Error())
-	}
-	availableEndpoints := extractEndpoints(endpointsFile)
-	// TODO: remove this I think
-	memoryToGatewayIDs, memoryToLastAssignedIndex := mapMemoryToGateways(availableEndpoints)
+// HashMap pointing from provider (e.g., "aws") to a list of existing endpoints for that provider
+var availableEndpoints map[string][]Endpoint
 
-	log.Debugf("Reading config file for this run from `%s`", configPath)
-	configFile, err := os.Open(configPath)
-	if err != nil {
-		log.Fatalf("Could not read config file: %s", err.Error())
-	}
+//ReadInstructions will read any required files, such as experiment configurations and endpoint files.
+func ReadInstructions(endpointsDirectoryPath string, configPath string) Configuration {
+	supportedProviders := []string{"aws", "vHive"}
+
+	configFile := readFile(configPath)
+
 	config := extractSubExperiments(configFile)
+	log.Debugf("Extracted %d sub-experiments from given configuration file.", len(config.SubExperiments))
 
-	for index := range config.SubExperiments {
+	availableEndpoints = make(map[string][]Endpoint)
+	for index, subExperiment := range config.SubExperiments {
+		_, alreadyExtractedProvider := availableEndpoints[subExperiment.Provider]
+		if !stringInSlice(subExperiment.Provider, supportedProviders) {
+			config.SubExperiments[index].GatewayEndpoints = []string{subExperiment.Provider}
+		} else if !alreadyExtractedProvider {
+			endpointsFile := readFile(path.Join(endpointsDirectoryPath, subExperiment.Provider + ".json"))
+			availableEndpoints[subExperiment.Provider] = extractProviderEndpoints(endpointsFile)
+			assignEndpoints(availableEndpoints[subExperiment.Provider], &config.SubExperiments[index])
+		}
+
 		config.SubExperiments[index].ID = index
-		assignEndpoints(memoryToGatewayIDs, memoryToLastAssignedIndex, &config.SubExperiments[index])
 
-		// Issue warning if sending too many requests in a single burst
 		const manyRequestsInBurstThreshold = 2000
 		for _, burstSize := range config.SubExperiments[index].BurstSizes {
 			if burstSize > manyRequestsInBurstThreshold {
 				log.Warnf("Experiment %d has a burst of size %d, NIC (Network Interface Controller) contention may occur.",
 					index, burstSize)
+				if !prompts.PromptForBool("Do you wish to continue?") {
+					os.Exit(0)
+				}
 			}
 		}
 
-		// Issue warning if generating too many files
 		const manyFilesWarningThreshold = 500
 		chosenVisualization := config.SubExperiments[index].Visualization
 		burstsNumber := config.SubExperiments[index].Bursts
 		if burstsNumber >= manyFilesWarningThreshold && (chosenVisualization == "all" || chosenVisualization == "histogram") {
-			log.Warnf("Generating histograms for each burst, this will create a large number (%d) of new files.",
-				burstsNumber)
+			log.Warnf("SubExperiment %d is generating histograms for each burst, this will create a large number (%d) of new files.",
+				index, burstsNumber)
+			if !prompts.PromptForBool("Do you wish to continue?") {
+				os.Exit(0)
+			}
 		}
 	}
 
-	log.Debugf("Extracted %d sub-experiments from given configuration file.", len(config.SubExperiments))
 	return config
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func readFile(path string) *os.File {
+	log.Debugf("Reading file for this run from `%s`", path)
+	file, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("Could not read file: %s", err.Error())
+	}
+	return file
 }
