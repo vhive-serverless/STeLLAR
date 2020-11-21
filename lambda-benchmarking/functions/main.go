@@ -1,10 +1,31 @@
+// MIT License
+//
+// Copyright (c) 2020 Theodor Amariucai
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 package main
 
 import (
 	"flag"
-	"functions/provider"
-	"functions/util"
-	"functions/writer"
+	"functions/connection"
+	"functions/generator"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
@@ -14,11 +35,8 @@ import (
 	"time"
 )
 
-var rangeFlag = flag.String("range", "1_151", "Action functions with IDs in the given interval.")
-var actionFlag = flag.String("action", "update", "Desired interaction with the functions (deploy, "+
-	"remove, update).")
-var providerFlag = flag.String("provider", "aws", "Provider to interact with.")
-var sizeBytesFlag = flag.Int("sizeBytes", 124600000, "The size of the image to deploy, in bytes.")
+var rangeFlag = flag.String("range", "1_5", "Action functions with IDs in the given interval.")
+var actionFlag = flag.String("action", "update", "Desired interaction with the functions (deploy, remove, update).")
 var logLevelFlag = flag.String("logLevel", "info", "Select logging level.")
 
 // https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html
@@ -41,49 +59,30 @@ func main() {
 	logFile := setupLogging(outputDirectoryPath)
 	defer logFile.Close()
 
-	zipLocation := setupDeployment(outputDirectoryPath)
+	provider := "aws"
 
-	connection := &provider.Connection{ProviderName: *providerFlag}
+	connection.Initialize(provider)
 
-	// Issuing simultaneous requests poses problems with AWS
-	for i := start; i < end; i++ {
+	sizeBytes := int(45000000 * 1.05) // ~5% is lost when compressing...
+	generator.SetupDeployment(*actionFlag, *languageFlag, provider, sizeBytes)
+
+	for id := start; id < end; id++ {
 		switch *actionFlag {
 		case "deploy":
-			connection.DeployFunction(i, *languageFlag, zipLocation)
+			connection.Singleton.DeployFunction(id, *languageFlag, 128)
 		case "remove":
-			connection.RemoveFunction(i)
+			connection.Singleton.RemoveFunction(id)
 		case "update":
-			connection.UpdateFunction(i, zipLocation)
+			connection.Singleton.UpdateFunction(id, 128)
 		default:
 			log.Fatalf("Unrecognized function action %s", *actionFlag)
 		}
-	}
 
-	if *actionFlag == "deploy" {
-		log.Info("Flushing gateways to CSV file.")
-		writer.GatewaysWriterSingleton.Writer.Flush()
+		// AWS doesn't support simultaneous requests, or requests issued too quickly
+		time.Sleep(time.Millisecond * 150)
 	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
-}
-
-func setupDeployment(outputDirectoryPath string) string {
-	switch *actionFlag {
-	case "deploy":
-		fallthrough
-	case "update":
-		deploymentFile, err := os.Create(filepath.Join(outputDirectoryPath, "gateways.csv"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		writer.InitializeGatewaysWriter(deploymentFile)
-		return util.GenerateZIPLocation(*providerFlag, *languageFlag, *sizeBytesFlag)
-	case "remove":
-		// No setup required for removing functions
-	default:
-		log.Fatalf("Unrecognized function action %s", *actionFlag)
-	}
-	return ""
 }
 
 func setupLogging(path string) *os.File {
