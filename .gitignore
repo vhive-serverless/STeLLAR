@@ -16,4 +16,14 @@
 
 client/src/client
 client/.idea/
-functions/.idea/
+client/latency-samples/
+client/cloudlab-latency-samples/
+client/src/only-plot.txt
+client/experiments/composite.json
+client/endpoints/aws.csv
+client/src/experiment/networking/gRPC/proto_gen/
+client/functions/.idea/
+client/functions/benchmarking.zip
+client/functions/producer-handler
+client/functions/random.file
+utils/

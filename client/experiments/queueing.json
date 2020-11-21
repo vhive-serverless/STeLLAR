@@ -1,0 +1,205 @@
+{
+  "Sequential": true,
+  "SubExperiments": [
+    {
+      "Title": "progression-rate-2-0ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "progression-rate-3-0ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        1,
+        3,
+        9,
+        27,
+        81,
+        243,
+        729
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "linear-from-1-0ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "linear-from-100-0ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        100,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "progression-rate-2-100ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "progression-rate-3-100ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        1,
+        3,
+        9,
+        27,
+        81,
+        243,
+        729
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "linear-from-1-100ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    },
+    {
+      "Title": "linear-from-100-100ms",
+      "Bursts": 15,
+      "BurstSizes": [
+        100,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "PayloadLengthBytes": 5,
+      "CooldownSeconds": 10,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 1638,
+      "Visualization": "all"
+    }
+  ]
+}
