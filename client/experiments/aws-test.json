@@ -1,36 +1,34 @@
 {
   "Sequential": false,
-  "Provider": "www.google.com",
+  "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "test1",
-      "Bursts": 6,
+      "Title": "aws-test1",
+      "Bursts": 15,
       "BurstSizes": [
-        1,
-        2,
-        3,
-        4,
-        50
+        2
       ],
       "PayloadLengthBytes": 0,
-      "CooldownSeconds": 0,
+      "CooldownSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Visualization": "all"
+      "FunctionImageSizeMB": 24,
+      "GatewaysNumber": 1
     },
     {
-      "Title": "test2",
+      "Title": "aws-test2",
       "Bursts": 10,
       "BurstSizes": [
-        1
+        4
       ],
       "PayloadLengthBytes": 0,
-      "CooldownSeconds": 0,
+      "CooldownSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Visualization": "all"
+      "FunctionImageSizeMB": 48,
+      "GatewaysNumber": 1
     }
   ]
 }
