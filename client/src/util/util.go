@@ -30,7 +30,7 @@ import (
 	"os/exec"
 )
 
-//ReadFile
+//ReadFile reads a file and returns the object
 func ReadFile(path string) *os.File {
 	log.Debugf("Reading file from `%s`", path)
 	file, err := os.Open(path)
@@ -40,7 +40,7 @@ func ReadFile(path string) *os.File {
 	return file
 }
 
-//FileExists
+//FileExists checks if a file exists on disk
 func FileExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
@@ -57,12 +57,12 @@ func BytesToMB(sizeBytes int64) float64 {
 	return float64(sizeBytes) / 1024. / 1024.
 }
 
-//BytesToMB transforms megabytes into bytes
+//MBToBytes transforms megabytes into bytes
 func MBToBytes(sizeMB float64) int64 {
 	return int64(sizeMB) * 1024 * 1024
 }
 
-//RunCommandAndLog
+//RunCommandAndLog runs a command in the terminal and logs and returns the result
 func RunCommandAndLog(cmd *exec.Cmd) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
