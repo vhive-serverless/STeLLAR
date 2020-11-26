@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "GatewayID": "test1",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60
+  },
+  {
+    "GatewayID": "test2",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60
+  },
+  {
+    "GatewayID": "test3",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60
+  },
+  {
+    "GatewayID": "test4",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60
+  }
+]

@@ -14,16 +14,13 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-client/src/client
 client/.idea/
 client/latency-samples/
 client/cloudlab-latency-samples/
 client/src/only-plot.txt
-client/experiments/composite.json
-client/endpoints/aws.csv
-client/src/experiment/networking/gRPC/proto_gen/
-client/functions/.idea/
-client/functions/benchmarking.zip
-client/functions/producer-handler
-client/functions/random.file
-utils/
+client/src/experiments/networking/gRPC/proto_gen/
+client/src/client
+client/src/benchmarking.zip
+client/src/producer-handler
+client/src/random.file
+client/utils
