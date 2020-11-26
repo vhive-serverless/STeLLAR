@@ -23,21 +23,33 @@
 package connection
 
 import (
-	"functions/connection/amazon"
 	log "github.com/sirupsen/logrus"
+	"lambda-benchmarking/client/setup/functions/connection/amazon"
+	"lambda-benchmarking/client/setup/functions/util"
+	"strings"
 )
+
+//Endpoint is the schema for the configuration of provider endpoints.
+type Endpoint struct {
+	GatewayID        string  `json:"GatewayID"`
+	FunctionMemoryMB int64   `json:"FunctionMemoryMB"`
+	ImageSizeMB      float64 `json:"ImageSizeMB"`
+}
 
 //ServerlessInterface creates an interface through which to interact with various providers
 type ServerlessInterface struct {
+	//ListAPIs will list all endpoints corresponding to all serverless functions.
+	ListAPIs func() []Endpoint
+
 	//DeployFunction will create a new serverless function in the specified language, with id `i`. An API for it will
 	//then be created, as well as corresponding interactions between them and specific permissions.
-	DeployFunction func(id int, language string, memoryAssigned int)
+	DeployFunction func(language string, memoryAssigned int) string
 
-	//RemoveFunction will remove the serverless function with id `i`.
-	RemoveFunction func(id int)
+	//RemoveFunction will remove the serverless function with given ID.
+	RemoveFunction func(uniqueID string)
 
-	//UpdateFunction will update the source code of the serverless function with id `i`.
-	UpdateFunction func(id int, memoryAssigned int)
+	//UpdateFunction will update the source code of the serverless function with given ID.
+	UpdateFunction func(uniqueID string, memoryAssigned int)
 }
 
 //Singleton allows the client to interact with various serverless actions
@@ -49,7 +61,7 @@ func Initialize(provider string) {
 	case "aws":
 		setupAWSConnection()
 	default:
-		log.Fatalf("Unrecognized provider %s", provider)
+		log.Warnf("Provider %s might not support initialization with the client.", provider)
 	}
 }
 
@@ -57,16 +69,31 @@ func setupAWSConnection() {
 	amazon.InitializeSingleton()
 
 	Singleton = &ServerlessInterface{
-		DeployFunction: func(id int, language string, memoryAssigned int) {
-			amazon.AWSSingleton.DeployFunction(id, language, int64(memoryAssigned))
+		ListAPIs: func() []Endpoint {
+			result := amazon.AWSSingleton.ListFunctions()
+
+			functions := make([]Endpoint, 0)
+			for _, function := range result {
+				functionGatewayID := strings.Split(*function.FunctionName, "_")[1]
+				functions = append(functions, Endpoint{
+					GatewayID:        functionGatewayID,
+					FunctionMemoryMB: *function.MemorySize,
+					ImageSizeMB:      util.BytesToMB(*function.CodeSize),
+				})
+			}
+
+			return functions
 		},
-		RemoveFunction: func(id int) {
-			amazon.AWSSingleton.RemoveFunction(id)
-			amazon.AWSSingleton.RemoveAPI(id)
+		DeployFunction: func(language string, memoryAssigned int) string {
+			return amazon.AWSSingleton.DeployFunction(language, int64(memoryAssigned))
 		},
-		UpdateFunction: func(id int, memoryAssigned int) {
-			amazon.AWSSingleton.UpdateFunction(id)
-			amazon.AWSSingleton.UpdateFunctionConfiguration(id, int64(memoryAssigned))
+		RemoveFunction: func(uniqueID string) {
+			amazon.AWSSingleton.RemoveFunction(uniqueID)
+			amazon.AWSSingleton.RemoveAPI(uniqueID)
+		},
+		UpdateFunction: func(uniqueID string, memoryAssigned int) {
+			amazon.AWSSingleton.UpdateFunction(uniqueID)
+			amazon.AWSSingleton.UpdateFunctionConfiguration(uniqueID, int64(memoryAssigned))
 		},
 	}
 }

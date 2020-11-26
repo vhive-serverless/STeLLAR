@@ -29,7 +29,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat"
 	"gonum.org/v1/plot/plotutil"
-	"lambda-benchmarking/client/configuration"
+	"lambda-benchmarking/client/setup"
 	"sort"
 	"strings"
 	"time"
@@ -39,7 +39,7 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-func plotBurstsBarChart(plotPath string, experiment configuration.SubExperiment, latenciesDF dataframe.DataFrame) {
+func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, latenciesDF dataframe.DataFrame) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		log.Errorf("Creating a new bar chart failed with error %s", err.Error())
@@ -140,7 +140,7 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 	}
 }
 
-func plotLatenciesCDF(plotPath string, latencies []float64, experiment configuration.SubExperiment) {
+func plotLatenciesCDF(plotPath string, latencies []float64, experiment setup.SubExperiment) {
 	plotInstance, err := plot.New()
 	if err != nil {
 		log.Errorf("Creating a new CDF plot failed with error %s", err.Error())

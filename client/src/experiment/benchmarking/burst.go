@@ -24,15 +24,14 @@ package benchmarking
 
 import (
 	log "github.com/sirupsen/logrus"
-	"lambda-benchmarking/client/configuration"
+	"lambda-benchmarking/client/setup"
 	http2 "lambda-benchmarking/client/experiment/networking/http"
 	"net/http"
 	"sync"
 )
 
-func sendBurst(config configuration.SubExperiment, burstID int, requests int, gatewayEndpointID string,
-	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
-	request := http2.GenerateRequest(config, gatewayEndpointID, assignedFunctionIncrementLimit)
+func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpointID string, assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
+	request := http2.CreateRequest(provider, config, gatewayEndpointID, assignedFunctionIncrementLimit)
 
 	log.Infof("SubExperiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
 		config.ID,
@@ -45,7 +44,7 @@ func sendBurst(config configuration.SubExperiment, burstID int, requests int, ga
 	var requestsWaitGroup sync.WaitGroup
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
-		go generateLatencyRecord(&requestsWaitGroup, config.Provider, *request, safeExperimentWriter, burstID)
+		go generateLatencyRecord(&requestsWaitGroup, provider, *request, safeExperimentWriter, burstID)
 	}
 	requestsWaitGroup.Wait()
 	log.Infof("SubExperiment %d: received all responses for burst %d.", config.ID, burstID)

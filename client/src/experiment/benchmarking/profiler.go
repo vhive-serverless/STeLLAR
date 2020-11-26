@@ -24,13 +24,13 @@ package benchmarking
 
 import (
 	log "github.com/sirupsen/logrus"
-	"lambda-benchmarking/client/configuration"
+	"lambda-benchmarking/client/setup"
 	"time"
 )
 
 //RunProfiler will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
 //selected interval and start the process all over again.
-func RunProfiler(config configuration.SubExperiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
+func RunProfiler(provider string, config setup.SubExperiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
 	log.Infof("SubExperiment %d: running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v)",
 		config.ID, config.Bursts, config.CooldownSeconds, len(config.GatewayEndpoints),
 		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.CooldownSeconds)
@@ -45,7 +45,7 @@ func RunProfiler(config configuration.SubExperiment, deltas []time.Duration, saf
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
 			serviceLoad := config.FunctionIncrementLimits[min(deltaIndex, len(config.FunctionIncrementLimits)-1)]
 			burstSize := config.BurstSizes[min(deltaIndex, len(config.BurstSizes)-1)]
-			sendBurst(config, burstID, burstSize, config.GatewayEndpoints[gatewayID], serviceLoad, safeExperimentWriter)
+			sendBurst(provider, config, burstID, burstSize, config.GatewayEndpoints[gatewayID], serviceLoad, safeExperimentWriter)
 			burstID++
 		}
 

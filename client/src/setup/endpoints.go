@@ -20,30 +20,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package util
+package setup
 
 import (
-	"bytes"
-	"fmt"
-	log "github.com/sirupsen/logrus"
-	"os/exec"
+	"lambda-benchmarking/client/setup/functions/connection"
+	"path"
 )
 
-//RunCommandAndLog will execute a bash command and log results to the standard logger, as well as return the contents.
-func RunCommandAndLog(cmd *exec.Cmd) string {
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalf("%s: %s", fmt.Sprint(err), stderr.String())
+func getAvailableEndpoints(endpointsDirectoryPath string, config Configuration) []connection.Endpoint {
+	fileProviders := []string{"vHive"}
+	cloudProviders := []string{"aws"}
+
+	if isStringInSlice(config.Provider, fileProviders) {
+		endpointsFile := readFile(path.Join(endpointsDirectoryPath, config.Provider+".json"))
+		return extractProviderEndpoints(endpointsFile)
+	} else if isStringInSlice(config.Provider, cloudProviders) {
+		return connection.Singleton.ListAPIs()
 	}
-	log.Debugf("Command result: %s", out.String())
-	return out.String()
+
+	return nil
 }
 
-//BytesToMB transforms bytes into megabytes
-func BytesToMB(sizeBytes int) int {
-	return sizeBytes / 1_000_000.0
+func removeEndpoint(s []connection.Endpoint, i int) []connection.Endpoint {
+	s[len(s)-1], s[i] = s[i], s[len(s)-1]
+	return s[:len(s)-1]
 }

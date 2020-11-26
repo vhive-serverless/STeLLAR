@@ -23,34 +23,26 @@
 package generator
 
 import (
-	"functions/connection/amazon"
-	"functions/util"
 	log "github.com/sirupsen/logrus"
+	"lambda-benchmarking/client/setup/functions/connection/amazon"
 	"os"
 	"os/exec"
 )
 
-
-func generateZIP(provider string, randomFileName string, sizeBytes int) {
+func generateZIP(provider string, randomFileName string, sizeMB float64) {
 	localZipPath := "benchmarking.zip"
 
-	if fileExists(localZipPath) {
-		log.Infof("Local ZIP archive `%s` already exists, removing...", localZipPath)
-		if err := os.Remove(localZipPath); err != nil {
-			log.Fatalf("Failed to remove local ZIP archive `%s`", localZipPath)
-		}
-	}
-	util.RunCommandAndLog(exec.Command("zip", localZipPath, "producer-handler", randomFileName))
+	runCommandAndLog(exec.Command("zip", localZipPath, "producer-handler", randomFileName))
 
 	switch provider {
 	case "aws":
-		if sizeBytes > 50_000_000 {
-			amazon.UploadZIPToS3(localZipPath, sizeBytes)
+		if sizeMB > 50. {
+			amazon.UploadZIPToS3(localZipPath, sizeMB)
 		} else {
 			amazon.SetLocalZip(localZipPath)
 		}
 	default:
-		log.Fatalf("Unrecognized provider %s", provider)
+		log.Warnf("Provider %s might not support code deployment, skipping ZIP generation...", provider)
 	}
 }
 

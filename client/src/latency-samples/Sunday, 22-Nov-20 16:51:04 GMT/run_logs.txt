@@ -1,0 +1,6 @@
+[36mINFO[0m[0000] Started benchmarking HTTP client on Sunday, 22-Nov-20 16:51:04 UTC with random seed 1606063864. 
+[36mINFO[0m[0000] Selected endpoints directory path: gateways.csv 
+[36mINFO[0m[0000] Selected config path: experiments/last-image-size-exp.json 
+[36mINFO[0m[0000] Selected output path: latency-samples/       
+[36mINFO[0m[0000] Selected experiment (-1 for all): -1         
+[31mFATA[0m[0000] Could not read file: open experiments/last-image-size-exp.json: no such file or directory 

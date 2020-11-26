@@ -27,28 +27,35 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 //UpdateFunction will update the source code of the serverless function with id `i`.
-func (amazon instance) UpdateFunction(id int) *lambda.FunctionConfiguration {
-	log.Infof("Updating producer lambda code %s-%v", amazon.appName, id)
+func (amazon instance) UpdateFunction(uniqueID string) *lambda.FunctionConfiguration {
+	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
+	log.Infof("Updating producer lambda code %s", functionName)
 
 	var args *lambda.UpdateFunctionCodeInput
 	if amazon.s3Key != "" {
 		args = &lambda.UpdateFunctionCodeInput{
-			FunctionName: aws.String(fmt.Sprintf("%s-%v", amazon.appName, id)),
+			FunctionName: aws.String(functionName),
 			S3Bucket:     aws.String(amazon.s3Bucket),
 			S3Key:        aws.String(amazon.s3Key),
 		}
 	} else {
 		args = &lambda.UpdateFunctionCodeInput{
-			FunctionName: aws.String(fmt.Sprintf("%s-%v", amazon.appName, id)),
+			FunctionName: aws.String(functionName),
 			ZipFile:      aws.Uint8ValueSlice(aws.Uint8Slice(amazon.localZip)),
 		}
 	}
 
 	result, err := amazon.lambdaSvc.UpdateFunctionCode(args)
 	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException") {
+			log.Warnf("Facing AWS rate-limiting error, retrying...")
+			return amazon.UpdateFunction(uniqueID)
+		}
+
 		log.Fatalf("Cannot update function code: %s", err.Error())
 	}
 	log.Debugf("Update function code result: %s", result.String())
@@ -57,17 +64,23 @@ func (amazon instance) UpdateFunction(id int) *lambda.FunctionConfiguration {
 }
 
 //UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
-func (amazon instance) UpdateFunctionConfiguration(id int, assignedMemory int64) {
-	log.Infof("Updating producer lambda configuration %s-%v", amazon.appName, id)
+func (amazon instance) UpdateFunctionConfiguration(uniqueID string, assignedMemory int64) {
+	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
+	log.Infof("Updating producer lambda configuration %s", functionName)
 
 	args := &lambda.UpdateFunctionConfigurationInput{
-		FunctionName: aws.String(fmt.Sprintf("%s-%v", amazon.appName, id)),
+		FunctionName: aws.String(functionName),
 		MemorySize:   aws.Int64(assignedMemory),
 		Timeout:      aws.Int64(600),
 	}
 
 	result, err := amazon.lambdaSvc.UpdateFunctionConfiguration(args)
 	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException") {
+			log.Warnf("Facing AWS rate-limiting error, retrying...")
+			amazon.UpdateFunctionConfiguration(uniqueID, assignedMemory)
+		}
+
 		log.Fatalf("Cannot update function configuration: %s", err.Error())
 	}
 	log.Debugf("Update function configuration result: %s", result.String())

@@ -1,44 +1,33 @@
 package generator
 
 import (
-	"functions/util"
+	"bytes"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"lambda-benchmarking/client/setup/functions/util"
 	"math/rand"
 	"os"
+	"os/exec"
 )
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes.
-func SetupDeployment(action string, language string, provider string, sizeBytes int) string {
-	switch action {
-	case "deploy":
-		fallthrough
-	case "update":
-		generateDeploymentPackage(provider, language, sizeBytes)
-	case "remove":
-		// No setup required for removing functions
-	default:
-		log.Fatalf("Unrecognized function action %s", action)
-	}
-	return ""
-}
+func SetupDeployment(provider string, language string, sizeBytes int64) {
+	zippedBinarySizeBytes := int64(createBinary(provider, language))
 
-func generateDeploymentPackage(provider string, language string, sizeBytes int) {
-	zippedBinarySize := createBinary(provider, language)
-
-	if sizeBytes < zippedBinarySize {
-		log.Fatalf("Total size (~%dMB) cannot be smaller than zipped binary size (~%dMB).",
+	if sizeBytes < zippedBinarySizeBytes {
+		log.Fatalf("Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
 			util.BytesToMB(sizeBytes),
-			util.BytesToMB(zippedBinarySize))
+			util.BytesToMB(zippedBinarySizeBytes))
 	}
 
 	randomFileName := "random.file"
-	generateRandomFile(sizeBytes-zippedBinarySize, randomFileName)
-	generateZIP(provider, randomFileName, sizeBytes)
+	generateRandomFile(sizeBytes-zippedBinarySizeBytes, randomFileName)
+	generateZIP(provider, randomFileName, util.BytesToMB(sizeBytes))
 }
 
-func generateRandomFile(sizeBytes int, randomFileName string) {
+func generateRandomFile(sizeBytes int64, randomFileName string) {
 	if fileExists(randomFileName) {
 		log.Infof("Random file `%s` already exists, removing...", randomFileName)
 		if err := os.Remove(randomFileName); err != nil {
@@ -56,3 +45,17 @@ func generateRandomFile(sizeBytes int, randomFileName string) {
 		log.Fatalf("Could not generate random file with size %d bytes", sizeBytes)
 	}
 }
+
+func runCommandAndLog(cmd *exec.Cmd) string {
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		log.Fatalf("%s: %s", fmt.Sprint(err), stderr.String())
+	}
+	log.Debugf("Command result: %s", out.String())
+	return out.String()
+}
+

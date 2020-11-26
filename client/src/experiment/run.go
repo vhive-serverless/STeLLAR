@@ -25,9 +25,9 @@ package experiment
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"lambda-benchmarking/client/configuration"
 	"lambda-benchmarking/client/experiment/benchmarking"
 	"lambda-benchmarking/client/experiment/visualization"
+	"lambda-benchmarking/client/setup"
 	"math"
 	"math/rand"
 	"os"
@@ -38,14 +38,14 @@ import (
 
 //TriggerSubExperiments will run the sub-experiments specified by the passed configuration object. It creates
 //a directory for each sub-experiment, as well as separate visualizations and latency files.
-func TriggerSubExperiments(config configuration.Configuration, outputDirectoryPath string, specificExperiment int) {
+func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath string, specificExperiment int) {
 	var experimentsWaitGroup sync.WaitGroup
 
 	switch specificExperiment {
 	case -1: // run all experiments
 		for experimentIndex := 0; experimentIndex < len(config.SubExperiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			go triggerExperiment(&experimentsWaitGroup, config.SubExperiments[experimentIndex], outputDirectoryPath)
+			go triggerExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[experimentIndex], outputDirectoryPath)
 
 			if config.Sequential {
 				experimentsWaitGroup.Wait()
@@ -57,19 +57,19 @@ func TriggerSubExperiments(config configuration.Configuration, outputDirectoryPa
 		}
 
 		experimentsWaitGroup.Add(1)
-		go triggerExperiment(&experimentsWaitGroup, config.SubExperiments[specificExperiment], outputDirectoryPath)
+		go triggerExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[specificExperiment], outputDirectoryPath)
 	}
 
 	experimentsWaitGroup.Wait()
 }
 
-func triggerExperiment(experimentsWaitGroup *sync.WaitGroup, experiment configuration.SubExperiment, outputDirectoryPath string) {
+func triggerExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, experiment setup.SubExperiment, outputDirectoryPath string) {
 	defer experimentsWaitGroup.Done()
 	experimentDirectoryPath, latenciesFile := createExperimentOutput(outputDirectoryPath, experiment)
-	runExperiment(latenciesFile, experimentDirectoryPath, experiment)
+	runExperiment(provider, latenciesFile, experimentDirectoryPath, experiment)
 }
 
-func createExperimentOutput(path string, experiment configuration.SubExperiment) (string, *os.File) {
+func createExperimentOutput(path string, experiment setup.SubExperiment) (string, *os.File) {
 	directoryPath := filepath.Join(path, fmt.Sprintf("%d_%s", experiment.ID, experiment.Title))
 	log.Infof("SubExperiment %d: Creating directory at `%s`", experiment.ID, directoryPath)
 	if err := os.MkdirAll(directoryPath, os.ModePerm); err != nil {
@@ -86,10 +86,10 @@ func createExperimentOutput(path string, experiment configuration.SubExperiment)
 	return directoryPath, csvFile
 }
 
-func runExperiment(latenciesFile *os.File, experimentDirectoryPath string, experiment configuration.SubExperiment) {
+func runExperiment(provider string, latenciesFile *os.File, experimentDirectoryPath string, experiment setup.SubExperiment) {
 	log.Infof("SubExperiment %d: Starting...", experiment.ID)
 	burstDeltas := generateIAT(experiment)
-	benchmarking.RunProfiler(experiment, burstDeltas, benchmarking.NewExperimentWriter(latenciesFile))
+	benchmarking.RunProfiler(provider, experiment, burstDeltas, benchmarking.NewExperimentWriter(latenciesFile))
 	visualization.GenerateVisualization(experiment, burstDeltas, latenciesFile, experimentDirectoryPath)
 
 	if err := latenciesFile.Close(); err != nil {
@@ -98,7 +98,7 @@ func runExperiment(latenciesFile *os.File, experimentDirectoryPath string, exper
 	log.Infof("SubExperiment %d successfully finished.", experiment.ID)
 }
 
-func generateIAT(experiment configuration.SubExperiment) []time.Duration {
+func generateIAT(experiment setup.SubExperiment) []time.Duration {
 	step := 1.0
 	maxStep := experiment.CooldownSeconds
 	runningDelta := math.Min(maxStep, experiment.CooldownSeconds)

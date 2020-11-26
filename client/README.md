@@ -15,7 +15,7 @@ Examples of valid experiment configurations you can find in folder `experiments`
  about the main elements of a configuration.
 
 | Title        | Bursts | BurstSizes | IATType       | PayloadLengthBytes     | DesiredServiceTimes    | CooldownSeconds     | GatewaysNumber | Provider        | Visualization | FunctionMemoryMB
-|--------------|--------|------------|---------------|------------------------|------------------------|---------------------|----------------|-----------------|---------------------------------
+|--------------|--------|------------|---------------|------------------------|------------------------|---------------------|----------------|-----------------|---------------|-----------------
 | google       | 5000   | [1]        | deterministic | 0                      | ["50ms"]               | 1                   | 1              | www.google.com  | all           | 500
 | check1       | 50     | [100 10]   | stochastic    | 5                      | ["100ms"]              | 300                 | 150            |                 | cdf           | 1500
 | check2       | 1000   | [5 1 3]    | step          | 5                      | ["400ms"]              | 600                 | 100            | aws             |               | 300

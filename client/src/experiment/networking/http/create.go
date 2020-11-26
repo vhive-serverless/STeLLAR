@@ -25,19 +25,19 @@ package http
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"lambda-benchmarking/client/configuration"
+	"lambda-benchmarking/client/setup"
 	"net/http"
 	"time"
 )
 
-//GenerateRequest will generate an HTTP request according to the provider passed in the sub-experiment
+//CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
 //configuration object.
-func GenerateRequest(experiment configuration.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
-	switch experiment.Provider {
+func CreateRequest(provider string, experiment setup.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+	switch provider {
 	case "aws":
 		return generateAWSRequest(experiment, gatewayEndpointID, assignedFunctionIncrementLimit)
 	default:
-		return generateCustomRequest(experiment.Provider)
+		return generateCustomRequest(provider)
 	}
 }
 
@@ -49,7 +49,7 @@ func generateCustomRequest(hostname string) *http.Request {
 	return request
 }
 
-func generateAWSRequest(config configuration.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func generateAWSRequest(config setup.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
 	request, err := http.NewRequest(
 		http.MethodPost,
 		fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, awsRegion),

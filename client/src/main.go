@@ -26,7 +26,7 @@ import (
 	"flag"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"lambda-benchmarking/client/configuration"
+	"lambda-benchmarking/client/setup"
 	"lambda-benchmarking/client/experiment"
 	"math/rand"
 	"os"
@@ -43,7 +43,8 @@ var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experim
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 
 func main() {
-	randomSeed := time.Now().Unix()
+	startTime := time.Now()
+	randomSeed := startTime.Unix()
 	rand.Seed(randomSeed) // comment line for reproducible deltas
 	flag.Parse()
 
@@ -65,11 +66,11 @@ func main() {
 
 	setupCtrlCHandler()
 
-	config := configuration.ReadInstructions(*endpointsDirectoryPathFlag, *configPathFlag)
+	config := setup.PrepareSubExperiments(*endpointsDirectoryPathFlag, *configPathFlag)
 
 	experiment.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
-	log.Info("Exiting...")
+	log.Infof("Done in %v, exiting...", time.Since(startTime))
 }
 
 //setupCtrlCHandler creates a 'listener' on a new goroutine which will notify the

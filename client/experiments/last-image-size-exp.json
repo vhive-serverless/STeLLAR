@@ -1,0 +1,89 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "cold-60MB-size25",
+      "Bursts": 120,
+      "BurstSizes": [
+        25
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 60,
+      "GatewaysNumber": 20
+    },
+    {
+      "Title": "cold-120MB-size25",
+      "Bursts": 120,
+      "BurstSizes": [
+        25
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 120,
+      "GatewaysNumber": 20
+    },
+    {
+      "Title": "cold-180MB-size25",
+      "Bursts": 120,
+      "BurstSizes": [
+        25
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 180,
+      "GatewaysNumber": 20
+    },
+    {
+      "Title": "cold-60MB-size50",
+      "Bursts": 60,
+      "BurstSizes": [
+        50
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 60,
+      "GatewaysNumber": 10
+    },
+    {
+      "Title": "cold-120MB-size50",
+      "Bursts": 60,
+      "BurstSizes": [
+        50
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 120,
+      "GatewaysNumber": 10
+    },
+    {
+      "Title": "cold-180MB-size50",
+      "Bursts": 60,
+      "BurstSizes": [
+        50
+      ],
+      "PayloadLengthBytes": 0,
+      "CooldownSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 180,
+      "GatewaysNumber": 10
+    }
+  ]
+}

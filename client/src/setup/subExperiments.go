@@ -20,13 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package configuration
+package setup
 
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"lambda-benchmarking/client/prompts"
+	"lambda-benchmarking/client/setup/functions/connection"
+	"lambda-benchmarking/client/setup/functions/generator"
+	"lambda-benchmarking/client/setup/functions/util"
 	"math"
 	"math/big"
 	"os"
@@ -36,6 +39,8 @@ import (
 //Configuration is the schema for all experiment configurations.
 type Configuration struct {
 	Sequential     bool            `json:"Sequential"`
+	Provider       string          `json:"Provider"`
+	Runtime        string          `json:"Runtime"`
 	SubExperiments []SubExperiment `json:"SubExperiments"`
 }
 
@@ -49,13 +54,84 @@ type SubExperiment struct {
 	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
 	DesiredServiceTimes     []string `json:"DesiredServiceTimes"`
 	IATType                 string   `json:"IATType"`
-	Provider                string   `json:"Provider"`
 	GatewaysNumber          int      `json:"GatewaysNumber"`
 	Visualization           string   `json:"Visualization"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     int64    `json:"FunctionImageSizeMB"`
 	GatewayEndpoints        []string
 	ID                      int
+}
+
+func initializeSubExperiment(config Configuration, index int, availableEndpoints []connection.Endpoint) []connection.Endpoint {
+	config.SubExperiments[index].ID = index
+
+	for _, burstSize := range config.SubExperiments[index].BurstSizes {
+		if burstSize > manyRequestsInBurstWarnThreshold {
+			log.Warnf("Experiment %d has a burst of size %d, NIC (Network Interface Controller) contention may occur.",
+				index, burstSize)
+			if !prompts.PromptForBool("Do you wish to continue?") {
+				os.Exit(0)
+			}
+		}
+	}
+
+	chosenVisualization := config.SubExperiments[index].Visualization
+	burstsNumber := config.SubExperiments[index].Bursts
+	if burstsNumber >= manyFilesWarnThreshold && (chosenVisualization == "all" || chosenVisualization == "histogram") {
+		log.Warnf("SubExperiment %d is generating histograms for each burst, this will create a large number (%d) of new files.",
+			index, burstsNumber)
+		if !prompts.PromptForBool("Do you wish to continue?") {
+			os.Exit(0)
+		}
+	}
+
+	if availableEndpoints == nil { // Provider string itself must be a hostname
+		config.SubExperiments[index].GatewayEndpoints = []string{config.Provider}
+	} else {
+		return assignEndpoints(availableEndpoints, &config.SubExperiments[index], config.Provider, config.Runtime)
+	}
+	return nil
+}
+
+func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
+	deploymentGeneratedForSubExperiment := false
+
+	var assignedEndpoints []string
+	for i := 0; i < experiment.GatewaysNumber; i++ {
+		success := false
+
+		for index, endpoint := range availableEndpoints {
+			if endpoint.FunctionMemoryMB == experiment.FunctionMemoryMB &&
+				(experiment.FunctionImageSizeMB == 0 || almostEqual(endpoint.ImageSizeMB, float64(experiment.FunctionImageSizeMB), 0.5)) {
+
+				assignedEndpoints = append(assignedEndpoints, endpoint.GatewayID)
+				availableEndpoints = removeEndpoint(availableEndpoints, index)
+				success = true
+				break
+			}
+		}
+
+		if !success {
+			log.Infof("Could not find a function to assign with memory %dMB and image size %dMB, deploying...",
+				experiment.FunctionMemoryMB,
+				experiment.FunctionImageSizeMB,
+			)
+
+			if !deploymentGeneratedForSubExperiment {
+				generator.SetupDeployment(provider, runtime, util.MBToBytes(float64(experiment.FunctionImageSizeMB)))
+				deploymentGeneratedForSubExperiment = true
+			}
+			assignedEndpoints = append(assignedEndpoints, connection.Singleton.DeployFunction(runtime, 128))
+
+			//TODO: intelligently leverage connection.Singleton.RemoveFunction(uniqueID) &
+			//TODO: connection.Singleton.UpdateFunction(uniqueID, 128)
+			//TODO: once over 600 deployed functions
+		}
+	}
+
+	log.Debugf("Assigning following endpoints to sub-experiment `%s`: %v", experiment.Title, assignedEndpoints)
+	experiment.GatewayEndpoints = assignedEndpoints
+	return availableEndpoints
 }
 
 //extractSubExperiments will read the given JSON configuration file and load it as an array of sub-experiment configurations.
@@ -75,32 +151,38 @@ func extractSubExperiments(configFile *os.File) Configuration {
 			standardIncrement, standardDurationMs)
 	}
 
-	setDefaults(parsedConfiguration.SubExperiments)
+	setDefaults(&parsedConfiguration)
+	log.Debugf("Extracted %d sub-experiments from given configuration file.", len(parsedConfiguration.SubExperiments))
 	return parsedConfiguration
 }
 
 const defaultVisualization = "cdf"
 const defaultIATType = "stochastic"
 const defaultProvider = "aws"
+const defaultRuntime = "go1.x"
 const defaultFunctionMemoryMB = 128
 const defaultGatewaysNumber = 1
 
-func setDefaults(parsedSubExps []SubExperiment) {
-	for index := range parsedSubExps {
-		if parsedSubExps[index].Visualization == "" {
-			parsedSubExps[index].Visualization = defaultVisualization
+func setDefaults(parsedConfig *Configuration) {
+	if parsedConfig.Provider == "" {
+		parsedConfig.Provider = defaultProvider
+	}
+	if parsedConfig.Runtime == "" {
+		parsedConfig.Runtime = defaultRuntime
+	}
+
+	for index := range parsedConfig.SubExperiments {
+		if parsedConfig.SubExperiments[index].Visualization == "" {
+			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
 		}
-		if parsedSubExps[index].IATType == "" {
-			parsedSubExps[index].IATType = defaultIATType
+		if parsedConfig.SubExperiments[index].IATType == "" {
+			parsedConfig.SubExperiments[index].IATType = defaultIATType
 		}
-		if parsedSubExps[index].Provider == "" {
-			parsedSubExps[index].Provider = defaultProvider
+		if parsedConfig.SubExperiments[index].FunctionMemoryMB == 0 {
+			parsedConfig.SubExperiments[index].FunctionMemoryMB = defaultFunctionMemoryMB
 		}
-		if parsedSubExps[index].FunctionMemoryMB == 0 {
-			parsedSubExps[index].FunctionMemoryMB = defaultFunctionMemoryMB
-		}
-		if parsedSubExps[index].GatewaysNumber == 0 {
-			parsedSubExps[index].GatewaysNumber = defaultGatewaysNumber
+		if parsedConfig.SubExperiments[index].GatewaysNumber == 0 {
+			parsedConfig.SubExperiments[index].GatewaysNumber = defaultGatewaysNumber
 		}
 	}
 }

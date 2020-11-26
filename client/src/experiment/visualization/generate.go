@@ -28,7 +28,7 @@ import (
 	"github.com/go-gota/gota/series"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"lambda-benchmarking/client/configuration"
+	"lambda-benchmarking/client/setup"
 	"os"
 	"path/filepath"
 	"time"
@@ -36,7 +36,7 @@ import (
 
 //GenerateVisualization will generate files representing plots, charts etc. according to the
 //visualization passed in the sub-experiment configuration object.
-func GenerateVisualization(experiment configuration.SubExperiment, deltas []time.Duration, csvFile *os.File, path string) {
+func GenerateVisualization(experiment setup.SubExperiment, deltas []time.Duration, csvFile *os.File, path string) {
 	log.Debugf("SubExperiment %d: reading written latencies file %s", experiment.ID, csvFile.Name())
 	latenciesDF := readWrittenLatenciesFile(csvFile)
 
@@ -62,12 +62,12 @@ func GenerateVisualization(experiment configuration.SubExperiment, deltas []time
 	}
 }
 
-func generateBarCharts(experiment configuration.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
+func generateBarCharts(experiment setup.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
 	log.Debugf("SubExperiment %d: plotting characterization bar chart", experiment.ID)
 	plotBurstsBarChart(filepath.Join(path, "bursts_characterization.png"), experiment, latenciesDF)
 }
 
-func generateHistograms(config configuration.SubExperiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
+func generateHistograms(config setup.SubExperiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
 	histogramsDirectoryPath := filepath.Join(path, "histograms")
 	log.Infof("Creating directory for histograms at `%s`", histogramsDirectoryPath)
 	if err := os.MkdirAll(histogramsDirectoryPath, os.ModePerm); err != nil {
@@ -86,7 +86,7 @@ func generateHistograms(config configuration.SubExperiment, latenciesDF datafram
 	}
 }
 
-func generateCDFs(config configuration.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
+func generateCDFs(config setup.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
 	log.Debugf("SubExperiment %d: plotting latencies CDF", config.ID)
 	plotLatenciesCDF(
 		filepath.Join(path, "empirical_CDF.png"),

@@ -33,7 +33,7 @@ replace_github_commit:
 	@git push --force
 
 # Cloudlab deployment
-remote=theodor@hp034.utah.cloudlab.us
+remote=theodor@hp161.utah.cloudlab.us
 
 send_to_cloudlab:
 	@ssh $(remote) "mkdir -p ~/.aws/"
@@ -44,6 +44,8 @@ send_to_cloudlab:
 	@scp ../experiments/* $(remote):~/experiments/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
+	@ssh $(remote) "mkdir -p ~/setup/functions/code/"
+	@scp -rp ./setup/functions/code/ $(remote):~/setup/functions/code/
 
 connect_to_cloudlab:
 	@ssh -X -p 22 $(remote)
@@ -52,4 +54,4 @@ download_cloudlab_results:
 	@mkdir -p "../latency-samples/cloudlab"
 	@scp -r $(remote):~/latency-samples/* "../latency-samples/cloudlab/"
 
-.PHONY: proto_gen_go build build_client run_client build_and_run_client workflows_edit replace_github_commit send_code_to_cloudlab connect_to_cloudlab download_cloudlab_results
+.PHONY: proto_gen_go build build_client run_client build_and_run_client workflows_edit replace_github_commit send_to_cloudlab connect_to_cloudlab download_cloudlab_results

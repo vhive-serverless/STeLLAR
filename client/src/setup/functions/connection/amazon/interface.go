@@ -24,7 +24,6 @@ package amazon
 
 import (
 	"fmt"
-	"functions/util"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/apigateway"
@@ -37,6 +36,7 @@ import (
 
 const (
 	awsRegion = "us-west-1"
+	maxAPIs   = 600
 )
 
 //AWSSingleton is an object used to interact with AWS through the methods it exports.
@@ -44,16 +44,17 @@ var AWSSingleton *instance
 
 type instance struct {
 	//There can only be one of localZip vs s3Bucket, s3Key
-	localZip      []byte
-	s3Bucket      string
-	s3Key         string
-	appName       string
-	region        string
-	cloneAPIID    string
-	stage         string
-	session       *session.Session
-	lambdaSvc     *lambda.Lambda
-	apiGatewaySvc *apigateway.APIGateway
+	localZip             []byte
+	s3Bucket             string
+	s3Key                string
+	APINamePrefix        string
+	LambdaFunctionPrefix string
+	region               string
+	cloneAPIID           string
+	stage                string
+	session              *session.Session
+	lambdaSvc            *lambda.Lambda
+	apiGatewaySvc        *apigateway.APIGateway
 }
 
 //InitializeSingleton will create a new Amazon instance to interact with different AWS services.
@@ -63,21 +64,24 @@ func InitializeSingleton() {
 	}))
 
 	AWSSingleton = &instance{
-		s3Bucket:      "benchmarking-aws",
-		appName:       "benchmarking",
-		region:        awsRegion,
-		cloneAPIID:    "hjnwqihyo1",
-		stage:         "prod",
-		session:       sessionInstance,
-		lambdaSvc:     lambda.New(sessionInstance),
-		apiGatewaySvc: apigateway.New(sessionInstance),
+		s3Bucket:             "benchmarking-aws",
+		APINamePrefix:        "vHiveAPI_",
+		LambdaFunctionPrefix: "vHiveFunction_",
+		region:               awsRegion,
+		cloneAPIID:           "hjnwqihyo1",
+		stage:                "prod",
+		session:              sessionInstance,
+		lambdaSvc:            lambda.New(sessionInstance),
+		apiGatewaySvc:        apigateway.New(sessionInstance),
 	}
 }
 
 //UploadZIPToS3 helps get around the 50MB image size limit for AWS functions.
-func UploadZIPToS3(localZipPath string, sizeBytes int) {
-	log.Infof(`Deploying to AWS and package size (~%dMB) > 50 MB, will now attempt to upload to Amazon S3.`, util.BytesToMB(sizeBytes))
-	AWSSingleton.s3Key = fmt.Sprintf("benchmarking%d.zip", sizeBytes)
+func UploadZIPToS3(localZipPath string, sizeMB float64) {
+	log.Infof(`Deploying to AWS and package size (~%vMB) > 50 MB, will now attempt to upload to Amazon S3.`, sizeMB)
+	AWSSingleton.s3Key = fmt.Sprintf("benchmarking%vMB.zip", sizeMB)
+
+	//TODO: before uploading, check if file not already in bucket, and if it is just set the key
 
 	zipFile, err := os.Open(localZipPath)
 	if err != nil {
