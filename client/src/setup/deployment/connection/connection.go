@@ -44,14 +44,15 @@ type ServerlessInterface struct {
 	//ListAPIs will list all endpoints corresponding to all serverless functions.
 	ListAPIs func() []Endpoint
 
-	//DeployFunction will create a new serverless function in the specified language, with id `i`. An API for it will
-	//then be created, as well as corresponding interactions between them and specific permissions.
+	//DeployFunction will create a new serverless function in the specified language, with the specified amount of
+	//memory. An API to access it will then be created, as well as corresponding permissions and integrations.
 	DeployFunction func(language string, memoryAssigned int) string
 
-	//RemoveFunction will remove the serverless function with given ID.
+	//RemoveFunction will remove the serverless function with given ID and its corresponding API.
 	RemoveFunction func(uniqueID string)
 
-	//UpdateFunction will update the source code of the serverless function with given ID.
+	//UpdateFunction will update the source code of the serverless function with given ID to the specified
+	//memory and to the most recently set code deployment settings (e.g., S3 key).
 	UpdateFunction func(uniqueID string, memoryAssigned int)
 }
 
@@ -64,7 +65,7 @@ func Initialize(provider string, endpointsDirectoryPath string) {
 	case "aws":
 		setupAWSConnection()
 	case "vhive":
-		setupVHIVEConnection(endpointsDirectoryPath)
+		setupFileConnection(path.Join(endpointsDirectoryPath, "vHive.json"))
 	default:
 		setupExternalConnection()
 		log.Warnf("Provider %s does not support initialization with the client, setting to external URL.", provider)
@@ -105,10 +106,10 @@ func setupAWSConnection() {
 	}
 }
 
-func setupVHIVEConnection(endpointsDirectoryPath string) {
+func setupFileConnection(path string) {
 	Singleton = &ServerlessInterface{
 		ListAPIs: func() []Endpoint {
-			endpointsFile := util.ReadFile(path.Join(endpointsDirectoryPath, "vHive.json"))
+			endpointsFile := util.ReadFile(path)
 			configByteValue, _ := ioutil.ReadAll(endpointsFile)
 
 			var parsedEndpoints []Endpoint

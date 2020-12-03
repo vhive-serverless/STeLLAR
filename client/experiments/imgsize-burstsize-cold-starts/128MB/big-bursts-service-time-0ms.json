@@ -1,0 +1,74 @@
+{
+  "Sequential": true,
+  "SubExperiments": [
+    {
+      "Title": "size1000-img0mb",
+      "Bursts": 3,
+      "BurstSizes": [
+        1000
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "size1000-img60mb",
+      "Bursts": 3,
+      "BurstSizes": [
+        1000
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 60,
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "size1000-img120mb",
+      "Bursts": 3,
+      "BurstSizes": [
+        1000
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 120,
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "size1000-img180mb",
+      "Bursts": 3,
+      "BurstSizes": [
+        1000
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 180,
+      "GatewaysNumber": 1
+    },
+    {
+      "Title": "size1000-img240mb",
+      "Bursts": 3,
+      "BurstSizes": [
+        1000
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 240,
+      "GatewaysNumber": 1
+    }
+  ]
+}

@@ -30,7 +30,6 @@ import (
 	"strings"
 )
 
-//UpdateFunction will update the source code of the serverless function with id `i`.
 func (amazon instance) UpdateFunction(uniqueID string) *lambda.FunctionConfiguration {
 	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
 	log.Infof("Updating producer lambda code %s", functionName)

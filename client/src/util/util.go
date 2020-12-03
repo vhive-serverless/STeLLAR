@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"math"
 	"os"
 	"os/exec"
 )
@@ -38,6 +39,11 @@ func ReadFile(path string) *os.File {
 		log.Fatalf("Could not read file: %s", err.Error())
 	}
 	return file
+}
+
+//AlmostEqualFloats checks if two float numbers are close within a threshold
+func AlmostEqualFloats(a, b float64, float64EqualityThreshold float64) bool {
+	return math.Abs(a-b) <= float64EqualityThreshold
 }
 
 //FileExists checks if a file exists on disk

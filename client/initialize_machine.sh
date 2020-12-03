@@ -16,4 +16,4 @@ aws configure
 mkdir -p "latency-samples"
 echo "Please now run 'ulimit -n 16384' in this shell before running the client."
 echo "Suggested operation: tmux new -s cloudlab"
-echo "Example client run: ./client -o latency-samples/ -c experiments/test.json"
+echo "Example client run: ./client -c experiments/tests/test.json"
