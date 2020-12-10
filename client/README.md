@@ -33,17 +33,26 @@ Examples of valid experiment configurations you can find in folder `experiments`
 - `FunctionMemoryMB` (default `128`) How much memory should the benchmarked function use.
 
 
-### Design
+## Design
 ![design](design/diagram.png)
 
-### Flow Chart
+## Flow Chart
 ![design](design/flow-chart.png)
 
-## tmux tips
-- To create a new session `tmux new -s cloudlab`
-- To list sessions `tmux ls`
-- To detach from session `C-b d` or `tmux detach`
-- To re-attach to session `tmux attach -t cloudlab`
-- `Ctrl-b %` for horizontal split, `Ctrl-b "` for vertical split
-- `Ctrl-b c` to create a new window, `C-b p` and `C-b n` to navigate them
-- WARNING `Ctrl d` to exit a pane/window
+## Provider Limitations
+
+### AWS
+- Code storage limit
+```
+Cannot update function code: CodeStorageExceededException: Code storage limit exceeded.
+{
+  RespMetadata: {
+    StatusCode: 400,
+    RequestID: "886339b1-63ae-4f80-a923-7c1ed4201b6e"
+  },
+  Message_: "Code storage limit exceeded.",
+  Type: "User"
+}
+```
+
+- Regional APIs limit `600`

@@ -23,4 +23,10 @@ client/src/client
 client/src/benchmarking.zip
 client/src/producer-handler
 client/src/random.file
-client/utils
+
+client/plotutil/cpu-slowdown/providers
+client/plotutil/imgsize-burstsize-cold-starts/providers
+client/plotutil/plot-single-cdf/cdf.png
+client/plotutil/plot-single-cdf/go.mod
+client/plotutil/plot-single-cdf/latencies.csv
+

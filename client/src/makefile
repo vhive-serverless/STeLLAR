@@ -9,14 +9,16 @@ build:
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@golangci-lint run ./...
 
-build_client: proto_gen_go build
+test:
+	@go test -cover -v ./...  -coverprofile=c.out
+	@go tool cover -html=c.out
+	@rm c.out
+
+build_client: proto_gen_go build test
 
 run_client:
 	@mkdir -p "../latency-samples"
-	@./client \
-		-o "../latency-samples" \
-		-c "../experiments/test.json"\
-		-g "../endpoints"
+	@./client -o "../latency-samples" -c "../experiments/tests/test.json"
 
 build_and_run_client: build_client run_client
 
@@ -33,19 +35,17 @@ replace_github_commit:
 	@git push --force
 
 # Cloudlab deployment
-remote=theodor@hp161.utah.cloudlab.us
+remote=theodor@hp116.utah.cloudlab.us
 
 send_to_cloudlab:
-	@ssh $(remote) "mkdir -p ~/.aws/"
-	@scp /home/theodor/.aws/credentials $(remote):~/.aws/
 	@scp ../initialize_machine.sh $(remote):~/
 	@scp ../endpoints/* $(remote):~/
 	@ssh $(remote) "mkdir -p ~/experiments/"
-	@scp ../experiments/* $(remote):~/experiments/
+	@scp -r ../experiments/* $(remote):~/experiments/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
-	@ssh $(remote) "mkdir -p ~/setup/deployment/raw-code/"
-	@scp -rp ./setup/deployment/raw-code/ $(remote):~/setup/deployment/raw-code/
+	@ssh $(remote) "mkdir -p ~/setup/deployment/"
+	@scp -rp ./setup/deployment/raw-code/ $(remote):~/setup/deployment/
 
 connect_to_cloudlab:
 	@ssh -X -p 22 $(remote)
@@ -54,4 +54,4 @@ download_cloudlab_results:
 	@mkdir -p "../latency-samples/cloudlab"
 	@scp -r $(remote):~/latency-samples/* "../latency-samples/cloudlab/"
 
-.PHONY: proto_gen_go build build_client run_client build_and_run_client workflows_edit replace_github_commit send_to_cloudlab connect_to_cloudlab download_cloudlab_results
+.PHONY: proto_gen_go build test build_client run_client build_and_run_client workflows_edit replace_github_commit send_to_cloudlab connect_to_cloudlab download_cloudlab_results

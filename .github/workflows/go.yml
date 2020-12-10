@@ -9,7 +9,7 @@ on:
 jobs:
 
   build:
-    name: Build Client
+    name: vHive-bench Pipeline
     runs-on: ubuntu-18.04
     env:
       working-directory: ./client/src
@@ -41,7 +41,7 @@ jobs:
       
     - name: Unit Tests
       working-directory: ${{env.working-directory}}
-      run: go test -v ./...
+      run: go test -cover -v ./...
 
     - name: Integration Test
       working-directory: ${{env.working-directory}}
@@ -49,4 +49,4 @@ jobs:
         mkdir -p "../latency-samples"
         touch ../gateways.csv
         echo "Gateway ID" >> ../gateways.csv
-        ./client --o "../latency-samples" --c "../experiments/test.json" --g "../endpoints" 
+        ./client --o "../latency-samples" --c "../experiments/tests/test.json"
