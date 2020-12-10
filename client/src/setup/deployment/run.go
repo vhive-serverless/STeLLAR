@@ -39,21 +39,29 @@ const (
 )
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,
-//in the given language and of the given size in bytes.
-func SetupDeployment(provider string, language string, sizeBytes int64) {
-	zippedBinarySizeBytes := int64(createBinary(provider, language))
+//in the given language and of the given size in bytes. Returns size of deployment in MB.
+func SetupDeployment(provider string, language string, sizeBytes int64) float64 {
+	zippedBinarySizeBytes := createBinary(provider, language)
+
+	if sizeBytes == 0 {
+		log.Infof("Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
+			util.BytesToMB(zippedBinarySizeBytes))
+		sizeBytes = zippedBinarySizeBytes
+	}
 
 	if sizeBytes < zippedBinarySizeBytes {
 		log.Fatalf("Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
 			util.BytesToMB(sizeBytes),
-			util.BytesToMB(zippedBinarySizeBytes))
+			util.BytesToMB(zippedBinarySizeBytes),
+		)
 	}
 
 	generateRandomFile(sizeBytes-zippedBinarySizeBytes, randomFileName)
 	generateZIP(provider, randomFileName, util.BytesToMB(sizeBytes))
+	return util.BytesToMB(sizeBytes)
 }
 
-func createBinary(provider string, runtime string) int {
+func createBinary(provider string, runtime string) int64 {
 	log.Info("Building binary file for the function(s) to be deployed...")
 
 	rawCodePath := fmt.Sprintf("setup/deployment/raw-code/%s/%s-handler.go", runtime, provider)
@@ -61,7 +69,6 @@ func createBinary(provider string, runtime string) int {
 		log.Fatalf("Code path `%s` does not exist, cannot deploy/update raw code.", rawCodePath)
 	}
 
-	// Create binary
 	switch runtime {
 	case "go1.x":
 		util.RunCommandAndLog(exec.Command("go", "build", "-v", "-o", util.BinaryName, rawCodePath))
@@ -72,7 +79,6 @@ func createBinary(provider string, runtime string) int {
 		log.Fatalf("Unrecognized runtime %s", runtime)
 	}
 
-	// Get zipped binary size
 	log.Info("Zipping binary file to find its size...")
 	util.RunCommandAndLog(exec.Command("zip", "zipped-binary", util.BinaryName))
 	fi, err := os.Stat("zipped-binary.zip")
@@ -81,7 +87,7 @@ func createBinary(provider string, runtime string) int {
 	}
 	util.RunCommandAndLog(exec.Command("rm", "-r", "zipped-binary.zip"))
 
-	return int(fi.Size())
+	return fi.Size()
 }
 
 func generateRandomFile(sizeBytes int64, randomFileName string) {

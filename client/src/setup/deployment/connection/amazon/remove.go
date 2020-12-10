@@ -31,7 +31,6 @@ import (
 	"strings"
 )
 
-//RemoveFunction will remove the serverless function with given ID.
 func (amazon instance) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOutput {
 	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
 	log.Infof("Removing producer lambda %s", functionName)

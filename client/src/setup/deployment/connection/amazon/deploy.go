@@ -35,8 +35,6 @@ import (
 
 const maxFunctionTimeout = 900
 
-//DeployFunction will create a new serverless function in the specified language, with given ID. An API for it will
-//then be created, as well as corresponding interactions between them and specific permissions.
 func (amazon instance) DeployFunction(language string, memoryAssigned int64) string {
 	uniqueID := uuid.New().String()
 

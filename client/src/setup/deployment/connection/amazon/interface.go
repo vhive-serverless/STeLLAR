@@ -84,13 +84,11 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 	log.Infof(`Deploying to AWS and package size (~%vMB) > 50 MB, will now attempt to upload to Amazon S3.`, sizeMB)
 	AWSSingleton.s3Key = fmt.Sprintf("benchmarking%vMB.zip", sizeMB)
 
-	//TODO: test this
-	_, err := AWSSingleton.s3Svc.GetObject(&s3.GetObjectInput{
+	if _, err := AWSSingleton.s3Svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(AWSSingleton.s3Bucket),
 		Key:    aws.String(AWSSingleton.s3Key),
-	})
-	if err == nil {
-		log.Infof("%q was already found in bucket %q.", AWSSingleton.s3Key, AWSSingleton.s3Bucket)
+	}); err == nil {
+		log.Infof("Object %q was already found in S3 bucket %q, skipping upload.", AWSSingleton.s3Key, AWSSingleton.s3Bucket)
 		return
 	}
 
