@@ -30,10 +30,11 @@ import (
 	"vhive-bench/client/setup"
 )
 
-func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpointID string, assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
-	request := vHiveHTTP.CreateRequest(provider, config, gatewayEndpointID, assignedFunctionIncrementLimit)
+func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpointID string,
+	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
+	request := vHiveHTTP.CreateRequest(provider, config.PayloadLengthBytes, gatewayEndpointID, assignedFunctionIncrementLimit)
 
-	log.Infof("SubExperiment %d: starting burst %d, making %d requests with increment limit %d to (%s).",
+	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to (%s).",
 		config.ID,
 		burstID,
 		requests,
@@ -47,7 +48,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 		go generateLatencyRecord(&requestsWaitGroup, provider, *request, safeExperimentWriter, burstID)
 	}
 	requestsWaitGroup.Wait()
-	log.Infof("SubExperiment %d: received all responses for burst %d.", config.ID, burstID)
+	log.Infof("[sub-experiment %d] Received all responses for burst %d.", config.ID, burstID)
 }
 
 func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, request http.Request,
