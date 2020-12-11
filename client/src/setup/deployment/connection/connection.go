@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Package connection provides support and abstraction (in the form of an interface)
+// in communicating with external providers against which benchmarking is run.
 package connection
 
 import (
@@ -46,14 +48,14 @@ type ServerlessInterface struct {
 
 	//DeployFunction will create a new serverless function in the specified language, with the specified amount of
 	//memory. An API to access it will then be created, as well as corresponding permissions and integrations.
-	DeployFunction func(language string, memoryAssigned int) string
+	DeployFunction func(language string, memoryAssigned int64) string
 
 	//RemoveFunction will remove the serverless function with given ID and its corresponding API.
 	RemoveFunction func(uniqueID string)
 
 	//UpdateFunction will update the source code of the serverless function with given ID to the specified
 	//memory and to the most recently set code deployment settings (e.g., S3 key).
-	UpdateFunction func(uniqueID string, memoryAssigned int)
+	UpdateFunction func(uniqueID string, memoryAssigned int64)
 }
 
 //Singleton allows the client to interact with various serverless actions
@@ -82,9 +84,8 @@ func setupAWSConnection() {
 
 			functions := make([]Endpoint, 0)
 			for _, function := range result {
-				functionGatewayID := strings.Split(*function.FunctionName, "_")[1]
 				functions = append(functions, Endpoint{
-					GatewayID:        functionGatewayID,
+					GatewayID:        strings.Split(*function.FunctionName, "_")[1],
 					FunctionMemoryMB: *function.MemorySize,
 					ImageSizeMB:      util.BytesToMB(*function.CodeSize),
 				})
@@ -92,16 +93,16 @@ func setupAWSConnection() {
 
 			return functions
 		},
-		DeployFunction: func(language string, memoryAssigned int) string {
-			return amazon.AWSSingleton.DeployFunction(language, int64(memoryAssigned))
+		DeployFunction: func(language string, memoryAssigned int64) string {
+			return amazon.AWSSingleton.DeployFunction(language, memoryAssigned)
 		},
 		RemoveFunction: func(uniqueID string) {
 			amazon.AWSSingleton.RemoveFunction(uniqueID)
 			amazon.AWSSingleton.RemoveAPI(uniqueID)
 		},
-		UpdateFunction: func(uniqueID string, memoryAssigned int) {
+		UpdateFunction: func(uniqueID string, memoryAssigned int64) {
 			amazon.AWSSingleton.UpdateFunction(uniqueID)
-			amazon.AWSSingleton.UpdateFunctionConfiguration(uniqueID, int64(memoryAssigned))
+			amazon.AWSSingleton.UpdateFunctionConfiguration(uniqueID, memoryAssigned)
 		},
 	}
 }

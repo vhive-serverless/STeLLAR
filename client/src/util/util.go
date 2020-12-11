@@ -20,6 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Package util provides support with common functionality such as reading from files, converting units,
+// running bash commands.
 package util
 
 import (

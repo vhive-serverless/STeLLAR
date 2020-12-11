@@ -1,4 +1,4 @@
-## Benchmarking Client
+## Benchmarking Client ![Go](https://github.com/ease-lab/vhive-bench/workflows/Go/badge.svg?branch=master)
 This client tests the performance of 
 AWS Lambda busy-spinning microVM functions by sending requests and benchmarking the
 latencies. 

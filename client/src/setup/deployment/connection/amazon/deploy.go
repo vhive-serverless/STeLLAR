@@ -27,53 +27,72 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/apigateway"
 	"github.com/aws/aws-sdk-go/service/lambda"
-	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"vhive-bench/client/util"
 )
 
-const maxFunctionTimeout = 900
+const (
+	maxFunctionTimeout  = 900
+	lambdaExecutionRole = "arn:aws:iam::335329526041:role/AWSLambdaBasicExectionRole"
+)
 
 func (amazon instance) DeployFunction(language string, memoryAssigned int64) string {
-	uniqueID := uuid.New().String()
+	apiConfig := amazon.createRESTAPI()
 
-	APIName := fmt.Sprintf("%s%s", amazon.APINamePrefix, uniqueID)
-	apiConfig := amazon.createRESTAPI(APIName)
-	resourceID := amazon.getResourceID(APIName, *apiConfig.Id)
-
-	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, *apiConfig.Id)
+	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, *apiConfig.Id)
 	functionConfig := amazon.createFunction(functionName, language, memoryAssigned)
 
-	amazon.createAPIFunctionIntegration(APIName, functionName, *apiConfig.Id, resourceID, *functionConfig.FunctionArn)
-	amazon.createAPIDeployment(APIName, *apiConfig.Id)
+	resourceID := amazon.getResourceID(*apiConfig.Name, *apiConfig.Id)
+	amazon.createAPIFunctionIntegration(*apiConfig.Name, functionName, *apiConfig.Id, resourceID, *functionConfig.FunctionArn)
+	amazon.createAPIDeployment(*apiConfig.Name, *apiConfig.Id)
 	amazon.addExecutionPermissions(functionName)
 
 	return *apiConfig.Id
 }
 
-func (amazon instance) createRESTAPI(APIName string) *apigateway.RestApi {
-	log.Infof("Creating API %s (clone of %s)", APIName, amazon.cloneAPIID)
+func (amazon instance) createRESTAPI() *apigateway.RestApi {
+	log.Info("Creating REST API...")
 
 	createArgs := &apigateway.CreateRestApiInput{
-		CloneFrom:             aws.String(amazon.cloneAPIID),
-		Description:           aws.String("The API used to access vHive-bench Lambda function with same unique ID."),
+		Name:                  aws.String("vHive-API"),
 		EndpointConfiguration: &apigateway.EndpointConfiguration{Types: aws.StringSlice([]string{"REGIONAL"})},
-		Name:                  aws.String(APIName),
 	}
 
 	result, err := amazon.apiGatewaySvc.CreateRestApi(createArgs)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createRESTAPI(APIName)
+			return amazon.createRESTAPI()
 		}
 
-		log.Fatalf("Cannot create rest API: %s", err.Error())
+		log.Fatalf("Cannot create REST API: %s", err.Error())
 	}
-	log.Debugf("Create rest API result: %s", result.String())
+	log.Debugf("Create REST API result: %s", result.String())
+
+	result, _ = amazon.updateAPIWithTemplate(*result.Id)
 
 	return result
+}
+
+func (amazon instance) updateAPIWithTemplate(apiID string) (*apigateway.RestApi, error) {
+	putAPIArgs := &apigateway.PutRestApiInput{
+		Body:      amazon.apiTemplate,
+		Mode:      aws.String("merge"),
+		RestApiId: aws.String(apiID),
+	}
+
+	result, err := amazon.apiGatewaySvc.PutRestApi(putAPIArgs)
+	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException") {
+			log.Warnf("Facing AWS rate-limiting error, retrying...")
+			return amazon.updateAPIWithTemplate(apiID)
+		}
+
+		log.Fatalf("Cannot update REST API with template: %s", err.Error())
+	}
+	log.Debugf("Update REST API with template result: %s", result.String())
+	return result, nil
 }
 
 func (amazon instance) getResourceID(APIName string, apiID string) string {
@@ -92,21 +111,25 @@ func (amazon instance) getResourceID(APIName string, apiID string) string {
 	}
 	log.Debugf("Get API resources result: %s", result.String())
 
-	// Note: `items[1].id` for US, `items[0].id` for EU
-	resourceID := *result.Items[1].Id
+	for _, resource := range (*result).Items {
+		if resource.ParentId != nil {
+			log.Infof("RESOURCEID of %s is %s", APIName, *resource.Id)
+			return *resource.Id
+		}
+	}
 
-	log.Infof("RESOURCEID of %s is %s", APIName, resourceID)
-	return resourceID
+	log.Infof("Could not find RESOURCEID of %s", APIName)
+	return ""
 }
 
 func (amazon instance) createFunction(functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
 	log.Infof("Creating producer function %s", functionName)
 
 	var createCode *lambda.FunctionCode
-	if amazon.s3Key != "" {
+	if amazon.S3Key != "" {
 		createCode = &lambda.FunctionCode{
-			S3Bucket: aws.String(amazon.s3Bucket),
-			S3Key:    aws.String(amazon.s3Key),
+			S3Bucket: aws.String(s3Bucket),
+			S3Key:    aws.String(amazon.S3Key),
 		}
 	} else {
 		createCode = &lambda.FunctionCode{
@@ -118,7 +141,7 @@ func (amazon instance) createFunction(functionName string, language string, memo
 	createArgs := &lambda.CreateFunctionInput{
 		Code:          createCode,
 		Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
-		Role:          aws.String("arn:aws:iam::335329526041:role/service-role/basic_lambda"),
+		Role:          aws.String(lambdaExecutionRole),
 		FunctionName:  aws.String(functionName),
 		Handler:       aws.String(util.BinaryName),
 		Runtime:       aws.String(language),

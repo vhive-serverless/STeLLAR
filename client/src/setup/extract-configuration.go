@@ -29,6 +29,14 @@ import (
 	"os"
 )
 
+//Configuration is the schema for all experiment configurations.
+type Configuration struct {
+	Sequential     bool            `json:"Sequential"`
+	Provider       string          `json:"Provider"`
+	Runtime        string          `json:"Runtime"`
+	SubExperiments []SubExperiment `json:"SubExperiments"`
+}
+
 func extractConfiguration(configFile *os.File) Configuration {
 	configByteValue, _ := ioutil.ReadAll(configFile)
 

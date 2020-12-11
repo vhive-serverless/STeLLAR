@@ -31,15 +31,15 @@ import (
 )
 
 func (amazon instance) UpdateFunction(uniqueID string) *lambda.FunctionConfiguration {
-	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
+	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, uniqueID)
 	log.Infof("Updating producer lambda code %s", functionName)
 
 	var args *lambda.UpdateFunctionCodeInput
-	if amazon.s3Key != "" {
+	if amazon.S3Key != "" {
 		args = &lambda.UpdateFunctionCodeInput{
 			FunctionName: aws.String(functionName),
-			S3Bucket:     aws.String(amazon.s3Bucket),
-			S3Key:        aws.String(amazon.s3Key),
+			S3Bucket:     aws.String(s3Bucket),
+			S3Key:        aws.String(amazon.S3Key),
 		}
 	} else {
 		args = &lambda.UpdateFunctionCodeInput{
@@ -64,7 +64,7 @@ func (amazon instance) UpdateFunction(uniqueID string) *lambda.FunctionConfigura
 
 //UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
 func (amazon instance) UpdateFunctionConfiguration(uniqueID string, assignedMemory int64) {
-	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
+	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, uniqueID)
 	log.Infof("Updating producer lambda configuration %s", functionName)
 
 	args := &lambda.UpdateFunctionConfigurationInput{

@@ -26,24 +26,25 @@ edit_local_env_vars:
 	@sudo gedit /etc/profile.d/benchmarking.sh
 
 workflows_edit:
-	@gedit ../../.github/workflows/go.yml
+	@gedit ../../.github/workflows/pipeline.yml
 
 replace_github_commit:
 	@echo "WARNING: This will latest remote commit with a new one having the newest changes, risks are involved."
 	@git add ../../.
-	@git commit --no-edit --amend
+	@git commit -S --no-edit --amend
 	@git push --force
 
 # Cloudlab deployment
-remote=theodor@hp116.utah.cloudlab.us
+remote="${CLOUDLAB_MACHINE}"
 
 send_to_cloudlab:
-	@scp ../initialize_machine.sh $(remote):~/
-	@scp ../endpoints/* $(remote):~/
-	@ssh $(remote) "mkdir -p ~/experiments/"
-	@scp -r ../experiments/* $(remote):~/experiments/
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
+	@scp ./vHive-API-template-prod-oas30-apigateway.json $(remote):~/
+	@scp ../initialize_machine.sh $(remote):~/
+	@scp ../endpoints/* $(remote):~/ # optional
+	@ssh $(remote) "mkdir -p ~/experiments/"
+	@scp -r ../experiments/* $(remote):~/experiments/
 	@ssh $(remote) "mkdir -p ~/setup/deployment/"
 	@scp -rp ./setup/deployment/raw-code/ $(remote):~/setup/deployment/
 

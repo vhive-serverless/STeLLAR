@@ -1,0 +1,52 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "vHive-API",
+    "description": "API used to access the Lambda function with corresponding unique ID.",
+    "version": "2020-10-05T21:35:12Z"
+  },
+  "produces": [
+    "application/json"
+  ],
+  "x-amazon-apigateway-request-validators": {
+    "all": {
+      "validateRequestBody": true,
+      "validateRequestParameters": true
+    },
+    "params-only": {
+      "validateRequestBody": false,
+      "validateRequestParameters": true
+    }
+  },
+  "paths": {
+    "/benchmarking": {
+      "x-amazon-apigateway-any-method": {
+        "x-amazon-apigateway-request-validator": "all",
+        "parameters": [
+          {
+            "name": "PayloadLengthBytes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "LambdaIncrementLimit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {}
+          }
+        }
+      }
+    }
+  }
+}

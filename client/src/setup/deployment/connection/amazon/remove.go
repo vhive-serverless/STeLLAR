@@ -32,7 +32,7 @@ import (
 )
 
 func (amazon instance) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOutput {
-	functionName := fmt.Sprintf("%s%s", amazon.LambdaFunctionPrefix, uniqueID)
+	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, uniqueID)
 	log.Infof("Removing producer lambda %s", functionName)
 
 	args := &lambda.DeleteFunctionInput{
@@ -55,19 +55,9 @@ func (amazon instance) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOut
 
 //RemoveAPI will remove the API corresponding to the serverless function given ID.
 func (amazon instance) RemoveAPI(uniqueID string) *apigateway.DeleteRestApiOutput {
-	APIName := fmt.Sprintf("%s%s", amazon.APINamePrefix, uniqueID)
-	log.Infof("Removing API %s", APIName)
+	log.Infof("Removing API %s-API", amazon.NamePrefix)
 
-	apiID := amazon.GetAPIID(APIName)
-
-	if apiID == "" {
-		log.Warnf("API %s cannot be removed because it was not found", APIName)
-		return nil
-	}
-
-	log.Infof("Removing API %s", APIName)
-
-	args := &apigateway.DeleteRestApiInput{RestApiId: aws.String(apiID)}
+	args := &apigateway.DeleteRestApiInput{RestApiId: aws.String(uniqueID)}
 
 	result, err := amazon.apiGatewaySvc.DeleteRestApi(args)
 	if err != nil {
@@ -81,35 +71,4 @@ func (amazon instance) RemoveAPI(uniqueID string) *apigateway.DeleteRestApiOutpu
 	log.Debugf("Remove REST API result: %s", result.String())
 
 	return result
-}
-
-//GetAPIID will return the ID of the api with the given name.
-func (amazon instance) GetAPIID(APIName string) string {
-	log.Infof("Getting ID of API %s", APIName)
-
-	args := &apigateway.GetRestApisInput{
-		Limit: aws.Int64(maxAPIs),
-	}
-
-	result, err := amazon.apiGatewaySvc.GetRestApis(args)
-	if err != nil {
-		if strings.Contains(err.Error(), "TooManyRequestsException") {
-			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.GetAPIID(APIName)
-		}
-
-		log.Fatalf("Cannot get REST APIs: %s", err.Error())
-	}
-	log.Debugf("Get REST APIs result: %s", result.String())
-
-	for _, item := range result.Items {
-		if strings.Compare(*item.Name, APIName) == 0 {
-			apiID := *item.Id
-			log.Infof("API ID of %s is %s", APIName, apiID)
-			return apiID
-		}
-	}
-
-	log.Warnf("Could not find API ID of %s in any of the results.", APIName)
-	return ""
 }

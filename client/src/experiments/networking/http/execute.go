@@ -42,20 +42,16 @@ func ExecuteHTTPRequest(req http.Request) ([]byte, time.Time, time.Time) {
 
 	resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
 
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Errorf("Could not read HTTP response body: %s", err.Error())
-		}
-		log.Errorf("Response from %s had status %s:\n %s", req.URL.Hostname(), resp.Status, string(bodyBytes))
-	}
-
-	bytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("Could not read HTTP response body: %s", err.Error())
 	}
 
-	return bytes, reqSentTime, reqReceivedTime
+	if resp.StatusCode != http.StatusOK {
+		log.Errorf("Response from %s had status %s: %s", req.URL.Hostname(), resp.Status, string(bodyBytes))
+	}
+
+	return bodyBytes, reqSentTime, reqReceivedTime
 }
 
 //https://stackoverflow.com/questions/48077098/getting-ttfb-time-to-first-byte-value-in-golang/48077762#48077762
@@ -68,11 +64,12 @@ func sendTimedRequest(ctx context.Context, req http.Request) (*http.Response, ti
 		},
 	}
 
-	reqSendTime := time.Now()
+	reqSentTime := time.Now()
 	resp, err := http.DefaultTransport.RoundTrip(req.WithContext(httptrace.WithClientTrace(ctx, trace)))
 	if err != nil {
 		log.Fatalf("HTTP request failed with error %s", err.Error())
 	}
-	// For total time, return resp, reqSendTime, time.Now()
-	return resp, reqSendTime, receivedFirstByte
+
+	// For total time, return resp, reqSentTime, time.Now()
+	return resp, reqSentTime, receivedFirstByte
 }

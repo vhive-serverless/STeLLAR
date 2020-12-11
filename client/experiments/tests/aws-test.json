@@ -4,7 +4,7 @@
   "SubExperiments": [
     {
       "Title": "aws-test1",
-      "Bursts": 15,
+      "Bursts": 2,
       "BurstSizes": [
         2
       ],
@@ -18,7 +18,7 @@
     },
     {
       "Title": "aws-test2",
-      "Bursts": 10,
+      "Bursts": 3,
       "BurstSizes": [
         4
       ],

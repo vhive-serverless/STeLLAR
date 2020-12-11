@@ -20,9 +20,6 @@ client/cloudlab-latency-samples/
 client/src/only-plot.txt
 client/src/experiments/networking/gRPC/proto_gen/
 client/src/client
-client/src/benchmarking.zip
-client/src/producer-handler
-client/src/random.file
 
 client/plotutil/cpu-slowdown/providers
 client/plotutil/imgsize-burstsize-cold-starts/providers

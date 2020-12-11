@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
+// Package setup provides support with loading the experiment configuration,
+// preparing the sub-experiments and setting up the functions for benchmarking.
 package setup
 
 import (
@@ -28,14 +31,6 @@ import (
 	"vhive-bench/client/setup/deployment/connection"
 	"vhive-bench/client/util"
 )
-
-//Configuration is the schema for all experiment configurations.
-type Configuration struct {
-	Sequential     bool            `json:"Sequential"`
-	Provider       string          `json:"Provider"`
-	Runtime        string          `json:"Runtime"`
-	SubExperiments []SubExperiment `json:"SubExperiments"`
-}
 
 //SubExperiment is the schema for sub-experiment configurations.
 type SubExperiment struct {
