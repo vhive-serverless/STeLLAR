@@ -20,25 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
+// Package setup provides support with loading the experiment configuration,
+// preparing the sub-experiments and setting up the functions for benchmarking.
 package setup
 
 import (
-	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
 	"os"
-	"vhive-bench/client/setup/deployment"
 	"vhive-bench/client/setup/deployment/connection"
 	"vhive-bench/client/util"
 )
-
-//Configuration is the schema for all experiment configurations.
-type Configuration struct {
-	Sequential     bool            `json:"Sequential"`
-	Provider       string          `json:"Provider"`
-	Runtime        string          `json:"Runtime"`
-	SubExperiments []SubExperiment `json:"SubExperiments"`
-}
 
 //SubExperiment is the schema for sub-experiment configurations.
 type SubExperiment struct {
@@ -46,14 +38,14 @@ type SubExperiment struct {
 	Bursts                  int      `json:"Bursts"`
 	BurstSizes              []int    `json:"BurstSizes"`
 	PayloadLengthBytes      int      `json:"PayloadLengthBytes"`
-	CooldownSeconds         float64  `json:"CooldownSeconds"`
+	IATSeconds              float64  `json:"IATSeconds"`
 	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
 	DesiredServiceTimes     []string `json:"DesiredServiceTimes"`
 	IATType                 string   `json:"IATType"`
 	GatewaysNumber          int      `json:"GatewaysNumber"`
 	Visualization           string   `json:"Visualization"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
-	FunctionImageSizeMB     int64    `json:"FunctionImageSizeMB"`
+	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	GatewayEndpoints        []string
 	ID                      int
 }
@@ -74,7 +66,7 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 	configFile := util.ReadFile(configPath)
 	config := extractConfiguration(configFile)
 
-	transformServiceTimesToFuncIncr(&config)
+	transformServiceTimesToFunctionIncrements(&config)
 
 	connection.Initialize(config.Provider, endpointsDirectoryPath)
 
@@ -111,79 +103,4 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 	}
 
 	return config
-}
-
-func extractConfiguration(configFile *os.File) Configuration {
-	configByteValue, _ := ioutil.ReadAll(configFile)
-
-	var parsedConfig Configuration
-	if err := json.Unmarshal(configByteValue, &parsedConfig); err != nil {
-		log.Fatalf("Could not extract experiment configuration from file: %s", err.Error())
-	}
-
-	if parsedConfig.Provider == "" {
-		parsedConfig.Provider = defaultProvider
-	}
-	if parsedConfig.Runtime == "" {
-		parsedConfig.Runtime = defaultRuntime
-	}
-
-	for index := range parsedConfig.SubExperiments {
-		if parsedConfig.SubExperiments[index].Visualization == "" {
-			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
-		}
-		if parsedConfig.SubExperiments[index].IATType == "" {
-			parsedConfig.SubExperiments[index].IATType = defaultIATType
-		}
-		if parsedConfig.SubExperiments[index].FunctionMemoryMB == 0 {
-			parsedConfig.SubExperiments[index].FunctionMemoryMB = defaultFunctionMemoryMB
-		}
-		if parsedConfig.SubExperiments[index].GatewaysNumber == 0 {
-			parsedConfig.SubExperiments[index].GatewaysNumber = defaultGatewaysNumber
-		}
-	}
-
-	log.Debugf("Extracted %d sub-experiments from given configuration file.", len(parsedConfig.SubExperiments))
-	return parsedConfig
-}
-
-func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
-	deploymentGeneratedForSubExperiment := false
-
-	var assignedEndpoints []string
-	for i := 0; i < experiment.GatewaysNumber; i++ {
-		success := false
-
-		for index, endpoint := range availableEndpoints {
-			if endpoint.FunctionMemoryMB == experiment.FunctionMemoryMB &&
-				(experiment.FunctionImageSizeMB == 0 || almostEqualFloats(endpoint.ImageSizeMB, float64(experiment.FunctionImageSizeMB), 0.5)) {
-
-				assignedEndpoints = append(assignedEndpoints, endpoint.GatewayID)
-				availableEndpoints = removeEndpointFromSlice(availableEndpoints, index)
-				success = true
-				break
-			}
-		}
-
-		if !success {
-			log.Infof("Could not find a function to assign with memory %dMB and image size %dMB, deploying...",
-				experiment.FunctionMemoryMB,
-				experiment.FunctionImageSizeMB,
-			)
-
-			if !deploymentGeneratedForSubExperiment {
-				deployment.SetupDeployment(provider, runtime, util.MBToBytes(float64(experiment.FunctionImageSizeMB)))
-				deploymentGeneratedForSubExperiment = true
-			}
-			assignedEndpoints = append(assignedEndpoints, connection.Singleton.DeployFunction(runtime, 128))
-
-			//TODO: intelligently leverage connection.Singleton.RemoveFunction(uniqueID) &
-			//TODO: connection.Singleton.UpdateFunction(uniqueID, 128)
-			//TODO: once over 600 deployed functions
-		}
-	}
-
-	log.Debugf("Assigning following endpoints to sub-experiment `%s`: %v", experiment.Title, assignedEndpoints)
-	experiment.GatewayEndpoints = assignedEndpoints
-	return availableEndpoints
 }

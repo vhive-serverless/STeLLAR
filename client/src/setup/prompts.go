@@ -25,21 +25,10 @@ package setup
 import (
 	"bufio"
 	log "github.com/sirupsen/logrus"
-	"math"
 	"os"
 	"strconv"
 	"strings"
-	"vhive-bench/client/setup/deployment/connection"
 )
-
-func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoint {
-	s[len(s)-1], s[i] = s[i], s[len(s)-1]
-	return s[:len(s)-1]
-}
-
-func almostEqualFloats(a, b float64, float64EqualityThreshold float64) bool {
-	return math.Abs(a-b) <= float64EqualityThreshold
-}
 
 func promptForBool(prompt string) bool {
 	reader := bufio.NewReader(os.Stdin)

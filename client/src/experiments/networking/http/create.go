@@ -27,49 +27,43 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
-	"vhive-bench/client/setup"
 )
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
 //configuration object.
-func CreateRequest(provider string, experiment setup.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
 	switch provider {
 	case "aws":
-		return generateAWSRequest(experiment, gatewayEndpointID, assignedFunctionIncrementLimit)
+		return generateAWSRequest(payloadLengthBytes, gatewayEndpointID, assignedFunctionIncrementLimit)
 	default:
-		return generateCustomRequest(provider)
+		return generateRequest(http.MethodGet, provider)
 	}
 }
 
-func generateCustomRequest(hostname string) *http.Request {
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s/", hostname), nil)
+func generateRequest(method string, hostname string) *http.Request {
+	request, err := http.NewRequest(method, fmt.Sprintf("https://%s", hostname), nil)
 	if err != nil {
 		log.Error(err)
 	}
 	return request
 }
 
-func generateAWSRequest(config setup.SubExperiment, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
-	request, err := http.NewRequest(
+func generateAWSRequest(payloadLengthBytes int, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+	request := generateRequest(
 		http.MethodPost,
-		fmt.Sprintf("https://%s.execute-api.%s.amazonaws.com", gatewayEndpointID, awsRegion),
-		nil,
+		fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpointID, awsRegion),
 	)
-	if err != nil {
-		log.Error(err)
-	}
 
 	request.URL.Path = "/prod/benchmarking"
 	request.URL.RawQuery = fmt.Sprintf("LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
 		assignedFunctionIncrementLimit,
-		config.PayloadLengthBytes,
+		payloadLengthBytes,
 	)
 
-	_, err = getAWSSignerSingleton().Sign(request, nil, "execute-api", awsRegion, time.Now())
+	_, err := getAWSSignerSingleton().Sign(request, nil, "execute-api", awsRegion, time.Now())
 	if err != nil {
 		log.Error(err)
 	}
 
 	return request
 }
-

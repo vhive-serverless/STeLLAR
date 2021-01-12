@@ -27,55 +27,70 @@ import (
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 	log "github.com/sirupsen/logrus"
-	"io"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 	"vhive-bench/client/setup"
 )
 
-//GenerateVisualization will generate files representing plots, charts etc. according to the
-//visualization passed in the sub-experiment configuration object.
-func GenerateVisualization(experiment setup.SubExperiment, deltas []time.Duration, csvFile *os.File, path string) {
-	log.Debugf("SubExperiment %d: reading written latencies file %s", experiment.ID, csvFile.Name())
-	latenciesDF := readWrittenLatenciesFile(csvFile)
+const defaultColdThreshold = 300.
 
+//Generate will create plots, charts, histograms etc. according to the
+//visualization passed in the sub-experiment configuration object.
+func Generate(experiment setup.SubExperiment, deltas []time.Duration, latenciesDF dataframe.DataFrame,
+	sortedLatencies []float64, path string) {
 	switch experiment.Visualization {
 	case "all":
-		log.Infof("SubExperiment %d: generating all visualizations", experiment.ID)
-		generateCDFs(experiment, latenciesDF, path)
+		log.Infof("[sub-experiment %d] Generating all visualizations", experiment.ID)
+		generateCDFs(experiment, sortedLatencies, path)
 		generateHistograms(experiment, latenciesDF, path, deltas)
-		generateBarCharts(experiment, latenciesDF, path)
+		generateBarCharts(experiment, latenciesDF, defaultColdThreshold, path)
 	case "bar":
-		log.Infof("SubExperiment %d: generating burst bar chart visualization", experiment.ID)
-		generateBarCharts(experiment, latenciesDF, path)
+		log.Infof("[sub-experiment %d] Generating burst bar chart visualization", experiment.ID)
+		generateBarCharts(experiment, latenciesDF, defaultColdThreshold, path)
 	case "cdf":
-		log.Infof("SubExperiment %d: generating CDF visualization", experiment.ID)
-		generateCDFs(experiment, latenciesDF, path)
+		log.Infof("[sub-experiment %d] Generating CDF visualization", experiment.ID)
+		generateCDFs(experiment, sortedLatencies, path)
 	case "histogram":
-		log.Infof("SubExperiment %d: generating histograms visualizations (per-burst)", experiment.ID)
+		log.Infof("[sub-experiment %d] Generating histograms visualizations (per-burst)", experiment.ID)
 		generateHistograms(experiment, latenciesDF, path, deltas)
 	case "none":
-		log.Warnf("SubExperiment %d: no visualization selected, skipping", experiment.ID)
+		log.Warnf("[sub-experiment %d] No visualization selected, skipping", experiment.ID)
 	default:
-		log.Errorf("SubExperiment %d: unrecognized visualization `%s`, skipping", experiment.ID, experiment.Visualization)
+		if strings.Contains(experiment.Visualization, "bar") {
+			coldThreshold, err := strconv.ParseFloat(strings.Split(experiment.Visualization, "-")[1], 64)
+			if err != nil {
+				log.Errorf("[sub-experiment %d] Could not parse bar chart threshold latency, using default.", experiment.ID)
+				coldThreshold = defaultColdThreshold
+			}
+
+			log.Infof("[sub-experiment %d] Generating bar chart visualization (cold threshold %vms)",
+				experiment.ID,
+				coldThreshold,
+			)
+			generateBarCharts(experiment, latenciesDF, coldThreshold, path)
+		} else {
+			log.Errorf("[sub-experiment %d] Unrecognized visualization `%s`, skipping", experiment.ID, experiment.Visualization)
+		}
 	}
 }
 
-func generateBarCharts(experiment setup.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
-	log.Debugf("SubExperiment %d: plotting characterization bar chart", experiment.ID)
-	plotBurstsBarChart(filepath.Join(path, "bursts_characterization.png"), experiment, latenciesDF)
+func generateBarCharts(experiment setup.SubExperiment, latenciesDF dataframe.DataFrame, coldThreshold float64, path string) {
+	log.Debugf("[sub-experiment %d] Plotting characterization bar chart", experiment.ID)
+	plotBurstsBarChart(filepath.Join(path, "bursts_characterization.png"), experiment, coldThreshold, latenciesDF)
 }
 
-func generateHistograms(config setup.SubExperiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
+func generateHistograms(experiment setup.SubExperiment, latenciesDF dataframe.DataFrame, path string, deltas []time.Duration) {
 	histogramsDirectoryPath := filepath.Join(path, "histograms")
-	log.Infof("Creating directory for histograms at `%s`", histogramsDirectoryPath)
+	log.Infof("[sub-experiment %d] Creating directory for histograms at `%s`", experiment.ID, histogramsDirectoryPath)
 	if err := os.MkdirAll(histogramsDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Debugf("SubExperiment %d: plotting latency histograms for each burst", config.ID)
-	for burstIndex := 0; burstIndex < config.Bursts; burstIndex++ {
+	log.Debugf("[sub-experiment %d] Plotting latency histograms for each burst", experiment.ID)
+	for burstIndex := 0; burstIndex < experiment.Bursts; burstIndex++ {
 		burstDF := latenciesDF.Filter(dataframe.F{Colname: "Burst ID", Comparator: series.Eq, Comparando: burstIndex})
 		plotBurstLatenciesHistogram(
 			filepath.Join(histogramsDirectoryPath, fmt.Sprintf("burst%d_delta%v.png", burstIndex, deltas[burstIndex])),
@@ -86,21 +101,11 @@ func generateHistograms(config setup.SubExperiment, latenciesDF dataframe.DataFr
 	}
 }
 
-func generateCDFs(config setup.SubExperiment, latenciesDF dataframe.DataFrame, path string) {
-	log.Debugf("SubExperiment %d: plotting latencies CDF", config.ID)
+func generateCDFs(config setup.SubExperiment, sortedLatencies []float64, path string) {
+	log.Debugf("[sub-experiment %d] Plotting latencies CDF", config.ID)
 	plotLatenciesCDF(
 		filepath.Join(path, "empirical_CDF.png"),
-		latenciesDF.Col("Client Latency (ms)").Float(),
+		sortedLatencies,
 		config,
 	)
-}
-
-func readWrittenLatenciesFile(csvFile *os.File) dataframe.DataFrame {
-	_, err := csvFile.Seek(0, io.SeekStart)
-	if err != nil {
-		log.Error(err)
-	}
-
-	latenciesDF := dataframe.ReadCSV(csvFile)
-	return latenciesDF
 }

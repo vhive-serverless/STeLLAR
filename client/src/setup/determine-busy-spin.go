@@ -24,13 +24,14 @@ package setup
 
 import (
 	log "github.com/sirupsen/logrus"
+	"math"
 	"math/big"
 	"time"
 )
 
 var cachedServiceTimeIncrement map[string]int64
 
-func transformServiceTimesToFuncIncr(config *Configuration) {
+func transformServiceTimesToFunctionIncrements(config *Configuration) {
 	standardIncrement := int64(1e10)
 	standardDurationMs := timeSession(standardIncrement).Milliseconds()
 	cachedServiceTimeIncrement = make(map[string]int64)
@@ -63,7 +64,7 @@ func determineFunctionIncrementLimits(subExperiment *SubExperiment, standardIncr
 		suggestedIncrementFloat, _ := currentIncrement.Float64()
 		suggestedIncrement := int64(suggestedIncrementFloat)
 		suggestedDurationMs := timeSession(suggestedIncrement).Milliseconds()
-		if !almostEqualFloats(float64(suggestedDurationMs), float64(desiredDurationMs), float64(desiredDurationMs)*0.05) {
+		if math.Abs(float64(suggestedDurationMs)-float64(desiredDurationMs)) > 0.05 {
 			log.Warnf("Suggested increment %d (duration %dms) is not within 5%% of desired duration %dms",
 				suggestedIncrement, suggestedDurationMs, desiredDurationMs)
 

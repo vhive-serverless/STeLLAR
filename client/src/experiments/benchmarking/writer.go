@@ -44,7 +44,7 @@ func NewExperimentWriter(file *os.File) *SafeWriter {
 	safeExperimentWriter := &SafeWriter{Writer: csv.NewWriter(file)}
 	// writer.writeRowToFile would fail because the instance Initialize was called on didn't have the Writer initialized
 	safeExperimentWriter.writeRowToFile(
-		"AWS Request ID",
+		"Request ID",
 		"Host",
 		"Sent At",
 		"Received At",

@@ -29,7 +29,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat"
 	"gonum.org/v1/plot/plotutil"
-	"sort"
 	"strings"
 	"time"
 	"vhive-bench/client/setup"
@@ -39,17 +38,15 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, latenciesDF dataframe.DataFrame) {
+func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, coldThreshold float64, latenciesDF dataframe.DataFrame) {
 	plotInstance, err := plot.New()
 	if err != nil {
-		log.Errorf("Creating a new bar chart failed with error %s", err.Error())
+		log.Errorf("[sub-experiment %d] Creating a new bar chart failed with error %s", experiment.ID, err.Error())
 		return
 	}
 
-	coldThreshold := 150.0
-
 	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold, cooldown ~%vs)",
-		coldThreshold, experiment.CooldownSeconds)
+		coldThreshold, experiment.IATSeconds)
 	plotInstance.X.Label.Text = "Burst Sizes (Sequential)"
 	plotInstance.Y.Label.Text = "Requests"
 
@@ -81,7 +78,7 @@ func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, latenci
 
 	barsWarm, err := plotter.NewBarChart(warmResponses, w)
 	if err != nil {
-		log.Errorf("Could not plot warm requests bars in bar chart: %s", err.Error())
+		log.Errorf("[sub-experiment %d] Could not plot warm requests bars in bar chart: %s", experiment.ID, err.Error())
 		return
 	}
 	barsWarm.LineStyle.Width = vg.Length(0)
@@ -89,7 +86,7 @@ func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, latenci
 
 	barsCold, err := plotter.NewBarChart(coldResponses, w)
 	if err != nil {
-		log.Errorf("Could not plot cold requests bars in bar chart: %s", err.Error())
+		log.Errorf("[sub-experiment %d] Could not plot cold requests bars in bar chart: %s", experiment.ID, err.Error())
 		return
 	}
 	barsCold.LineStyle.Width = vg.Length(0)
@@ -109,7 +106,7 @@ func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, latenci
 	plotInstance.NominalX(strings.Split(strings.Trim(fmt.Sprint(augmentedBurstSizes), "[]"), " ")...)
 
 	if err := plotInstance.Save(10*vg.Inch, 5*vg.Inch, plotPath); err != nil {
-		log.Errorf("Could not save bar chart: %s", err.Error())
+		log.Errorf("[sub-experiment %d] Could not save bar chart: %s", experiment.ID, err.Error())
 	}
 }
 
@@ -140,14 +137,14 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 	}
 }
 
-func plotLatenciesCDF(plotPath string, latencies []float64, experiment setup.SubExperiment) {
+func plotLatenciesCDF(plotPath string, sortedLatencies []float64, experiment setup.SubExperiment) {
 	plotInstance, err := plot.New()
 	if err != nil {
-		log.Errorf("Creating a new CDF plot failed with error %s", err.Error())
+		log.Errorf("[sub-experiment %d] Creating a new CDF plot failed with error %s", experiment.ID, err.Error())
 		return
 	}
 
-	plotInstance.Title.Text = fmt.Sprintf("Cooldown ~%vs, Burst sizes %v", experiment.CooldownSeconds, experiment.BurstSizes)
+	plotInstance.Title.Text = fmt.Sprintf("IAT ~%vs, Burst sizes %v", experiment.IATSeconds, experiment.BurstSizes)
 	plotInstance.Y.Label.Text = "Portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.
@@ -155,32 +152,30 @@ func plotLatenciesCDF(plotPath string, latencies []float64, experiment setup.Sub
 	plotInstance.X.Min = 0.
 	plotInstance.X.Max = 2000.0
 
-	sort.Float64s(latencies)
-
 	// Uncomment below for hard X limit
 	//var maxIndexKept int
-	//for maxIndexKept = 0; maxIndexKept < len(latencies) && latencies[maxIndexKept] <= plotInstance.X.Max; maxIndexKept++ {
+	//for maxIndexKept = 0; maxIndexKept < len(sortedLatencies) && sortedLatencies[maxIndexKept] <= plotInstance.X.Max; maxIndexKept++ {
 	//}
-	//latencies = latencies[:maxIndexKept]
+	//sortedLatencies = sortedLatencies[:maxIndexKept]
 
-	latenciesToPlot := make(plotter.XYs, len(latencies))
-	for i := 0; i < len(latencies); i++ {
-		latenciesToPlot[i].X = latencies[i]
+	latenciesToPlot := make(plotter.XYs, len(sortedLatencies))
+	for i := 0; i < len(sortedLatencies); i++ {
+		latenciesToPlot[i].X = sortedLatencies[i]
 		latenciesToPlot[i].Y = stat.CDF(
-			latencies[i],
+			sortedLatencies[i],
 			stat.Empirical,
-			latencies,
+			sortedLatencies,
 			nil,
 		)
 	}
 
 	err = plotutil.AddLinePoints(plotInstance, latenciesToPlot)
 	if err != nil {
-		log.Errorf("Could not add line points to CDF plot: %s", err.Error())
+		log.Errorf("[sub-experiment %d] Could not add line points to CDF plot: %s", experiment.ID, err.Error())
 	}
 
 	// Save the plot to a PNG file.
 	if err := plotInstance.Save(5*vg.Inch, 5*vg.Inch, plotPath); err != nil {
-		log.Errorf("Could not save CDF plot: %s", err.Error())
+		log.Errorf("[sub-experiment %d] Could not save CDF plot: %s", experiment.ID, err.Error())
 	}
 }
