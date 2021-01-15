@@ -127,7 +127,7 @@ func deployRandomMemoryFunction() (string, float64, int64) {
 
 	deployedImageSizeMB := setupDeployment()
 
-	return Singleton.DeployFunction(golang, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
+	return Singleton.DeployFunction("Zip", golang, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
 }
 
 func setupDeployment() float64 {
@@ -136,6 +136,7 @@ func setupDeployment() float64 {
 		aws,
 		golang,
 		util.MBToBytes(60.),
+		"Zip",
 	)
 	return deployedImageSizeMB
 }

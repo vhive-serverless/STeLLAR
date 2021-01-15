@@ -62,7 +62,7 @@ const (
 )
 
 //PrepareSubExperiments will read any required files, deploy functions etc. to get ready for the sub-experiments.
-func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Configuration {
+func PrepareSubExperiments(packageType string, endpointsDirectoryPath string, configPath string) Configuration {
 	configFile := util.ReadFile(configPath)
 	config := extractConfiguration(configFile)
 
@@ -99,7 +99,8 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 			continue
 		}
 
-		availableEndpoints = assignEndpoints(availableEndpoints, &config.SubExperiments[index], config.Provider, config.Runtime)
+		availableEndpoints = assignEndpoints(packageType, availableEndpoints, &config.SubExperiments[index],
+			config.Provider, config.Runtime)
 	}
 
 	return config

@@ -15,8 +15,8 @@ replace vhive-bench/client/experiments/visualization => ./experiments/visualizat
 replace vhive-bench/client/experiments/networking => ./experiments/networking
 
 require (
-	github.com/aws/aws-lambda-go v1.20.0
-	github.com/aws/aws-sdk-go v1.35.20
+	github.com/aws/aws-lambda-go v1.22.0 // indirect
+	github.com/aws/aws-sdk-go v1.36.27
 	github.com/go-gota/gota v0.10.1
 	github.com/golang/protobuf v1.4.3
 	github.com/sirupsen/logrus v1.7.0

@@ -31,7 +31,8 @@ import (
 	"vhive-bench/client/util"
 )
 
-func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
+func assignEndpoints(packageType string, availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string,
+	runtime string) []connection.Endpoint {
 	deploymentGeneratedForSubExperiment := false
 
 	var assignedEndpoints []string
@@ -52,6 +53,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 				provider,
 				runtime,
 				util.MBToBytes(experiment.FunctionImageSizeMB),
+				packageType,
 			)
 			deploymentGeneratedForSubExperiment = true
 		}
@@ -61,7 +63,8 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		}
 
 		log.Info("Could not find an existing function to repurpose, creating a new function...")
-		assignedEndpoints = append(assignedEndpoints, connection.Singleton.DeployFunction(runtime, experiment.FunctionMemoryMB))
+		assignedEndpoints = append(assignedEndpoints,
+			connection.Singleton.DeployFunction(packageType, runtime, experiment.FunctionMemoryMB))
 	}
 
 	log.Debugf("Assigning following endpoints to sub-experiment `%s`: %v", experiment.Title, assignedEndpoints)

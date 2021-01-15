@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2020 Theodor Amariucai
+// Copyright (c) 2021 Theodor Amariucai
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,54 +28,26 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"vhive-bench/client/setup/deployment/connection/amazon"
 	"vhive-bench/client/util"
 )
 
-const (
-	localZipName   = "benchmarking.zip"
-	randomFileName = "random.file"
-)
+const randomFileName = "random.file"
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes. Returns size of deployment in MB.
-func SetupDeployment(rawCodePath string, provider string, language string, sizeBytes int64) float64 {
-	zippedBinarySizeBytes := createBinary(rawCodePath, language)
+func SetupDeployment(rawCodePath string, provider string, language string, deploymentSizeBytes int64, packageType string) float64 {
+	createBinary(rawCodePath, language)
 
-	if sizeBytes == 0 {
-		log.Infof("Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
-			util.BytesToMB(zippedBinarySizeBytes))
-		sizeBytes = zippedBinarySizeBytes
-	}
-
-	if sizeBytes < zippedBinarySizeBytes {
-		log.Fatalf("Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
-			util.BytesToMB(sizeBytes),
-			util.BytesToMB(zippedBinarySizeBytes),
-		)
-	}
-
-	generateRandomFile(sizeBytes - zippedBinarySizeBytes)
-	zipPath := generateZIP()
-
-	sizeMB := util.BytesToMB(sizeBytes)
-
-	switch provider {
-	case "aws":
-		if sizeMB > 50. {
-			amazon.UploadZIPToS3(zipPath, sizeMB)
-		} else {
-			amazon.SetLocalZip(zipPath)
-		}
+	switch packageType {
+	case "Zip":
+		setupZIPDeployment(provider, deploymentSizeBytes)
+	case "Image":
+		setupContainerImageDeployment(provider, deploymentSizeBytes, language)
 	default:
-		log.Warnf("Provider %s does not support code deployment, skipping ZIP generation...", provider)
+		log.Fatalf("Unrecognized package type: %s", packageType)
 	}
 
-	log.Debugf("Cleaning up ZIP %q...", zipPath)
-	util.RunCommandAndLog(exec.Command("rm", "-r", zipPath))
-
-	return util.BytesToMB(sizeBytes)
+	return util.BytesToMB(deploymentSizeBytes)
 }
 
 func createBinary(rawCodePath string, runtime string) int64 {
@@ -95,15 +67,10 @@ func createBinary(rawCodePath string, runtime string) int64 {
 		log.Fatalf("Unrecognized runtime %s", runtime)
 	}
 
-	log.Info("Zipping binary file to find its size...")
-	util.RunCommandAndLog(exec.Command("zip", "zipped-binary", util.BinaryName))
-	fi, err := os.Stat("zipped-binary.zip")
+	fi, err := os.Stat(util.BinaryName)
 	if err != nil {
-		log.Fatalf("Could not get size of zipped binary file: %s", err.Error())
+		log.Fatalf("Could not get size of binary file: %s", err.Error())
 	}
-
-	log.Debug("Cleaning up zipped binary...")
-	util.RunCommandAndLog(exec.Command("rm", "-r", "zipped-binary.zip"))
 
 	log.Info("Successfully built binary file for deployment...")
 	return fi.Size()
@@ -123,24 +90,4 @@ func generateRandomFile(sizeBytes int64) {
 	}
 
 	log.Info("Successfully generated random file.")
-}
-
-func generateZIP() string {
-	log.Info("Generating ZIP file to be deployed...")
-
-	util.RunCommandAndLog(exec.Command("zip", localZipName, util.BinaryName, randomFileName))
-
-	log.Debugf("Cleaning up binary %q...", util.BinaryName)
-	util.RunCommandAndLog(exec.Command("rm", "-r", util.BinaryName))
-
-	log.Debugf("Cleaning up random file %q...", randomFileName)
-	util.RunCommandAndLog(exec.Command("rm", "-r", randomFileName))
-
-	log.Info("Successfully generated ZIP file.")
-
-	workingDirectory, err := filepath.Abs(filepath.Dir("."))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return filepath.Join(workingDirectory, localZipName)
 }
