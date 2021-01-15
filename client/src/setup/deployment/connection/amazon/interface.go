@@ -23,10 +23,12 @@
 package amazon
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/apigateway"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -38,7 +40,7 @@ import (
 )
 
 const (
-	awsRegion = "us-west-1"
+	AWSRegion = "us-west-1"
 	s3Bucket  = "benchmarking-aws"
 )
 
@@ -48,21 +50,24 @@ var AWSSingleton *instance
 type instance struct {
 	localZip []byte
 	// S3Key is the bucket location in which this specific deployment will be uploaded
-	S3Key         string
-	NamePrefix    string
-	region        string
-	stage         string
-	session       *session.Session
-	s3Svc         *s3.S3
-	lambdaSvc     *lambda.Lambda
-	apiGatewaySvc *apigateway.APIGateway
-	apiTemplate   []byte
+	S3Key          string
+	// DockerImageURI is the location where the docker image is located
+	DockerImageURI string
+	NamePrefix     string
+	region         string
+	stage          string
+	session        *session.Session
+	s3Svc          *s3.S3
+	lambdaSvc      *lambda.Lambda
+	apiGatewaySvc  *apigateway.APIGateway
+	ecrSvc         *ecr.ECR
+	apiTemplate    []byte
 }
 
 //InitializeSingleton will create a new Amazon instance to interact with different AWS services.
 func InitializeSingleton() {
 	sessionInstance := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(awsRegion),
+		Region: aws.String(AWSRegion),
 	}))
 
 	path, err := os.Getwd()
@@ -85,12 +90,13 @@ func InitializeSingleton() {
 
 	AWSSingleton = &instance{
 		NamePrefix:    "vHive_",
-		region:        awsRegion,
+		region:        AWSRegion,
 		stage:         "prod",
 		session:       sessionInstance,
 		lambdaSvc:     lambda.New(sessionInstance),
 		apiGatewaySvc: apigateway.New(sessionInstance),
 		s3Svc:         s3.New(sessionInstance),
+		ecrSvc:        ecr.New(sessionInstance),
 		apiTemplate:   apiTemplateByteValue,
 	}
 }
@@ -132,4 +138,26 @@ func SetLocalZip(path string) {
 		log.Fatalf("Could not read local zipped binary: %s", err.Error())
 	}
 	AWSSingleton.localZip = zipBytes
+}
+
+//GetECRAuthorizationToken helps the client get authorization for container AWS deployment.
+func GetECRAuthorizationToken() string {
+	log.Info("Requesting ECR authorization token.")
+
+	result, err := AWSSingleton.ecrSvc.GetAuthorizationToken(&ecr.GetAuthorizationTokenInput{})
+	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException") {
+			log.Warnf("Facing AWS rate-limiting error, retrying...")
+			return GetECRAuthorizationToken()
+		}
+
+		log.Fatalf("Cannot obtain ECR authorization token: %s", err.Error())
+	}
+	log.Debugf("Get ECR authorization token result: %s", result.String())
+
+	authToken, err := base64.StdEncoding.DecodeString(*result.AuthorizationData[0].AuthorizationToken)
+	if err != nil {
+		log.Fatalf("Could not decode base64-encoded ECR authorization token: %s", err.Error())
+	}
+	return strings.Split(string(authToken), ":")[1]
 }

@@ -37,11 +37,16 @@ const (
 	lambdaExecutionRole = "arn:aws:iam::335329526041:role/AWSLambdaBasicExectionRole"
 )
 
-func (amazon instance) DeployFunction(language string, memoryAssigned int64) string {
+func (amazon instance) DeployFunction(packageType string, language string, memoryAssigned int64) string {
 	apiConfig := amazon.createRESTAPI()
 
 	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, *apiConfig.Id)
-	functionConfig := amazon.createFunction(functionName, language, memoryAssigned)
+	var functionConfig *lambda.FunctionConfiguration
+	if packageType == "Zip" {
+		functionConfig = amazon.createFunctionZIP(functionName, language, memoryAssigned)
+	} else {
+		functionConfig = amazon.createFunctionImage(functionName, language, memoryAssigned)
+	}
 
 	resourceID := amazon.getResourceID(*apiConfig.Name, *apiConfig.Id)
 	amazon.createAPIFunctionIntegration(*apiConfig.Name, functionName, *apiConfig.Id, resourceID, *functionConfig.FunctionArn)
@@ -122,7 +127,38 @@ func (amazon instance) getResourceID(APIName string, apiID string) string {
 	return ""
 }
 
-func (amazon instance) createFunction(functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
+func (amazon instance) createFunctionImage(functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
+	log.Infof("Creating producer function %s", functionName)
+
+	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
+	createArgs := &lambda.CreateFunctionInput{
+		PackageType: aws.String("Image"),
+		Code: &lambda.FunctionCode{
+			ImageUri: aws.String(amazon.DockerImageURI),
+		},
+		Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
+		Role:          aws.String(lambdaExecutionRole),
+		FunctionName:  aws.String(functionName),
+		TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
+		Timeout:       aws.Int64(maxFunctionTimeout),
+		MemorySize:    aws.Int64(memoryAssigned),
+	}
+
+	result, err := amazon.lambdaSvc.CreateFunction(createArgs)
+	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException") {
+			log.Warnf("Facing AWS rate-limiting error, retrying...")
+			return amazon.createFunctionImage(functionName, language, memoryAssigned)
+		}
+
+		log.Fatalf("Cannot create function: %s", err.Error())
+	}
+	log.Debugf("Create function result: %s", result.String())
+
+	return result
+}
+
+func (amazon instance) createFunctionZIP(functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
 	log.Infof("Creating producer function %s", functionName)
 
 	var createCode *lambda.FunctionCode
@@ -137,8 +173,9 @@ func (amazon instance) createFunction(functionName string, language string, memo
 		}
 	}
 
-	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray.PassThrough otherwise.
+	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
 	createArgs := &lambda.CreateFunctionInput{
+		PackageType:   aws.String("Zip"),
 		Code:          createCode,
 		Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
 		Role:          aws.String(lambdaExecutionRole),
@@ -154,7 +191,7 @@ func (amazon instance) createFunction(functionName string, language string, memo
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createFunction(functionName, language, memoryAssigned)
+			return amazon.createFunctionZIP(functionName, language, memoryAssigned)
 		}
 
 		log.Fatalf("Cannot create function: %s", err.Error())
