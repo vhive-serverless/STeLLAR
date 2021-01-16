@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 // Package setup provides support with loading the experiment configuration,
 // preparing the sub-experiments and setting up the functions for benchmarking.
 package setup
@@ -28,7 +27,9 @@ package setup
 import (
 	log "github.com/sirupsen/logrus"
 	"os"
+	"time"
 	"vhive-bench/client/setup/deployment/connection"
+	"vhive-bench/client/setup/deployment/connection/amazon"
 	"vhive-bench/client/util"
 )
 
@@ -42,6 +43,7 @@ type SubExperiment struct {
 	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
 	DesiredServiceTimes     []string `json:"DesiredServiceTimes"`
 	IATType                 string   `json:"IATType"`
+	PackageType             string   `json:"PackageType"`
 	GatewaysNumber          int      `json:"GatewaysNumber"`
 	Visualization           string   `json:"Visualization"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
@@ -55,6 +57,7 @@ const (
 	defaultIATType                   = "stochastic"
 	defaultProvider                  = "aws"
 	defaultRuntime                   = "go1.x"
+	defaultPackageType               = "Zip"
 	defaultGatewaysNumber            = 1
 	defaultFunctionMemoryMB          = 128
 	manyRequestsInBurstWarnThreshold = 2000
@@ -62,7 +65,7 @@ const (
 )
 
 //PrepareSubExperiments will read any required files, deploy functions etc. to get ready for the sub-experiments.
-func PrepareSubExperiments(packageType string, endpointsDirectoryPath string, configPath string) Configuration {
+func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Configuration {
 	configFile := util.ReadFile(configPath)
 	config := extractConfiguration(configFile)
 
@@ -99,8 +102,12 @@ func PrepareSubExperiments(packageType string, endpointsDirectoryPath string, co
 			continue
 		}
 
-		availableEndpoints = assignEndpoints(packageType, availableEndpoints, &config.SubExperiments[index],
-			config.Provider, config.Runtime)
+		availableEndpoints = assignEndpoints(availableEndpoints, &config.SubExperiments[index], config.Provider, config.Runtime)
+	}
+
+	if amazon.AWSSingletonInstance != nil && amazon.AWSSingletonInstance.ImageURI != "" {
+		log.Info("A deployment was made using container images, waiting 10 seconds for changes to take effect with the provider...")
+		time.Sleep(time.Second * 10)
 	}
 
 	return config

@@ -26,13 +26,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"sync"
-	vHiveHTTP "vhive-bench/client/experiments/networking/http"
+	vHiveBenchHTTP "vhive-bench/client/experiments/networking/http"
 	"vhive-bench/client/setup"
 )
 
 func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpointID string,
 	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
-	request := vHiveHTTP.CreateRequest(provider, config.PayloadLengthBytes, gatewayEndpointID, assignedFunctionIncrementLimit)
+	request := vHiveBenchHTTP.CreateRequest(provider, config.PayloadLengthBytes, gatewayEndpointID, assignedFunctionIncrementLimit)
 
 	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to (%s).",
 		config.ID,
@@ -55,12 +55,12 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	safeExperimentWriter *SafeWriter, burstID int) {
 	defer requestsWaitGroup.Done()
 
-	respBody, reqSentTime, reqReceivedTime := vHiveHTTP.ExecuteHTTPRequest(request)
+	respBody, reqSentTime, reqReceivedTime := vHiveBenchHTTP.ExecuteHTTPRequest(request)
 
 	var responseID string
 	switch provider {
 	case "aws":
-		responseID = vHiveHTTP.GetAWSRequestID(respBody)
+		responseID = vHiveBenchHTTP.GetAWSRequestID(respBody)
 	default:
 		responseID = ""
 	}

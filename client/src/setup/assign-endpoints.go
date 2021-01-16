@@ -31,7 +31,7 @@ import (
 	"vhive-bench/client/util"
 )
 
-func assignEndpoints(packageType string, availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string,
+func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string,
 	runtime string) []connection.Endpoint {
 	deploymentGeneratedForSubExperiment := false
 
@@ -49,22 +49,22 @@ func assignEndpoints(packageType string, availableEndpoints []connection.Endpoin
 		if !deploymentGeneratedForSubExperiment {
 			log.Info("Setting up deployment...")
 			experiment.FunctionImageSizeMB = deployment.SetupDeployment(
-				fmt.Sprintf("setup/deployment/raw-code/%s/%s-handler.go", runtime, provider),
+				fmt.Sprintf("setup/deployment/raw-code/%s/%s-handler/main.go", runtime, provider),
 				provider,
 				runtime,
 				util.MBToBytes(experiment.FunctionImageSizeMB),
-				packageType,
+				experiment.PackageType,
 			)
 			deploymentGeneratedForSubExperiment = true
 		}
 
-		if canAssignToRepurposedEndpoint(&availableEndpoints, experiment, &assignedEndpoints) {
+		if canAssignToRepurposedEndpoint(&availableEndpoints, experiment, &assignedEndpoints, experiment.PackageType) {
 			continue
 		}
 
 		log.Info("Could not find an existing function to repurpose, creating a new function...")
 		assignedEndpoints = append(assignedEndpoints,
-			connection.Singleton.DeployFunction(packageType, runtime, experiment.FunctionMemoryMB))
+			connection.Singleton.DeployFunction(experiment.PackageType, runtime, experiment.FunctionMemoryMB))
 	}
 
 	log.Debugf("Assigning following endpoints to sub-experiment `%s`: %v", experiment.Title, assignedEndpoints)
@@ -72,16 +72,20 @@ func assignEndpoints(packageType string, availableEndpoints []connection.Endpoin
 	return availableEndpoints
 }
 
-func canAssignToRepurposedEndpoint(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, assignedEndpoints *[]string) bool {
+func canAssignToRepurposedEndpoint(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment,
+	assignedEndpoints *[]string, packageType string) bool {
 	for index, endpoint := range *availableEndpoints {
-		log.Info("Repurposing an existing function...")
-		connection.Singleton.UpdateFunction(endpoint.GatewayID, experiment.FunctionMemoryMB)
-		*assignedEndpoints = append(*assignedEndpoints, endpoint.GatewayID)
-		*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
-		log.Infof("Successfully repurposed %q (memory %dMB -> %dMB, image size %vMB -> %vMB).",
-			endpoint.GatewayID, endpoint.FunctionMemoryMB, experiment.FunctionMemoryMB,
-			endpoint.ImageSizeMB, experiment.FunctionImageSizeMB)
-		return true
+		// Can only repurpose function of same package type.
+		if endpoint.PackageType == experiment.PackageType {
+			log.Info("Repurposing an existing function...")
+			connection.Singleton.UpdateFunction(packageType, endpoint.GatewayID, experiment.FunctionMemoryMB)
+			*assignedEndpoints = append(*assignedEndpoints, endpoint.GatewayID)
+			*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
+			log.Infof("Successfully repurposed %q (memory %dMB -> %dMB, image size %vMB -> %vMB).",
+				endpoint.GatewayID, endpoint.FunctionMemoryMB, experiment.FunctionMemoryMB,
+				endpoint.ImageSizeMB, experiment.FunctionImageSizeMB)
+			return true
+		}
 	}
 	return false
 }
@@ -106,6 +110,7 @@ func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoi
 
 func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
 	return endpoint.FunctionMemoryMB == experiment.FunctionMemoryMB &&
+		endpoint.PackageType == experiment.PackageType &&
 		(experiment.FunctionImageSizeMB == 0 ||
 			math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 0.5)
 }

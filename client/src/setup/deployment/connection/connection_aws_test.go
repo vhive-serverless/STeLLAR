@@ -104,7 +104,7 @@ func TestAWSUpdateFunction(t *testing.T) {
 	}
 
 	repurposedFunctionMemory := rand.Intn(1000-128) + 128
-	Singleton.UpdateFunction(repurposedAPIID, int64(repurposedFunctionMemory))
+	Singleton.UpdateFunction("Zip", repurposedAPIID, int64(repurposedFunctionMemory))
 
 	// Check that repurposing succeeded
 	apis = Singleton.ListAPIs()
@@ -132,10 +132,10 @@ func deployRandomMemoryFunction() (string, float64, int64) {
 
 func setupDeployment() float64 {
 	deployedImageSizeMB := deployment.SetupDeployment(
-		fmt.Sprintf("../raw-code/%s/%s-handler.go", golang, aws),
+		fmt.Sprintf("../raw-code/%s/%s-handler/main.go", golang, aws),
 		aws,
 		golang,
-		util.MBToBytes(60.),
+		util.MBToBytes(45.),
 		"Zip",
 	)
 	return deployedImageSizeMB

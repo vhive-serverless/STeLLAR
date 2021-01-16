@@ -30,29 +30,39 @@ import (
 	"strings"
 )
 
-func (amazon instance) UpdateFunction(uniqueID string) *lambda.FunctionConfiguration {
-	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, uniqueID)
+func (instance awsSingleton) UpdateFunction(packageType string, uniqueID string) *lambda.FunctionConfiguration {
+	functionName := fmt.Sprintf("%s%s", instance.NamePrefix, uniqueID)
 	log.Infof("Updating producer lambda code %s", functionName)
 
 	var args *lambda.UpdateFunctionCodeInput
-	if amazon.S3Key != "" {
+	switch packageType {
+	case "Zip":
+		if instance.S3Key != "" {
+			args = &lambda.UpdateFunctionCodeInput{
+				FunctionName: aws.String(functionName),
+				S3Bucket:     aws.String(s3Bucket),
+				S3Key:        aws.String(instance.S3Key),
+			}
+		} else {
+			args = &lambda.UpdateFunctionCodeInput{
+				FunctionName: aws.String(functionName),
+				ZipFile:      aws.Uint8ValueSlice(aws.Uint8Slice(instance.localZip)),
+			}
+		}
+	case "Image":
 		args = &lambda.UpdateFunctionCodeInput{
 			FunctionName: aws.String(functionName),
-			S3Bucket:     aws.String(s3Bucket),
-			S3Key:        aws.String(amazon.S3Key),
+			ImageUri:     aws.String(instance.ImageURI),
 		}
-	} else {
-		args = &lambda.UpdateFunctionCodeInput{
-			FunctionName: aws.String(functionName),
-			ZipFile:      aws.Uint8ValueSlice(aws.Uint8Slice(amazon.localZip)),
-		}
+	default:
+		log.Fatalf("Package type %s not supported for function update.", packageType)
 	}
 
-	result, err := amazon.lambdaSvc.UpdateFunctionCode(args)
+	result, err := instance.lambdaSvc.UpdateFunctionCode(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.UpdateFunction(uniqueID)
+			return instance.UpdateFunction(packageType, uniqueID)
 		}
 
 		log.Fatalf("Cannot update function code: %s", err.Error())
@@ -63,8 +73,8 @@ func (amazon instance) UpdateFunction(uniqueID string) *lambda.FunctionConfigura
 }
 
 //UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
-func (amazon instance) UpdateFunctionConfiguration(uniqueID string, assignedMemory int64) {
-	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, uniqueID)
+func (instance awsSingleton) UpdateFunctionConfiguration(uniqueID string, assignedMemory int64) {
+	functionName := fmt.Sprintf("%s%s", instance.NamePrefix, uniqueID)
 	log.Infof("Updating producer lambda configuration %s", functionName)
 
 	args := &lambda.UpdateFunctionConfigurationInput{
@@ -73,11 +83,11 @@ func (amazon instance) UpdateFunctionConfiguration(uniqueID string, assignedMemo
 		Timeout:      aws.Int64(600),
 	}
 
-	result, err := amazon.lambdaSvc.UpdateFunctionConfiguration(args)
+	result, err := instance.lambdaSvc.UpdateFunctionConfiguration(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			amazon.UpdateFunctionConfiguration(uniqueID, assignedMemory)
+			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory)
 		}
 
 		log.Fatalf("Cannot update function configuration: %s", err.Error())

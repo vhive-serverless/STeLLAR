@@ -18,7 +18,7 @@ build_client: proto_gen_go build test
 
 run_client:
 	@mkdir -p "../latency-samples"
-	@./client -o "../latency-samples" -c "../experiments/tests/test.json"
+	@./client -o "../latency-samples" -g "../endpoints" -c "../experiments/tests/aws-test.json"
 
 build_and_run_client: build_client run_client
 

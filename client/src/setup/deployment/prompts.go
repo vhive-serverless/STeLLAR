@@ -20,41 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package amazon
+package deployment
 
 import (
-	"github.com/aws/aws-sdk-go/service/lambda"
+	"bufio"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"strings"
 )
 
-func (instance awsSingleton) ListFunctions(marker *string) []*lambda.FunctionConfiguration {
-	log.Info("Querying Lambda functions...")
-	var queriedFunctions []*lambda.FunctionConfiguration
+func promptForString(prompt string) *string {
+	reader := bufio.NewReader(os.Stdin)
 
-	args := &lambda.ListFunctionsInput{
-		Marker: marker,
-	}
+	log.Print(prompt)
 
-	result, err := instance.lambdaSvc.ListFunctions(args)
+	response, err := reader.ReadString('\n')
 	if err != nil {
-		if strings.Contains(err.Error(), "TooManyRequestsException") {
-			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return instance.ListFunctions(nil)
-		}
-
-		log.Fatalf("Cannot list Lambda functions: %s", err.Error())
+		log.Fatalf("Could not read response: %s.", err.Error())
 	}
 
-	if result == nil {
-		log.Fatalf("List Lambda functions result was nil.")
+	if response == "\n" {
 		return nil
 	}
 
-	queriedFunctions = append(queriedFunctions, result.Functions...)
-	if (*result).NextMarker != nil {
-		queriedFunctions = append(queriedFunctions, instance.ListFunctions((*result).NextMarker)...)
-	}
+	response = strings.ReplaceAll(response, "\n", "")
 
-	return queriedFunctions
+	return &response
 }
