@@ -49,9 +49,9 @@ func setupZIPDeployment(provider string, deploymentSizeBytes int64) {
 		)
 	}
 
-	generateRandomFile(deploymentSizeBytes - zippedBinaryFileSizeBytes)
-
-	zipPath := generateZIP()
+	zipPath := generateZIP(
+		generateFillerFile("random.file", deploymentSizeBytes-zippedBinaryFileSizeBytes),
+	)
 
 	deploymentSizeMB := util.BytesToMB(deploymentSizeBytes)
 	switch provider {
@@ -86,16 +86,16 @@ func getZippedBinaryFileSize() int64 {
 	return zippedBinarySizeBytes
 }
 
-func generateZIP() string {
+func generateZIP(fillerFileName string) string {
 	log.Info("Generating ZIP file to be deployed...")
 
-	util.RunCommandAndLog(exec.Command("zip", localZipName, util.BinaryName, randomFileName))
+	util.RunCommandAndLog(exec.Command("zip", localZipName, util.BinaryName, fillerFileName))
 
 	log.Debugf("Cleaning up binary %q...", util.BinaryName)
 	util.RunCommandAndLog(exec.Command("rm", "-r", util.BinaryName))
 
-	log.Debugf("Cleaning up random file %q...", randomFileName)
-	util.RunCommandAndLog(exec.Command("rm", "-r", randomFileName))
+	log.Debugf("Cleaning up random file %q...", fillerFileName)
+	util.RunCommandAndLog(exec.Command("rm", "-r", fillerFileName))
 
 	log.Info("Successfully generated ZIP file.")
 

@@ -25,36 +25,44 @@ package deployment
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"math"
 	"os/exec"
 	"vhive-bench/client/setup/deployment/connection/amazon"
 	"vhive-bench/client/util"
 )
 
-func setupContainerImageDeployment(provider string, deploymentSizeBytes int64, language string) {
-	var privateECRRepoURI string
+func setupContainerImageDeployment(provider string, deploymentSizeBytes int64) {
+	var privateRepoURI string
 	switch provider {
 	case "aws":
-		privateECRRepoURI = fmt.Sprintf("335329526041.dkr.ecr.%s.amazonaws.com", amazon.AWSRegion)
+		privateRepoURI = fmt.Sprintf("335329526041.dkr.ecr.%s.amazonaws.com", amazon.AWSRegion)
+
+		log.Info("Authenticating Docker CLI to the Amazon ECR registry...")
+		util.RunCommandAndLog(exec.Command("docker", "login", "-u", "AWS", "-p",
+			amazon.GetECRAuthorizationToken(), privateRepoURI))
+	case "vhive":
+		privateRepoURI = *promptForString("Please enter your DockerHub username: ")
+
+		log.Info("Authenticating Docker CLI to the DockerHub registry...")
+		util.RunCommandAndLog(exec.Command("docker", "login", "-u",
+			privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
 	default:
 		log.Warnf("Provider %s does not support container image deployment, skipping...", provider)
 		return
 	}
 
-	//deploymentSizeMB := util.BytesToMB(deploymentSizeBytes)
-	// TODO: Add random file to Docker image
+	// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
+	generateFillerFile("random.file", int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
 
-	log.Info("Building raw function code into a container image...")
-	dockerfilePath := fmt.Sprintf("./setup/deployment/raw-code/%s/", language)
-	util.RunCommandAndLog(exec.Command("docker", "build", "-t", "vhive-bench", dockerfilePath))
-
-	log.Info("Authenticating Docker CLI to the Amazon ECR registry...")
-	util.RunCommandAndLog(exec.Command("docker", "login", "-u", "AWS", "-p",
-		amazon.GetECRAuthorizationToken(), privateECRRepoURI))
+	log.Info("Adding binary file to container image...")
+	util.RunCommandAndLog(exec.Command("docker", "build", "-t", "vhive-bench:latest", "."))
 
 	log.Info("Pushing container image to the registry...")
-	imageName := fmt.Sprintf("%s/%s", privateECRRepoURI, "vhive-bench:latest")
+	imageName := fmt.Sprintf("%s/%s", privateRepoURI, "vhive-bench:latest")
 	util.RunCommandAndLog(exec.Command("docker", "tag", "vhive-bench:latest", imageName))
 	util.RunCommandAndLog(exec.Command("docker", "push", imageName))
 
-	amazon.AWSSingleton.DockerImageURI = imageName
+	if provider == "aws" {
+		amazon.AWSSingletonInstance.ImageURI = imageName
+	}
 }

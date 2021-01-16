@@ -37,26 +37,21 @@ const (
 	lambdaExecutionRole = "arn:aws:iam::335329526041:role/AWSLambdaBasicExectionRole"
 )
 
-func (amazon instance) DeployFunction(packageType string, language string, memoryAssigned int64) string {
-	apiConfig := amazon.createRESTAPI()
+func (instance awsSingleton) DeployFunction(packageType string, language string, memoryAssigned int64) string {
+	apiConfig := instance.createRESTAPI()
 
-	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, *apiConfig.Id)
-	var functionConfig *lambda.FunctionConfiguration
-	if packageType == "Zip" {
-		functionConfig = amazon.createFunctionZIP(functionName, language, memoryAssigned)
-	} else {
-		functionConfig = amazon.createFunctionImage(functionName, language, memoryAssigned)
-	}
+	functionName := fmt.Sprintf("%s%s", instance.NamePrefix, *apiConfig.Id)
+	functionConfig := instance.createFunction(packageType, functionName, language, memoryAssigned)
 
-	resourceID := amazon.getResourceID(*apiConfig.Name, *apiConfig.Id)
-	amazon.createAPIFunctionIntegration(*apiConfig.Name, functionName, *apiConfig.Id, resourceID, *functionConfig.FunctionArn)
-	amazon.createAPIDeployment(*apiConfig.Name, *apiConfig.Id)
-	amazon.addExecutionPermissions(functionName)
+	resourceID := instance.getResourceID(*apiConfig.Name, *apiConfig.Id)
+	instance.createAPIFunctionIntegration(*apiConfig.Name, functionName, *apiConfig.Id, resourceID, *functionConfig.FunctionArn)
+	instance.createAPIDeployment(*apiConfig.Name, *apiConfig.Id)
+	instance.addExecutionPermissions(functionName)
 
 	return *apiConfig.Id
 }
 
-func (amazon instance) createRESTAPI() *apigateway.RestApi {
+func (instance awsSingleton) createRESTAPI() *apigateway.RestApi {
 	log.Info("Creating REST API...")
 
 	createArgs := &apigateway.CreateRestApiInput{
@@ -64,34 +59,34 @@ func (amazon instance) createRESTAPI() *apigateway.RestApi {
 		EndpointConfiguration: &apigateway.EndpointConfiguration{Types: aws.StringSlice([]string{"REGIONAL"})},
 	}
 
-	result, err := amazon.apiGatewaySvc.CreateRestApi(createArgs)
+	result, err := instance.apiGatewaySvc.CreateRestApi(createArgs)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createRESTAPI()
+			return instance.createRESTAPI()
 		}
 
 		log.Fatalf("Cannot create REST API: %s", err.Error())
 	}
 	log.Debugf("Create REST API result: %s", result.String())
 
-	result, _ = amazon.updateAPIWithTemplate(*result.Id)
+	result, _ = instance.updateAPIWithTemplate(*result.Id)
 
 	return result
 }
 
-func (amazon instance) updateAPIWithTemplate(apiID string) (*apigateway.RestApi, error) {
+func (instance awsSingleton) updateAPIWithTemplate(apiID string) (*apigateway.RestApi, error) {
 	putAPIArgs := &apigateway.PutRestApiInput{
-		Body:      amazon.apiTemplate,
+		Body:      instance.apiTemplate,
 		Mode:      aws.String("merge"),
 		RestApiId: aws.String(apiID),
 	}
 
-	result, err := amazon.apiGatewaySvc.PutRestApi(putAPIArgs)
+	result, err := instance.apiGatewaySvc.PutRestApi(putAPIArgs)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.updateAPIWithTemplate(apiID)
+			return instance.updateAPIWithTemplate(apiID)
 		}
 
 		log.Fatalf("Cannot update REST API with template: %s", err.Error())
@@ -100,16 +95,16 @@ func (amazon instance) updateAPIWithTemplate(apiID string) (*apigateway.RestApi,
 	return result, nil
 }
 
-func (amazon instance) getResourceID(APIName string, apiID string) string {
+func (instance awsSingleton) getResourceID(APIName string, apiID string) string {
 	args := &apigateway.GetResourcesInput{
 		RestApiId: aws.String(apiID),
 	}
 
-	result, err := amazon.apiGatewaySvc.GetResources(args)
+	result, err := instance.apiGatewaySvc.GetResources(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.getResourceID(APIName, apiID)
+			return instance.getResourceID(APIName, apiID)
 		}
 
 		log.Fatalf("Cannot get API resources: %s", err.Error())
@@ -127,28 +122,60 @@ func (amazon instance) getResourceID(APIName string, apiID string) string {
 	return ""
 }
 
-func (amazon instance) createFunctionImage(functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
+func (instance awsSingleton) createFunction(packageType string, functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
 	log.Infof("Creating producer function %s", functionName)
 
-	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
-	createArgs := &lambda.CreateFunctionInput{
-		PackageType: aws.String("Image"),
-		Code: &lambda.FunctionCode{
-			ImageUri: aws.String(amazon.DockerImageURI),
-		},
-		Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
-		Role:          aws.String(lambdaExecutionRole),
-		FunctionName:  aws.String(functionName),
-		TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
-		Timeout:       aws.Int64(maxFunctionTimeout),
-		MemorySize:    aws.Int64(memoryAssigned),
+	var createArgs *lambda.CreateFunctionInput
+	switch packageType {
+	case "Zip":
+		var createCode *lambda.FunctionCode
+		if instance.S3Key != "" {
+			createCode = &lambda.FunctionCode{
+				S3Bucket: aws.String(s3Bucket),
+				S3Key:    aws.String(instance.S3Key),
+			}
+		} else {
+			createCode = &lambda.FunctionCode{
+				ZipFile: instance.localZip,
+			}
+		}
+
+		// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
+		createArgs = &lambda.CreateFunctionInput{
+			PackageType:   aws.String(lambda.PackageTypeZip),
+			Code:          createCode,
+			Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
+			Role:          aws.String(lambdaExecutionRole),
+			FunctionName:  aws.String(functionName),
+			Handler:       aws.String(util.BinaryName),
+			Runtime:       aws.String(language),
+			TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
+			Timeout:       aws.Int64(maxFunctionTimeout),
+			MemorySize:    aws.Int64(memoryAssigned),
+		}
+	case "Image":
+		// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
+		createArgs = &lambda.CreateFunctionInput{
+			PackageType: aws.String(lambda.PackageTypeImage),
+			Code: &lambda.FunctionCode{
+				ImageUri: aws.String(instance.ImageURI),
+			},
+			Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
+			Role:          aws.String(lambdaExecutionRole),
+			FunctionName:  aws.String(functionName),
+			TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
+			Timeout:       aws.Int64(maxFunctionTimeout),
+			MemorySize:    aws.Int64(memoryAssigned),
+		}
+	default:
+		log.Fatalf("Package type %s not supported for function creation.", packageType)
 	}
 
-	result, err := amazon.lambdaSvc.CreateFunction(createArgs)
+	result, err := instance.lambdaSvc.CreateFunction(createArgs)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createFunctionImage(functionName, language, memoryAssigned)
+			return instance.createFunction(packageType, functionName, language, memoryAssigned)
 		}
 
 		log.Fatalf("Cannot create function: %s", err.Error())
@@ -158,50 +185,7 @@ func (amazon instance) createFunctionImage(functionName string, language string,
 	return result
 }
 
-func (amazon instance) createFunctionZIP(functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
-	log.Infof("Creating producer function %s", functionName)
-
-	var createCode *lambda.FunctionCode
-	if amazon.S3Key != "" {
-		createCode = &lambda.FunctionCode{
-			S3Bucket: aws.String(s3Bucket),
-			S3Key:    aws.String(amazon.S3Key),
-		}
-	} else {
-		createCode = &lambda.FunctionCode{
-			ZipFile: amazon.localZip,
-		}
-	}
-
-	// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
-	createArgs := &lambda.CreateFunctionInput{
-		PackageType:   aws.String("Zip"),
-		Code:          createCode,
-		Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
-		Role:          aws.String(lambdaExecutionRole),
-		FunctionName:  aws.String(functionName),
-		Handler:       aws.String(util.BinaryName),
-		Runtime:       aws.String(language),
-		TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
-		Timeout:       aws.Int64(maxFunctionTimeout),
-		MemorySize:    aws.Int64(memoryAssigned),
-	}
-
-	result, err := amazon.lambdaSvc.CreateFunction(createArgs)
-	if err != nil {
-		if strings.Contains(err.Error(), "TooManyRequestsException") {
-			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createFunctionZIP(functionName, language, memoryAssigned)
-		}
-
-		log.Fatalf("Cannot create function: %s", err.Error())
-	}
-	log.Debugf("Create function result: %s", result.String())
-
-	return result
-}
-
-func (amazon instance) createAPIFunctionIntegration(APIName string, functionName string, apiID string, resourceID string, arn string) *apigateway.Integration {
+func (instance awsSingleton) createAPIFunctionIntegration(APIName string, functionName string, apiID string, resourceID string, arn string) *apigateway.Integration {
 	log.Infof("Creating integration between lambda %s and API %s", APIName, functionName)
 
 	args := &apigateway.PutIntegrationInput{
@@ -214,14 +198,14 @@ func (amazon instance) createAPIFunctionIntegration(APIName string, functionName
 		RestApiId:  aws.String(apiID),
 		Type:       aws.String("AWS_PROXY"),
 		Uri: aws.String(fmt.Sprintf("arn:aws:apigateway:%s:lambda:path/2015-03-31/functions/%s/invocations",
-			amazon.region, arn)),
+			instance.region, arn)),
 	}
 
-	result, err := amazon.apiGatewaySvc.PutIntegration(args)
+	result, err := instance.apiGatewaySvc.PutIntegration(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createAPIFunctionIntegration(APIName, functionName, apiID, resourceID, arn)
+			return instance.createAPIFunctionIntegration(APIName, functionName, apiID, resourceID, arn)
 		}
 
 		log.Fatalf("Cannot put rest API - lambda function integration: %s", err.Error())
@@ -231,19 +215,19 @@ func (amazon instance) createAPIFunctionIntegration(APIName string, functionName
 	return result
 }
 
-func (amazon instance) createAPIDeployment(APIName string, apiID string) *apigateway.Deployment {
-	log.Infof("Creating deployment for API %s (stage %s)", APIName, amazon.stage)
+func (instance awsSingleton) createAPIDeployment(APIName string, apiID string) *apigateway.Deployment {
+	log.Infof("Creating deployment for API %s (stage %s)", APIName, instance.stage)
 
 	args := &apigateway.CreateDeploymentInput{
 		RestApiId: aws.String(apiID),
-		StageName: aws.String(amazon.stage),
+		StageName: aws.String(instance.stage),
 	}
 
-	result, err := amazon.apiGatewaySvc.CreateDeployment(args)
+	result, err := instance.apiGatewaySvc.CreateDeployment(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.createAPIDeployment(APIName, apiID)
+			return instance.createAPIDeployment(APIName, apiID)
 		}
 
 		log.Fatalf("Cannot create API deployment: %s", err.Error())
@@ -253,7 +237,7 @@ func (amazon instance) createAPIDeployment(APIName string, apiID string) *apigat
 	return result
 }
 
-func (amazon instance) addExecutionPermissions(functionName string) *lambda.AddPermissionOutput {
+func (instance awsSingleton) addExecutionPermissions(functionName string) *lambda.AddPermissionOutput {
 	log.Infof("Adding permissions to execute lambda function %s", functionName)
 
 	args := &lambda.AddPermissionInput{
@@ -263,11 +247,11 @@ func (amazon instance) addExecutionPermissions(functionName string) *lambda.AddP
 		StatementId:  aws.String("apigateway-benchmarking"),
 	}
 
-	result, err := amazon.lambdaSvc.AddPermission(args)
+	result, err := instance.lambdaSvc.AddPermission(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.addExecutionPermissions(functionName)
+			return instance.addExecutionPermissions(functionName)
 		}
 
 		log.Fatalf("Cannot add permission: %s", err.Error())

@@ -31,18 +31,18 @@ import (
 	"vhive-bench/client/util"
 )
 
-const randomFileName = "random.file"
-
 //SetupDeployment will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes. Returns size of deployment in MB.
 func SetupDeployment(rawCodePath string, provider string, language string, deploymentSizeBytes int64, packageType string) float64 {
-	createBinary(rawCodePath, language)
+	generateBinaryFile(rawCodePath, language)
 
 	switch packageType {
 	case "Zip":
 		setupZIPDeployment(provider, deploymentSizeBytes)
 	case "Image":
-		setupContainerImageDeployment(provider, deploymentSizeBytes, language)
+		log.Warn("Container image deployment does not support code size verification on AWS.")
+
+		setupContainerImageDeployment(provider, deploymentSizeBytes)
 	default:
 		log.Fatalf("Unrecognized package type: %s", packageType)
 	}
@@ -50,7 +50,7 @@ func SetupDeployment(rawCodePath string, provider string, language string, deplo
 	return util.BytesToMB(deploymentSizeBytes)
 }
 
-func createBinary(rawCodePath string, runtime string) int64 {
+func generateBinaryFile(rawCodePath string, runtime string) int64 {
 	log.Info("Building binary file for the function(s) to be deployed...")
 
 	if !util.FileExists(rawCodePath) {
@@ -76,8 +76,8 @@ func createBinary(rawCodePath string, runtime string) int64 {
 	return fi.Size()
 }
 
-func generateRandomFile(sizeBytes int64) {
-	log.Info("Generating random file to be included in deployment...")
+func generateFillerFile(name string, sizeBytes int64) string {
+	log.Info("Generating filler file to be included in deployment...")
 
 	buffer := make([]byte, sizeBytes)
 	_, err := rand.Read(buffer) // The slice should now contain random bytes instead of only zeroes (prevents efficient archiving).
@@ -85,9 +85,10 @@ func generateRandomFile(sizeBytes int64) {
 		log.Fatalf("Failed to fill buffer with random bytes: `%s`", err.Error())
 	}
 
-	if err := ioutil.WriteFile(randomFileName, buffer, 0666); err != nil {
+	if err := ioutil.WriteFile(name, buffer, 0666); err != nil {
 		log.Fatalf("Could not generate random file with size %d bytes", sizeBytes)
 	}
 
 	log.Info("Successfully generated random file.")
+	return name
 }

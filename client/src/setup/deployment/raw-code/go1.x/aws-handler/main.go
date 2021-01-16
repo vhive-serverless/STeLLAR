@@ -63,7 +63,6 @@ func generatePayload(request events.APIGatewayProxyRequest) ([]byte, error) {
 	return randomPayload, nil
 }
 
-//Note: on AWS, lambda runtimes are rounded up to the nearest 100ms for usage purposes
 //Note: CORS is required to call your API from a webpage that isn’t hosted on the same domain
 func main() {
 	lambda.Start(benchmarkingProducer)

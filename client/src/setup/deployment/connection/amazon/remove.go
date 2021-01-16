@@ -31,19 +31,19 @@ import (
 	"strings"
 )
 
-func (amazon instance) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOutput {
-	functionName := fmt.Sprintf("%s%s", amazon.NamePrefix, uniqueID)
+func (instance awsSingleton) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOutput {
+	functionName := fmt.Sprintf("%s%s", instance.NamePrefix, uniqueID)
 	log.Infof("Removing producer lambda %s", functionName)
 
 	args := &lambda.DeleteFunctionInput{
 		FunctionName: aws.String(functionName),
 	}
 
-	result, err := amazon.lambdaSvc.DeleteFunction(args)
+	result, err := instance.lambdaSvc.DeleteFunction(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.RemoveFunction(uniqueID)
+			return instance.RemoveFunction(uniqueID)
 		}
 
 		log.Errorf("Cannot remove function: %s", err.Error())
@@ -54,16 +54,16 @@ func (amazon instance) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOut
 }
 
 //RemoveAPI will remove the API corresponding to the serverless function given ID.
-func (amazon instance) RemoveAPI(uniqueID string) *apigateway.DeleteRestApiOutput {
-	log.Infof("Removing API %s-API", amazon.NamePrefix)
+func (instance awsSingleton) RemoveAPI(uniqueID string) *apigateway.DeleteRestApiOutput {
+	log.Infof("Removing API %s-API", instance.NamePrefix)
 
 	args := &apigateway.DeleteRestApiInput{RestApiId: aws.String(uniqueID)}
 
-	result, err := amazon.apiGatewaySvc.DeleteRestApi(args)
+	result, err := instance.apiGatewaySvc.DeleteRestApi(args)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return amazon.RemoveAPI(uniqueID)
+			return instance.RemoveAPI(uniqueID)
 		}
 
 		log.Errorf("Cannot remove REST API: %s", err.Error())

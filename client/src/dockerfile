@@ -1,0 +1,4 @@
+FROM public.ecr.aws/lambda/provided:al2
+ADD producer-handler /main
+ADD random.file /random.file
+ENTRYPOINT [ "/main" ]

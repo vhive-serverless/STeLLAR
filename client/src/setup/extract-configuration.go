@@ -56,6 +56,9 @@ func extractConfiguration(configFile *os.File) Configuration {
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
 		}
+		if parsedConfig.SubExperiments[index].PackageType == "" {
+			parsedConfig.SubExperiments[index].PackageType = defaultPackageType
+		}
 		if parsedConfig.SubExperiments[index].IATType == "" {
 			parsedConfig.SubExperiments[index].IATType = defaultIATType
 		}

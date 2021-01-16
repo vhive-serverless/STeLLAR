@@ -36,7 +36,6 @@ import (
 	"vhive-bench/client/setup"
 )
 
-var packageType = flag.String("d", "Zip", "Whether deployment should be ZIP file (`Zip`) or container image (`Image`).")
 var outputPathFlag = flag.String("o", "latency-samples", "The path where latency samples should be written.")
 var configPathFlag = flag.String("c", "config.csv", "Configuration file with details of experiments.")
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
@@ -67,7 +66,7 @@ func main() {
 
 	setupCtrlCHandler()
 
-	config := setup.PrepareSubExperiments(*packageType, *endpointsDirectoryPathFlag, *configPathFlag)
+	config := setup.PrepareSubExperiments(*endpointsDirectoryPathFlag, *configPathFlag)
 
 	experiments.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 

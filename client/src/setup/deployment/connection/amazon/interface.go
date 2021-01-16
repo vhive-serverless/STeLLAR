@@ -40,31 +40,32 @@ import (
 )
 
 const (
+	//AWSRegion is the region of AWS to operate in.
 	AWSRegion = "us-west-1"
 	s3Bucket  = "benchmarking-aws"
 )
 
-//AWSSingleton is an object used to interact with AWS through the methods it exports.
-var AWSSingleton *instance
+//AWSSingletonInstance is an object used to interact with AWS through the methods it exports.
+var AWSSingletonInstance *awsSingleton
 
-type instance struct {
+type awsSingleton struct {
 	localZip []byte
 	// S3Key is the bucket location in which this specific deployment will be uploaded
-	S3Key          string
-	// DockerImageURI is the location where the docker image is located
-	DockerImageURI string
-	NamePrefix     string
-	region         string
-	stage          string
-	session        *session.Session
-	s3Svc          *s3.S3
-	lambdaSvc      *lambda.Lambda
-	apiGatewaySvc  *apigateway.APIGateway
-	ecrSvc         *ecr.ECR
-	apiTemplate    []byte
+	S3Key string
+	// ImageURI is the location where the docker image is located
+	ImageURI      string
+	NamePrefix    string
+	region        string
+	stage         string
+	session       *session.Session
+	s3Svc         *s3.S3
+	lambdaSvc     *lambda.Lambda
+	apiGatewaySvc *apigateway.APIGateway
+	ecrSvc        *ecr.ECR
+	apiTemplate   []byte
 }
 
-//InitializeSingleton will create a new Amazon instance to interact with different AWS services.
+//InitializeSingleton will create a new Amazon awsSingleton to interact with different AWS services.
 func InitializeSingleton() {
 	sessionInstance := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String(AWSRegion),
@@ -88,7 +89,7 @@ func InitializeSingleton() {
 		log.Fatalf("Could not read API template JSON when initializing AWS connection: %s", err.Error())
 	}
 
-	AWSSingleton = &instance{
+	AWSSingletonInstance = &awsSingleton{
 		NamePrefix:    "vHive_",
 		region:        AWSRegion,
 		stage:         "prod",
@@ -104,13 +105,13 @@ func InitializeSingleton() {
 //UploadZIPToS3 helps get around the 50MB image size limit for AWS functions.
 func UploadZIPToS3(localZipPath string, sizeMB float64) {
 	log.Infof(`Deploying to AWS and package size (~%vMB) > 50 MB, will now attempt to upload to Amazon S3.`, sizeMB)
-	AWSSingleton.S3Key = fmt.Sprintf("benchmarking%vMB.zip", sizeMB)
+	AWSSingletonInstance.S3Key = fmt.Sprintf("benchmarking%vMB.zip", sizeMB)
 
-	if _, err := AWSSingleton.s3Svc.GetObject(&s3.GetObjectInput{
+	if _, err := AWSSingletonInstance.s3Svc.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(s3Bucket),
-		Key:    aws.String(AWSSingleton.S3Key),
+		Key:    aws.String(AWSSingletonInstance.S3Key),
 	}); err == nil {
-		log.Infof("Object %q was already found in S3 bucket %q, skipping upload.", AWSSingleton.S3Key, s3Bucket)
+		log.Infof("Object %q was already found in S3 bucket %q, skipping upload.", AWSSingletonInstance.S3Key, s3Bucket)
 		return
 	}
 
@@ -119,16 +120,16 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 		log.Fatalf("Failed to open zip file %q: %v", localZipPath, err)
 	}
 
-	uploadOutput, err := s3manager.NewUploader(AWSSingleton.session).Upload(&s3manager.UploadInput{
+	uploadOutput, err := s3manager.NewUploader(AWSSingletonInstance.session).Upload(&s3manager.UploadInput{
 		Bucket: aws.String("benchmarking-aws"),
-		Key:    aws.String(AWSSingleton.S3Key),
+		Key:    aws.String(AWSSingletonInstance.S3Key),
 		Body:   zipFile,
 	})
 	if err != nil {
-		log.Fatalf("Unable to upload %q to %q, %v", AWSSingleton.S3Key, s3Bucket, err.Error())
+		log.Fatalf("Unable to upload %q to %q, %v", AWSSingletonInstance.S3Key, s3Bucket, err.Error())
 	}
 
-	log.Infof("Successfully uploaded %q to bucket %q (%s)", AWSSingleton.S3Key, s3Bucket, uploadOutput.Location)
+	log.Infof("Successfully uploaded %q to bucket %q (%s)", AWSSingletonInstance.S3Key, s3Bucket, uploadOutput.Location)
 }
 
 //SetLocalZip sets the location of the zipped binary file for the function to be deployed.
@@ -137,14 +138,14 @@ func SetLocalZip(path string) {
 	if err != nil {
 		log.Fatalf("Could not read local zipped binary: %s", err.Error())
 	}
-	AWSSingleton.localZip = zipBytes
+	AWSSingletonInstance.localZip = zipBytes
 }
 
 //GetECRAuthorizationToken helps the client get authorization for container AWS deployment.
 func GetECRAuthorizationToken() string {
 	log.Info("Requesting ECR authorization token.")
 
-	result, err := AWSSingleton.ecrSvc.GetAuthorizationToken(&ecr.GetAuthorizationTokenInput{})
+	result, err := AWSSingletonInstance.ecrSvc.GetAuthorizationToken(&ecr.GetAuthorizationTokenInput{})
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")

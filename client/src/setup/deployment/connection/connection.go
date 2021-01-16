@@ -39,6 +39,7 @@ type Endpoint struct {
 	GatewayID        string  `json:"GatewayID"`
 	FunctionMemoryMB int64   `json:"FunctionMemoryMB"`
 	ImageSizeMB      float64 `json:"ImageSizeMB"`
+	PackageType      string  `json:"PackageType"`
 }
 
 //ServerlessInterface creates an interface through which to interact with various providers
@@ -55,7 +56,7 @@ type ServerlessInterface struct {
 
 	//UpdateFunction will update the source code of the serverless function with given ID to the specified
 	//memory and to the most recently set code deployment settings (e.g., S3 key).
-	UpdateFunction func(uniqueID string, memoryAssigned int64)
+	UpdateFunction func(packageType string, uniqueID string, memoryAssigned int64)
 }
 
 //Singleton allows the client to interact with various serverless actions
@@ -79,7 +80,7 @@ func setupAWSConnection() {
 
 	Singleton = &ServerlessInterface{
 		ListAPIs: func() []Endpoint {
-			result := amazon.AWSSingleton.ListFunctions(nil)
+			result := amazon.AWSSingletonInstance.ListFunctions(nil)
 			log.Infof("Found %d Lambda functions.", len(result))
 
 			functions := make([]Endpoint, 0)
@@ -94,15 +95,15 @@ func setupAWSConnection() {
 			return functions
 		},
 		DeployFunction: func(packageType string, language string, memoryAssigned int64) string {
-			return amazon.AWSSingleton.DeployFunction(packageType, language, memoryAssigned)
+			return amazon.AWSSingletonInstance.DeployFunction(packageType, language, memoryAssigned)
 		},
 		RemoveFunction: func(uniqueID string) {
-			amazon.AWSSingleton.RemoveFunction(uniqueID)
-			amazon.AWSSingleton.RemoveAPI(uniqueID)
+			amazon.AWSSingletonInstance.RemoveFunction(uniqueID)
+			amazon.AWSSingletonInstance.RemoveAPI(uniqueID)
 		},
-		UpdateFunction: func(uniqueID string, memoryAssigned int64) {
-			amazon.AWSSingleton.UpdateFunction(uniqueID)
-			amazon.AWSSingleton.UpdateFunctionConfiguration(uniqueID, memoryAssigned)
+		UpdateFunction: func(packageType string, uniqueID string, memoryAssigned int64) {
+			amazon.AWSSingletonInstance.UpdateFunction(packageType, uniqueID)
+			amazon.AWSSingletonInstance.UpdateFunctionConfiguration(uniqueID, memoryAssigned)
 		},
 	}
 }
