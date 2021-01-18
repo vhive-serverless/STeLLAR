@@ -49,7 +49,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		if !deploymentGeneratedForSubExperiment {
 			log.Info("Setting up deployment...")
 			experiment.FunctionImageSizeMB = deployment.SetupDeployment(
-				fmt.Sprintf("setup/deployment/raw-code/%s/%s-handler/main.go", runtime, provider),
+				fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
 				provider,
 				runtime,
 				util.MBToBytes(experiment.FunctionImageSizeMB),

@@ -90,6 +90,11 @@ func (instance awsSingleton) UpdateFunctionConfiguration(uniqueID string, assign
 			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory)
 		}
 
+		if strings.Contains(err.Error(), "ResourceConflictException") {
+			log.Warnf("Facing AWS rate-limiting error, retrying...")
+			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory)
+		}
+
 		log.Fatalf("Cannot update function configuration: %s", err.Error())
 	}
 	log.Debugf("Update function configuration result: %s", result.String())
