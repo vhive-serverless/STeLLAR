@@ -59,6 +59,9 @@ func extractConfiguration(configFile *os.File) Configuration {
 		if parsedConfig.SubExperiments[index].IATType == "" {
 			parsedConfig.SubExperiments[index].IATType = defaultIATType
 		}
+		if parsedConfig.SubExperiments[index].DataTransferChainLength == 0 {
+			parsedConfig.SubExperiments[index].DataTransferChainLength = defaultDataTransferChainLength
+		}
 		if parsedConfig.SubExperiments[index].FunctionMemoryMB == 0 {
 			parsedConfig.SubExperiments[index].FunctionMemoryMB = defaultFunctionMemoryMB
 		}

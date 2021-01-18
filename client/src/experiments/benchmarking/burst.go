@@ -30,9 +30,9 @@ import (
 	"vhive-bench/client/setup"
 )
 
-func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpointID string,
+func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpoint setup.GatewayEndpoint,
 	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
-	request := vHiveHTTP.CreateRequest(provider, config.PayloadLengthBytes, gatewayEndpointID, assignedFunctionIncrementLimit)
+	request := vHiveHTTP.CreateRequest(provider, config.PayloadLengthBytes, gatewayEndpoint, assignedFunctionIncrementLimit)
 
 	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to (%s).",
 		config.ID,

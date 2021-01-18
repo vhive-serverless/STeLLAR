@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 // Package setup provides support with loading the experiment configuration,
 // preparing the sub-experiments and setting up the functions for benchmarking.
 package setup
@@ -31,6 +30,12 @@ import (
 	"vhive-bench/client/setup/deployment/connection"
 	"vhive-bench/client/util"
 )
+
+//GatewayEndpoint represents the initial endpoint ID together with further URLs in the data transfer chain
+type GatewayEndpoint struct {
+	ID                   string
+	DataTransferChainIDs []string
+}
 
 //SubExperiment is the schema for sub-experiment configurations.
 type SubExperiment struct {
@@ -46,7 +51,8 @@ type SubExperiment struct {
 	Visualization           string   `json:"Visualization"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
-	GatewayEndpoints        []string
+	DataTransferChainLength int      `json:"DataTransferChainLength"`
+	GatewayEndpoints        []GatewayEndpoint
 	ID                      int
 }
 
@@ -56,6 +62,7 @@ const (
 	defaultProvider                  = "aws"
 	defaultRuntime                   = "go1.x"
 	defaultGatewaysNumber            = 1
+	defaultDataTransferChainLength   = 1
 	defaultFunctionMemoryMB          = 128
 	manyRequestsInBurstWarnThreshold = 2000
 	manyFilesWarnThreshold           = 500
@@ -94,8 +101,11 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 			}
 		}
 
-		if availableEndpoints == nil { // hostname must be the endpoint itself (external URL)
-			config.SubExperiments[index].GatewayEndpoints = []string{config.Provider}
+		if availableEndpoints == nil { // hostname must be the endpoint itself (external ID)
+			config.SubExperiments[index].GatewayEndpoints = []GatewayEndpoint{{
+				ID:                   config.Provider,
+				DataTransferChainIDs: nil,
+			}}
 			continue
 		}
 
