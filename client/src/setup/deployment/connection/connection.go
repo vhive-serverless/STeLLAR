@@ -71,7 +71,7 @@ func Initialize(provider string, endpointsDirectoryPath string) {
 		setupFileConnection(path.Join(endpointsDirectoryPath, "vHive.json"))
 	default:
 		setupExternalConnection()
-		log.Warnf("Provider %s does not support initialization with the client, setting to external URL.", provider)
+		log.Warnf("Provider %s does not support initialization with the client, setting to external contactURL.", provider)
 	}
 }
 

@@ -38,6 +38,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "DataTransferChainIDs",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

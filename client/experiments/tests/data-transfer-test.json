@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "chain-1",
+      "Bursts": 3,
+      "BurstSizes": [
+        4
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 48,
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
+    }
+  ]
+}

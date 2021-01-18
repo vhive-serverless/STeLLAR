@@ -27,14 +27,15 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+	"vhive-bench/client/setup"
 )
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
 //configuration object.
-func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, assignedFunctionIncrementLimit int64) *http.Request {
 	switch provider {
 	case "aws":
-		return generateAWSRequest(payloadLengthBytes, gatewayEndpointID, assignedFunctionIncrementLimit)
+		return generateAWSRequest(payloadLengthBytes, gatewayEndpoint, assignedFunctionIncrementLimit)
 	default:
 		return generateRequest(http.MethodGet, provider)
 	}
@@ -48,16 +49,17 @@ func generateRequest(method string, hostname string) *http.Request {
 	return request
 }
 
-func generateAWSRequest(payloadLengthBytes int, gatewayEndpointID string, assignedFunctionIncrementLimit int64) *http.Request {
+func generateAWSRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, assignedFunctionIncrementLimit int64) *http.Request {
 	request := generateRequest(
 		http.MethodPost,
-		fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpointID, awsRegion),
+		fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpoint.ID, awsRegion),
 	)
 
 	request.URL.Path = "/prod/benchmarking"
-	request.URL.RawQuery = fmt.Sprintf("LambdaIncrementLimit=%d&PayloadLengthBytes=%d",
+	request.URL.RawQuery = fmt.Sprintf("LambdaIncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
 		assignedFunctionIncrementLimit,
 		payloadLengthBytes,
+		gatewayEndpoint.DataTransferChainIDs,
 	)
 
 	_, err := getAWSSignerSingleton().Sign(request, nil, "execute-api", awsRegion, time.Now())
