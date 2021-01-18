@@ -40,7 +40,7 @@ func SetupDeployment(rawCodePath string, provider string, language string, deplo
 	case "Zip":
 		setupZIPDeployment(provider, deploymentSizeBytes)
 	case "Image":
-		log.Warn("Container image deployment does not support code size verification on AWS.")
+		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
 		setupContainerImageDeployment(provider, deploymentSizeBytes)
 	default:

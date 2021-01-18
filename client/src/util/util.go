@@ -72,7 +72,7 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		log.Fatalf("%s: %s", fmt.Sprint(err), stderr.String())
+		log.Fatalf("%s: %s", fmt.Sprint(err.Error()), stderr.String())
 	}
 	log.Debugf("Command result: %s", out.String())
 	return out.String()
