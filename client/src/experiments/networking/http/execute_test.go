@@ -25,12 +25,13 @@ package http
 import (
 	"github.com/stretchr/testify/require"
 	"testing"
+	"vhive-bench/client/setup"
 )
 
 func TestExecuteExternalHTTPRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, "", randomAssignedIncrement)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement)
 
 	respBytes, reqSentTime, reqReceivedTime := ExecuteHTTPRequest(*req)
 	require.Equal(t, true, respBytes != nil)
