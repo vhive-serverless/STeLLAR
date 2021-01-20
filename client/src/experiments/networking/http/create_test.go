@@ -27,15 +27,19 @@ import (
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
+	"vhive-bench/client/setup"
 )
 
 func TestCreateAWSRequest(t *testing.T) {
 	randomPayloadLength := 7
-	randomEndpointID := "uicnaywo3rb3nsci"
+	randomEndpoint := setup.GatewayEndpoint{
+		ID:                   "uicnaywo3rb3nsci",
+		DataTransferChainIDs: nil,
+	}
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("aws", randomPayloadLength, randomEndpointID, randomAssignedIncrement)
+	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement)
 
-	expectedHostname := fmt.Sprintf("%s.execute-api.%s.amazonaws.com", randomEndpointID, awsRegion)
+	expectedHostname := fmt.Sprintf("%s.execute-api.%s.amazonaws.com", randomEndpoint.ID, awsRegion)
 	require.Equal(t, expectedHostname, req.Host)
 	require.Equal(t, expectedHostname, req.URL.Host)
 	require.Equal(t, http.MethodPost, req.Method)
@@ -45,7 +49,7 @@ func TestCreateAWSRequest(t *testing.T) {
 func TestCreateExternalRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, "", randomAssignedIncrement)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement)
 
 	require.Equal(t, "www.google.com", req.Host)
 	require.Equal(t, "www.google.com", req.URL.Host)
