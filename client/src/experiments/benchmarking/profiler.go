@@ -24,34 +24,42 @@ package benchmarking
 
 import (
 	log "github.com/sirupsen/logrus"
+	"os"
 	"time"
 	"vhive-bench/client/setup"
 )
 
 //RunProfiler will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
 //selected interval and start the process all over again.
-func RunProfiler(provider string, config setup.SubExperiment, deltas []time.Duration, safeExperimentWriter *SafeWriter) {
+func RunProfiler(provider string, experiment setup.SubExperiment, deltas []time.Duration,
+	latenciesFile *os.File, dataTransfersFile *os.File) {
 	log.Infof("[sub-experiment %d] Running profiler, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v)",
-		config.ID, config.Bursts, config.IATSeconds, len(config.GatewayEndpoints),
-		float64(config.Bursts)/float64(len(config.GatewayEndpoints))*config.IATSeconds)
+		experiment.ID, experiment.Bursts, experiment.IATSeconds, len(experiment.GatewayEndpoints),
+		float64(experiment.Bursts)/float64(len(experiment.GatewayEndpoints))*experiment.IATSeconds)
+
+	latenciesWriter := NewLatenciesWriter(latenciesFile)
+	dataTransferWriter := NewDataTransferWriter(dataTransfersFile, experiment.DataTransferChainLength)
 
 	burstID := 0
 	deltaIndex := 0
-	for burstID < config.Bursts {
+	for burstID < experiment.Bursts {
 		time.Sleep(deltas[deltaIndex])
 
 		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
-		for gatewayID := 0; gatewayID < len(config.GatewayEndpoints) && burstID < config.Bursts; gatewayID++ {
+		for gatewayID := 0; gatewayID < len(experiment.GatewayEndpoints) && burstID < experiment.Bursts; gatewayID++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
-			serviceLoad := config.FunctionIncrementLimits[min(deltaIndex, len(config.FunctionIncrementLimits)-1)]
-			burstSize := config.BurstSizes[min(deltaIndex, len(config.BurstSizes)-1)]
-			sendBurst(provider, config, burstID, burstSize, config.GatewayEndpoints[gatewayID], serviceLoad, safeExperimentWriter)
+			serviceLoad := experiment.FunctionIncrementLimits[min(deltaIndex, len(experiment.FunctionIncrementLimits)-1)]
+			burstSize := experiment.BurstSizes[min(deltaIndex, len(experiment.BurstSizes)-1)]
+			sendBurst(provider, experiment, burstID, burstSize, experiment.GatewayEndpoints[gatewayID], serviceLoad, latenciesWriter, dataTransferWriter)
 			burstID++
 		}
 
 		deltaIndex++
-		log.Debugf("[sub-experiment %d] All %d gateways have been used for bursts, flushing and sleeping for %v...", config.ID, len(config.GatewayEndpoints), deltas[deltaIndex-1])
-		safeExperimentWriter.Writer.Flush()
+		log.Debugf("[sub-experiment %d] All %d gateways have been used for bursts, flushing and sleeping for %v...", experiment.ID, len(experiment.GatewayEndpoints), deltas[deltaIndex-1])
+		latenciesWriter.Writer.Flush()
+		if dataTransferWriter != nil {
+			dataTransferWriter.Writer.Flush()
+		}
 	}
 }
 

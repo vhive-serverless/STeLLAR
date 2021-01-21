@@ -41,12 +41,11 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 
 		gatewayEndpoint := GatewayEndpoint{ID: foundEndpointID}
 
-		for experiment.DataTransferChainLength > 1 {
+		for i := 0; i < experiment.DataTransferChainLength; i++ {
 			gatewayEndpoint.DataTransferChainIDs = append(
 				gatewayEndpoint.DataTransferChainIDs,
 				findEndpointToAssign(&availableEndpoints, experiment, &deploymentGeneratedForSubExperiment, provider, runtime),
 			)
-			experiment.DataTransferChainLength--
 		}
 
 		assignedEndpoints = append(assignedEndpoints, gatewayEndpoint)

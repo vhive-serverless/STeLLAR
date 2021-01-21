@@ -24,6 +24,8 @@ func main() {
 }
 
 func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	currentTimestamp := generateTimestampMilli()
+
 	lambdaIncrementLimit, err := strconv.Atoi(request.QueryStringParameters["LambdaIncrementLimit"])
 	if err != nil {
 		log.Fatalf("Could not parse LambdaIncrementLimit: %s", err)
@@ -38,9 +40,9 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 
 	var timestampChain []string
 	if timestampChainStringForm, ok := request.QueryStringParameters["TimestampChain"]; !ok {
-		timestampChain = []string{strconv.FormatInt(time.Now().Unix(), 10)}
+		timestampChain = []string{strconv.FormatInt(currentTimestamp, 10)}
 	} else {
-		timestampChain = append(stringToArrayOfString(timestampChainStringForm), strconv.FormatInt(time.Now().Unix(), 10))
+		timestampChain = append(stringToArrayOfString(timestampChainStringForm), strconv.FormatInt(currentTimestamp, 10))
 	}
 
 	log.Printf("Running function up to increment limit (%d)...", lambdaIncrementLimit)
@@ -92,7 +94,7 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 		}
 		fmt.Println(reply["body"].(string))
 
-		var parsedReply functionOutput
+		var parsedReply lambdaFunctionOutput
 		err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
 		if err != nil {
 			log.Fatalf("Could not unmarshal lambda response body into functionOutput: %s", err)
@@ -104,7 +106,7 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 	// ctx context.Context provides runtime Gateway information
 	// (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
 	lc, _ := lambdacontext.FromContext(ctx)
-	output, err := json.Marshal(functionOutput{
+	output, err := json.Marshal(lambdaFunctionOutput{
 		AwsRequestID:   lc.AwsRequestID,
 		TimestampChain: timestampChain,
 		Payload:        generatePayload(payloadLengthBytes),
@@ -120,7 +122,11 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 	}, nil
 }
 
-type functionOutput struct {
+func generateTimestampMilli() int64 {
+	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+}
+
+type lambdaFunctionOutput struct {
 	AwsRequestID   string   `json:"AwsRequestID"`
 	TimestampChain []string `json:"TimestampChain"`
 	Payload        []byte   `json:"Payload"`
