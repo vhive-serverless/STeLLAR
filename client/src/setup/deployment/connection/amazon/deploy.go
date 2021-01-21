@@ -34,7 +34,7 @@ import (
 
 const (
 	maxFunctionTimeout  = 900
-	lambdaExecutionRole = "arn:aws:iam::335329526041:role/AWSLambdaBasicExectionRole"
+	lambdaExecutionRole = "arn:aws:iam::335329526041:role/LambdaProducerConsumer"
 )
 
 func (instance awsSingleton) DeployFunction(packageType string, language string, memoryAssigned int64) string {
