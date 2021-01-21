@@ -46,16 +46,18 @@ func getAWSSignerSingleton() *v4.Signer {
 	return signerSingleton
 }
 
-type lambdaFunctionResponse struct {
-	AwsRequestID string `json:"AwsRequestID"`
-	Payload      []byte `json:"Payload"`
+//LambdaFunctionOutput is the structure holding the response from a Lambda function
+type LambdaFunctionOutput struct {
+	AwsRequestID   string   `json:"AwsRequestID"`
+	TimestampChain []string `json:"TimestampChain"`
+	Payload        []byte   `json:"Payload"`
 }
 
-//GetAWSRequestID will process an HTTP response body coming from an AWS integration, extracting its ID.
-func GetAWSRequestID(respBody []byte) string {
-	var lambdaFunctionResponse lambdaFunctionResponse
+//GetAWSRequestOutput will process an HTTP response body coming from an AWS integration, extracting its ID.
+func GetAWSRequestOutput(respBody []byte) LambdaFunctionOutput {
+	var lambdaFunctionResponse LambdaFunctionOutput
 	if err := json.Unmarshal(respBody, &lambdaFunctionResponse); err != nil {
 		log.Error(err)
 	}
-	return lambdaFunctionResponse.AwsRequestID
+	return lambdaFunctionResponse
 }

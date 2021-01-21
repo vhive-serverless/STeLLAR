@@ -73,12 +73,15 @@ func triggerExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, ex
 	log.Infof("[sub-experiment %d] Starting...", experiment.ID)
 	defer experimentsWaitGroup.Done()
 
-	experimentDirectoryPath, latenciesFile, statisticsFile := createExperimentOutput(outputDirectoryPath, experiment)
+	experimentDirectoryPath, latenciesFile, statisticsFile, dataTransfersFile := createExperimentOutput(outputDirectoryPath, experiment)
 	defer latenciesFile.Close()
 	defer statisticsFile.Close()
+	if dataTransfersFile != nil {
+		defer dataTransfersFile.Close()
+	}
 
 	burstDeltas := generateIAT(experiment)
-	benchmarking.RunProfiler(provider, experiment, burstDeltas, benchmarking.NewExperimentWriter(latenciesFile))
+	benchmarking.RunProfiler(provider, experiment, burstDeltas, latenciesFile, dataTransfersFile)
 
 	latenciesDF := readLatenciesFromFile(experiment.ID, latenciesFile)
 
@@ -91,7 +94,7 @@ func triggerExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, ex
 	log.Infof("[sub-experiment %d] Successfully finished.", experiment.ID)
 }
 
-func createExperimentOutput(path string, experiment setup.SubExperiment) (string, *os.File, *os.File) {
+func createExperimentOutput(path string, experiment setup.SubExperiment) (string, *os.File, *os.File, *os.File) {
 	directoryPath := filepath.Join(path, experiment.Title)
 	log.Infof("[sub-experiment %d] Creating directory at `%s`", experiment.ID, directoryPath)
 	if err := os.MkdirAll(directoryPath, os.ModePerm); err != nil {
@@ -112,7 +115,17 @@ func createExperimentOutput(path string, experiment setup.SubExperiment) (string
 		log.Fatalf("[sub-experiment %d] Could not create statistics file: %s", experiment.ID, err.Error())
 	}
 
-	return directoryPath, latenciesFile, statisticsFile
+	if experiment.DataTransferChainLength > 1 {
+		dataTransfersPath := filepath.Join(directoryPath, "data-transfers.csv")
+		log.Infof("[sub-experiment %d] Creating data transfers file at `%s`", experiment.ID, dataTransfersPath)
+		dataTransfersFile, err := os.Create(dataTransfersPath)
+		if err != nil {
+			log.Fatalf("[sub-experiment %d] Could not create data transfers file: %s", experiment.ID, err.Error())
+		}
+		return directoryPath, latenciesFile, statisticsFile, dataTransfersFile
+	}
+
+	return directoryPath, latenciesFile, statisticsFile, nil
 }
 
 func generateStatistics(file *os.File, experimentID int, sortedLatencies []float64) {

@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2020 Theodor Amariucai
+// Copyright (c) 2021 Theodor Amariucai
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,50 +24,46 @@ package benchmarking
 
 import (
 	"encoding/csv"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"strconv"
 	"sync"
-	"time"
 )
 
-//SafeWriter makes file-writing safe for concurrent use by using a mutual exclusion lock.
-type SafeWriter struct {
+//DataTransferWriter records serverless data transfer latencies. It is safe for concurrent use as it uses a mutual exclusion lock.
+type DataTransferWriter struct {
 	Writer *csv.Writer
 	mux    sync.Mutex
 }
 
-//NewExperimentWriter will create a new dedicated writer for this experiment as well as write the first header row
+//NewDataTransferWriter will create a new dedicated writer for this experiment as well as write the first header row
 //to the given latencies file.
-func NewExperimentWriter(file *os.File) *SafeWriter {
+func NewDataTransferWriter(file *os.File, chainLength int) *DataTransferWriter {
+	if file == nil {
+		return nil
+	}
+
 	log.Debugf("Creating experiment writer to file `%s`", file.Name())
-	safeExperimentWriter := &SafeWriter{Writer: csv.NewWriter(file)}
-	// writer.writeRowToFile would fail because the instance Initialize was called on didn't have the Writer initialized
-	safeExperimentWriter.writeRowToFile(
+	safeExperimentWriter := &DataTransferWriter{Writer: csv.NewWriter(file)}
+	// writer.writeLatencyToFile would fail because the instance Initialize was called on didn't have the Writer initialized
+
+	timestampTitles := []string{"Function 0 Timestamp"}
+	for i := 1; i < chainLength; i++ {
+		timestampTitles = append(timestampTitles, fmt.Sprintf("Function %d Timestamp", i))
+	}
+
+	safeExperimentWriter.writeDataTransferRowToFile(
 		"Request ID",
 		"Host",
-		"Sent At",
-		"Received At",
-		"Client Latency (ms)",
 		"Burst ID",
+		timestampTitles...,
 	)
 	return safeExperimentWriter
 }
 
-func (writer *SafeWriter) recordLatencyRecord(host string, startTime time.Time, endTime time.Time, responseID string, burstID int) {
-	writer.writeRowToFile(
-		responseID,
-		host,
-		startTime.Format(time.RFC3339),
-		endTime.Format(time.RFC3339),
-		strconv.FormatInt(endTime.Sub(startTime).Milliseconds(), 10),
-		strconv.Itoa(burstID),
-	)
-}
-
-func (writer *SafeWriter) writeRowToFile(awsRequestID string, host string, sentAt string, receivedAt string, clientLatencyMs string, burstID string) {
+func (writer *DataTransferWriter) writeDataTransferRowToFile(awsRequestID string, host string, burstID string, timestamps ...string) {
 	writer.mux.Lock()
-	if err := writer.Writer.Write([]string{awsRequestID, host, sentAt, receivedAt, clientLatencyMs, burstID}); err != nil {
+	if err := writer.Writer.Write(append([]string{awsRequestID, host, burstID}, timestamps...)); err != nil {
 		log.Fatal(err)
 	}
 	writer.mux.Unlock()

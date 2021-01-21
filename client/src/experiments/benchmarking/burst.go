@@ -25,13 +25,15 @@ package benchmarking
 import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
 	"sync"
+	"time"
 	vHiveBenchHTTP "vhive-bench/client/experiments/networking/http"
 	"vhive-bench/client/setup"
 )
 
 func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpoint setup.GatewayEndpoint,
-	assignedFunctionIncrementLimit int64, safeExperimentWriter *SafeWriter) {
+	assignedFunctionIncrementLimit int64, latenciesWriter *LatencyWriter, dataTransfersWriter *DataTransferWriter) {
 	request := vHiveBenchHTTP.CreateRequest(provider, config.PayloadLengthBytes, gatewayEndpoint, assignedFunctionIncrementLimit)
 
 	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to (%s).",
@@ -45,14 +47,13 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 	var requestsWaitGroup sync.WaitGroup
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
-		go generateLatencyRecord(&requestsWaitGroup, provider, *request, safeExperimentWriter, burstID)
+		go generateLatencyRecord(&requestsWaitGroup, provider, *request, latenciesWriter, dataTransfersWriter, burstID)
 	}
 	requestsWaitGroup.Wait()
 	log.Infof("[sub-experiment %d] Received all responses for burst %d.", config.ID, burstID)
 }
 
-func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, request http.Request,
-	safeExperimentWriter *SafeWriter, burstID int) {
+func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, request http.Request, latenciesWriter *LatencyWriter, dataTransfersWriter *DataTransferWriter, burstID int) {
 	defer requestsWaitGroup.Done()
 
 	respBody, reqSentTime, reqReceivedTime := vHiveBenchHTTP.ExecuteHTTPRequest(request)
@@ -60,10 +61,28 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	var responseID string
 	switch provider {
 	case "aws":
-		responseID = vHiveBenchHTTP.GetAWSRequestID(respBody)
+		response := vHiveBenchHTTP.GetAWSRequestOutput(respBody)
+
+		if dataTransfersWriter != nil {
+			dataTransfersWriter.writeDataTransferRowToFile(
+				response.AwsRequestID,
+				request.URL.Hostname(),
+				strconv.Itoa(burstID),
+				response.TimestampChain...,
+			)
+		}
+
+		responseID = response.AwsRequestID
 	default:
 		responseID = ""
 	}
 
-	safeExperimentWriter.recordLatencyRecord(request.URL.Hostname(), reqSentTime, reqReceivedTime, responseID, burstID)
+	latenciesWriter.writeLatencyToFile(
+		responseID,
+		request.URL.Hostname(),
+		reqSentTime.Format(time.RFC3339),
+		reqReceivedTime.Format(time.RFC3339),
+		strconv.FormatInt(reqReceivedTime.Sub(reqSentTime).Milliseconds(), 10),
+		strconv.Itoa(burstID),
+	)
 }
