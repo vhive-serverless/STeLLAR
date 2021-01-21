@@ -3,46 +3,114 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	lambdaSDK "github.com/aws/aws-sdk-go/service/lambda"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
+	"time"
 )
 
-type producerOutput struct {
-	AwsRequestID string `json:"AwsRequestID"`
-	Payload      []byte `json:"Payload"`
+func main() {
+	lambda.Start(vhiveBenchProducerConsumer)
 }
 
-func benchmarkingProducer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	lambdaIncrementLimit, err := strconv.Atoi(request.QueryStringParameters["LambdaIncrementLimit"])
 	if err != nil {
-		return serverError(err)
+		log.Fatalf("Could not parse LambdaIncrementLimit: %s", err)
 	}
 
+	payloadLengthBytes, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
+	if err != nil {
+		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
+	}
+
+	dataTransferChainIDs := request.QueryStringParameters["DataTransferChainIDs"]
+
+	var timestampChain []string
+	if timestampChainStringForm, ok := request.QueryStringParameters["TimestampChain"]; !ok {
+		timestampChain = []string{strconv.FormatInt(time.Now().Unix(), 10)}
+	} else {
+		timestampChain = append(stringToArrayOfString(timestampChainStringForm), strconv.FormatInt(time.Now().Unix(), 10))
+	}
+
+	log.Printf("Running function up to increment limit (%d)...", lambdaIncrementLimit)
 	for i := 0; i < lambdaIncrementLimit; i++ {
 	}
 
-	randomPayload, err := generatePayload(request)
-	if err != nil {
-		return serverError(err)
+	functionsLeftToInvoke := stringToArrayOfString(dataTransferChainIDs)
+	if len(functionsLeftToInvoke) > 0 && functionsLeftToInvoke[0] != "" {
+		log.Printf("More functions (%d) in the chain, invoking next one...", len(functionsLeftToInvoke))
+
+		region := os.Getenv("AWS_REGION")
+		sess, err := session.NewSession(&aws.Config{
+			Region: &region,
+		})
+		if err != nil {
+			log.Fatalf("Could not create a new session: %s", err)
+		}
+
+		client := lambdaSDK.New(sess)
+
+		type Payload struct {
+			QueryStringParameters map[string]string `json:"queryStringParameters"`
+		}
+		payload, err := json.Marshal(Payload{QueryStringParameters: map[string]string{
+			"LambdaIncrementLimit": strconv.Itoa(lambdaIncrementLimit),
+			"PayloadLengthBytes":   strconv.Itoa(payloadLengthBytes),
+			"TimestampChain":       fmt.Sprintf("%v", timestampChain),
+			"DataTransferChainIDs": fmt.Sprintf("%v", functionsLeftToInvoke[1:]),
+		}})
+		if err != nil {
+			log.Fatalf("Could not marshal payload: %s", err)
+		}
+
+		log.Println(fmt.Sprintf("vHive_%s", functionsLeftToInvoke[0]))
+		result, err := client.Invoke(&lambdaSDK.InvokeInput{
+			FunctionName:   aws.String(fmt.Sprintf("vHive_%s", functionsLeftToInvoke[0])),
+			InvocationType: aws.String("RequestResponse"),
+			LogType:        aws.String("Tail"),
+			Payload:        payload,
+		})
+		if err != nil {
+			log.Fatalf("Could not invoke lambda: %s", err)
+		}
+
+		var reply map[string]interface{}
+		err = json.Unmarshal(result.Payload, &reply)
+		if err != nil {
+			log.Fatalf("Could not unmarshal lambda response into map[string]interface{}: %s", err)
+		}
+		fmt.Println(reply["body"].(string))
+
+		var parsedReply functionOutput
+		err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
+		if err != nil {
+			log.Fatalf("Could not unmarshal lambda response body into functionOutput: %s", err)
+		}
+
+		timestampChain = parsedReply.TimestampChain
 	}
 
 	// ctx context.Context provides runtime Gateway information
 	// (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
 	lc, _ := lambdacontext.FromContext(ctx)
-
-	// The APIGatewayProxyResponse.Body fields needs to be a string, so we marshal the Payload into JSON
-	output, err := json.Marshal(producerOutput{
-		Payload:      randomPayload,
-		AwsRequestID: lc.AwsRequestID,
+	output, err := json.Marshal(functionOutput{
+		AwsRequestID:   lc.AwsRequestID,
+		TimestampChain: timestampChain,
+		Payload:        generatePayload(payloadLengthBytes),
 	})
 	if err != nil {
-		return serverError(err)
+		log.Fatalf("Could not marshal function output: %s", err)
 	}
 
 	return events.APIGatewayProxyResponse{
@@ -52,29 +120,22 @@ func benchmarkingProducer(ctx context.Context, request events.APIGatewayProxyReq
 	}, nil
 }
 
-func generatePayload(request events.APIGatewayProxyRequest) ([]byte, error) {
-	payloadLength, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
-	if err != nil {
-		return nil, err
-	}
+type functionOutput struct {
+	AwsRequestID   string   `json:"AwsRequestID"`
+	TimestampChain []string `json:"TimestampChain"`
+	Payload        []byte   `json:"Payload"`
+}
 
-	randomPayload := make([]byte, payloadLength)
+func generatePayload(payloadLengthBytes int) []byte {
+	log.Printf("Requested payload length: %d bytes.", payloadLengthBytes)
+
+	randomPayload := make([]byte, payloadLengthBytes)
 	rand.Read(randomPayload)
-	return randomPayload, nil
+	return randomPayload
 }
 
-func main() {
-	lambda.Start(benchmarkingProducer)
-}
-
-//This logs any error to os.Stderr and returns a 500 Internal Server Error response that the AWS API Gateway understands.
-var errorLogger = log.New(os.Stderr, "ERROR ", log.Llongfile)
-
-func serverError(err error) (events.APIGatewayProxyResponse, error) {
-	errorLogger.Println(err.Error())
-
-	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusInternalServerError,
-		Body:       err.Error(),
-	}, nil
+func stringToArrayOfString(str string) []string {
+	str = strings.Split(str, "]")[0]
+	str = strings.Split(str, "[")[1]
+	return strings.Split(str, " ")
 }
