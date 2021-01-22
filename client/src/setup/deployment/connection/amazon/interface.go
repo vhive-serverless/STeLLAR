@@ -40,9 +40,13 @@ import (
 )
 
 const (
+	//UserARNNumber is used in AWS benchmarking for client authentication
+	UserARNNumber       = "356764711652"
+	lambdaExecutionRole = "arn:aws:iam::356764711652:role/LambdaProducerConsumer"
 	//AWSRegion is the region of AWS to operate in.
-	AWSRegion = "us-west-1"
-	s3Bucket  = "benchmarking-aws"
+	AWSRegion          = "us-west-1"
+	s3Bucket           = "benchmarking-aws"
+	maxFunctionTimeout = 900
 )
 
 //AWSSingletonInstance is an object used to interact with AWS through the methods it exports.

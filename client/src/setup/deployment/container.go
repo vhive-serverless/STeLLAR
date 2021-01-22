@@ -35,7 +35,7 @@ func setupContainerImageDeployment(provider string, deploymentSizeBytes int64) {
 	var privateRepoURI string
 	switch provider {
 	case "aws":
-		privateRepoURI = fmt.Sprintf("335329526041.dkr.ecr.%s.amazonaws.com", amazon.AWSRegion)
+		privateRepoURI = fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", amazon.UserARNNumber, amazon.AWSRegion)
 
 		log.Info("Authenticating Docker CLI to the Amazon ECR registry...")
 		util.RunCommandAndLog(exec.Command("docker", "login", "-u", "AWS", "-p",

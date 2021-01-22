@@ -24,83 +24,45 @@ func main() {
 }
 
 func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	currentTimestamp := generateTimestampMilli()
+	timestampMilli := time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 
 	lambdaIncrementLimit, err := strconv.Atoi(request.QueryStringParameters["LambdaIncrementLimit"])
 	if err != nil {
 		log.Fatalf("Could not parse LambdaIncrementLimit: %s", err)
 	}
-
-	payloadLengthBytes, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
-	if err != nil {
-		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
-	}
-
-	dataTransferChainIDs := request.QueryStringParameters["DataTransferChainIDs"]
-
-	var timestampChain []string
-	if timestampChainStringForm, ok := request.QueryStringParameters["TimestampChain"]; !ok {
-		timestampChain = []string{strconv.FormatInt(currentTimestamp, 10)}
-	} else {
-		timestampChain = append(stringToArrayOfString(timestampChainStringForm), strconv.FormatInt(currentTimestamp, 10))
-	}
-
 	log.Printf("Running function up to increment limit (%d)...", lambdaIncrementLimit)
 	for i := 0; i < lambdaIncrementLimit; i++ {
 	}
 
-	functionsLeftToInvoke := stringToArrayOfString(dataTransferChainIDs)
-	if len(functionsLeftToInvoke) > 0 && functionsLeftToInvoke[0] != "" {
-		log.Printf("More functions (%d) in the chain, invoking next one...", len(functionsLeftToInvoke))
+	var updatedTimestampChain []string
+	if timestampChainStringForm, ok := request.QueryStringParameters["TimestampChain"]; !ok {
+		updatedTimestampChain = []string{strconv.FormatInt(timestampMilli, 10)}
+	} else {
+		updatedTimestampChain = append(stringArrayToArrayOfString(timestampChainStringForm), strconv.FormatInt(timestampMilli, 10))
+	}
 
-		region := os.Getenv("AWS_REGION")
-		sess, err := session.NewSession(&aws.Config{
-			Region: &region,
-		})
+	dataTransferChainIDs := stringArrayToArrayOfString(request.QueryStringParameters["DataTransferChainIDs"])
+	if len(dataTransferChainIDs) > 0 && dataTransferChainIDs[0] != "" {
+		log.Printf("More functions (%d) in the chain, invoking next one...", len(dataTransferChainIDs))
+
+		payloadLengthBytes, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
 		if err != nil {
-			log.Fatalf("Could not create a new session: %s", err)
+			log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
 		}
 
-		client := lambdaSDK.New(sess)
+		log.Printf("Generating transfer payload (length: %d bytes)", payloadLengthBytes)
+		generatedTransferPayload := make([]byte, payloadLengthBytes)
+		rand.Read(generatedTransferPayload)
 
-		type Payload struct {
-			QueryStringParameters map[string]string `json:"queryStringParameters"`
-		}
-		payload, err := json.Marshal(Payload{QueryStringParameters: map[string]string{
-			"LambdaIncrementLimit": strconv.Itoa(lambdaIncrementLimit),
-			"PayloadLengthBytes":   strconv.Itoa(payloadLengthBytes),
-			"TimestampChain":       fmt.Sprintf("%v", timestampChain),
-			"DataTransferChainIDs": fmt.Sprintf("%v", functionsLeftToInvoke[1:]),
-		}})
-		if err != nil {
-			log.Fatalf("Could not marshal payload: %s", err)
-		}
+		response := invokeNextFunction(map[string]string{
+			"LambdaIncrementLimit": request.QueryStringParameters["LambdaIncrementLimit"],
+			"PayloadLengthBytes":   request.QueryStringParameters["PayloadLengthBytes"],
+			"TimestampChain":       fmt.Sprintf("%v", updatedTimestampChain),
+			"TransferPayload":      string(generatedTransferPayload),
+			"DataTransferChainIDs": fmt.Sprintf("%v", dataTransferChainIDs[1:]),
+		}, dataTransferChainIDs[0])
 
-		log.Println(fmt.Sprintf("vHive_%s", functionsLeftToInvoke[0]))
-		result, err := client.Invoke(&lambdaSDK.InvokeInput{
-			FunctionName:   aws.String(fmt.Sprintf("vHive_%s", functionsLeftToInvoke[0])),
-			InvocationType: aws.String("RequestResponse"),
-			LogType:        aws.String("Tail"),
-			Payload:        payload,
-		})
-		if err != nil {
-			log.Fatalf("Could not invoke lambda: %s", err)
-		}
-
-		var reply map[string]interface{}
-		err = json.Unmarshal(result.Payload, &reply)
-		if err != nil {
-			log.Fatalf("Could not unmarshal lambda response into map[string]interface{}: %s", err)
-		}
-		fmt.Println(reply["body"].(string))
-
-		var parsedReply lambdaFunctionOutput
-		err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
-		if err != nil {
-			log.Fatalf("Could not unmarshal lambda response body into functionOutput: %s", err)
-		}
-
-		timestampChain = parsedReply.TimestampChain
+		updatedTimestampChain = extractTimestampChain(response)
 	}
 
 	// ctx context.Context provides runtime Gateway information
@@ -108,8 +70,7 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 	lc, _ := lambdacontext.FromContext(ctx)
 	output, err := json.Marshal(lambdaFunctionOutput{
 		AwsRequestID:   lc.AwsRequestID,
-		TimestampChain: timestampChain,
-		Payload:        generatePayload(payloadLengthBytes),
+		TimestampChain: updatedTimestampChain,
 	})
 	if err != nil {
 		log.Fatalf("Could not marshal function output: %s", err)
@@ -122,25 +83,61 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 	}, nil
 }
 
-func generateTimestampMilli() int64 {
-	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+func extractTimestampChain(response *lambdaSDK.InvokeOutput) []string {
+	var reply map[string]interface{}
+	err := json.Unmarshal(response.Payload, &reply)
+	if err != nil {
+		log.Fatalf("Could not unmarshal lambda response into map[string]interface{}: %s", err)
+	}
+
+	var parsedReply lambdaFunctionOutput
+	err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
+	if err != nil {
+		log.Fatalf("Could not unmarshal lambda response body into functionOutput: %s", err)
+	}
+
+	return parsedReply.TimestampChain
+}
+
+func invokeNextFunction(parameters map[string]string, functionID string) *lambdaSDK.InvokeOutput {
+	region := os.Getenv("AWS_REGION")
+	sess, err := session.NewSession(&aws.Config{
+		Region: &region,
+	})
+	if err != nil {
+		log.Fatalf("Could not create a new session: %s", err)
+	}
+
+	client := lambdaSDK.New(sess)
+
+	type Payload struct {
+		QueryStringParameters map[string]string `json:"queryStringParameters"`
+	}
+	nextFunctionPayload, err := json.Marshal(Payload{QueryStringParameters: parameters})
+	if err != nil {
+		log.Fatalf("Could not marshal nextFunctionPayload: %s", err)
+	}
+
+	log.Printf("Invoking next function: vHive_%s", functionID)
+	result, err := client.Invoke(&lambdaSDK.InvokeInput{
+		FunctionName:   aws.String(fmt.Sprintf("vHive_%s", functionID)),
+		InvocationType: aws.String("RequestResponse"),
+		LogType:        aws.String("Tail"),
+		Payload:        nextFunctionPayload,
+	})
+	if err != nil {
+		log.Fatalf("Could not invoke lambda: %s", err)
+	}
+
+	return result
 }
 
 type lambdaFunctionOutput struct {
 	AwsRequestID   string   `json:"AwsRequestID"`
 	TimestampChain []string `json:"TimestampChain"`
-	Payload        []byte   `json:"Payload"`
 }
 
-func generatePayload(payloadLengthBytes int) []byte {
-	log.Printf("Requested payload length: %d bytes.", payloadLengthBytes)
-
-	randomPayload := make([]byte, payloadLengthBytes)
-	rand.Read(randomPayload)
-	return randomPayload
-}
-
-func stringToArrayOfString(str string) []string {
+func stringArrayToArrayOfString(str string) []string {
 	str = strings.Split(str, "]")[0]
 	str = strings.Split(str, "[")[1]
 	return strings.Split(str, " ")
