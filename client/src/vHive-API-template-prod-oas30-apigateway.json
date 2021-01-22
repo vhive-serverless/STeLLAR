@@ -46,6 +46,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "TransferPayload",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

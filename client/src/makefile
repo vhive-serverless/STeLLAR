@@ -35,14 +35,16 @@ replace_github_commit:
 	@git push --force
 
 # Cloudlab deployment
-remote="${CLOUDLAB_MACHINE}"
+remote=theodor@hp039.utah.cloudlab.us
 
 send_to_cloudlab:
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
 	@scp ./vHive-API-template-prod-oas30-apigateway.json $(remote):~/
 	@scp ../initialize_machine.sh $(remote):~/
-	@scp ../endpoints/* $(remote):~/ # optional
+	@scp ./dockerfile $(remote):~/
+	@ssh $(remote) "mkdir -p ~/endpoints/"
+	@scp -r ../endpoints/* $(remote):~/endpoints/
 	@ssh $(remote) "mkdir -p ~/experiments/"
 	@scp -r ../experiments/* $(remote):~/experiments/
 	@ssh $(remote) "mkdir -p ~/setup/deployment/"

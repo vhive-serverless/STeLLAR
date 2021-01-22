@@ -50,7 +50,6 @@ func getAWSSignerSingleton() *v4.Signer {
 type LambdaFunctionOutput struct {
 	AwsRequestID   string   `json:"AwsRequestID"`
 	TimestampChain []string `json:"TimestampChain"`
-	Payload        []byte   `json:"Payload"`
 }
 
 //GetAWSRequestOutput will process an HTTP response body coming from an AWS integration, extracting its ID.
