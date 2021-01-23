@@ -35,7 +35,7 @@ import (
 func (instance awsSingleton) DeployFunction(packageType string, language string, memoryAssigned int64) string {
 	apiConfig := instance.createRESTAPI()
 
-	functionName := fmt.Sprintf("%s%s", instance.NamePrefix, *apiConfig.Id)
+	functionName := fmt.Sprintf("%s%s", namingPrefix, *apiConfig.Id)
 	functionConfig := instance.createFunction(packageType, functionName, language, memoryAssigned)
 
 	resourceID := instance.getResourceID(*apiConfig.Name, *apiConfig.Id)
@@ -72,7 +72,7 @@ func (instance awsSingleton) createRESTAPI() *apigateway.RestApi {
 
 func (instance awsSingleton) updateAPIWithTemplate(apiID string) (*apigateway.RestApi, error) {
 	putAPIArgs := &apigateway.PutRestApiInput{
-		Body:      instance.apiTemplate,
+		Body:      instance.apiTemplateFileContents,
 		Mode:      aws.String("merge"),
 		RestApiId: aws.String(apiID),
 	}
@@ -131,7 +131,7 @@ func (instance awsSingleton) createFunction(packageType string, functionName str
 			}
 		} else {
 			createCode = &lambda.FunctionCode{
-				ZipFile: instance.localZip,
+				ZipFile: instance.localZipFileContents,
 			}
 		}
 
@@ -193,7 +193,7 @@ func (instance awsSingleton) createAPIFunctionIntegration(APIName string, functi
 		RestApiId:  aws.String(apiID),
 		Type:       aws.String("AWS_PROXY"),
 		Uri: aws.String(fmt.Sprintf("arn:aws:apigateway:%s:lambda:path/2015-03-31/functions/%s/invocations",
-			instance.region, arn)),
+			AWSRegion, arn)),
 	}
 
 	result, err := instance.apiGatewaySvc.PutIntegration(args)
@@ -211,11 +211,11 @@ func (instance awsSingleton) createAPIFunctionIntegration(APIName string, functi
 }
 
 func (instance awsSingleton) createAPIDeployment(APIName string, apiID string) *apigateway.Deployment {
-	log.Infof("Creating deployment for API %s (stage %s)", APIName, instance.stage)
+	log.Infof("Creating deployment for API %s (stage %s)", APIName, deploymentStage)
 
 	args := &apigateway.CreateDeploymentInput{
 		RestApiId: aws.String(apiID),
-		StageName: aws.String(instance.stage),
+		StageName: aws.String(deploymentStage),
 	}
 
 	result, err := instance.apiGatewaySvc.CreateDeployment(args)

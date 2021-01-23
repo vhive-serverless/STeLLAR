@@ -72,7 +72,7 @@ func generateBinaryFile(rawCodePath string, runtime string) int64 {
 		log.Fatalf("Could not get size of binary file: %s", err.Error())
 	}
 
-	log.Info("Successfully built binary file for deployment...")
+	log.Info("Successfully built the binary file for deployment.")
 	return fi.Size()
 }
 
@@ -89,6 +89,6 @@ func generateFillerFile(name string, sizeBytes int64) string {
 		log.Fatalf("Could not generate random file with size %d bytes", sizeBytes)
 	}
 
-	log.Info("Successfully generated random file.")
+	log.Info("Successfully generated the filler file.")
 	return name
 }

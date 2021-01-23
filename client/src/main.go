@@ -45,7 +45,7 @@ var logLevelFlag = flag.String("l", "info", "Select logging level.")
 func main() {
 	startTime := time.Now()
 	randomSeed := startTime.Unix()
-	rand.Seed(randomSeed) // comment line for reproducible deltas
+	rand.Seed(randomSeed) // comment line for reproducible inter-arrival times
 	flag.Parse()
 
 	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))

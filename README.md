@@ -1,2 +1,3 @@
-# serverless_bench
-A framework for benchmarking serverless providers' offerings
+# vHiveBench
+
+A framework for benchmarking the performance of popular serverless platforms. 

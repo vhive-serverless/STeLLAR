@@ -28,7 +28,7 @@ import (
 )
 
 func TestSetupExternalConnection(t *testing.T) {
-	Initialize("www.google.com", "")
+	Initialize("www.google.com", "", apiTemplatePathFromConnectionFolder)
 	require.Nil(t, Singleton.ListAPIs(), "External connection: ListAPIs() should return nil.")
 	require.Nil(t, Singleton.DeployFunction, "External connection: DeployFunction should be nil.")
 	require.Nil(t, Singleton.RemoveFunction, "External connection: RemoveFunction should be nil.")
@@ -36,7 +36,7 @@ func TestSetupExternalConnection(t *testing.T) {
 }
 
 func TestSetupFileConnection(t *testing.T) {
-	Initialize("vhive", "../../../../endpoints")
+	Initialize("vhive", "../../../../endpoints", apiTemplatePathFromConnectionFolder)
 	require.Equal(t, 4, len(Singleton.ListAPIs()))
 	require.Equal(t, 60., Singleton.ListAPIs()[0].ImageSizeMB)
 	require.Equal(t, int64(128), Singleton.ListAPIs()[0].FunctionMemoryMB)

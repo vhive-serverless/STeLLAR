@@ -41,7 +41,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 
 		gatewayEndpoint := GatewayEndpoint{ID: foundEndpointID}
 
-		for i := 0; i < experiment.DataTransferChainLength; i++ {
+		for i := experiment.DataTransferChainLength; i > 1; i-- {
 			gatewayEndpoint.DataTransferChainIDs = append(
 				gatewayEndpoint.DataTransferChainIDs,
 				findEndpointToAssign(&availableEndpoints, experiment, &deploymentGeneratedForSubExperiment, provider, runtime),
@@ -83,9 +83,9 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 		*deploymentGeneratedForSubExperiment = true
 	}
 
+	// Only attempt repurposing functions if they are ZIP packages (Image package updates yield errors on AWS).
+	if experiment.PackageType == "Zip" {
 	for index, endpoint := range *availableEndpoints {
-		// Can only repurpose function of same package type.
-		if endpoint.PackageType == experiment.PackageType {
 			log.Info("Repurposing an existing function...")
 			connection.Singleton.UpdateFunction(experiment.PackageType, endpoint.GatewayID, experiment.FunctionMemoryMB)
 

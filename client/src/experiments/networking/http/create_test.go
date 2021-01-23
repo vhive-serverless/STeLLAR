@@ -28,18 +28,25 @@ import (
 	"net/http"
 	"testing"
 	"vhive-bench/client/setup"
+	"vhive-bench/client/setup/deployment/connection"
+	"vhive-bench/client/setup/deployment/connection/amazon"
 )
+
+const randomGatewayID = "uicnaywo3rb3nsci"
 
 func TestCreateAWSRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomEndpoint := setup.GatewayEndpoint{
-		ID:                   "uicnaywo3rb3nsci",
-		DataTransferChainIDs: nil,
+		ID:                   randomGatewayID,
+		DataTransferChainIDs: []string{},
 	}
+
+	connection.Initialize("aws", "", "../../../setup/deployment/raw-code/producer-consumer/vHive-API-template-prod-oas30-apigateway.json")
+
 	randomAssignedIncrement := int64(1482911482)
 	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement)
 
-	expectedHostname := fmt.Sprintf("%s.execute-api.%s.amazonaws.com", randomEndpoint.ID, awsRegion)
+	expectedHostname := fmt.Sprintf("%s.execute-api.%s.amazonaws.com", randomEndpoint.ID, amazon.AWSRegion)
 	require.Equal(t, expectedHostname, req.Host)
 	require.Equal(t, expectedHostname, req.URL.Host)
 	require.Equal(t, http.MethodPost, req.Method)

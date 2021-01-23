@@ -61,18 +61,20 @@ func generateLatencyRecord(requestsWaitGroup *sync.WaitGroup, provider string, r
 	var responseID string
 	switch provider {
 	case "aws":
-		response := vHiveBenchHTTP.GetAWSRequestOutput(respBody)
+		fallthrough
+	case "vHive":
+		response := vHiveBenchHTTP.ExtractProducerConsumerResponse(respBody)
 
 		if dataTransfersWriter != nil {
 			dataTransfersWriter.writeDataTransferRowToFile(
-				response.AwsRequestID,
+				response.RequestID,
 				request.URL.Hostname(),
 				strconv.Itoa(burstID),
 				response.TimestampChain...,
 			)
 		}
 
-		responseID = response.AwsRequestID
+		responseID = response.RequestID
 	default:
 		responseID = ""
 	}

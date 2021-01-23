@@ -9,6 +9,7 @@ sudo apt-get install golang-go
 sudo go get github.com/aws/aws-lambda-go/events
 sudo go get github.com/aws/aws-lambda-go/lambda
 sudo go get github.com/aws/aws-lambda-go/lambdacontext
+sudo go get github.com/aws/aws-sdk-go
 
 # For the client to deploy container images
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -

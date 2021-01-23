@@ -24,39 +24,34 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	"fmt"
 	log "github.com/sirupsen/logrus"
+	"net/http"
 )
 
-const awsRegion = "us-west-1"
-
-var signerSingleton *v4.Signer
-
-func getAWSSignerSingleton() *v4.Signer {
-	if signerSingleton != nil {
-		return signerSingleton
-	}
-
-	sessionInstance := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(awsRegion),
-	}))
-	signerSingleton = v4.NewSigner(sessionInstance.Config.Credentials)
-	return signerSingleton
-}
-
-//LambdaFunctionOutput is the structure holding the response from a Lambda function
-type LambdaFunctionOutput struct {
-	AwsRequestID   string   `json:"AwsRequestID"`
+//ProducerConsumerResponse is the structure holding the response from a producer-consumer function
+type ProducerConsumerResponse struct {
+	RequestID      string   `json:"RequestID"`
 	TimestampChain []string `json:"TimestampChain"`
 }
 
-//GetAWSRequestOutput will process an HTTP response body coming from an AWS integration, extracting its ID.
-func GetAWSRequestOutput(respBody []byte) LambdaFunctionOutput {
-	var lambdaFunctionResponse LambdaFunctionOutput
-	if err := json.Unmarshal(respBody, &lambdaFunctionResponse); err != nil {
+//ExtractProducerConsumerResponse will process an HTTP response body coming from a producer-consumer function
+func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
+	var response ProducerConsumerResponse
+	if err := json.Unmarshal(respBody, &response); err != nil {
 		log.Error(err)
 	}
-	return lambdaFunctionResponse
+	return response
+}
+
+func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes int,
+	assignedFunctionIncrementLimit int64, dataTransferChainIDs []string) *http.Request {
+	request.URL.Path = "/prod/benchmarking"
+
+	request.URL.RawQuery = fmt.Sprintf("IncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
+		assignedFunctionIncrementLimit,
+		payloadLengthBytes,
+		dataTransferChainIDs,
+	)
+	return request
 }

@@ -28,44 +28,41 @@ import (
 	"net/http"
 	"time"
 	"vhive-bench/client/setup"
+	"vhive-bench/client/setup/deployment/connection/amazon"
 )
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
 //configuration object.
 func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, assignedFunctionIncrementLimit int64) *http.Request {
+	var request *http.Request
+
 	switch provider {
 	case "aws":
-		return generateAWSRequest(payloadLengthBytes, gatewayEndpoint, assignedFunctionIncrementLimit)
-	default:
-		return generateRequest(http.MethodGet, provider)
-	}
-}
+		request = createGeneralRequest(
+			http.MethodPost,
+			fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpoint.ID, amazon.AWSRegion),
+		)
 
-func generateRequest(method string, hostname string) *http.Request {
-	request, err := http.NewRequest(method, fmt.Sprintf("https://%s", hostname), nil)
-	if err != nil {
-		log.Error(err)
+		appendProducerConsumerParameters(request, payloadLengthBytes,
+			assignedFunctionIncrementLimit, gatewayEndpoint.DataTransferChainIDs)
+
+		_, err := amazon.AWSSingletonInstance.RequestSigner.Sign(request, nil, "execute-api", amazon.AWSRegion, time.Now())
+		if err != nil {
+			log.Fatalf("Could not sign AWS HTTP request: %s", err.Error())
+		}
+	case "vHive":
+		//TODO: add vHive request implementation
+	default:
+		return createGeneralRequest(http.MethodGet, provider)
 	}
+
 	return request
 }
 
-func generateAWSRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, assignedFunctionIncrementLimit int64) *http.Request {
-	request := generateRequest(
-		http.MethodPost,
-		fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpoint.ID, awsRegion),
-	)
-
-	request.URL.Path = "/prod/benchmarking"
-	request.URL.RawQuery = fmt.Sprintf("LambdaIncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
-		assignedFunctionIncrementLimit,
-		payloadLengthBytes,
-		gatewayEndpoint.DataTransferChainIDs,
-	)
-
-	_, err := getAWSSignerSingleton().Sign(request, nil, "execute-api", awsRegion, time.Now())
+func createGeneralRequest(method string, hostname string) *http.Request {
+	request, err := http.NewRequest(method, fmt.Sprintf("https://%s", hostname), nil)
 	if err != nil {
-		log.Error(err)
+		log.Fatalf("Could not create HTTP request: %s", err.Error())
 	}
-
 	return request
 }

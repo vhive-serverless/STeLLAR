@@ -71,7 +71,7 @@ def plot_cpu_slowdown():
         return latencies, service_times
 
     title = provider + ' CPU Slowdown'
-    fig = plt.figure(figsize=(12, 5))
+    fig = plt.figure(figsize=(5, 5))
     fig.suptitle(title)
     plt.ylabel('Latency (ms)')
     plt.xlabel('Service Time (ms)')
@@ -98,10 +98,12 @@ def plot_cpu_slowdown():
     axes = plt.gca()
     axes.set_ylim([0, 1])
     # axes.set_xlim([0, 1536])
+    axes.set_xscale('linear')
+
     plt.xlabel('Function Memory (MB)')
     plt.ylabel('Fraction')
     for memory_mb in memory_to_util:
-        plt.plot(memory_mb, memory_to_util[memory_mb], 'o', color='tab:blue')
+        plt.plot(int(memory_mb), memory_to_util[memory_mb], 'o', color='tab:blue')
     fig.savefig('providers/' + provider + '/' + title2 + '.png')
     plt.close()
 

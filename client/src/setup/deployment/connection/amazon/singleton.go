@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/aws/aws-sdk-go/service/apigateway"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -43,66 +44,52 @@ const (
 	//UserARNNumber is used in AWS benchmarking for client authentication
 	UserARNNumber       = "356764711652"
 	lambdaExecutionRole = "arn:aws:iam::356764711652:role/LambdaProducerConsumer"
-	//AWSRegion is the region of AWS to operate in.
+	//AWSRegion is the region that AWS operates in
 	AWSRegion          = "us-west-1"
+	deploymentStage    = "prod"
 	s3Bucket           = "benchmarking-aws"
 	maxFunctionTimeout = 900
+	namingPrefix       = "vHive-bench_"
 )
 
 //AWSSingletonInstance is an object used to interact with AWS through the methods it exports.
 var AWSSingletonInstance *awsSingleton
 
 type awsSingleton struct {
-	localZip []byte
+	// RequestSigner is the AWS object used for signing HTTP requests
+	RequestSigner *v4.Signer
 	// S3Key is the bucket location in which this specific deployment will be uploaded
 	S3Key string
 	// ImageURI is the location where the docker image is located
-	ImageURI      string
-	NamePrefix    string
-	region        string
-	stage         string
-	session       *session.Session
-	s3Svc         *s3.S3
-	lambdaSvc     *lambda.Lambda
-	apiGatewaySvc *apigateway.APIGateway
-	ecrSvc        *ecr.ECR
-	apiTemplate   []byte
+	ImageURI                string
+	s3Uploader              *s3manager.Uploader
+	s3Svc                   *s3.S3
+	lambdaSvc               *lambda.Lambda
+	apiGatewaySvc           *apigateway.APIGateway
+	ecrSvc                  *ecr.ECR
+	apiTemplateFileContents []byte
+	localZipFileContents    []byte
 }
 
 //InitializeSingleton will create a new Amazon awsSingleton to interact with different AWS services.
-func InitializeSingleton() {
+func InitializeSingleton(apiTemplatePath string) {
 	sessionInstance := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String(AWSRegion),
 	}))
 
-	path, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("Could not get working directory location: %s", err.Error())
-	}
-
-	var apiTemplatePath string
-	if strings.Contains(path, "connection") {
-		apiTemplatePath = "../../../vHive-API-template-prod-oas30-apigateway.json"
-	} else {
-		apiTemplatePath = "./vHive-API-template-prod-oas30-apigateway.json"
-	}
-
-	apiTemplateFile := util.ReadFile(apiTemplatePath)
-	apiTemplateByteValue, err := ioutil.ReadAll(apiTemplateFile)
+	apiTemplateByteValue, err := ioutil.ReadAll(util.ReadFile(apiTemplatePath))
 	if err != nil {
 		log.Fatalf("Could not read API template JSON when initializing AWS connection: %s", err.Error())
 	}
 
 	AWSSingletonInstance = &awsSingleton{
-		NamePrefix:    "vHive_",
-		region:        AWSRegion,
-		stage:         "prod",
-		session:       sessionInstance,
-		lambdaSvc:     lambda.New(sessionInstance),
-		apiGatewaySvc: apigateway.New(sessionInstance),
-		s3Svc:         s3.New(sessionInstance),
-		ecrSvc:        ecr.New(sessionInstance),
-		apiTemplate:   apiTemplateByteValue,
+		RequestSigner:           v4.NewSigner(sessionInstance.Config.Credentials),
+		lambdaSvc:               lambda.New(sessionInstance),
+		apiGatewaySvc:           apigateway.New(sessionInstance),
+		s3Svc:                   s3.New(sessionInstance),
+		s3Uploader:              s3manager.NewUploader(sessionInstance),
+		ecrSvc:                  ecr.New(sessionInstance),
+		apiTemplateFileContents: apiTemplateByteValue,
 	}
 }
 
@@ -124,7 +111,7 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 		log.Fatalf("Failed to open zip file %q: %v", localZipPath, err)
 	}
 
-	uploadOutput, err := s3manager.NewUploader(AWSSingletonInstance.session).Upload(&s3manager.UploadInput{
+	uploadOutput, err := AWSSingletonInstance.s3Uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String("benchmarking-aws"),
 		Key:    aws.String(AWSSingletonInstance.S3Key),
 		Body:   zipFile,
@@ -142,7 +129,7 @@ func SetLocalZip(path string) {
 	if err != nil {
 		log.Fatalf("Could not read local zipped binary: %s", err.Error())
 	}
-	AWSSingletonInstance.localZip = zipBytes
+	AWSSingletonInstance.localZipFileContents = zipBytes
 }
 
 //GetECRAuthorizationToken helps the client get authorization for container AWS deployment.

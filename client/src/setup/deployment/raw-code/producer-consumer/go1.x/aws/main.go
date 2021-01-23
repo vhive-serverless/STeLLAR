@@ -19,46 +19,34 @@ import (
 	"time"
 )
 
+const namingPrefix = "vHive-bench_"
+
 func main() {
 	lambda.Start(vhiveBenchProducerConsumer)
 }
 
 func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	timestampMilli := time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+	timestampMilliString := strconv.FormatInt(time.Now().UnixNano()/(int64(time.Millisecond)/int64(time.Nanosecond)), 10)
 
-	lambdaIncrementLimit, err := strconv.Atoi(request.QueryStringParameters["LambdaIncrementLimit"])
-	if err != nil {
-		log.Fatalf("Could not parse LambdaIncrementLimit: %s", err)
-	}
-	log.Printf("Running function up to increment limit (%d)...", lambdaIncrementLimit)
-	for i := 0; i < lambdaIncrementLimit; i++ {
-	}
+	simulateWork(request.QueryStringParameters["IncrementLimit"])
 
 	var updatedTimestampChain []string
-	if timestampChainStringForm, ok := request.QueryStringParameters["TimestampChain"]; !ok {
-		updatedTimestampChain = []string{strconv.FormatInt(timestampMilli, 10)}
+	if timestampChainStringForm, hasChainParameter := request.QueryStringParameters["TimestampChain"]; !hasChainParameter {
+		// First function in the chain
+		request.QueryStringParameters["TransferPayload"] = string(generatePayload(request.QueryStringParameters["PayloadLengthBytes"]))
+		updatedTimestampChain = []string{timestampMilliString}
 	} else {
-		updatedTimestampChain = append(stringArrayToArrayOfString(timestampChainStringForm), strconv.FormatInt(timestampMilli, 10))
+		updatedTimestampChain = append(stringArrayToArrayOfString(timestampChainStringForm), timestampMilliString)
 	}
 
 	dataTransferChainIDs := stringArrayToArrayOfString(request.QueryStringParameters["DataTransferChainIDs"])
 	if len(dataTransferChainIDs) > 0 && dataTransferChainIDs[0] != "" {
-		log.Printf("More functions (%d) in the chain, invoking next one...", len(dataTransferChainIDs))
-
-		payloadLengthBytes, err := strconv.Atoi(request.QueryStringParameters["PayloadLengthBytes"])
-		if err != nil {
-			log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
-		}
-
-		log.Printf("Generating transfer payload (length: %d bytes)", payloadLengthBytes)
-		generatedTransferPayload := make([]byte, payloadLengthBytes)
-		rand.Read(generatedTransferPayload)
+		log.Printf("There are %d functions left in the chain, invoking next one...", len(dataTransferChainIDs))
 
 		response := invokeNextFunction(map[string]string{
-			"LambdaIncrementLimit": request.QueryStringParameters["LambdaIncrementLimit"],
-			"PayloadLengthBytes":   request.QueryStringParameters["PayloadLengthBytes"],
+			"IncrementLimit":       request.QueryStringParameters["IncrementLimit"],
 			"TimestampChain":       fmt.Sprintf("%v", updatedTimestampChain),
-			"TransferPayload":      string(generatedTransferPayload),
+			"TransferPayload":      request.QueryStringParameters["TransferPayload"],
 			"DataTransferChainIDs": fmt.Sprintf("%v", dataTransferChainIDs[1:]),
 		}, dataTransferChainIDs[0])
 
@@ -68,8 +56,8 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 	// ctx context.Context provides runtime Gateway information
 	// (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
 	lc, _ := lambdacontext.FromContext(ctx)
-	output, err := json.Marshal(lambdaFunctionOutput{
-		AwsRequestID:   lc.AwsRequestID,
+	output, err := json.Marshal(producerConsumerResponse{
+		RequestID:      lc.AwsRequestID,
 		TimestampChain: updatedTimestampChain,
 	})
 	if err != nil {
@@ -83,6 +71,30 @@ func vhiveBenchProducerConsumer(ctx context.Context, request events.APIGatewayPr
 	}, nil
 }
 
+func generatePayload(payloadLengthBytesString string) []byte {
+	payloadLengthBytes, err := strconv.Atoi(payloadLengthBytesString)
+	if err != nil {
+		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
+	}
+
+	log.Printf("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
+	generatedTransferPayload := make([]byte, payloadLengthBytes)
+	rand.Read(generatedTransferPayload)
+
+	return generatedTransferPayload
+}
+
+func simulateWork(incrementLimitString string) {
+	incrementLimit, err := strconv.Atoi(incrementLimitString)
+	if err != nil {
+		log.Fatalf("Could not parse IncrementLimit parameter: %s", err.Error())
+	}
+
+	log.Printf("Running function up to increment limit (%d)...", incrementLimit)
+	for i := 0; i < incrementLimit; i++ {
+	}
+}
+
 func extractTimestampChain(response *lambdaSDK.InvokeOutput) []string {
 	var reply map[string]interface{}
 	err := json.Unmarshal(response.Payload, &reply)
@@ -90,10 +102,10 @@ func extractTimestampChain(response *lambdaSDK.InvokeOutput) []string {
 		log.Fatalf("Could not unmarshal lambda response into map[string]interface{}: %s", err)
 	}
 
-	var parsedReply lambdaFunctionOutput
+	var parsedReply producerConsumerResponse
 	err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
 	if err != nil {
-		log.Fatalf("Could not unmarshal lambda response body into functionOutput: %s", err)
+		log.Fatalf("Could not unmarshal lambda response body into producerConsumerResponse: %s", err)
 	}
 
 	return parsedReply.TimestampChain
@@ -118,9 +130,9 @@ func invokeNextFunction(parameters map[string]string, functionID string) *lambda
 		log.Fatalf("Could not marshal nextFunctionPayload: %s", err)
 	}
 
-	log.Printf("Invoking next function: vHive_%s", functionID)
+	log.Printf("Invoking next function: %s%s", namingPrefix, functionID)
 	result, err := client.Invoke(&lambdaSDK.InvokeInput{
-		FunctionName:   aws.String(fmt.Sprintf("vHive_%s", functionID)),
+		FunctionName:   aws.String(fmt.Sprintf("%s%s", namingPrefix, functionID)),
 		InvocationType: aws.String("RequestResponse"),
 		LogType:        aws.String("Tail"),
 		Payload:        nextFunctionPayload,
@@ -132,8 +144,8 @@ func invokeNextFunction(parameters map[string]string, functionID string) *lambda
 	return result
 }
 
-type lambdaFunctionOutput struct {
-	AwsRequestID   string   `json:"AwsRequestID"`
+type producerConsumerResponse struct {
+	RequestID      string   `json:"RequestID"`
 	TimestampChain []string `json:"TimestampChain"`
 }
 
