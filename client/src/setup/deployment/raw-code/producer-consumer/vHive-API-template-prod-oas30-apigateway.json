@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "vHive-API",
+    "title": "vHive-API (producer-consumer)",
     "description": "API used to access the Lambda function with corresponding unique ID.",
     "version": "2020-10-05T21:35:12Z"
   },
@@ -24,15 +24,7 @@
         "x-amazon-apigateway-request-validator": "all",
         "parameters": [
           {
-            "name": "PayloadLengthBytes",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "LambdaIncrementLimit",
+            "name": "IncrementLimit",
             "in": "query",
             "required": true,
             "schema": {
@@ -41,6 +33,14 @@
           },
           {
             "name": "DataTransferChainIDs",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "PayloadLengthBytes",
             "in": "query",
             "required": false,
             "schema": {

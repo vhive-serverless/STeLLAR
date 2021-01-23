@@ -63,10 +63,10 @@ type ServerlessInterface struct {
 var Singleton *ServerlessInterface
 
 //Initialize will create a new provider connection to interact with
-func Initialize(provider string, endpointsDirectoryPath string) {
+func Initialize(provider string, endpointsDirectoryPath string, apiTemplatePath string) {
 	switch provider {
 	case "aws":
-		setupAWSConnection()
+		setupAWSConnection(apiTemplatePath)
 	case "vhive":
 		setupFileConnection(path.Join(endpointsDirectoryPath, "vHive.json"))
 	default:
@@ -75,8 +75,8 @@ func Initialize(provider string, endpointsDirectoryPath string) {
 	}
 }
 
-func setupAWSConnection() {
-	amazon.InitializeSingleton()
+func setupAWSConnection(apiTemplatePath string) {
+	amazon.InitializeSingleton(apiTemplatePath)
 
 	Singleton = &ServerlessInterface{
 		ListAPIs: func() []Endpoint {
@@ -100,7 +100,7 @@ func setupAWSConnection() {
 		},
 		RemoveFunction: func(uniqueID string) {
 			amazon.AWSSingletonInstance.RemoveFunction(uniqueID)
-			amazon.AWSSingletonInstance.RemoveAPI(uniqueID)
+			amazon.AWSSingletonInstance.RemoveAPIGateway(uniqueID)
 		},
 		UpdateFunction: func(packageType string, uniqueID string, memoryAssigned int64) {
 			amazon.AWSSingletonInstance.UpdateFunction(packageType, uniqueID)

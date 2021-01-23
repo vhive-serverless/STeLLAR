@@ -3,14 +3,13 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "aws-test1",
+      "Title": "1gateway-24MBram",
       "Bursts": 2,
       "BurstSizes": [
         2
       ],
       "PayloadLengthBytes": 0,
-      "IATSeconds": 1,
-      "PackageType": "Image",
+      "IATSeconds": 2,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -18,7 +17,7 @@
       "GatewaysNumber": 1
     },
     {
-      "Title": "aws-test2",
+      "Title": "2gateways-48MBram",
       "Bursts": 3,
       "BurstSizes": [
         4
@@ -29,7 +28,7 @@
         "0ms"
       ],
       "FunctionImageSizeMB": 48,
-      "GatewaysNumber": 1
+      "GatewaysNumber": 2
     }
   ]
 }

@@ -36,9 +36,26 @@ import (
 	"vhive-bench/client/util"
 )
 
-const awsAPIsLimitIncl = 600
-const aws = "aws"
-const golang = "go1.x"
+const (
+	awsAPIsLimitIncl                    = 600
+	apiTemplatePathFromConnectionFolder = "../raw-code/producer-consumer/vHive-API-template-prod-oas30-apigateway.json"
+	aws                                 = "aws"
+	golang                              = "go1.x"
+)
+
+// TestAWSRemoveAllFunctions is only used to clean up the account's legacy functions
+func TestAWSRemoveAllFunctions(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping removal of all AWS functions in short mode.")
+	}
+
+	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
+	apis := Singleton.ListAPIs()
+
+	for _, function := range apis {
+		Singleton.RemoveFunction(function.GatewayID)
+	}
+}
 
 func TestUnitTestingDockerfileIntegrity(t *testing.T) {
 	f1, err := os.Open("dockerfile")
@@ -67,14 +84,14 @@ func TestUnitTestingDockerfileIntegrity(t *testing.T) {
 }
 
 func TestAWSListAPIs(t *testing.T) {
-	Initialize("aws", "")
+	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
 	require.True(t, 0 <= len(apis) && len(apis) <= awsAPIsLimitIncl)
 }
 
 func TestAWSRemoveFunction(t *testing.T) {
-	Initialize("aws", "")
+	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
 	var removedAPIID string
@@ -96,7 +113,7 @@ func TestAWSRemoveFunction(t *testing.T) {
 }
 
 func TestAWSDeployFunctionFromZip(t *testing.T) {
-	Initialize("aws", "")
+	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
 	if len(apis) >= awsAPIsLimitIncl {
@@ -123,7 +140,7 @@ func TestAWSDeployFunctionFromZip(t *testing.T) {
 }
 
 func TestAWSDeployFunctionFromImage(t *testing.T) {
-	Initialize("aws", "")
+	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
 	if len(apis) >= awsAPIsLimitIncl {
@@ -149,7 +166,7 @@ func TestAWSDeployFunctionFromImage(t *testing.T) {
 }
 
 func TestAWSUpdateFunction(t *testing.T) {
-	Initialize("aws", "")
+	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
 	var repurposedAPIID string

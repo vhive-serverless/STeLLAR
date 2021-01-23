@@ -3,14 +3,14 @@ GO_API_OUT := "experiments/networking/gRPC/proto_gen"
 
 proto_gen_go:
 	@mkdir -p $(GO_API_OUT)
-	@protoc vHive.proto --proto_path=$(PROTOCOL_LOCATION) --go_out=plugins=grpc:$(GO_API_OUT)
+	@protoc vHive.proto --proto_path=$(PROTOCOL_LOCATION) --go_out=$(GO_API_OUT) --go-grpc_out=$(GO_API_OUT)
 
 build:
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@golangci-lint run ./...
 
 test:
-	@go test -cover -v ./...  -coverprofile=c.out
+	@go test -cover -short -v ./...  -coverprofile=c.out
 	@go tool cover -html=c.out
 	@rm c.out
 
@@ -18,7 +18,7 @@ build_client: proto_gen_go build test
 
 run_client:
 	@mkdir -p "../latency-samples"
-	@./client -o "../latency-samples" -g "../endpoints" -c "../experiments/tests/aws-test.json"
+	@./client -o "../latency-samples" -g "../endpoints" -c "../experiments/tests/AWS/burstiness-image-package.json"
 
 build_and_run_client: build_client run_client
 
@@ -28,19 +28,22 @@ edit_local_env_vars:
 workflows_edit:
 	@gedit ../../.github/workflows/pipeline.yml
 
-replace_github_commit:
-	@echo "WARNING: This will latest remote commit with a new one having the newest changes, risks are involved."
+replace_github_commit: ## This will replace latest remote commit with a new one having the newest changes, risks are involved.
+	@echo "WARNING: This will replace latest remote commit with a new one having the newest changes, risks are involved."
 	@git add ../../.
 	@git commit -S --no-edit --amend
 	@git push --force
 
+start_docker_daemon:
+	@sudo systemctl start docker
+
 # Cloudlab deployment
-remote=theodor@hp039.utah.cloudlab.us
+remote=theodor@hp044.utah.cloudlab.us
 
 send_to_cloudlab:
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@scp ./client $(remote):~/
-	@scp ./vHive-API-template-prod-oas30-apigateway.json $(remote):~/
+	@scp ./setup/deployment/raw-code/producer-consumer/vHive-API-template-prod-oas30-apigateway.json $(remote):~/
 	@scp ../initialize_machine.sh $(remote):~/
 	@scp ./dockerfile $(remote):~/
 	@ssh $(remote) "mkdir -p ~/endpoints/"
@@ -57,4 +60,7 @@ download_cloudlab_results:
 	@mkdir -p "../latency-samples/cloudlab"
 	@scp -r $(remote):~/latency-samples/* "../latency-samples/cloudlab/"
 
-.PHONY: proto_gen_go build test build_client run_client build_and_run_client workflows_edit replace_github_commit send_to_cloudlab connect_to_cloudlab download_cloudlab_results
+help: ## Show this help.
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+
+.PHONY: proto_gen_go build test build_client run_client build_and_run_client workflows_edit replace_github_commit start_docker_daemon send_to_cloudlab connect_to_cloudlab download_cloudlab_results

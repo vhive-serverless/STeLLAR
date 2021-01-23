@@ -20,10 +20,13 @@ client/cloudlab-latency-samples/
 client/src/only-plot.txt
 client/src/experiments/networking/gRPC/proto_gen/
 client/src/client
+client/src/producer-handler
 
-client/plotutil/cpu-slowdown/providers
-client/plotutil/imgsize-burstsize-cold-starts/providers
+client/plotutil/data-transfer/providers/
+client/plotutil/cold-starts/providers/
+client/plotutil/cpu-slowdown/providers/
 client/plotutil/plot-single-cdf/cdf.png
 client/plotutil/plot-single-cdf/go.mod
+client/plotutil/plot-single-cdf/go.sum
 client/plotutil/plot-single-cdf/latencies.csv
 
