@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package deployment
+package packaging
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -31,28 +31,8 @@ import (
 	"vhive-bench/client/util"
 )
 
-const localZipName = "benchmarking.zip"
-
-func setupZIPDeployment(provider string, deploymentSizeBytes int64) {
-	zippedBinaryFileSizeBytes := getZippedBinaryFileSize()
-
-	if deploymentSizeBytes == 0 {
-		log.Infof("Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
-			util.BytesToMB(zippedBinaryFileSizeBytes))
-		deploymentSizeBytes = zippedBinaryFileSizeBytes
-	}
-
-	if deploymentSizeBytes < zippedBinaryFileSizeBytes {
-		log.Fatalf("Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
-			util.BytesToMB(deploymentSizeBytes),
-			util.BytesToMB(zippedBinaryFileSizeBytes),
-		)
-	}
-
-	zipPath := generateZIP(
-		generateFillerFile("random.file", deploymentSizeBytes-zippedBinaryFileSizeBytes),
-	)
-
+//SetupZIPDeployment will package the function using ZIP
+func SetupZIPDeployment(provider string, deploymentSizeBytes int64, zipPath string) {
 	deploymentSizeMB := util.BytesToMB(deploymentSizeBytes)
 	switch provider {
 	case "aws":
@@ -69,10 +49,11 @@ func setupZIPDeployment(provider string, deploymentSizeBytes int64) {
 	util.RunCommandAndLog(exec.Command("rm", "-r", zipPath))
 }
 
-func getZippedBinaryFileSize() int64 {
+//GetZippedBinaryFileSize zips the binary and returns its size
+func GetZippedBinaryFileSize(binaryPath string) int64 {
 	log.Info("Zipping binary file to find its size...")
 
-	util.RunCommandAndLog(exec.Command("zip", "zipped-binary", util.BinaryName))
+	util.RunCommandAndLog(exec.Command("zip", "zipped-binary", binaryPath))
 
 	fi, err := os.Stat("zipped-binary.zip")
 	if err != nil {
@@ -86,13 +67,12 @@ func getZippedBinaryFileSize() int64 {
 	return zippedBinarySizeBytes
 }
 
-func generateZIP(fillerFileName string) string {
+//GenerateZIP creates the zip file for deployment
+func GenerateZIP(fillerFileName string, binaryPath string) string {
 	log.Info("Generating ZIP file to be deployed...")
+	const localZipName = "benchmarking.zip"
 
-	util.RunCommandAndLog(exec.Command("zip", localZipName, util.BinaryName, fillerFileName))
-
-	log.Debugf("Cleaning up binary %q...", util.BinaryName)
-	util.RunCommandAndLog(exec.Command("rm", "-r", util.BinaryName))
+	util.RunCommandAndLog(exec.Command("zip", localZipName, binaryPath, fillerFileName))
 
 	log.Debugf("Cleaning up random file %q...", fillerFileName)
 	util.RunCommandAndLog(exec.Command("rm", "-r", fillerFileName))

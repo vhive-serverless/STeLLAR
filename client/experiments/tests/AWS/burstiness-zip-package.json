@@ -3,7 +3,7 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "1gateway-24MBram",
+      "Title": "1gateway-24MB",
       "Bursts": 2,
       "BurstSizes": [
         2
@@ -17,7 +17,7 @@
       "GatewaysNumber": 1
     },
     {
-      "Title": "2gateways-48MBram",
+      "Title": "2gateways-48MB",
       "Bursts": 3,
       "BurstSizes": [
         4

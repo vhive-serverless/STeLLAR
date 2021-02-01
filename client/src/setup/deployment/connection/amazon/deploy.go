@@ -29,14 +29,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 	log "github.com/sirupsen/logrus"
 	"strings"
-	"vhive-bench/client/util"
 )
 
-func (instance awsSingleton) DeployFunction(packageType string, language string, memoryAssigned int64) string {
+func (instance awsSingleton) DeployFunction(binaryPath string, packageType string, language string, memoryAssigned int64) string {
 	apiConfig := instance.createRESTAPI()
 
 	functionName := fmt.Sprintf("%s%s", namingPrefix, *apiConfig.Id)
-	functionConfig := instance.createFunction(packageType, functionName, language, memoryAssigned)
+	functionConfig := instance.createFunction(binaryPath, packageType, functionName, language, memoryAssigned)
 
 	resourceID := instance.getResourceID(*apiConfig.Name, *apiConfig.Id)
 	instance.createAPIFunctionIntegration(*apiConfig.Name, functionName, *apiConfig.Id, resourceID, *functionConfig.FunctionArn)
@@ -117,7 +116,7 @@ func (instance awsSingleton) getResourceID(APIName string, apiID string) string 
 	return ""
 }
 
-func (instance awsSingleton) createFunction(packageType string, functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
+func (instance awsSingleton) createFunction(binaryPath string, packageType string, functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
 	log.Infof("Creating producer function %s", functionName)
 
 	var createArgs *lambda.CreateFunctionInput
@@ -135,21 +134,19 @@ func (instance awsSingleton) createFunction(packageType string, functionName str
 			}
 		}
 
-		// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
 		createArgs = &lambda.CreateFunctionInput{
 			PackageType:   aws.String(lambda.PackageTypeZip),
 			Code:          createCode,
 			Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
 			Role:          aws.String(lambdaExecutionRole),
 			FunctionName:  aws.String(functionName),
-			Handler:       aws.String(util.BinaryName),
+			Handler:       aws.String(binaryPath),
 			Runtime:       aws.String(language),
 			TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
 			Timeout:       aws.Int64(maxFunctionTimeout),
 			MemorySize:    aws.Int64(memoryAssigned),
 		}
 	case "Image":
-		// Set Mode to Active to sample and trace a subset of incoming requests with AWS X-Ray. PassThrough otherwise.
 		createArgs = &lambda.CreateFunctionInput{
 			PackageType: aws.String(lambda.PackageTypeImage),
 			Code: &lambda.FunctionCode{
@@ -170,7 +167,7 @@ func (instance awsSingleton) createFunction(packageType string, functionName str
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return instance.createFunction(packageType, functionName, language, memoryAssigned)
+			return instance.createFunction(binaryPath, packageType, functionName, language, memoryAssigned)
 		}
 
 		log.Fatalf("Cannot create function: %s", err.Error())

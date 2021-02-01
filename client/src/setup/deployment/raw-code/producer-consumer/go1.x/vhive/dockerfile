@@ -1,0 +1,4 @@
+FROM alpine:3.13.1
+ADD handler /main
+ADD random.file /random.file
+ENTRYPOINT [ "/main" ]

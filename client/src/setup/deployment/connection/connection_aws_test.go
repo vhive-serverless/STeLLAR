@@ -23,13 +23,9 @@
 package connection
 
 import (
-	"crypto/sha256"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
-	"io"
 	"math/rand"
-	"os"
 	"testing"
 	"time"
 	"vhive-bench/client/setup/deployment"
@@ -38,7 +34,7 @@ import (
 
 const (
 	awsAPIsLimitIncl                    = 600
-	apiTemplatePathFromConnectionFolder = "../raw-code/producer-consumer/vHive-API-template-prod-oas30-apigateway.json"
+	apiTemplatePathFromConnectionFolder = "../raw-code/producer-consumer/api-template.json"
 	aws                                 = "aws"
 	golang                              = "go1.x"
 )
@@ -55,32 +51,6 @@ func TestAWSRemoveAllFunctions(t *testing.T) {
 	for _, function := range apis {
 		Singleton.RemoveFunction(function.GatewayID)
 	}
-}
-
-func TestUnitTestingDockerfileIntegrity(t *testing.T) {
-	f1, err := os.Open("dockerfile")
-	if err != nil {
-		log.Fatalf("Could not open unit-testing dockerfile: %s", err.Error())
-	}
-	defer f1.Close()
-
-	h1 := sha256.New()
-	if _, err := io.Copy(h1, f1); err != nil {
-		log.Fatalf("Could not hash unit-testing dockerfile contents: %s", err.Error())
-	}
-
-	f2, err := os.Open("../../../dockerfile")
-	if err != nil {
-		log.Fatalf("Could not open original dockerfile: %s", err.Error())
-	}
-	defer f2.Close()
-
-	h2 := sha256.New()
-	if _, err := io.Copy(h2, f2); err != nil {
-		log.Fatalf("Could not hash original dockerfile contents: %s", err.Error())
-	}
-
-	require.Equal(t, h1.Sum(nil), h2.Sum(nil))
 }
 
 func TestAWSListAPIs(t *testing.T) {
@@ -170,18 +140,20 @@ func TestAWSUpdateFunction(t *testing.T) {
 	apis := Singleton.ListAPIs()
 
 	var repurposedAPIID string
-	var packageType string
 	if len(apis) == 0 {
-		packageType = "Zip"
-		repurposedAPIID, _, _ = deployRandomMemoryFunction(packageType)
+		repurposedAPIID, _, _ = deployRandomMemoryFunction("Zip")
 	} else {
-		repurposedAPIID = apis[0].GatewayID
-		packageType = apis[0].PackageType
-		setupDeployment(packageType)
+		// Update first api that is not "Image"-packaged
+		for _, api := range apis {
+			if api.PackageType == "Zip" {
+				repurposedAPIID = api.GatewayID
+			}
+		}
+		setupDeployment("Zip")
 	}
 
 	repurposedFunctionMemory := rand.Intn(1000-128) + 128
-	Singleton.UpdateFunction(packageType, repurposedAPIID, int64(repurposedFunctionMemory))
+	Singleton.UpdateFunction("Zip", repurposedAPIID, int64(repurposedFunctionMemory))
 
 	// Check that repurposing succeeded
 	apis = Singleton.ListAPIs()
@@ -202,21 +174,16 @@ func deployRandomMemoryFunction(packageType string) (string, float64, int64) {
 	rand.Seed(time.Now().Unix())
 	desiredFunctionMemoryMB := int64(rand.Intn(1000-128) + 128)
 
-	deployedImageSizeMB := setupDeployment(packageType)
+	deployedImageSizeMB, binaryPath := setupDeployment(packageType)
 
-	return Singleton.DeployFunction(packageType, golang, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
+	return Singleton.DeployFunction(binaryPath, packageType, golang, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
 }
 
-func setupDeployment(packageType string) float64 {
+func setupDeployment(packageType string) (float64, string) {
 	// Deployment images over 50MB use S3, meaning calls are made to the service which can incur extra charges.
 	// In unit testing we use an image size of 45MB to avoid this.
 
-	deployedImageSizeMB := deployment.SetupDeployment(
-		fmt.Sprintf("../raw-code/producer-consumer/%s/%s/main.go", golang, aws),
-		aws,
-		golang,
-		util.MBToBytes(45.),
-		packageType,
-	)
-	return deployedImageSizeMB
+	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(fmt.Sprintf("../raw-code/producer-consumer/%s/%s/main.go", golang, aws), aws, golang, util.MBToBytes(45.), packageType, 0)
+
+	return deployedImageSizeMB, binaryPath
 }

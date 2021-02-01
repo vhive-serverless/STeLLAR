@@ -6,13 +6,13 @@ replace vhive-bench/client/util => ./util
 
 replace vhive-bench/client/setup => ./setup
 
-replace vhive-bench/client/experiments => ./experiments
+replace vhive-bench/client/benchmarking => ./benchmarking
 
-replace vhive-bench/client/experiments/benchmarking => ./experiments/benchmarking
+replace vhive-bench/client/benchmarking/writers => ./benchmarking/writers
 
-replace vhive-bench/client/experiments/visualization => ./experiments/visualization
+replace vhive-bench/client/benchmarking/visualization => ./benchmarking/visualization
 
-replace vhive-bench/client/experiments/networking => ./experiments/networking
+replace vhive-bench/client/benchmarking/networking => ./benchmarking/networking
 
 require (
 	github.com/aws/aws-lambda-go v1.22.0

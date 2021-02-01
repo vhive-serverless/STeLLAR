@@ -20,18 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package deployment
+package packaging
 
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"math"
 	"os/exec"
+	"strings"
 	"vhive-bench/client/setup/deployment/connection/amazon"
 	"vhive-bench/client/util"
 )
 
-func setupContainerImageDeployment(provider string, deploymentSizeBytes int64) {
+//SetupContainerImageDeployment will package the function using container images
+func SetupContainerImageDeployment(provider string, binaryPath string) {
 	var privateRepoURI string
 	switch provider {
 	case "aws":
@@ -41,9 +42,9 @@ func setupContainerImageDeployment(provider string, deploymentSizeBytes int64) {
 		util.RunCommandAndLog(exec.Command("docker", "login", "-u", "AWS", "-p",
 			amazon.GetECRAuthorizationToken(), privateRepoURI))
 	case "vhive":
-		privateRepoURI = *promptForString("Please enter your DockerHub username: ")
-
 		log.Info("Authenticating Docker CLI to the DockerHub registry...")
+
+		privateRepoURI = *promptForString("Please enter your DockerHub username: ")
 		util.RunCommandAndLog(exec.Command("docker", "login", "-u",
 			privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
 	default:
@@ -51,11 +52,7 @@ func setupContainerImageDeployment(provider string, deploymentSizeBytes int64) {
 		return
 	}
 
-	// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
-	generateFillerFile("random.file", int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
-
-	log.Info("Adding binary file to container image...")
-	util.RunCommandAndLog(exec.Command("docker", "build", "-t", "vhive-bench:latest", "."))
+	util.RunCommandAndLog(exec.Command("docker", "build", "-t", "vhive-bench:latest", strings.TrimSuffix(binaryPath, "/handler")))
 
 	log.Info("Pushing container image to the registry...")
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, "vhive-bench:latest")

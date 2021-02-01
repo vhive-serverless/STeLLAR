@@ -48,7 +48,7 @@ jobs:
       
     - name: Unit Tests
       working-directory: ${{env.working-directory}}
-      run: go test -cover -v ./...
+      run: go test -short -cover -v ./...
 
     - name: Burstiness ZIP Package Test
       working-directory: ${{env.working-directory}}

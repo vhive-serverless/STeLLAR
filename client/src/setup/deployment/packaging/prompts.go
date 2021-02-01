@@ -20,20 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package http
+package packaging
 
 import (
-	"github.com/stretchr/testify/require"
-	"testing"
-	"vhive-bench/client/setup"
+	"bufio"
+	log "github.com/sirupsen/logrus"
+	"os"
+	"strings"
 )
 
-func TestExecuteExternalHTTPRequest(t *testing.T) {
-	randomPayloadLength := 7
-	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement)
+func promptForString(prompt string) *string {
+	reader := bufio.NewReader(os.Stdin)
 
-	respBytes, reqSentTime, reqReceivedTime := ExecuteHTTPRequest(*req)
-	require.Equal(t, true, respBytes != nil)
-	require.Equal(t, true, reqReceivedTime.Sub(reqSentTime) > 0)
+	log.Print(prompt)
+
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatalf("Could not read response: %s.", err.Error())
+	}
+
+	if response == "\n" {
+		return nil
+	}
+
+	response = strings.ReplaceAll(response, "\n", "")
+
+	return &response
 }

@@ -20,25 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package experiments
+package benchmarking
 
 import (
-	"encoding/csv"
-	"fmt"
-	"github.com/go-gota/gota/dataframe"
 	log "github.com/sirupsen/logrus"
-	"gonum.org/v1/gonum/stat"
-	"io"
 	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"sort"
-	"strconv"
 	"sync"
 	"time"
-	"vhive-bench/client/experiments/benchmarking"
-	"vhive-bench/client/experiments/visualization"
+	"vhive-bench/client/benchmarking/writers"
 	"vhive-bench/client/setup"
 )
 
@@ -51,7 +43,7 @@ func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath strin
 	case -1: // run all experiments
 		for experimentIndex := 0; experimentIndex < len(config.SubExperiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			go triggerExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[experimentIndex], outputDirectoryPath)
+			go triggerSubExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[experimentIndex], outputDirectoryPath)
 
 			if config.Sequential {
 				experimentsWaitGroup.Wait()
@@ -59,21 +51,21 @@ func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath strin
 		}
 	default:
 		if specificExperiment < 0 || specificExperiment >= len(config.SubExperiments) {
-			log.Fatalf("Parameter `runExperiment` is invalid: %d", specificExperiment)
+			log.Fatalf("Parameter `runSubExperiment` is invalid: %d", specificExperiment)
 		}
 
 		experimentsWaitGroup.Add(1)
-		go triggerExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[specificExperiment], outputDirectoryPath)
+		go triggerSubExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[specificExperiment], outputDirectoryPath)
 	}
 
 	experimentsWaitGroup.Wait()
 }
 
-func triggerExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, experiment setup.SubExperiment, outputDirectoryPath string) {
+func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, experiment setup.SubExperiment, outputDirectoryPath string) {
 	log.Infof("[sub-experiment %d] Starting...", experiment.ID)
 	defer experimentsWaitGroup.Done()
 
-	experimentDirectoryPath, latenciesFile, statisticsFile, dataTransfersFile := createExperimentOutput(outputDirectoryPath, experiment)
+	experimentDirectoryPath, latenciesFile, statisticsFile, dataTransfersFile := createSubExperimentOutput(outputDirectoryPath, experiment)
 	defer latenciesFile.Close()
 	defer statisticsFile.Close()
 	if dataTransfersFile != nil {
@@ -81,20 +73,22 @@ func triggerExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, ex
 	}
 
 	burstDeltas := generateIAT(experiment)
-	benchmarking.RunProfiler(provider, experiment, burstDeltas, latenciesFile, dataTransfersFile)
 
-	latenciesDF := readLatenciesFromFile(experiment.ID, latenciesFile)
+	log.Infof("[sub-experiment %d] Started benchmarking, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v)",
+		experiment.ID, experiment.Bursts, experiment.IATSeconds, len(experiment.GatewayEndpoints),
+		float64(experiment.Bursts)/float64(len(experiment.GatewayEndpoints))*experiment.IATSeconds)
 
-	sortedLatencies := latenciesDF.Col("Client Latency (ms)").Float()
-	sort.Float64s(sortedLatencies)
+	latenciesWriter := writers.NewRTTLatencyWriter(latenciesFile)
+	dataTransferWriter := writers.NewDataTransferWriter(dataTransfersFile, experiment.DataTransferChainLength)
 
-	visualization.Generate(experiment, burstDeltas, latenciesDF, sortedLatencies, experimentDirectoryPath)
-	generateStatistics(statisticsFile, experiment.ID, sortedLatencies)
+	runSubExperiment(experiment, burstDeltas, provider, latenciesWriter, dataTransferWriter)
+
+	postProcessing(experiment, latenciesFile, burstDeltas, experimentDirectoryPath, statisticsFile)
 
 	log.Infof("[sub-experiment %d] Successfully finished.", experiment.ID)
 }
 
-func createExperimentOutput(path string, experiment setup.SubExperiment) (string, *os.File, *os.File, *os.File) {
+func createSubExperimentOutput(path string, experiment setup.SubExperiment) (string, *os.File, *os.File, *os.File) {
 	directoryPath := filepath.Join(path, experiment.Title)
 	log.Infof("[sub-experiment %d] Creating directory at `%s`", experiment.ID, directoryPath)
 	if err := os.MkdirAll(directoryPath, os.ModePerm); err != nil {
@@ -128,45 +122,6 @@ func createExperimentOutput(path string, experiment setup.SubExperiment) (string
 	return directoryPath, latenciesFile, statisticsFile, nil
 }
 
-func generateStatistics(file *os.File, experimentID int, sortedLatencies []float64) {
-	log.Debugf("[sub-experiment %d] Generating result statistics...", experimentID)
-
-	statisticsWriter := csv.NewWriter(file)
-
-	if err := statisticsWriter.Write([]string{"Count", "Mean", "Standard Deviation", "Min", "25%ile", "50%ile",
-		"75%ile", "95%ile", "Max"}); err != nil {
-		log.Errorf("[sub-experiment %d] Could not write statistics header to file: %s", experimentID, err.Error())
-	}
-
-	if err := statisticsWriter.Write([]string{
-		strconv.Itoa(len(sortedLatencies)),
-		fmt.Sprintf("%.2f", stat.Mean(sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.StdDev(sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.Quantile(0, stat.Empirical, sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.Quantile(0.25, stat.Empirical, sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.Quantile(0.50, stat.Empirical, sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.Quantile(0.75, stat.Empirical, sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.Quantile(0.95, stat.Empirical, sortedLatencies, nil)),
-		fmt.Sprintf("%.2f", stat.Quantile(1, stat.Empirical, sortedLatencies, nil)),
-	}); err != nil {
-		log.Errorf("[sub-experiment %d] Could not write statistics to file: %s", experimentID, err.Error())
-	}
-
-	statisticsWriter.Flush()
-}
-
-func readLatenciesFromFile(experimentID int, csvFile *os.File) dataframe.DataFrame {
-	log.Debugf("[sub-experiment %d] Reading written latencies from file %s", experimentID, csvFile.Name())
-
-	_, err := csvFile.Seek(0, io.SeekStart)
-	if err != nil {
-		log.Error(err)
-	}
-
-	latenciesDF := dataframe.ReadCSV(csvFile)
-	return latenciesDF
-}
-
 func generateIAT(experiment setup.SubExperiment) []time.Duration {
 	step := 1.0
 	maxStep := experiment.IATSeconds
@@ -196,8 +151,9 @@ func generateIAT(experiment setup.SubExperiment) []time.Duration {
 	return burstDeltas
 }
 
-// use a shifted and scaled exponential distribution to guarantee a minimum sleep time
+// Use a shifted and scaled exponential distribution to guarantee a minimum sleep time
 func getSpinTime(frequencySeconds float64) float64 {
 	rateParameter := 1 / math.Log(frequencySeconds) // experimentally deduced formula
 	return frequencySeconds + rand.ExpFloat64()/rateParameter
 }
+

@@ -49,7 +49,7 @@ type ServerlessInterface struct {
 
 	//DeployFunction will create a new serverless function in the specified language, with the specified amount of
 	//memory. An API to access it will then be created, as well as corresponding permissions and integrations.
-	DeployFunction func(packageType string, language string, memoryAssigned int64) string
+	DeployFunction func(binaryPath string, packageType string, language string, memoryAssigned int64) string
 
 	//RemoveFunction will remove the serverless function with given ID and its corresponding API.
 	RemoveFunction func(uniqueID string)
@@ -95,8 +95,8 @@ func setupAWSConnection(apiTemplatePath string) {
 
 			return functions
 		},
-		DeployFunction: func(packageType string, language string, memoryAssigned int64) string {
-			return amazon.AWSSingletonInstance.DeployFunction(packageType, language, memoryAssigned)
+		DeployFunction: func(binaryPath string, packageType string, language string, memoryAssigned int64) string {
+			return amazon.AWSSingletonInstance.DeployFunction(binaryPath, packageType, language, memoryAssigned)
 		},
 		RemoveFunction: func(uniqueID string) {
 			amazon.AWSSingletonInstance.RemoveFunction(uniqueID)

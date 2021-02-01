@@ -79,7 +79,7 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 
 	transformServiceTimesToFunctionIncrements(&config)
 
-	connection.Initialize(config.Provider, endpointsDirectoryPath, "./setup/deployment/raw-code/producer-consumer/vHive-API-template-prod-oas30-apigateway.json")
+	connection.Initialize(config.Provider, endpointsDirectoryPath, "./setup/deployment/raw-code/producer-consumer/api-template.json")
 
 	availableEndpoints := connection.Singleton.ListAPIs()
 

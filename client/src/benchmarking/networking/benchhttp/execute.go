@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package http
+package benchhttp
 
 import (
 	"context"
@@ -35,8 +35,8 @@ const (
 	timeout = 15 * time.Minute
 )
 
-//ExecuteHTTPRequest will send an HTTP request, check its status code and return the response body.
-func ExecuteHTTPRequest(req http.Request) ([]byte, time.Time, time.Time) {
+//ExecuteRequest will send an HTTP request, check its status code and return the response body.
+func ExecuteRequest(req http.Request) ([]byte, time.Time, time.Time) {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(timeout))
 	defer cancel()
 

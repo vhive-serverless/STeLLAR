@@ -1,22 +1,14 @@
 [
   {
-    "GatewayID": "test1",
+    "GatewayID": "producer.default.192.168.1.240.xip.io",
     "FunctionMemoryMB": 128,
-    "ImageSizeMB": 60
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
   },
   {
-    "GatewayID": "test2",
+    "GatewayID": "consumer.default.192.168.1.240.xip.io",
     "FunctionMemoryMB": 128,
-    "ImageSizeMB": 60
-  },
-  {
-    "GatewayID": "test3",
-    "FunctionMemoryMB": 128,
-    "ImageSizeMB": 60
-  },
-  {
-    "GatewayID": "test4",
-    "FunctionMemoryMB": 128,
-    "ImageSizeMB": 60
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
   }
 ]

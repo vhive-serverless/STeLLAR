@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package http
+package benchhttp
 
 import (
 	"fmt"
@@ -50,8 +50,6 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 		if err != nil {
 			log.Fatalf("Could not sign AWS HTTP request: %s", err.Error())
 		}
-	case "vHive":
-		//TODO: add vHive request implementation
 	default:
 		return createGeneralRequest(http.MethodGet, provider)
 	}

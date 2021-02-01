@@ -18,9 +18,11 @@ client/.idea/
 client/latency-samples/
 client/cloudlab-latency-samples/
 client/src/only-plot.txt
-client/src/experiments/networking/gRPC/proto_gen/
 client/src/client
-client/src/producer-handler
+client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
+client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
+client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
+client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
 
 client/plotutil/data-transfer/providers/
 client/plotutil/cold-starts/providers/

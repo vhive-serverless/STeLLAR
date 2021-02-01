@@ -24,6 +24,7 @@ package setup
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/service/lambda"
 	log "github.com/sirupsen/logrus"
 	"math"
 	"vhive-bench/client/setup/deployment"
@@ -32,32 +33,29 @@ import (
 )
 
 func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
-	deploymentGeneratedForSubExperiment := false
-
+	binaryPath := ""
 	var assignedEndpoints []GatewayEndpoint
 	for i := 0; i < experiment.GatewaysNumber; i++ {
-		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, &deploymentGeneratedForSubExperiment,
-			provider, runtime)
+		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, &binaryPath, provider, runtime)
 
 		gatewayEndpoint := GatewayEndpoint{ID: foundEndpointID}
 
-		for i := experiment.DataTransferChainLength; i > 1; i-- {
+		for j := experiment.DataTransferChainLength; j > 1; j-- {
 			gatewayEndpoint.DataTransferChainIDs = append(
 				gatewayEndpoint.DataTransferChainIDs,
-				findEndpointToAssign(&availableEndpoints, experiment, &deploymentGeneratedForSubExperiment, provider, runtime),
+				findEndpointToAssign(&availableEndpoints, experiment, &binaryPath, provider, runtime),
 			)
 		}
 
 		assignedEndpoints = append(assignedEndpoints, gatewayEndpoint)
 	}
 
-	log.Debugf("Assigning following endpoints to sub-experiment `%s`: %v", experiment.Title, assignedEndpoints)
+	log.Debugf("[sub-experiment %d] Assigning following endpoints: %v", experiment.ID, assignedEndpoints)
 	experiment.GatewayEndpoints = assignedEndpoints
 	return availableEndpoints
 }
 
-func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment,
-	deploymentGeneratedForSubExperiment *bool, provider string, runtime string) string {
+func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, binaryPath *string, provider string, runtime string) string {
 	for index, endpoint := range *availableEndpoints {
 		if specsMatch(endpoint, experiment) {
 			*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
@@ -65,41 +63,53 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 		}
 	}
 
-	log.Infof("Searched %d endpoints, could not find a function to assign with memory %dMB and image size %vMB.",
+	log.Infof("[sub-experiment %d] Searched %d endpoints, could not find a function to assign with: memory %dMB, image size %vMB, package type %q.",
+		experiment.ID,
 		len(*availableEndpoints),
 		experiment.FunctionMemoryMB,
 		experiment.FunctionImageSizeMB,
+		experiment.PackageType,
 	)
 
-	if !*deploymentGeneratedForSubExperiment {
-		log.Info("Setting up deployment...")
-		experiment.FunctionImageSizeMB = deployment.SetupDeployment(
+	if *binaryPath == "" {
+		log.Infof("[sub-experiment %d] Binary path was empty, setting up deployment...", experiment.ID)
+		var assignedBinaryPath string
+		experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
 			provider,
 			runtime,
 			util.MBToBytes(experiment.FunctionImageSizeMB),
 			experiment.PackageType,
+			experiment.ID,
 		)
-		*deploymentGeneratedForSubExperiment = true
+		*binaryPath = assignedBinaryPath
 	}
 
-	// Only attempt repurposing functions if they are ZIP packages (Image package updates yield errors on AWS).
+	// Only attempt repurposing functions if they are ZIP-packaged:
+	// https://github.com/motdotla/node-lambda/issues/535 (Image-packaged functions have update errors on AWS)
 	if experiment.PackageType == "Zip" {
-	for index, endpoint := range *availableEndpoints {
-			log.Info("Repurposing an existing function...")
-			connection.Singleton.UpdateFunction(experiment.PackageType, endpoint.GatewayID, experiment.FunctionMemoryMB)
+		for index, endpoint := range *availableEndpoints {
+			if endpoint.PackageType == "Zip" {
+				log.Infof("[sub-experiment %d] Repurposing an existing function...", experiment.ID)
+				connection.Singleton.UpdateFunction(experiment.PackageType, endpoint.GatewayID, experiment.FunctionMemoryMB)
 
-			*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
+				*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
 
-			log.Infof("Successfully repurposed %q (memory %dMB -> %dMB, image size %vMB -> %vMB).",
-				endpoint.GatewayID, endpoint.FunctionMemoryMB, experiment.FunctionMemoryMB,
-				endpoint.ImageSizeMB, experiment.FunctionImageSizeMB)
-			return endpoint.GatewayID
+				log.Infof("[sub-experiment %d] Successfully repurposed %q (memory %dMB -> %dMB, image size %vMB -> %vMB).",
+					experiment.ID,
+					endpoint.GatewayID,
+					endpoint.FunctionMemoryMB,
+					experiment.FunctionMemoryMB,
+					endpoint.ImageSizeMB,
+					experiment.FunctionImageSizeMB,
+				)
+				return endpoint.GatewayID
+			}
 		}
 	}
 
-	log.Info("Could not find an existing function to repurpose, creating a new function...")
-	return connection.Singleton.DeployFunction(experiment.PackageType, runtime, experiment.FunctionMemoryMB)
+	log.Infof("[sub-experiment %d] Could not find an existing function to repurpose, creating a new function...", experiment.ID)
+	return connection.Singleton.DeployFunction(*binaryPath, experiment.PackageType, runtime, experiment.FunctionMemoryMB)
 }
 
 func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoint {
@@ -108,8 +118,19 @@ func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoi
 }
 
 func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
-	return endpoint.FunctionMemoryMB == experiment.FunctionMemoryMB &&
-		endpoint.PackageType == experiment.PackageType &&
-		(experiment.FunctionImageSizeMB == 0 ||
-			math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 0.5)
+	if experiment.PackageType != endpoint.PackageType {
+		return false
+	}
+
+	// Experiment image size can be 0 (minimal) when no filler file was added
+	if experiment.FunctionImageSizeMB != 0 && endpoint.FunctionMemoryMB != experiment.FunctionMemoryMB {
+		return false
+	}
+
+	// Image sizes are ignored for PackageTypeImage because AWS does not reveal this information
+	if experiment.PackageType == lambda.PackageTypeImage {
+		return true
+	}
+
+	return math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 0.5
 }
