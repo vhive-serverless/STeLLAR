@@ -23,21 +23,93 @@
 package common
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 )
 
-//FunctionsLeftInChain checks if there are functions left in the chain
-func FunctionsLeftInChain(dataTransferChainIDs []string) bool {
+//GenerateResponse creates the HTTP or gRPC producer-consumer response payload
+func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
+	var updatedTimestampChain []string
+
+	if requestHTTP != nil {
+		if timestampChainStringForm, hasChainParameter := requestHTTP.QueryStringParameters["TimestampChain"]; !hasChainParameter {
+			// First function in the chain
+			requestHTTP.QueryStringParameters["TransferPayload"] = generateStringPayload(requestHTTP.QueryStringParameters["PayloadLengthBytes"])
+			updatedTimestampChain = AppendTimestampToChain([]string{})
+		} else {
+			updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
+		}
+	} else {
+		if requestGRPC.TimestampChain == "" {
+			// First function in the chain
+			requestGRPC.TransferPayload = generateStringPayload(requestGRPC.PayloadLengthBytes)
+			updatedTimestampChain = AppendTimestampToChain([]string{})
+		} else {
+			updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(requestGRPC.TimestampChain))
+		}
+	}
+
+	if requestHTTP != nil {
+		simulateWork(requestHTTP.QueryStringParameters["IncrementLimit"])
+	} else {
+		simulateWork(requestGRPC.IncrementLimit)
+	}
+
+	var dataTransferChainIDs []string
+	if requestHTTP != nil {
+		dataTransferChainIDs = StringArrayToArrayOfString(requestHTTP.QueryStringParameters["DataTransferChainIDs"])
+	} else {
+		dataTransferChainIDs = StringArrayToArrayOfString(requestGRPC.DataTransferChainIDs)
+	}
+
+	if functionsLeftInChain(dataTransferChainIDs) {
+		log.Printf("There are %d functions left in the chain, invoking next one...", len(dataTransferChainIDs))
+
+		if requestHTTP != nil {
+			updatedTimestampChain = extractJSONTimestampChain(invokeNextFunctionAWS(map[string]string{
+				"IncrementLimit":       requestHTTP.QueryStringParameters["IncrementLimit"],
+				"TimestampChain":       fmt.Sprintf("%v", updatedTimestampChain),
+				"TransferPayload":      requestHTTP.QueryStringParameters["TransferPayload"],
+				"DataTransferChainIDs": fmt.Sprintf("%v", dataTransferChainIDs[1:]),
+			}, dataTransferChainIDs[0]))
+		} else {
+			updatedTimestampChain = invokeNextFunctionGRPC(requestGRPC, fmt.Sprintf("%v", updatedTimestampChain), dataTransferChainIDs)
+		}
+	}
+
+	if requestHTTP != nil {
+		// ctx context.Context provides runtime Gateway information
+		// (https://docs.aws.amazon.com/lambda/latest/dg/golang-context.html)
+		lc, _ := lambdacontext.FromContext(ctx)
+		httpOutput, err := json.Marshal(ProducerConsumerResponse{
+			RequestID:      lc.AwsRequestID,
+			TimestampChain: updatedTimestampChain,
+		})
+		if err != nil {
+			log.Fatalf("Could not marshal function output: %s", err)
+		}
+		return httpOutput, nil
+	}
+
+	return nil, updatedTimestampChain
+}
+
+//functionsLeftInChain checks if there are functions left in the chain
+func functionsLeftInChain(dataTransferChainIDs []string) bool {
 	return len(dataTransferChainIDs) > 0 && dataTransferChainIDs[0] != ""
 }
 
-//GeneratePayload creates a transfer payload for the producer-consumer chain
-func GeneratePayload(payloadLengthBytesString string) []byte {
+//generateStringPayload creates a transfer payload for the producer-consumer chain
+func generateStringPayload(payloadLengthBytesString string) string {
 	payloadLengthBytes, err := strconv.Atoi(payloadLengthBytesString)
 	if err != nil {
 		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
@@ -47,11 +119,11 @@ func GeneratePayload(payloadLengthBytesString string) []byte {
 	generatedTransferPayload := make([]byte, payloadLengthBytes)
 	rand.Read(generatedTransferPayload)
 
-	return generatedTransferPayload
+	return string(generatedTransferPayload)
 }
 
-//ExtractJSONTimestampChain will process raw bytes into a string array of timestamps
-func ExtractJSONTimestampChain(responsePayload []byte) []string {
+//extractJSONTimestampChain will process raw bytes into a string array of timestamps
+func extractJSONTimestampChain(responsePayload []byte) []string {
 	var reply map[string]interface{}
 	err := json.Unmarshal(responsePayload, &reply)
 	if err != nil {
@@ -73,8 +145,8 @@ func AppendTimestampToChain(timestampChain []string) []string {
 	return append(timestampChain, timestampMilliString)
 }
 
-//SimulateWork will keep the CPU busy-spinning
-func SimulateWork(incrementLimitString string) {
+//simulateWork will keep the CPU busy-spinning
+func simulateWork(incrementLimitString string) {
 	incrementLimit, err := strconv.Atoi(incrementLimitString)
 	if err != nil {
 		log.Fatalf("Could not parse IncrementLimit parameter: %s", err.Error())

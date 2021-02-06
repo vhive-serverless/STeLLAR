@@ -31,16 +31,16 @@ import (
 )
 
 func TestGeneratePayload(t *testing.T) {
-	emptyPayload := GeneratePayload("0")
+	emptyPayload := generateStringPayload("0")
 	require.Equal(t, 0, len(emptyPayload))
 
-	smallPayload := GeneratePayload("12")
+	smallPayload := generateStringPayload("12")
 	require.Equal(t, 12, len(smallPayload))
 
-	mediumPayload := GeneratePayload("512")
+	mediumPayload := generateStringPayload("512")
 	require.Equal(t, 512, len(mediumPayload))
 
-	largePayload := GeneratePayload("1024")
+	largePayload := generateStringPayload("1024")
 	require.Equal(t, 1024, len(largePayload))
 }
 
@@ -54,7 +54,7 @@ func TestExtractJSONTimestampChain(t *testing.T) {
 	gatewayReply, err := json.Marshal(map[string]string{"body": string(output)})
 	require.NoError(t, err)
 
-	JSONTimestampChain := ExtractJSONTimestampChain(gatewayReply)
+	JSONTimestampChain := extractJSONTimestampChain(gatewayReply)
 	require.Equal(t, 2, len(JSONTimestampChain))
 	require.Equal(t, "1612371639523", JSONTimestampChain[0])
 	require.Equal(t, "1612371639589", JSONTimestampChain[1])
