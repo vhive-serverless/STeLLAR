@@ -77,7 +77,6 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 		experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
 			provider,
-			runtime,
 			util.MBToBytes(experiment.FunctionImageSizeMB),
 			experiment.PackageType,
 			experiment.ID,

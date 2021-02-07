@@ -25,13 +25,13 @@ package benchmarking
 import (
 	log "github.com/sirupsen/logrus"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"vhive-bench/client/benchmarking/networking/benchgrpc"
 	"vhive-bench/client/benchmarking/networking/benchhttp"
 	"vhive-bench/client/benchmarking/writers"
 	"vhive-bench/client/setup"
-	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/common"
 	"vhive-bench/client/util"
 )
 
@@ -98,7 +98,7 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		var stringArrayTimeStampChain string
 		stringArrayTimeStampChain, reqSentTime, reqReceivedTime = benchgrpc.ExecuteRequest(payloadLengthBytes, gatewayEndpoint, incrementLimit)
 
-		timestampChain = common.StringArrayToArrayOfString(stringArrayTimeStampChain)
+		timestampChain = stringArrayToArrayOfString(stringArrayTimeStampChain)
 		hostname = gatewayEndpoint.ID
 		responseID = "N/A"
 	case "aws":
@@ -132,4 +132,11 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		strconv.FormatInt(reqReceivedTime.Sub(reqSentTime).Milliseconds(), 10),
 		strconv.Itoa(burstID),
 	)
+}
+
+//stringArrayToArrayOfString will process, e.g., "[14 35 8]" into []string{14, 35, 8}
+func stringArrayToArrayOfString(str string) []string {
+	str = strings.Split(str, "]")[0]
+	str = strings.Split(str, "[")[1]
+	return strings.Split(str, " ")
 }

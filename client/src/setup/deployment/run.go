@@ -29,7 +29,6 @@ import (
 	"math"
 	"math/rand"
 	"os"
-	"os/exec"
 	"strings"
 	"vhive-bench/client/setup/deployment/packaging"
 	"vhive-bench/client/util"
@@ -37,8 +36,8 @@ import (
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes. Returns size of deployment in MB.
-func SetupDeployment(rawCodePath string, provider string, language string, deploymentSizeBytes int64, packageType string, experimentID int) (float64, string) {
-	_, binaryPath := generateBinaryFile(rawCodePath, language, experimentID)
+func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int) (float64, string) {
+	_, binaryPath := getBinaryInfo(rawCodePath, experimentID)
 	fillerFilePath := strings.TrimSuffix(binaryPath, "/handler") + "/random.file"
 
 	switch packageType {
@@ -95,7 +94,7 @@ func generateFillerFile(fillerFilePath string, sizeBytes int64) {
 	log.Info("Successfully generated the filler file.")
 }
 
-func generateBinaryFile(rawCodePath string, language string, experimentID int) (int64, string) {
+func getBinaryInfo(rawCodePath string, experimentID int) (int64, string) {
 	log.Infof("[sub-experiment %d] Building binary file for the function(s) to be deployed...", experimentID)
 
 	if !util.FileExists(rawCodePath) {
@@ -103,17 +102,6 @@ func generateBinaryFile(rawCodePath string, language string, experimentID int) (
 	}
 
 	binaryPath := fmt.Sprintf("%s/%s", strings.TrimSuffix(rawCodePath, "/main.go"), "handler")
-
-	switch language {
-	case "go1.x":
-		cmd := exec.Command("go", "build", "-v", "-o", binaryPath, rawCodePath)
-		cmd.Env = os.Environ()
-		cmd.Env = append(cmd.Env, "CGO_ENABLED=0")
-		cmd.Env = append(cmd.Env, "GOOS=linux")
-		util.RunCommandAndLog(cmd)
-	default:
-		log.Fatalf("[sub-experiment %d] Unrecognized language %s", experimentID, language)
-	}
 
 	fi, err := os.Stat(binaryPath)
 	if err != nil {

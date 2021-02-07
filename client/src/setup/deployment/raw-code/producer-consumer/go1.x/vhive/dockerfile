@@ -1,4 +1,14 @@
-FROM alpine:3.13.1
-ADD handler /main
-ADD random.file /random.file
+FROM amd64/golang:1.15.7-alpine3.13
+
+WORKDIR /app
+
+COPY random.file /random.file
+COPY go.mod /app/go.mod
+COPY main.go /app/main.go
+COPY common/ /app/common/
+COPY proto_gen/ /app/proto_gen/
+
+RUN go mod download && \
+   CGO_ENABLED=0 GOOS=linux go build -v -o /main /app/main.go
+
 ENTRYPOINT [ "/main" ]

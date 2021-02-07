@@ -22,18 +22,25 @@
 
 # Cloudlab deployment
 CLOUDLAB_REMOTE=theodor@hp062.utah.cloudlab.us
-PROTOCOL_LOCATION := "setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto"
-GO_API_OUT := "setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
+PROTOCOL_LOCATION = "setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto"
 
 build_and_run_client: build_client run_client_aws
 
-build_client: proto_gen_go build
+build_client: proto_gen_go build test
 
+SERVER_API_OUT = "setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
+CLIENT_API_OUT = "benchmarking/networking/benchgrpc/proto_gen"
 proto_gen_go:
-	@mkdir -p $(GO_API_OUT)
-	@protoc chainfunction.proto --proto_path=$(PROTOCOL_LOCATION) --go_out=$(GO_API_OUT) --go-grpc_out=$(GO_API_OUT)
+	@mkdir -p $(CLIENT_API_OUT)
+	@mkdir -p $(SERVER_API_OUT)
+	@protoc chainfunction.proto --proto_path=$(PROTOCOL_LOCATION) --go_out=$(CLIENT_API_OUT) --go-grpc_out=$(CLIENT_API_OUT)
+	@protoc chainfunction.proto --proto_path=$(PROTOCOL_LOCATION) --go_out=$(SERVER_API_OUT) --go-grpc_out=$(SERVER_API_OUT)
 
+VHIVE_LOCATION = "setup/deployment/raw-code/producer-consumer/go1.x/vhive"
+AWS_LOCATION = "setup/deployment/raw-code/producer-consumer/go1.x/aws"
 build:
+	@CGO_ENABLED=0 GOOS=linux cd $(VHIVE_LOCATION) && go build -v -o "handler" "main.go"
+	@CCGO_ENABLED=0 GOOS=linux cd $(AWS_LOCATION) && go build -v -o "handler" "main.go"
 	@CGO_ENABLED=0 GOOS=linux go build -v -a
 	@golangci-lint run ./...
 
@@ -44,7 +51,7 @@ test:
 
 run_client_aws:
 	@mkdir -p "../latency-samples"
-	@./client -o "../latency-samples" -g "../endpoints" -c "../experiments/tests/AWS/burstiness-image-package.json"
+	@./client -o "../latency-samples" -g "../endpoints" -c "../experiments/tests/AWS/burstiness-zip-package.json"
 
 run_client_vhive:
 	@mkdir -p "../latency-samples"

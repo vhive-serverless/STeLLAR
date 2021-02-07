@@ -25,10 +25,10 @@ package common
 import (
 	"context"
 	"fmt"
+	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"time"
-	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 )
 
 func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimestampChainString string, dataTransferChainIDs []string) []string {

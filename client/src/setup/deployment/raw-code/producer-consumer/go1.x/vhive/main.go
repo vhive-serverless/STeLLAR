@@ -25,11 +25,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/common"
+	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/common"
-	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 )
 
 const (

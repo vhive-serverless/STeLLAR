@@ -35,9 +35,20 @@ jobs:
             dep ensure
         fi
         
-    - name: Build
+    - name: Build AWS producer-consumer function
+      working-directory: "${{env.working-directory}}}/setup/deployment/raw-code/producer-consumer/go1.x/aws"
+      run: |
+        CCGO_ENABLED=0 GOOS=linux go build -v -o handler main.go
+        
+    - name: Build vHive producer-consumer function
+      working-directory: "${{env.working-directory}}/setup/deployment/raw-code/producer-consumer/go1.x/vhive"
+      run: |
+        CGO_ENABLED=0 GOOS=linux go build -v -o handler main.go
+        
+    - name: Build client
       working-directory: ${{env.working-directory}}
-      run: GOOS=linux go build -race -v -a
+      run: |
+        GOOS=linux go build -race -v -a
       
     - name: Configure AWS credentials using EASE lab account
       uses: aws-actions/configure-aws-credentials@v1

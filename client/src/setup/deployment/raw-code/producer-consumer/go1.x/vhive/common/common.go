@@ -28,34 +28,42 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
-	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 )
 
 //GenerateResponse creates the HTTP or gRPC producer-consumer response payload
 func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
-	var updatedTimestampChain []string
 
-	if requestHTTP != nil {
-		if timestampChainStringForm, hasChainParameter := requestHTTP.QueryStringParameters["TimestampChain"]; !hasChainParameter {
-			// First function in the chain
-			requestHTTP.QueryStringParameters["TransferPayload"] = generateStringPayload(requestHTTP.QueryStringParameters["PayloadLengthBytes"])
-			updatedTimestampChain = AppendTimestampToChain([]string{})
+	var updatedTimestampChain []string
+	if firstFunctionInChain(requestGRPC, requestHTTP) {
+		var payloadLengthBytes string
+		if requestHTTP != nil {
+			payloadLengthBytes = requestHTTP.QueryStringParameters["PayloadLengthBytes"]
 		} else {
-			updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
+			payloadLengthBytes = requestGRPC.PayloadLengthBytes
 		}
+
+		if requestHTTP != nil {
+			requestHTTP.QueryStringParameters["TransferPayload"] = generateStringPayload(payloadLengthBytes)
+		} else {
+			requestGRPC.TransferPayload = generateStringPayload(payloadLengthBytes)
+		}
+
+		updatedTimestampChain = AppendTimestampToChain([]string{})
 	} else {
-		if requestGRPC.TimestampChain == "" {
-			// First function in the chain
-			requestGRPC.TransferPayload = generateStringPayload(requestGRPC.PayloadLengthBytes)
-			updatedTimestampChain = AppendTimestampToChain([]string{})
+		var timestampChainStringForm string
+		if requestHTTP != nil {
+			timestampChainStringForm = requestHTTP.QueryStringParameters["TimestampChain"]
 		} else {
-			updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(requestGRPC.TimestampChain))
+			timestampChainStringForm = requestGRPC.TimestampChain
 		}
+
+		updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
 	}
 
 	if requestHTTP != nil {
@@ -74,16 +82,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 	if functionsLeftInChain(dataTransferChainIDs) {
 		log.Printf("There are %d functions left in the chain, invoking next one...", len(dataTransferChainIDs))
 
-		if requestHTTP != nil {
-			updatedTimestampChain = extractJSONTimestampChain(invokeNextFunctionAWS(map[string]string{
-				"IncrementLimit":       requestHTTP.QueryStringParameters["IncrementLimit"],
-				"TimestampChain":       fmt.Sprintf("%v", updatedTimestampChain),
-				"TransferPayload":      requestHTTP.QueryStringParameters["TransferPayload"],
-				"DataTransferChainIDs": fmt.Sprintf("%v", dataTransferChainIDs[1:]),
-			}, dataTransferChainIDs[0]))
-		} else {
-			updatedTimestampChain = invokeNextFunctionGRPC(requestGRPC, fmt.Sprintf("%v", updatedTimestampChain), dataTransferChainIDs)
-		}
+		updatedTimestampChain = invokeNextFunction(requestHTTP, updatedTimestampChain, dataTransferChainIDs, requestGRPC)
 	}
 
 	if requestHTTP != nil {
@@ -100,7 +99,40 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		return httpOutput, nil
 	}
 
+	// gRPC
 	return nil, updatedTimestampChain
+}
+
+func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen.InvokeChainRequest) []string {
+	if requestHTTP != nil {
+		result := invokeNextFunctionAWS(map[string]string{
+			"IncrementLimit":       requestHTTP.QueryStringParameters["IncrementLimit"],
+			"TimestampChain":       fmt.Sprintf("%v", updatedTimestampChain),
+			"TransferPayload":      requestHTTP.QueryStringParameters["TransferPayload"],
+			"DataTransferChainIDs": fmt.Sprintf("%v", dataTransferChainIDs[1:]),
+		},
+			dataTransferChainIDs[0],
+		)
+
+		updatedTimestampChain = extractJSONTimestampChain(result)
+	} else {
+		updatedTimestampChain = invokeNextFunctionGRPC(
+			requestGRPC,
+			fmt.Sprintf("%v", updatedTimestampChain),
+			dataTransferChainIDs,
+		)
+	}
+	return updatedTimestampChain
+}
+
+func firstFunctionInChain(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
+	if requestHTTP != nil {
+		_, firstFunctionInChain := requestHTTP.QueryStringParameters["TimestampChain"]
+		return firstFunctionInChain
+	}
+
+	// gRPC
+	return requestGRPC.TimestampChain == ""
 }
 
 //functionsLeftInChain checks if there are functions left in the chain

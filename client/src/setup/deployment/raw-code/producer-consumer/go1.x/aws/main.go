@@ -26,8 +26,8 @@ import (
 	"context"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/common"
 	"net/http"
-	"vhive-bench/client/setup/deployment/raw-code/producer-consumer/go1.x/common"
 )
 
 func main() {

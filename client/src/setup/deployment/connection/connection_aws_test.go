@@ -183,7 +183,7 @@ func setupDeployment(packageType string) (float64, string) {
 	// Deployment images over 50MB use S3, meaning calls are made to the service which can incur extra charges.
 	// In unit testing we use an image size of 45MB to avoid this.
 
-	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(fmt.Sprintf("../raw-code/producer-consumer/%s/%s/main.go", golang, aws), aws, golang, util.MBToBytes(45.), packageType, 0)
+	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(fmt.Sprintf("../raw-code/producer-consumer/%s/%s/main.go", golang, aws), aws, util.MBToBytes(45.), packageType, 0)
 
 	return deployedImageSizeMB, binaryPath
 }
