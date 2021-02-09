@@ -66,18 +66,18 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
 	}
 
+	var increment string
+	var dataTransferChainIDsString string
 	if requestHTTP != nil {
-		simulateWork(requestHTTP.QueryStringParameters["IncrementLimit"])
+		increment = requestHTTP.QueryStringParameters["IncrementLimit"]
+		dataTransferChainIDsString = requestHTTP.QueryStringParameters["DataTransferChainIDs"]
 	} else {
-		simulateWork(requestGRPC.IncrementLimit)
+		increment = requestGRPC.IncrementLimit
+		dataTransferChainIDsString = requestGRPC.DataTransferChainIDs
 	}
 
-	var dataTransferChainIDs []string
-	if requestHTTP != nil {
-		dataTransferChainIDs = StringArrayToArrayOfString(requestHTTP.QueryStringParameters["DataTransferChainIDs"])
-	} else {
-		dataTransferChainIDs = StringArrayToArrayOfString(requestGRPC.DataTransferChainIDs)
-	}
+	simulateWork(increment)
+	dataTransferChainIDs := StringArrayToArrayOfString(dataTransferChainIDsString)
 
 	if functionsLeftInChain(dataTransferChainIDs) {
 		log.Printf("There are %d functions left in the chain, invoking next one...", len(dataTransferChainIDs))

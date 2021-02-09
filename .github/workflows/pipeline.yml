@@ -36,12 +36,12 @@ jobs:
         fi
         
     - name: Build AWS producer-consumer function
-      working-directory: "${{env.working-directory}}}/setup/deployment/raw-code/producer-consumer/go1.x/aws"
+      working-directory: ./client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws
       run: |
         CCGO_ENABLED=0 GOOS=linux go build -v -o handler main.go
         
     - name: Build vHive producer-consumer function
-      working-directory: "${{env.working-directory}}/setup/deployment/raw-code/producer-consumer/go1.x/vhive"
+      working-directory: ./client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive
       run: |
         CGO_ENABLED=0 GOOS=linux go build -v -o handler main.go
         
