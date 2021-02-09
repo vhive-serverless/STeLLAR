@@ -40,7 +40,7 @@ func (instance awsSingleton) UpdateFunction(packageType string, uniqueID string)
 		if instance.S3Key != "" {
 			args = &lambda.UpdateFunctionCodeInput{
 				FunctionName: aws.String(functionName),
-				S3Bucket:     aws.String(s3Bucket),
+				S3Bucket:     aws.String(AWSSingletonInstance.S3Bucket),
 				S3Key:        aws.String(instance.S3Key),
 			}
 		} else {

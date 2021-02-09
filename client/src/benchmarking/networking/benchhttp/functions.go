@@ -27,6 +27,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"vhive-bench/client/setup/deployment/connection/amazon"
 )
 
 //ProducerConsumerResponse is the structure holding the response from a producer-consumer function
@@ -45,7 +46,7 @@ func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 }
 
 func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes int,
-	assignedFunctionIncrementLimit int64, dataTransferChainIDs []string) *http.Request {
+	assignedFunctionIncrementLimit int64, dataTransferChainIDs []string, s3Transfer bool) *http.Request {
 	request.URL.Path = "/prod/benchmarking"
 
 	request.URL.RawQuery = fmt.Sprintf("IncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
@@ -53,5 +54,10 @@ func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes 
 		payloadLengthBytes,
 		dataTransferChainIDs,
 	)
+
+	if s3Transfer {
+		request.URL.RawQuery += fmt.Sprintf("&S3Bucket=%v", amazon.AWSSingletonInstance.S3Bucket)
+	}
+
 	return request
 }

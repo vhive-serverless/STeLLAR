@@ -46,8 +46,9 @@ const (
 	lambdaExecutionRole = "arn:aws:iam::356764711652:role/LambdaProducerConsumer"
 	//AWSRegion is the region that AWS operates in
 	AWSRegion          = "us-west-1"
+	//AWSBucketName is the name of the bucket where the client operates
+	AWSBucketName      = "benchmarking-aws"
 	deploymentStage    = "prod"
-	s3Bucket           = "benchmarking-aws"
 	maxFunctionTimeout = 900
 	namingPrefix       = "vHive-bench_"
 )
@@ -60,6 +61,8 @@ type awsSingleton struct {
 	RequestSigner *v4.Signer
 	// S3Key is the bucket location in which this specific deployment will be uploaded
 	S3Key string
+	// S3Bucket is the bucket in which this specific deployment will be uploaded
+	S3Bucket string
 	// ImageURI is the location where the docker image is located
 	ImageURI                string
 	s3Uploader              *s3manager.Uploader
@@ -90,6 +93,7 @@ func InitializeSingleton(apiTemplatePath string) {
 		s3Uploader:              s3manager.NewUploader(sessionInstance),
 		ecrSvc:                  ecr.New(sessionInstance),
 		apiTemplateFileContents: apiTemplateByteValue,
+		S3Bucket:                AWSBucketName,
 	}
 }
 
@@ -99,10 +103,10 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 	AWSSingletonInstance.S3Key = fmt.Sprintf("benchmarking%vMB.zip", sizeMB)
 
 	if _, err := AWSSingletonInstance.s3Svc.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(s3Bucket),
+		Bucket: aws.String(AWSSingletonInstance.S3Bucket),
 		Key:    aws.String(AWSSingletonInstance.S3Key),
 	}); err == nil {
-		log.Infof("Object %q was already found in S3 bucket %q, skipping upload.", AWSSingletonInstance.S3Key, s3Bucket)
+		log.Infof("Object %q was already found in S3 bucket %q, skipping upload.", AWSSingletonInstance.S3Key, AWSSingletonInstance.S3Bucket)
 		return
 	}
 
@@ -117,10 +121,10 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 		Body:   zipFile,
 	})
 	if err != nil {
-		log.Fatalf("Unable to upload %q to %q, %v", AWSSingletonInstance.S3Key, s3Bucket, err.Error())
+		log.Fatalf("Unable to upload %q to %q, %v", AWSSingletonInstance.S3Key, AWSSingletonInstance.S3Bucket, err.Error())
 	}
 
-	log.Infof("Successfully uploaded %q to bucket %q (%s)", AWSSingletonInstance.S3Key, s3Bucket, uploadOutput.Location)
+	log.Infof("Successfully uploaded %q to bucket %q (%s)", AWSSingletonInstance.S3Key, AWSSingletonInstance.S3Bucket, uploadOutput.Location)
 }
 
 //SetLocalZip sets the location of the zipped binary file for the function to be deployed.

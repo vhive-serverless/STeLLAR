@@ -28,8 +28,12 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -38,7 +42,6 @@ import (
 
 //GenerateResponse creates the HTTP or gRPC producer-consumer response payload
 func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
-
 	var updatedTimestampChain []string
 	if firstFunctionInChain(requestGRPC, requestHTTP) {
 		var payloadLengthBytes string
@@ -48,14 +51,31 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 			payloadLengthBytes = requestGRPC.PayloadLengthBytes
 		}
 
-		if requestHTTP != nil {
-			requestHTTP.QueryStringParameters["TransferPayload"] = generateStringPayload(payloadLengthBytes)
-		} else {
-			requestGRPC.TransferPayload = generateStringPayload(payloadLengthBytes)
-		}
+		stringPayload := generateStringPayload(payloadLengthBytes)
 
 		updatedTimestampChain = AppendTimestampToChain([]string{})
-	} else {
+
+		if usingS3(requestGRPC, requestHTTP) {
+			if requestHTTP != nil {
+				s3key := saveS3Payload(stringPayload, requestHTTP.QueryStringParameters["S3Bucket"])
+				requestHTTP.QueryStringParameters["S3Key"] = s3key
+			} else {
+				s3key := saveS3Payload(stringPayload, requestGRPC.S3Bucket)
+				requestGRPC.S3Key = s3key
+			}
+		} else {
+			if requestHTTP != nil {
+				requestHTTP.QueryStringParameters["TransferPayload"] = stringPayload
+			} else {
+				requestGRPC.TransferPayload = stringPayload
+			}
+		}
+	} else { // not the first function in the chain
+		var stringPayload string
+		if usingS3(requestGRPC, requestHTTP) {
+			stringPayload = loadS3Object(requestHTTP, requestGRPC)
+		}
+
 		var timestampChainStringForm string
 		if requestHTTP != nil {
 			timestampChainStringForm = requestHTTP.QueryStringParameters["TimestampChain"]
@@ -64,6 +84,16 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		}
 
 		updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
+
+		if usingS3(requestGRPC, requestHTTP) {
+			if requestHTTP != nil {
+				s3key := saveS3Payload(stringPayload, requestHTTP.QueryStringParameters["S3Bucket"])
+				requestHTTP.QueryStringParameters["S3Key"] = s3key
+			} else {
+				s3key := saveS3Payload(stringPayload, requestGRPC.S3Bucket)
+				requestGRPC.S3Key = s3key
+			}
+		}
 	}
 
 	var increment string
@@ -103,6 +133,54 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 	return nil, updatedTimestampChain
 }
 
+func loadS3Object(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) string {
+	var s3key, s3bucket string
+	if requestHTTP != nil {
+		s3key = requestHTTP.QueryStringParameters["S3Key"]
+		s3bucket = requestHTTP.QueryStringParameters["S3Bucket"]
+	} else {
+		s3key = requestGRPC.S3Key
+		s3bucket = requestGRPC.S3Bucket
+	}
+
+	s3svc, _ := authenticateS3Client()
+	object, err := s3svc.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(s3bucket),
+		Key:    aws.String(s3key),
+	})
+	if err != nil {
+		log.Infof("Object %q not found in S3 bucket %q: %s", s3key, s3bucket, err.Error())
+	}
+
+	payload, err := ioutil.ReadAll(object.Body)
+	if err != nil {
+		log.Printf("Error reading object body: %v", err)
+		return ""
+	}
+
+	return string(payload)
+}
+
+func saveS3Payload(payload string, s3bucket string) string {
+	log.Infof(`Saving transfer payload (~%d bytes) to AWS S3.`, len(payload))
+	randomPayloadID := generateStringPayload("10")
+	s3key := fmt.Sprintf("transfer-payload-%dbytes-%s", len(payload), randomPayloadID)
+
+	_, s3uploader := authenticateS3Client()
+
+	uploadOutput, err := s3uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(s3bucket),
+		Key:    aws.String(s3key),
+		Body:   strings.NewReader(payload),
+	})
+	if err != nil {
+		log.Fatalf("Unable to upload %q to %q, %v", s3key, s3bucket, err.Error())
+	}
+
+	log.Infof("Successfully uploaded %q to bucket %q (%s)", s3key, s3bucket, uploadOutput.Location)
+	return s3key
+}
+
 func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen.InvokeChainRequest) []string {
 	if requestHTTP != nil {
 		result := invokeNextFunctionAWS(map[string]string{
@@ -133,6 +211,26 @@ func firstFunctionInChain(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP
 
 	// gRPC
 	return requestGRPC.TimestampChain == ""
+}
+
+func usingS3(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
+	if requestHTTP != nil {
+		value, hasUseS3Field := requestHTTP.QueryStringParameters["UseS3"]
+
+		if !hasUseS3Field {
+			return false
+		}
+
+		useS3, err := strconv.ParseBool(value)
+		if err != nil {
+			log.Errorf("Could not parse UseS3: %s", err.Error())
+		}
+
+		return useS3
+	}
+
+	// gRPC
+	return requestGRPC.UseS3 == true
 }
 
 //functionsLeftInChain checks if there are functions left in the chain

@@ -30,12 +30,13 @@ import (
 	"time"
 	"vhive-bench/client/benchmarking/networking/benchgrpc/proto_gen"
 	"vhive-bench/client/setup"
+	"vhive-bench/client/setup/deployment/connection/amazon"
 )
 
 const port = 80
 
 //ExecuteRequest will send a gRPC request and return the timestamp chain (if any).
-func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, incrementLimit int64) (string, time.Time, time.Time) {
+func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, incrementLimit int64, s3Transfer bool) (string, time.Time, time.Time) {
 	address := fmt.Sprintf("%s:%d", gatewayEndpoint.ID, port)
 
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
@@ -47,20 +48,26 @@ func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoin
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	reqSentTime := time.Now()
-	client, err := proto_gen.NewProducerConsumerClient(conn).InvokeNext(ctx, &proto_gen.InvokeChainRequest{
-		UseS3:                false,
+	client := proto_gen.NewProducerConsumerClient(conn)
+
+	input := &proto_gen.InvokeChainRequest{
 		IncrementLimit:       fmt.Sprintf("%d", incrementLimit),
 		DataTransferChainIDs: fmt.Sprintf("%v", gatewayEndpoint.DataTransferChainIDs),
 		PayloadLengthBytes:   fmt.Sprintf("%d", payloadLengthBytes),
-		//S3Bucket:             request.S3Bucket,
-		//S3AccessKey:          request.S3AccessKey,
-		//S3SecretKey:          request.S3SecretKey,
-	})
-	reqReceivedTime := time.Now()
+	}
+
+	if s3Transfer {
+		input.S3Bucket = amazon.AWSBucketName
+	}
+
+	var reply *proto_gen.InvokeChainReply
+
+	reqSentTime := time.Now()
+	reply, err = client.InvokeNext(ctx, input)
 	if err != nil {
 		log.Fatalf("Could not invoke gRPC function: %v", err)
 	}
+	reqReceivedTime := time.Now()
 
-	return client.GetTimestampChain(), reqSentTime, reqReceivedTime
+	return reply.GetTimestampChain(), reqSentTime, reqReceivedTime
 }

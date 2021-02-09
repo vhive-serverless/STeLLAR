@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # Cloudlab deployment
-CLOUDLAB_REMOTE=theodor@hp062.utah.cloudlab.us
+CLOUDLAB_REMOTE=theodor@hp046.utah.cloudlab.us
 PROTOCOL_LOCATION = "setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto"
 
 build_and_run_client: build_client run_client_aws

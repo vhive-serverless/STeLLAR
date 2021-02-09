@@ -31,7 +31,7 @@ import (
 func TestExecuteExternalHTTPRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement, false)
 
 	respBytes, reqSentTime, reqReceivedTime := ExecuteRequest(*req)
 	require.Equal(t, true, respBytes != nil)

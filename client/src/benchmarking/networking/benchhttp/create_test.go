@@ -44,7 +44,7 @@ func TestCreateAWSRequest(t *testing.T) {
 	connection.Initialize("aws", "", "../../../setup/deployment/raw-code/producer-consumer/api-template.json")
 
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement)
+	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement, false)
 
 	expectedHostname := fmt.Sprintf("%s.execute-api.%s.amazonaws.com", randomEndpoint.ID, amazon.AWSRegion)
 	require.Equal(t, expectedHostname, req.Host)
@@ -56,7 +56,7 @@ func TestCreateAWSRequest(t *testing.T) {
 func TestCreateExternalRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement, false)
 
 	require.Equal(t, "www.google.com", req.Host)
 	require.Equal(t, "www.google.com", req.URL.Host)
