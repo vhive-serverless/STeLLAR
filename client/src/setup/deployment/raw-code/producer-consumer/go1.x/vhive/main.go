@@ -24,22 +24,44 @@ package main
 
 import (
 	"context"
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
+	"fmt"
 	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/common"
-	"net/http"
+	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
+	"google.golang.org/grpc"
+	"log"
+	"net"
 )
 
-func main() {
-	lambda.Start(producerConsumer)
+const (
+	port = ":50051"
+)
+
+type server struct {
+	proto_gen.UnimplementedProducerConsumerServer
 }
 
-func producerConsumer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	httpOutput, _ := common.GenerateResponse(ctx, &request, nil)
+func main() {
+	log.Printf("Started listening on port %s", port)
+	lis, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
 
-	return events.APIGatewayProxyResponse{
-		IsBase64Encoded: false,
-		StatusCode:      http.StatusOK,
-		Body:            string(httpOutput),
+	s := grpc.NewServer()
+	log.Print("Created new server")
+
+	proto_gen.RegisterProducerConsumerServer(s, &server{})
+	log.Print("Registered ProducerConsumerServer")
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+}
+
+func (s *server) InvokeNext(ctx context.Context, request *proto_gen.InvokeChainRequest) (*proto_gen.InvokeChainReply, error) {
+	_, grpcOutput := common.GenerateResponse(ctx, nil, request)
+
+	return &proto_gen.InvokeChainReply{
+		TimestampChain: fmt.Sprintf("%v", grpcOutput),
 	}, nil
 }

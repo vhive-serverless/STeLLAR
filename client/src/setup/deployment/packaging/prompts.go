@@ -20,25 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package connection
+package packaging
 
 import (
-	"github.com/stretchr/testify/require"
-	"testing"
+	"bufio"
+	log "github.com/sirupsen/logrus"
+	"os"
+	"strings"
 )
 
-func TestSetupExternalConnection(t *testing.T) {
-	Initialize("www.google.com", "", apiTemplatePathFromConnectionFolder)
-	require.Nil(t, Singleton.ListAPIs(), "External connection: ListAPIs() should return nil.")
-	require.Nil(t, Singleton.DeployFunction, "External connection: DeployFunction should be nil.")
-	require.Nil(t, Singleton.RemoveFunction, "External connection: RemoveFunction should be nil.")
-	require.Nil(t, Singleton.UpdateFunction, "External connection: UpdateFunction should be nil.")
-}
+func promptForString(prompt string) *string {
+	reader := bufio.NewReader(os.Stdin)
 
-func TestSetupFileConnection(t *testing.T) {
-	Initialize("vhive", "../../../../endpoints", apiTemplatePathFromConnectionFolder)
-	require.Equal(t, 2, len(Singleton.ListAPIs()))
-	require.Equal(t, 60., Singleton.ListAPIs()[0].ImageSizeMB)
-	require.Equal(t, int64(128), Singleton.ListAPIs()[0].FunctionMemoryMB)
-	require.Equal(t, "producer.default.192.168.1.240.xip.io", Singleton.ListAPIs()[0].GatewayID)
+	log.Print(prompt)
+
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatalf("Could not read response: %s.", err.Error())
+	}
+
+	if response == "\n" {
+		return nil
+	}
+
+	response = strings.ReplaceAll(response, "\n", "")
+
+	return &response
 }

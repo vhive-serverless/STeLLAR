@@ -23,60 +23,62 @@
 package deployment
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"math"
 	"math/rand"
 	"os"
-	"os/exec"
+	"strings"
+	"vhive-bench/client/setup/deployment/packaging"
 	"vhive-bench/client/util"
 )
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes. Returns size of deployment in MB.
-func SetupDeployment(rawCodePath string, provider string, language string, deploymentSizeBytes int64, packageType string) float64 {
-	generateBinaryFile(rawCodePath, language)
+func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int) (float64, string) {
+	_, binaryPath := getBinaryInfo(rawCodePath, experimentID)
+	fillerFilePath := strings.TrimSuffix(binaryPath, "/handler") + "/random.file"
 
 	switch packageType {
 	case "Zip":
-		setupZIPDeployment(provider, deploymentSizeBytes)
+		zippedBinaryFileSizeBytes := packaging.GetZippedBinaryFileSize(binaryPath)
+
+		if deploymentSizeBytes == 0 {
+			log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
+				experimentID,
+				util.BytesToMB(zippedBinaryFileSizeBytes),
+			)
+			deploymentSizeBytes = zippedBinaryFileSizeBytes
+		}
+
+		if deploymentSizeBytes < zippedBinaryFileSizeBytes {
+			log.Fatalf("[sub-experiment %d] Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
+				experimentID,
+				util.BytesToMB(deploymentSizeBytes),
+				util.BytesToMB(zippedBinaryFileSizeBytes),
+			)
+		}
+
+		generateFillerFile(fillerFilePath, deploymentSizeBytes-zippedBinaryFileSizeBytes)
+		zipPath := packaging.GenerateZIP(fillerFilePath, binaryPath)
+		packaging.SetupZIPDeployment(provider, deploymentSizeBytes, zipPath)
+
 	case "Image":
 		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
-		setupContainerImageDeployment(provider, deploymentSizeBytes)
+		// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
+		generateFillerFile(fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
+		packaging.SetupContainerImageDeployment(provider, binaryPath)
+
 	default:
-		log.Fatalf("Unrecognized package type: %s", packageType)
+		log.Fatalf("[sub-experiment %d] Unrecognized package type: %s", experimentID, packageType)
 	}
 
-	return util.BytesToMB(deploymentSizeBytes)
+	return util.BytesToMB(deploymentSizeBytes), binaryPath
 }
 
-func generateBinaryFile(rawCodePath string, runtime string) int64 {
-	log.Info("Building binary file for the function(s) to be deployed...")
-
-	if !util.FileExists(rawCodePath) {
-		log.Fatalf("Code path `%s` does not exist, cannot deploy/update raw code.", rawCodePath)
-	}
-
-	switch runtime {
-	case "go1.x":
-		util.RunCommandAndLog(exec.Command("go", "build", "-v", "-o", util.BinaryName, rawCodePath))
-	//TODO: add python3 support
-	//case "python3.8":
-	//	runCommandAndLog(exec.Command("python", "build", "-v", "-race", "-o", util.BinaryName))
-	default:
-		log.Fatalf("Unrecognized runtime %s", runtime)
-	}
-
-	fi, err := os.Stat(util.BinaryName)
-	if err != nil {
-		log.Fatalf("Could not get size of binary file: %s", err.Error())
-	}
-
-	log.Info("Successfully built the binary file for deployment.")
-	return fi.Size()
-}
-
-func generateFillerFile(name string, sizeBytes int64) string {
+func generateFillerFile(fillerFilePath string, sizeBytes int64) {
 	log.Info("Generating filler file to be included in deployment...")
 
 	buffer := make([]byte, sizeBytes)
@@ -85,10 +87,27 @@ func generateFillerFile(name string, sizeBytes int64) string {
 		log.Fatalf("Failed to fill buffer with random bytes: `%s`", err.Error())
 	}
 
-	if err := ioutil.WriteFile(name, buffer, 0666); err != nil {
+	if err := ioutil.WriteFile(fillerFilePath, buffer, 0666); err != nil {
 		log.Fatalf("Could not generate random file with size %d bytes", sizeBytes)
 	}
 
 	log.Info("Successfully generated the filler file.")
-	return name
+}
+
+func getBinaryInfo(rawCodePath string, experimentID int) (int64, string) {
+	log.Infof("[sub-experiment %d] Building binary file for the function(s) to be deployed...", experimentID)
+
+	if !util.FileExists(rawCodePath) {
+		log.Fatalf("[sub-experiment %d] Code path %q does not exist, cannot deploy/update raw code.", experimentID, rawCodePath)
+	}
+
+	binaryPath := fmt.Sprintf("%s/%s", strings.TrimSuffix(rawCodePath, "/main.go"), "handler")
+
+	fi, err := os.Stat(binaryPath)
+	if err != nil {
+		log.Fatalf("[sub-experiment %d] Could not get size of binary file: %s", experimentID, err.Error())
+	}
+
+	log.Infof("[sub-experiment %d] Successfully built the binary file for deployment.", experimentID)
+	return fi.Size(), binaryPath
 }
