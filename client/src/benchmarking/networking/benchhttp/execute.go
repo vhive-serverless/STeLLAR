@@ -37,7 +37,7 @@ const (
 
 //ExecuteRequest will send an HTTP request, check its status code and return the response body.
 func ExecuteRequest(req http.Request) ([]byte, time.Time, time.Time) {
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(timeout))
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)

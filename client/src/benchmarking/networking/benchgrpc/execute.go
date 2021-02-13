@@ -33,7 +33,10 @@ import (
 	"vhive-bench/client/setup/deployment/connection/amazon"
 )
 
-const port = 80
+const (
+	timeout = 15 * time.Minute
+	port    = 80
+)
 
 //ExecuteRequest will send a gRPC request and return the timestamp chain (if any).
 func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, incrementLimit int64, s3Transfer bool) (string, time.Time, time.Time) {
@@ -45,7 +48,7 @@ func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoin
 	}
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	client := proto_gen.NewProducerConsumerClient(conn)

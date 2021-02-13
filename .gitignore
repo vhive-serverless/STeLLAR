@@ -14,11 +14,13 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+client/.aws/
+
 client/.idea/
 client/latency-samples/
 client/cloudlab-latency-samples/
 client/src/only-plot.txt
-client/src/client
+client/src/main
 client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
 client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
 client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler

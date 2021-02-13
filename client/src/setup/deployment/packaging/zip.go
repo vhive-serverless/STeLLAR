@@ -50,8 +50,8 @@ func SetupZIPDeployment(provider string, deploymentSizeBytes int64, zipPath stri
 }
 
 //GetZippedBinaryFileSize zips the binary and returns its size
-func GetZippedBinaryFileSize(binaryPath string) int64 {
-	log.Info("Zipping binary file to find its size...")
+func GetZippedBinaryFileSize(experimentID int, binaryPath string) int64 {
+	log.Infof("[sub-experiment %d] Zipping binary file to find its size...", experimentID)
 
 	util.RunCommandAndLog(exec.Command("zip", "zipped-binary", binaryPath))
 
@@ -68,16 +68,15 @@ func GetZippedBinaryFileSize(binaryPath string) int64 {
 }
 
 //GenerateZIP creates the zip file for deployment
-func GenerateZIP(fillerFileName string, binaryPath string) string {
-	log.Info("Generating ZIP file to be deployed...")
+func GenerateZIP(experimentID int, fillerFileName string, binaryPath string) string {
+	log.Infof("[sub-experiment %d] Generating ZIP file to be deployed...", experimentID)
 	const localZipName = "benchmarking.zip"
 
 	util.RunCommandAndLog(exec.Command("zip", localZipName, binaryPath, fillerFileName))
 
-	log.Debugf("Cleaning up random file %q...", fillerFileName)
 	util.RunCommandAndLog(exec.Command("rm", "-r", fillerFileName))
 
-	log.Info("Successfully generated ZIP file.")
+	log.Infof("[sub-experiment %d] Successfully generated ZIP file.", experimentID)
 
 	workingDirectory, err := filepath.Abs(filepath.Dir("."))
 	if err != nil {

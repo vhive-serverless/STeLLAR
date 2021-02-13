@@ -26,6 +26,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/aws/aws-sdk-go/service/apigateway"
@@ -45,9 +46,9 @@ const (
 	UserARNNumber       = "356764711652"
 	lambdaExecutionRole = "arn:aws:iam::356764711652:role/LambdaProducerConsumer"
 	//AWSRegion is the region that AWS operates in
-	AWSRegion          = "us-west-1"
+	AWSRegion          = endpoints.UsWest1RegionID
 	//AWSBucketName is the name of the bucket where the client operates
-	AWSBucketName      = "benchmarking-aws"
+	AWSBucketName      = "vhive-bench"
 	deploymentStage    = "prod"
 	maxFunctionTimeout = 900
 	namingPrefix       = "vHive-bench_"
@@ -78,6 +79,8 @@ type awsSingleton struct {
 func InitializeSingleton(apiTemplatePath string) {
 	sessionInstance := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String(AWSRegion),
+		CredentialsChainVerboseErrors: aws.Bool(true),
+		DisableRestProtocolURICleaning: aws.Bool(true),
 	}))
 
 	apiTemplateByteValue, err := ioutil.ReadAll(util.ReadFile(apiTemplatePath))
@@ -116,7 +119,7 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 	}
 
 	uploadOutput, err := AWSSingletonInstance.s3Uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String("benchmarking-aws"),
+		Bucket: aws.String(AWSSingletonInstance.S3Bucket),
 		Key:    aws.String(AWSSingletonInstance.S3Key),
 		Body:   zipFile,
 	})

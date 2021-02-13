@@ -64,6 +64,8 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 				requestGRPC.S3Key = s3key
 			}
 		} else {
+			log.Info("Using direct JSON, setting TransferPayload field.")
+
 			if requestHTTP != nil {
 				requestHTTP.QueryStringParameters["TransferPayload"] = stringPayload
 			} else {
@@ -83,6 +85,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 			timestampChainStringForm = requestGRPC.TimestampChain
 		}
 
+		//log.Infof("Not the first function in the chain, TimestampChain field is %q.", timestampChainStringForm)
 		updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
 
 		if usingS3(requestGRPC, requestHTTP) {
@@ -96,21 +99,12 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		}
 	}
 
-	var increment string
-	var dataTransferChainIDsString string
-	if requestHTTP != nil {
-		increment = requestHTTP.QueryStringParameters["IncrementLimit"]
-		dataTransferChainIDsString = requestHTTP.QueryStringParameters["DataTransferChainIDs"]
-	} else {
-		increment = requestGRPC.IncrementLimit
-		dataTransferChainIDsString = requestGRPC.DataTransferChainIDs
-	}
+	dataTransferChainIDs, incrementLimit := getChainIDsAndIncrementLimit(requestHTTP, requestGRPC)
 
-	simulateWork(increment)
-	dataTransferChainIDs := StringArrayToArrayOfString(dataTransferChainIDsString)
+	simulateWork(incrementLimit)
 
 	if functionsLeftInChain(dataTransferChainIDs) {
-		log.Printf("There are %d functions left in the chain, invoking next one...", len(dataTransferChainIDs))
+		log.Infof("There are %d functions left in the chain, invoking next one...", len(dataTransferChainIDs))
 
 		updatedTimestampChain = invokeNextFunction(requestHTTP, updatedTimestampChain, dataTransferChainIDs, requestGRPC)
 	}
@@ -131,6 +125,18 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 
 	// gRPC
 	return nil, updatedTimestampChain
+}
+
+func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]string, string) {
+	var dataTransferChainIDsString, incrementLimit string
+	if requestHTTP != nil {
+		incrementLimit = requestHTTP.QueryStringParameters["IncrementLimit"]
+		dataTransferChainIDsString = requestHTTP.QueryStringParameters["DataTransferChainIDs"]
+	} else {
+		incrementLimit = requestGRPC.IncrementLimit
+		dataTransferChainIDsString = requestGRPC.DataTransferChainIDs
+	}
+	return StringArrayToArrayOfString(dataTransferChainIDsString), incrementLimit
 }
 
 func loadS3Object(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) string {
@@ -154,17 +160,26 @@ func loadS3Object(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto
 
 	payload, err := ioutil.ReadAll(object.Body)
 	if err != nil {
-		log.Printf("Error reading object body: %v", err)
+		log.Infof("Error reading object body: %v", err)
 		return ""
 	}
 
 	return string(payload)
 }
 
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func randStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
+}
+
 func saveS3Payload(payload string, s3bucket string) string {
-	log.Infof(`Saving transfer payload (~%d bytes) to AWS S3.`, len(payload))
-	randomPayloadID := generateStringPayload("10")
-	s3key := fmt.Sprintf("transfer-payload-%dbytes-%s", len(payload), randomPayloadID)
+	log.Infof(`Using S3, saving transfer payload (~%d bytes) to AWS S3.`, len(payload))
+	s3key := fmt.Sprintf("transfer-payload-%s", randStringBytes(20))
 
 	_, s3uploader := authenticateS3Client()
 
@@ -205,8 +220,8 @@ func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimes
 
 func firstFunctionInChain(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
 	if requestHTTP != nil {
-		_, firstFunctionInChain := requestHTTP.QueryStringParameters["TimestampChain"]
-		return firstFunctionInChain
+		_, hasTimestampChain := requestHTTP.QueryStringParameters["TimestampChain"]
+		return !hasTimestampChain
 	}
 
 	// gRPC
@@ -245,7 +260,7 @@ func generateStringPayload(payloadLengthBytesString string) string {
 		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
 	}
 
-	log.Printf("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
+	log.Infof("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
 	generatedTransferPayload := make([]byte, payloadLengthBytes)
 	rand.Read(generatedTransferPayload)
 
@@ -282,7 +297,7 @@ func simulateWork(incrementLimitString string) {
 		log.Fatalf("Could not parse IncrementLimit parameter: %s", err.Error())
 	}
 
-	log.Printf("Running function up to increment limit (%d)...", incrementLimit)
+	log.Infof("Running function up to increment limit (%d)...", incrementLimit)
 	for i := 0; i < incrementLimit; i++ {
 	}
 }

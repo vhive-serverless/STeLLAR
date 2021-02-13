@@ -56,7 +56,7 @@ func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes 
 	)
 
 	if s3Transfer {
-		request.URL.RawQuery += fmt.Sprintf("&S3Bucket=%v", amazon.AWSSingletonInstance.S3Bucket)
+		request.URL.RawQuery += fmt.Sprintf("&S3Bucket=%v&UseS3=true", amazon.AWSSingletonInstance.S3Bucket)
 	}
 
 	return request
