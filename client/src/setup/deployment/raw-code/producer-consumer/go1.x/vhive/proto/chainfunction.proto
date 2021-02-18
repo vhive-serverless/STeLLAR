@@ -8,21 +8,19 @@ service ProducerConsumer {
 }
 
 message InvokeChainRequest {
-  bool useS3 = 1;
-
   // simulate work with increment
-  string incrementLimit = 2;
+  string incrementLimit = 1;
 
-  string dataTransferChainIDs = 3;
-  string payloadLengthBytes = 4;
+  string dataTransferChainIDs = 2;
+  string payloadLengthBytes = 3;
 
   // created by first function
-  string transferPayload = 5;
-  string timestampChain = 6;
+  string transferPayload = 4;
+  string timestampChain = 5;
 
-  string s3Bucket = 7;
-  string s3AccessKey = 8;
-  string s3SecretKey = 9;
+  string s3Bucket = 6;
+  string s3Key = 7;
+  bool useS3 = 8;
 }
 
 message InvokeChainReply {

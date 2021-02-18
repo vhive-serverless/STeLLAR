@@ -42,7 +42,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 
 	switch packageType {
 	case "Zip":
-		zippedBinaryFileSizeBytes := packaging.GetZippedBinaryFileSize(binaryPath)
+		zippedBinaryFileSizeBytes := packaging.GetZippedBinaryFileSize(experimentID, binaryPath)
 
 		if deploymentSizeBytes == 0 {
 			log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
@@ -60,15 +60,15 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 			)
 		}
 
-		generateFillerFile(fillerFilePath, deploymentSizeBytes-zippedBinaryFileSizeBytes)
-		zipPath := packaging.GenerateZIP(fillerFilePath, binaryPath)
+		generateFillerFile(experimentID, fillerFilePath, deploymentSizeBytes-zippedBinaryFileSizeBytes)
+		zipPath := packaging.GenerateZIP(experimentID, fillerFilePath, binaryPath)
 		packaging.SetupZIPDeployment(provider, deploymentSizeBytes, zipPath)
 
 	case "Image":
 		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
 		// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
-		generateFillerFile(fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
+		generateFillerFile(experimentID, fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
 		packaging.SetupContainerImageDeployment(provider, binaryPath)
 
 	default:
@@ -78,28 +78,24 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 	return util.BytesToMB(deploymentSizeBytes), binaryPath
 }
 
-func generateFillerFile(fillerFilePath string, sizeBytes int64) {
-	log.Info("Generating filler file to be included in deployment...")
+func generateFillerFile(experimentID int, fillerFilePath string, sizeBytes int64) {
+	log.Infof("[sub-experiment %d] Generating filler file to be included in deployment...", experimentID)
 
 	buffer := make([]byte, sizeBytes)
 	_, err := rand.Read(buffer) // The slice should now contain random bytes instead of only zeroes (prevents efficient archiving).
 	if err != nil {
-		log.Fatalf("Failed to fill buffer with random bytes: `%s`", err.Error())
+		log.Fatalf("[sub-experiment %d] Failed to fill buffer with random bytes: `%s`", experimentID, err.Error())
 	}
 
 	if err := ioutil.WriteFile(fillerFilePath, buffer, 0666); err != nil {
-		log.Fatalf("Could not generate random file with size %d bytes", sizeBytes)
+		log.Fatalf("[sub-experiment %d] Could not generate random file with size %d bytes", experimentID, sizeBytes)
 	}
 
-	log.Info("Successfully generated the filler file.")
+	log.Infof("[sub-experiment %d] Successfully generated the filler file.", experimentID)
 }
 
 func getBinaryInfo(rawCodePath string, experimentID int) (int64, string) {
 	log.Infof("[sub-experiment %d] Building binary file for the function(s) to be deployed...", experimentID)
-
-	if !util.FileExists(rawCodePath) {
-		log.Fatalf("[sub-experiment %d] Code path %q does not exist, cannot deploy/update raw code.", experimentID, rawCodePath)
-	}
 
 	binaryPath := fmt.Sprintf("%s/%s", strings.TrimSuffix(rawCodePath, "/main.go"), "handler")
 

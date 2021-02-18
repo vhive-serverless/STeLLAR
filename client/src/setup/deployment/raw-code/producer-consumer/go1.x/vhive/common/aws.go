@@ -28,9 +28,13 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	lambdaSDK "github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
+
+var sessionInstance *session.Session
 
 func invokeNextFunctionAWS(parameters map[string]string, functionID string) []byte {
 	const namingPrefix = "vHive-bench_"
@@ -44,8 +48,8 @@ func invokeNextFunctionAWS(parameters map[string]string, functionID string) []by
 	}
 
 	log.Printf("Invoking next function: %s%s", namingPrefix, functionID)
-	client := authenticateClient()
-	result, err := client.Invoke(&lambdaSDK.InvokeInput{
+	lambdaClient := authenticateLambdaClient()
+	result, err := lambdaClient.Invoke(&lambdaSDK.InvokeInput{
 		FunctionName:   aws.String(fmt.Sprintf("%s%s", namingPrefix, functionID)),
 		InvocationType: aws.String("RequestResponse"),
 		LogType:        aws.String("Tail"),
@@ -58,14 +62,29 @@ func invokeNextFunctionAWS(parameters map[string]string, functionID string) []by
 	return result.Payload
 }
 
-func authenticateClient() *lambdaSDK.Lambda {
+func authenticateS3Client() (*s3.S3, *s3manager.Uploader) {
+	if sessionInstance == nil {
+		createSessionInstance()
+	}
+
+	return s3.New(sessionInstance), s3manager.NewUploader(sessionInstance)
+}
+
+func authenticateLambdaClient() *lambdaSDK.Lambda {
+	if sessionInstance == nil {
+		createSessionInstance()
+	}
+
+	return lambdaSDK.New(sessionInstance)
+}
+
+func createSessionInstance() {
 	region := os.Getenv("AWS_REGION")
-	sess, err := session.NewSession(&aws.Config{
+	createdSessionInstance, err := session.NewSession(&aws.Config{
 		Region: &region,
 	})
 	if err != nil {
 		log.Fatalf("Could not create a new session: %s", err)
 	}
-
-	return lambdaSDK.New(sess)
+	sessionInstance = createdSessionInstance
 }

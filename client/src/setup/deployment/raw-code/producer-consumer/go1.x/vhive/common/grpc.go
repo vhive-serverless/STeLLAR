@@ -45,14 +45,12 @@ func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimest
 	defer cancel()
 
 	client, err := proto_gen.NewProducerConsumerClient(conn).InvokeNext(ctx, &proto_gen.InvokeChainRequest{
-		UseS3:                request.UseS3,
 		IncrementLimit:       request.IncrementLimit,
 		DataTransferChainIDs: request.DataTransferChainIDs[1:],
 		TransferPayload:      request.TransferPayload,
 		TimestampChain:       updatedTimestampChainString,
 		S3Bucket:             request.S3Bucket,
-		S3AccessKey:          request.S3AccessKey,
-		S3SecretKey:          request.S3SecretKey,
+		S3Key:                request.S3Key,
 	})
 	if err != nil {
 		log.Fatalf("could not create new producer consumer client: %v", err)
