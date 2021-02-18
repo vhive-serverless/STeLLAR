@@ -1,0 +1,21 @@
+{
+  "Sequential": true,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "2functions-IAT10s-0KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
+    }
+  ]
+}
