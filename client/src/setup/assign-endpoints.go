@@ -33,17 +33,26 @@ import (
 )
 
 func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
-	binaryPath := ""
+	log.Infof("[sub-experiment %d] Setting up deployment...", experiment.ID)
+	var assignedBinaryPath string
+	experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
+		fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
+		provider,
+		util.MBToBytes(experiment.FunctionImageSizeMB),
+		experiment.PackageType,
+		experiment.ID,
+	)
+
 	var assignedEndpoints []GatewayEndpoint
 	for i := 0; i < experiment.GatewaysNumber; i++ {
-		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, &binaryPath, provider, runtime)
+		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, assignedBinaryPath, runtime)
 
 		gatewayEndpoint := GatewayEndpoint{ID: foundEndpointID}
 
 		for j := experiment.DataTransferChainLength; j > 1; j-- {
 			gatewayEndpoint.DataTransferChainIDs = append(
 				gatewayEndpoint.DataTransferChainIDs,
-				findEndpointToAssign(&availableEndpoints, experiment, &binaryPath, provider, runtime),
+				findEndpointToAssign(&availableEndpoints, experiment, assignedBinaryPath, runtime),
 			)
 		}
 
@@ -55,7 +64,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 	return availableEndpoints
 }
 
-func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, binaryPath *string, provider string, runtime string) string {
+func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, binaryPath string, runtime string) string {
 	for index, endpoint := range *availableEndpoints {
 		if specsMatch(endpoint, experiment) {
 			*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
@@ -70,19 +79,6 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 		experiment.FunctionImageSizeMB,
 		experiment.PackageType,
 	)
-
-	if *binaryPath == "" {
-		log.Infof("[sub-experiment %d] Binary path was empty, setting up deployment...", experiment.ID)
-		var assignedBinaryPath string
-		experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
-			fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
-			provider,
-			util.MBToBytes(experiment.FunctionImageSizeMB),
-			experiment.PackageType,
-			experiment.ID,
-		)
-		*binaryPath = assignedBinaryPath
-	}
 
 	// Only attempt repurposing functions if they are ZIP-packaged:
 	// https://github.com/motdotla/node-lambda/issues/535 (Image-packaged functions have update errors on AWS)
@@ -108,7 +104,7 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 	}
 
 	log.Infof("[sub-experiment %d] Could not find an existing function to repurpose, creating a new function...", experiment.ID)
-	return connection.Singleton.DeployFunction(*binaryPath, experiment.PackageType, runtime, experiment.FunctionMemoryMB)
+	return connection.Singleton.DeployFunction(binaryPath, experiment.PackageType, runtime, experiment.FunctionMemoryMB)
 }
 
 func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoint {
@@ -121,8 +117,7 @@ func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
 		return false
 	}
 
-	// Experiment image size can be 0 (minimal) when no filler file was added
-	if experiment.FunctionImageSizeMB != 0 && endpoint.FunctionMemoryMB != experiment.FunctionMemoryMB {
+	if endpoint.FunctionMemoryMB != experiment.FunctionMemoryMB {
 		return false
 	}
 
