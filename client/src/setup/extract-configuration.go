@@ -37,6 +37,40 @@ type Configuration struct {
 	SubExperiments []SubExperiment `json:"SubExperiments"`
 }
 
+//SubExperiment is the schema for sub-experiment configurations.
+type SubExperiment struct {
+	Title                   string   `json:"Title"`
+	Bursts                  int      `json:"Bursts"`
+	BurstSizes              []int    `json:"BurstSizes"`
+	PayloadLengthBytes      int      `json:"PayloadLengthBytes"`
+	IATSeconds              float64  `json:"IATSeconds"`
+	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
+	DesiredServiceTimes     []string `json:"DesiredServiceTimes"`
+	IATType                 string   `json:"IATType"`
+	PackageType             string   `json:"PackageType"`
+	GatewaysNumber          int      `json:"GatewaysNumber"`
+	Visualization           string   `json:"Visualization"`
+	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
+	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
+	DataTransferChainLength int      `json:"DataTransferChainLength"`
+	S3Transfer              bool     `json:"S3Transfer"`
+	GatewayEndpoints        []GatewayEndpoint
+	ID                      int
+}
+
+const (
+	defaultVisualization             = "cdf"
+	defaultIATType                   = "stochastic"
+	defaultProvider                  = "aws"
+	defaultRuntime                   = "go1.x"
+	defaultPackageType               = "Zip"
+	defaultGatewaysNumber            = 1
+	defaultDataTransferChainLength   = 1
+	defaultFunctionMemoryMB          = 128
+	manyRequestsInBurstWarnThreshold = 2000
+	manyFilesWarnThreshold           = 500
+)
+
 func extractConfiguration(configFile *os.File) Configuration {
 	configByteValue, _ := ioutil.ReadAll(configFile)
 

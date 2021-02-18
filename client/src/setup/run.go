@@ -39,39 +39,6 @@ type GatewayEndpoint struct {
 	DataTransferChainIDs []string
 }
 
-//SubExperiment is the schema for sub-experiment configurations.
-type SubExperiment struct {
-	Title                   string   `json:"Title"`
-	Bursts                  int      `json:"Bursts"`
-	BurstSizes              []int    `json:"BurstSizes"`
-	PayloadLengthBytes      int      `json:"PayloadLengthBytes"`
-	IATSeconds              float64  `json:"IATSeconds"`
-	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
-	DesiredServiceTimes     []string `json:"DesiredServiceTimes"`
-	IATType                 string   `json:"IATType"`
-	PackageType             string   `json:"PackageType"`
-	GatewaysNumber          int      `json:"GatewaysNumber"`
-	Visualization           string   `json:"Visualization"`
-	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
-	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
-	DataTransferChainLength int      `json:"DataTransferChainLength"`
-	GatewayEndpoints        []GatewayEndpoint
-	ID                      int
-}
-
-const (
-	defaultVisualization             = "cdf"
-	defaultIATType                   = "stochastic"
-	defaultProvider                  = "aws"
-	defaultRuntime                   = "go1.x"
-	defaultPackageType               = "Zip"
-	defaultGatewaysNumber            = 1
-	defaultDataTransferChainLength   = 1
-	defaultFunctionMemoryMB          = 128
-	manyRequestsInBurstWarnThreshold = 2000
-	manyFilesWarnThreshold           = 500
-)
-
 //PrepareSubExperiments will read any required files, deploy functions etc. to get ready for the sub-experiments.
 func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Configuration {
 	configFile := util.ReadFile(configPath)

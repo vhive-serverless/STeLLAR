@@ -125,7 +125,7 @@ func (instance awsSingleton) createFunction(binaryPath string, packageType strin
 		var createCode *lambda.FunctionCode
 		if instance.S3Key != "" {
 			createCode = &lambda.FunctionCode{
-				S3Bucket: aws.String(s3Bucket),
+				S3Bucket: aws.String(AWSSingletonInstance.S3Bucket),
 				S3Key:    aws.String(instance.S3Key),
 			}
 		} else {
