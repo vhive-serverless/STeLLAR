@@ -77,7 +77,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
 		go executeRequestAndWriteResults(&requestsWaitGroup, provider, incrementLimit, latenciesWriter, dataTransfersWriter, burstID,
-			config.PayloadLengthBytes, gatewayEndpoint)
+			config.PayloadLengthBytes, gatewayEndpoint, config.S3Transfer)
 	}
 
 	requestsWaitGroup.Wait()
@@ -86,7 +86,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 
 func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider string, incrementLimit int64,
 	latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, burstID int,
-	payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint) {
+	payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, S3Transfer bool) {
 	defer requestsWaitGroup.Done()
 
 	var reqSentTime, reqReceivedTime time.Time
@@ -96,13 +96,13 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 	switch provider {
 	case "vhive":
 		var stringArrayTimeStampChain string
-		stringArrayTimeStampChain, reqSentTime, reqReceivedTime = benchgrpc.ExecuteRequest(payloadLengthBytes, gatewayEndpoint, incrementLimit)
+		stringArrayTimeStampChain, reqSentTime, reqReceivedTime = benchgrpc.ExecuteRequest(payloadLengthBytes, gatewayEndpoint, incrementLimit, S3Transfer)
 
 		timestampChain = stringArrayToArrayOfString(stringArrayTimeStampChain)
 		hostname = gatewayEndpoint.ID
 		responseID = "N/A"
 	case "aws":
-		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit)
+		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, S3Transfer)
 
 		var respBody []byte
 		respBody, reqSentTime, reqReceivedTime = benchhttp.ExecuteRequest(*request)

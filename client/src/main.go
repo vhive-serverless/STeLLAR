@@ -37,7 +37,7 @@ import (
 )
 
 var outputPathFlag = flag.String("o", "latency-samples", "The path where latency samples should be written.")
-var configPathFlag = flag.String("c", "config.csv", "Configuration file with experiment details.")
+var configPathFlag = flag.String("c", "experiments/tests/AWS/data-transfer.json", "Configuration file with experiment details.")
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
