@@ -126,5 +126,5 @@ func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
 		return true
 	}
 
-	return math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 0.5
+	return math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 5
 }
