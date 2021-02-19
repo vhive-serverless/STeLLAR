@@ -36,13 +36,16 @@ def add_subplot(subtitle_percentile, ylabel, subplot, ms_128, ms_1536, ms_10240)
 
     subplot.plot(transfer_size_kb, ms_128, 'o-', label='128MB (memory size)')
     for i, txt in enumerate(ms_128):
-        subplot.annotate(int(txt), (transfer_size_kb[i], ms_128[i]))
+        if not np.isnan(ms_128[i]):
+            subplot.annotate(int(txt), (transfer_size_kb[i], ms_128[i]))
     subplot.plot(transfer_size_kb, ms_1536, 'o-', label='1536MB (memory size)')
     for i, txt in enumerate(ms_1536):
-        subplot.annotate(int(txt), (transfer_size_kb[i], ms_1536[i]))
+        if not np.isnan(ms_1536[i]):
+            subplot.annotate(int(txt), (transfer_size_kb[i], ms_1536[i]))
     subplot.plot(transfer_size_kb, ms_10240, 'o-', label='10GB (memory size)')
     for i, txt in enumerate(ms_10240):
-        subplot.annotate(int(txt), (transfer_size_kb[i], ms_10240[i]))
+        if not np.isnan(ms_10240[i]):
+            subplot.annotate(int(txt), (transfer_size_kb[i], ms_10240[i]))
     subplot.legend(loc='upper left')
 
 
@@ -85,20 +88,26 @@ def load_experiment_results(path, inter_arrival_time):
 
 
 def generate_transfer_bandwidth_figure(path, inter_arrival_time, median):
-    title = '{0} Direct JSON Transfer Bandwidth (IAT {1})'.format(provider, inter_arrival_time)
+    if("S3" in path):
+        title = '{0} S3 Transfer Bandwidth (IAT {1})'.format(provider, inter_arrival_time)
+    else:
+        title = '{0} Direct JSON Transfer Bandwidth (IAT {1})'.format(provider, inter_arrival_time)
     fig, axes = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(8, 5))
     fig.suptitle(title)
-    add_subplot("", 'Network Bandwidth (KB/s)', axes,
-                [x / y * 1000 for x, y in zip(transfer_size_kb, median[128])],
-                [x / y * 1000 for x, y in zip(transfer_size_kb, median[1536])],
-                [x / y * 1000 for x, y in zip(transfer_size_kb, median[10240])])
+    add_subplot("", 'Network Bandwidth (MB/s)', axes,
+                [x / y * 1000 / 1024 for x, y in zip(transfer_size_kb, median[128])],
+                [x / y * 1000 / 1024 for x, y in zip(transfer_size_kb, median[1536])],
+                [x / y * 1000 / 1024 for x, y in zip(transfer_size_kb, median[10240])])
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     fig.savefig('{0}/{1}.png'.format(path, title))
     plt.close()
 
 
 def generate_transfer_latency_figure(path, inter_arrival_time, median, percentiles):
-    title = '{0} Direct JSON Transfer (IAT {1})'.format(provider, inter_arrival_time)
+    if("S3" in path):
+        title = '{0} S3 Transfer (IAT {1})'.format(provider, inter_arrival_time)
+    else:
+        title = '{0} Direct JSON Transfer (IAT {1})'.format(provider, inter_arrival_time)
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(12, 5))
     fig.suptitle(title)
     add_subplot("{0}% percentile".format(desired_percentile), 'Transfer Latency (ms)',
@@ -112,6 +121,10 @@ def generate_transfer_latency_figure(path, inter_arrival_time, median, percentil
 
 def generate_figures(inter_arrival_time):
     median, percentiles = load_experiment_results(path_prefix, inter_arrival_time)
+#     median[128].append(np.nan)
+#     percentiles[128].append(np.nan)
+#     The above are used for transfer sizes of 10240 and 102400KB, when the 128MB function can't cope
+
     generate_transfer_latency_figure(path_prefix, inter_arrival_time, median, percentiles)
     generate_transfer_bandwidth_figure(path_prefix, inter_arrival_time, median)
 
@@ -122,6 +135,6 @@ def generate_figures(inter_arrival_time):
 provider = 'AWS'
 desired_percentile = 99
 transfer_size_kb = [1, 10, 100, 1024]
-path_prefix = 'providers/{0}'.format(provider)
-generate_figures('600s')
+path_prefix = 'providers/{0}/S3'.format(provider)
+# generate_figures('600s')
 generate_figures('10s')

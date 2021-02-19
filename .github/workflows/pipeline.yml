@@ -1,3 +1,25 @@
+# MIT License
+#
+# Copyright (c) 2021 Theodor Amariucai
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 name: Go
 
 on:
@@ -25,30 +47,16 @@ jobs:
         
     - name: Check Syntax
       uses: Jerome1337/golint-action@v1.0.2
-
-    - name: Get dependencies
-      working-directory: ${{env.working-directory}}
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
-        
-    - name: Build AWS producer-consumer function
-      working-directory: ./client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws
-      run: |
-        CCGO_ENABLED=0 GOOS=linux go build -v -o handler main.go
-        
-    - name: Build vHive producer-consumer function
-      working-directory: ./client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive
-      run: |
-        CGO_ENABLED=0 GOOS=linux go build -v -o handler main.go
         
     - name: Build client
       working-directory: ${{env.working-directory}}
       run: |
-        GOOS=linux go build -race -v -a
+        mkdir -p "../latency-samples"
+        docker build -t vhive-bench .
+        docker create --name temp vhive-bench /bin/bash
+        docker cp temp:/app/client ./main
+        docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
+        docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
       
     - name: Configure AWS credentials using EASE lab account
       uses: aws-actions/configure-aws-credentials@v1
@@ -59,22 +67,37 @@ jobs:
       
     - name: Unit Tests
       working-directory: ${{env.working-directory}}
-      run: go test -short -cover -v ./...
+      run: go test -short -v ./...
 
-    - name: Burstiness ZIP Package Test
+    - name: Burstiness ZIP Package (Integration Test)
       working-directory: ${{env.working-directory}}
-      run: |
-        mkdir -p "../latency-samples"
-        ./client --o "../latency-samples" --c "../experiments/tests/AWS/burstiness-zip-package.json"
+      run: ./main --o "../latency-samples" --c "../experiments/tests/AWS/burstiness-zip-package.json"
 
-    - name: Burstiness Image Package Test
+    - name: Burstiness Image Package (Integration Test)
       working-directory: ${{env.working-directory}}
-      run: |
-        mkdir -p "../latency-samples"
-        ./client --o "../latency-samples" --c "../experiments/tests/AWS/burstiness-image-package.json"
+      run: ./main --o "../latency-samples" --c "../experiments/tests/AWS/burstiness-image-package.json"
 
-    - name: Data Transfer Integration Test
+    - name: Data Transfer Integration (Integration Test)
       working-directory: ${{env.working-directory}}
+      run: ./main --o "../latency-samples" --c "../experiments/tests/AWS/data-transfer.json"
+      
+    - name: Prepare files for pusing to deployment branch
       run: |
-        mkdir -p "../latency-samples"
-        ./client --o "../latency-samples" --c "../experiments/tests/AWS/data-transfer.json"
+        cp client/initialize_machine.sh initialize_machine.sh
+        cp client/src/main main
+        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/vhive/ && cp client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
+        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/aws/ && cp client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
+        cp client/src/setup/deployment/raw-code/producer-consumer/api-template.json setup/deployment/raw-code/producer-consumer/api-template.json
+        cp -R client/endpoints endpoints
+        cp -R client/experiments experiments
+
+    - name: Push to deployment branch
+      run: |
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config user.name "vHive Bench Bot"
+        git remote set-url origin https://ease-lab:${{secrets.ACCESS_TOKEN}}@github.com/ease-lab/vhive-bench.git
+        git checkout --orphan deployment
+        git rm -rf .
+        git add -f initialize_machine.sh main setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/api-template.json endpoints experiments
+        git commit -m "Automated push from successful vhive-bench pipeline"
+        git push origin HEAD:deployment --force
