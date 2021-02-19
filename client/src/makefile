@@ -58,7 +58,7 @@ run_client_vhive:
 	@./client -o "../latency-samples" -g "../endpoints" -c "../experiments/tests/vhive/burstiness-image-package.json"
 
 edit_local_env_vars:
-	@sudo kate /etc/profile.d/benchmarking.sh
+	@kate /etc/profile.d/benchmarking.sh
 
 workflows_edit:
 	@kate ../../.github/workflows/pipeline.yml

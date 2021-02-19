@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	timeout = 15 * time.Minute
+	timeout = time.Minute // 15 minutes are not practical for vHive
 	port    = 80
 )
 

@@ -28,8 +28,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	lambdaSDK "github.com/aws/aws-sdk-go/service/lambda"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -62,23 +60,15 @@ func invokeNextFunctionAWS(parameters map[string]string, functionID string) []by
 	return result.Payload
 }
 
-func authenticateS3Client() (*s3.S3, *s3manager.Uploader) {
-	if sessionInstance == nil {
-		createSessionInstance()
-	}
-
-	return s3.New(sessionInstance), s3manager.NewUploader(sessionInstance)
-}
-
 func authenticateLambdaClient() *lambdaSDK.Lambda {
 	if sessionInstance == nil {
-		createSessionInstance()
+		sessionInstance = createSessionInstance()
 	}
 
 	return lambdaSDK.New(sessionInstance)
 }
 
-func createSessionInstance() {
+func createSessionInstance() *session.Session {
 	region := os.Getenv("AWS_REGION")
 	createdSessionInstance, err := session.NewSession(&aws.Config{
 		Region: &region,
@@ -86,5 +76,6 @@ func createSessionInstance() {
 	if err != nil {
 		log.Fatalf("Could not create a new session: %s", err)
 	}
-	sessionInstance = createdSessionInstance
+
+	return createdSessionInstance
 }
