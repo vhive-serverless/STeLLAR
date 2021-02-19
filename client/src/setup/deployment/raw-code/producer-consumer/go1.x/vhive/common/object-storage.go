@@ -49,7 +49,7 @@ func authenticateStorageClient(useS3 bool) *minio.Client {
 		serverAddress = "s3.amazonaws.com"
 		accessKey = os.Getenv("AWS_ACCESS_KEY_ID")
 		secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
-	} else {
+	} else { // vHive constants
 		serverAddress = "http://10.96.0.46:9000"
 		accessKey = "minio"
 		secretKey = "minio123"
