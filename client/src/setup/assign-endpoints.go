@@ -35,13 +35,16 @@ import (
 func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
 	log.Infof("[sub-experiment %d] Setting up deployment...", experiment.ID)
 	var assignedBinaryPath string
-	experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
-		fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
-		provider,
-		util.MBToBytes(experiment.FunctionImageSizeMB),
-		experiment.PackageType,
-		experiment.ID,
-	)
+
+	if provider != "vhive" { // cannot deploy to vhive
+		experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
+			fmt.Sprintf("setup/deployment/raw-code/producer-consumer/%s/%s/main.go", runtime, provider),
+			provider,
+			util.MBToBytes(experiment.FunctionImageSizeMB),
+			experiment.PackageType,
+			experiment.ID,
+		)
+	}
 
 	var assignedEndpoints []GatewayEndpoint
 	for i := 0; i < experiment.GatewaysNumber; i++ {
