@@ -9,7 +9,7 @@
         1
       ],
       "PayloadLengthBytes": 0,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -23,7 +23,7 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -37,7 +37,7 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -51,7 +51,7 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -65,7 +65,7 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -79,7 +79,7 @@
         1
       ],
       "PayloadLengthBytes": 0,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -94,7 +94,7 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -109,7 +109,7 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -124,7 +124,7 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -139,7 +139,7 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -154,7 +154,7 @@
         1
       ],
       "PayloadLengthBytes": 0,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -169,7 +169,7 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -184,7 +184,7 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -199,7 +199,7 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -214,7 +214,7 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ],

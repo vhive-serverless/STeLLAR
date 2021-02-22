@@ -31,7 +31,7 @@ import (
 	"time"
 )
 
-func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimestampChainString string, dataTransferChainIDs []string) []string {
+func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimestampChain []string, dataTransferChainIDs []string) []string {
 	address := fmt.Sprintf("%s:80", dataTransferChainIDs[0])
 
 	log.Printf("Invoking next function: %s", address)
@@ -46,9 +46,9 @@ func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimest
 
 	client, err := proto_gen.NewProducerConsumerClient(conn).InvokeNext(ctx, &proto_gen.InvokeChainRequest{
 		IncrementLimit:       request.IncrementLimit,
-		DataTransferChainIDs: request.DataTransferChainIDs[1:],
+		DataTransferChainIDs: fmt.Sprintf("%v", dataTransferChainIDs[1:]),
 		TransferPayload:      request.TransferPayload,
-		TimestampChain:       updatedTimestampChainString,
+		TimestampChain:       fmt.Sprintf("%v", updatedTimestampChain),
 		S3Bucket:             request.S3Bucket,
 		S3Key:                request.S3Key,
 	})

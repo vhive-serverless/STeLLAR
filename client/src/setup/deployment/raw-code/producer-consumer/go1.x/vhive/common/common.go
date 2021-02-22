@@ -118,7 +118,7 @@ func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, re
 		dataTransferChainIDsString = requestHTTP.QueryStringParameters["DataTransferChainIDs"]
 	} else {
 		incrementLimit = requestGRPC.IncrementLimit
-		dataTransferChainIDsString = requestGRPC.DataTransferChainIDs
+		dataTransferChainIDsString = fmt.Sprintf("%v", requestGRPC.DataTransferChainIDs)
 	}
 	return StringArrayToArrayOfString(dataTransferChainIDsString), incrementLimit
 }
@@ -148,7 +148,7 @@ func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimes
 	} else {
 		updatedTimestampChain = invokeNextFunctionGRPC(
 			requestGRPC,
-			fmt.Sprintf("%v", updatedTimestampChain),
+			updatedTimestampChain,
 			dataTransferChainIDs,
 		)
 	}

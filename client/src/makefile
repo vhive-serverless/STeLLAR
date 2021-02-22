@@ -82,7 +82,7 @@ vhive_local_docker_deployment:
 	@docker run -dp 50051:50051 vhive-function:latest
 
 # Cloudlab deployment
-CLOUDLAB_REMOTE=theodor@hp019.utah.cloudlab.us
+CLOUDLAB_REMOTE=theodor@hp060.utah.cloudlab.us
 
 .PHONY: send_to_cloudlab
 send_to_cloudlab:

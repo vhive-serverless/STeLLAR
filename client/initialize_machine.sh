@@ -15,11 +15,11 @@ sudo apt-get install tmux
 
 # Install & configure AWS CLI
 echo "Y" | sudo apt-get install awscli
-aws configure
+sudo aws configure
 
 # Equivalent to "ulimit -n 1000000", see https://superuser.com/questions/1289345/why-doesnt-ulimit-n-work-when-called-inside-a-script
 sudo prlimit --pid=$PPID --nofile=1000000
 
 sudo mkdir latency-samples
 echo "tmux new -s cloudlab"
-echo "AWS example run: ./main -o latency-samples -g endpoints -c experiments/tests/AWS/data-transfer.json"
+echo "AWS example run: sudo ./main -o latency-samples -g endpoints -c experiments/tests/AWS/data-transfer.json"
