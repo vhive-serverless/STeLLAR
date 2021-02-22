@@ -14,9 +14,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
-      "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
     },
     {
       "Title": "2functions-IAT10s-1KBpayload",
@@ -30,9 +29,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
-      "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
     },
     {
       "Title": "2functions-IAT10s-10KBpayload",
@@ -46,9 +44,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
-      "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
     },
     {
       "Title": "2functions-IAT10s-100KBpayload",
@@ -62,9 +59,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
-      "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
     },
     {
       "Title": "2functions-IAT10s-1024KBpayload",
@@ -78,9 +74,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
-      "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
     }
   ]
 }

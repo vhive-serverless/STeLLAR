@@ -3,19 +3,20 @@
   "Provider": "vhive",
   "SubExperiments": [
     {
-      "Title": "2functions-IAT10s-0KBpayload",
-      "Bursts": 25,
+      "Title": "2functions-IAT10s-100KBpayload",
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
+      "PayloadLengthBytes": 102400,
       "IATSeconds": 10,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
       ],
       "GatewaysNumber": 1,
-      "DataTransferChainLength": 2
+      "DataTransferChainLength": 2,
+      "S3Transfer": true
     }
   ]
 }

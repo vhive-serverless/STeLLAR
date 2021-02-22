@@ -20,6 +20,6 @@ aws configure
 # Equivalent to "ulimit -n 1000000", see https://superuser.com/questions/1289345/why-doesnt-ulimit-n-work-when-called-inside-a-script
 sudo prlimit --pid=$PPID --nofile=1000000
 
-mkdir latency-samples
+sudo mkdir latency-samples
 echo "tmux new -s cloudlab"
-echo "/main -o latency-samples -g endpoints -c experiments/tests/AWS/data-transfer.json"
+echo "AWS example run: ./main -o latency-samples -g endpoints -c experiments/tests/AWS/data-transfer.json"

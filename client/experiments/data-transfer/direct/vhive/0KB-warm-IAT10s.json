@@ -4,7 +4,7 @@
   "SubExperiments": [
     {
       "Title": "2functions-IAT10s-0KBpayload",
-      "Bursts": 25,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],

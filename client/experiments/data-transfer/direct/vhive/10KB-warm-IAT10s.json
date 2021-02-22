@@ -3,12 +3,12 @@
   "Provider": "vhive",
   "SubExperiments": [
     {
-      "Title": "2functions-IAT10s-0KBpayload",
-      "Bursts": 25,
+      "Title": "2functions-IAT10s-10KBpayload",
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
+      "PayloadLengthBytes": 10240,
       "IATSeconds": 10,
       "PackageType": "Image",
       "DesiredServiceTimes": [
