@@ -69,8 +69,8 @@ workflows_edit:
 	@kate ../../.github/workflows/pipeline.yml
 
 .PHONY: replace_github_commit
-replace_github_commit: ## This will replace latest CLOUDLAB_REMOTE commit with a new one having the newest changes, risks are involved.
-	@echo "WARNING: This will replace latest CLOUDLAB_REMOTE commit with a new one having the newest changes, risks are involved."
+replace_github_commit: ## This will replace latest commit with a new one having the newest changes, risks are involved.
+	@echo "WARNING: This will replace latest commit with a new one having the newest changes, risks are involved."
 	@git add ../../.
 	@git commit -S --no-edit --amend --no-gpg-sign
 	@git push --force
@@ -82,20 +82,18 @@ vhive_local_docker_deployment:
 	@docker run -dp 50051:50051 vhive-function:latest
 
 # Cloudlab deployment
-CLOUDLAB_REMOTE=theodor@hp060.utah.cloudlab.us
-
 .PHONY: send_to_cloudlab
 send_to_cloudlab:
-	@scp -rp ./setup/deployment/raw-code/ $(CLOUDLAB_REMOTE):~/vhive-bench-deployment/setup/deployment/
+	@scp -rp ./setup/deployment/raw-code/ ${CLOUDLAB_REMOTE}:~/vhive-bench-deployment/setup/deployment/
 
 .PHONY: connect_to_cloudlab
 connect_to_cloudlab:
-	@ssh -X -p 22 $(CLOUDLAB_REMOTE)
+	@ssh -X -p 22 ${CLOUDLAB_REMOTE}
 
 .PHONY: download_cloudlab_results
 download_cloudlab_results:
 	@mkdir -p "../latency-samples/cloudlab"
-	@scp -r $(CLOUDLAB_REMOTE):~/vhive-bench/latency-samples/* "../latency-samples/cloudlab/"
+	@scp -r ${CLOUDLAB_REMOTE}:~/vhive-bench/latency-samples/* "../latency-samples/cloudlab/"
 
 .PHONY: help
 help: ## Show this help.

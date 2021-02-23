@@ -40,13 +40,19 @@ import (
 func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
 	var updatedTimestampChain []string
 	if firstFunctionInChain(requestGRPC, requestHTTP) {
-		var payloadLengthBytes string
+		var payloadLengthBytesString string
 		if requestHTTP != nil {
-			payloadLengthBytes = requestHTTP.QueryStringParameters["PayloadLengthBytes"]
+			payloadLengthBytesString = requestHTTP.QueryStringParameters["PayloadLengthBytes"]
 		} else {
-			payloadLengthBytes = requestGRPC.PayloadLengthBytes
+			payloadLengthBytesString = requestGRPC.PayloadLengthBytes
 		}
 
+		payloadLengthBytes, err := strconv.Atoi(payloadLengthBytesString)
+		if err != nil {
+			log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
+		}
+
+		log.Infof("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
 		stringPayload := generateStringPayload(payloadLengthBytes)
 
 		updatedTimestampChain = AppendTimestampToChain([]string{})
@@ -123,16 +129,6 @@ func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, re
 	return StringArrayToArrayOfString(dataTransferChainIDsString), incrementLimit
 }
 
-func randStringBytes(n int) string {
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
-}
-
 func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen.InvokeChainRequest) []string {
 	if requestHTTP != nil {
 		result := invokeNextFunctionAWS(map[string]string{
@@ -171,15 +167,13 @@ func functionsLeftInChain(dataTransferChainIDs []string) bool {
 }
 
 //generateStringPayload creates a transfer payload for the producer-consumer chain
-func generateStringPayload(payloadLengthBytesString string) string {
-	payloadLengthBytes, err := strconv.Atoi(payloadLengthBytesString)
-	if err != nil {
-		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
-	}
+func generateStringPayload(payloadLengthBytes int) string {
+	const allowedChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-	log.Infof("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
 	generatedTransferPayload := make([]byte, payloadLengthBytes)
-	rand.Read(generatedTransferPayload)
+	for i := range generatedTransferPayload {
+		generatedTransferPayload[i] = allowedChars[rand.Intn(len(allowedChars))]
+	}
 
 	return string(generatedTransferPayload)
 }

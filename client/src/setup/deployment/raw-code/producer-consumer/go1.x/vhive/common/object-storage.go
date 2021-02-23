@@ -129,7 +129,7 @@ func saveObjectToStorage(requestHTTP *events.APIGatewayProxyRequest, stringPaylo
 
 func saveObject(payload string, s3bucket string) string {
 	log.Infof(`Using S3, saving transfer payload (~%d bytes) to AWS S3.`, len(payload))
-	s3key := fmt.Sprintf("transfer-payload-%s", randStringBytes(20))
+	s3key := fmt.Sprintf("transfer-payload-%s", generateStringPayload(20))
 
 	s3Client := authenticateStorageClient(true) // always use S3 for now
 
