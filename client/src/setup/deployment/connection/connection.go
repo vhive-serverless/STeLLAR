@@ -85,12 +85,14 @@ func setupAWSConnection(apiTemplatePath string) {
 
 			functions := make([]Endpoint, 0)
 			for _, function := range result {
-				functions = append(functions, Endpoint{
-					GatewayID:        strings.Split(*function.FunctionName, "_")[1],
-					FunctionMemoryMB: *function.MemorySize,
-					PackageType:      *function.PackageType,
-					ImageSizeMB:      util.BytesToMB(*function.CodeSize),
-				})
+				if strings.Contains(*function.FunctionName, "vHive-bench") {
+					functions = append(functions, Endpoint{
+						GatewayID:        strings.Split(*function.FunctionName, "_")[1],
+						FunctionMemoryMB: *function.MemorySize,
+						PackageType:      *function.PackageType,
+						ImageSizeMB:      util.BytesToMB(*function.CodeSize),
+					})
+				}
 			}
 
 			return functions

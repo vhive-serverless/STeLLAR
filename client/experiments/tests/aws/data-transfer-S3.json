@@ -15,7 +15,7 @@
       ],
       "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     }
   ]
 }

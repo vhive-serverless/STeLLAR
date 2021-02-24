@@ -32,10 +32,8 @@ import (
 )
 
 func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimestampChain []string, dataTransferChainIDs []string) []string {
-	address := fmt.Sprintf("%s:80", dataTransferChainIDs[0])
-
-	log.Printf("Invoking next function: %s", address)
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+	log.Printf("Invoking next function: %s", dataTransferChainIDs[0])
+	conn, err := grpc.Dial(dataTransferChainIDs[0], grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -49,8 +47,8 @@ func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimest
 		DataTransferChainIDs: fmt.Sprintf("%v", dataTransferChainIDs[1:]),
 		TransferPayload:      request.TransferPayload,
 		TimestampChain:       fmt.Sprintf("%v", updatedTimestampChain),
-		S3Bucket:             request.S3Bucket,
-		S3Key:                request.S3Key,
+		Bucket:               request.Bucket,
+		Key:                  request.Key,
 	})
 	if err != nil {
 		log.Fatalf("could not create new producer consumer client: %v", err)

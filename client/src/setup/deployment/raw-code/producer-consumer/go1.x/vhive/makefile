@@ -22,8 +22,8 @@
 
 .PHONY: build_and_push
 build_and_push:
-	@docker build -t vhive-bench:latest .
-	@docker tag vhive-bench:v3 vhiveease/vhive-bench:latest
+	@docker build --no-cache -t vhive-bench:latest .
+	@docker tag vhive-bench:latest vhiveease/vhive-bench:latest
 	@docker push vhiveease/vhive-bench:latest
 
 .PHONY: start_docker_daemon

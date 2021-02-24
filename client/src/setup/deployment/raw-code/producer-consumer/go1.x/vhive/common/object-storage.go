@@ -27,37 +27,36 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"os"
+	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var minioClientSingleton *minio.Client
 
-func authenticateStorageClient(useS3 bool) *minio.Client {
+func getMinioClient() *minio.Client {
 	if minioClientSingleton != nil {
 		return minioClientSingleton
 	}
 
-	var serverAddress, accessKey, secretKey string
-	if useS3 {
-		serverAddress = "s3.amazonaws.com"
-		accessKey = os.Getenv("AWS_ACCESS_KEY_ID")
-		secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
-	} else { // vHive constants
-		serverAddress = "http://10.96.0.46:9000"
-		accessKey = "minio"
-		secretKey = "minio123"
-	}
+	const ( // vHive
+		serverAddress = "10.96.0.46:9000"
+		accessKey     = "minio"
+		secretKey     = "minio123"
+	)
 
 	minioClient, err := minio.New(serverAddress, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: true,
+		Secure: false,
 	})
 	if err != nil {
 		log.Fatalf("Could not create minio client: %s", err.Error())
@@ -67,45 +66,68 @@ func authenticateStorageClient(useS3 bool) *minio.Client {
 	return minioClientSingleton
 }
 
-func usingStorage(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
+func isUsingStorage(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
 	if requestHTTP != nil {
-		value, hasUseS3Field := requestHTTP.QueryStringParameters["UseS3"]
+		value, hasStorageTransferField := requestHTTP.QueryStringParameters["StorageTransfer"]
 
-		if !hasUseS3Field {
+		if !hasStorageTransferField {
 			return false
 		}
 
-		useS3, err := strconv.ParseBool(value)
+		storageTransfer, err := strconv.ParseBool(value)
 		if err != nil {
-			log.Errorf("Could not parse UseS3: %s", err.Error())
+			log.Errorf("Could not parse StorageTransfer: %s", err.Error())
 		}
 
-		return useS3
+		return storageTransfer
 	}
 
 	// gRPC
-	return requestGRPC.UseS3 == true
+	return requestGRPC.StorageTransfer == true
 }
 
 func loadObjectFromStorage(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) string {
-	var s3key, s3bucket string
+	var objectKey, objectBucket string
 	if requestHTTP != nil {
-		s3key = requestHTTP.QueryStringParameters["S3Key"]
-		s3bucket = requestHTTP.QueryStringParameters["S3Bucket"]
+		objectKey = requestHTTP.QueryStringParameters["Key"]
+		objectBucket = requestHTTP.QueryStringParameters["Bucket"]
 	} else {
-		s3key = requestGRPC.S3Key
-		s3bucket = requestGRPC.S3Bucket
+		objectKey = requestGRPC.Key
+		objectBucket = requestGRPC.Bucket
 	}
 
-	s3Client := authenticateStorageClient(true) // always use S3 for now
-	object, err := s3Client.GetObject(
-		context.Background(),
-		s3bucket,
-		s3key,
+	if requestHTTP != nil {
+		s3svc, _ := authenticateS3Client()
+		object, err := s3svc.GetObject(&s3.GetObjectInput{
+			Bucket: aws.String(objectBucket),
+			Key:    aws.String(objectKey),
+		})
+		if err != nil {
+			log.Infof("Object %q not found in S3 bucket %q: %s", objectKey, objectBucket, err.Error())
+		}
+
+		payload, err := ioutil.ReadAll(object.Body)
+		if err != nil {
+			log.Infof("Error reading object body: %v", err)
+			return ""
+		}
+
+		return string(payload)
+	}
+
+	// when using anything but HTTP, at the moment, automatically resort to minio
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	storageClient := getMinioClient()
+	object, err := storageClient.GetObject(
+		ctx,
+		objectBucket,
+		objectKey,
 		minio.GetObjectOptions{},
 	)
 	if err != nil {
-		log.Infof("Object %q not found in S3 bucket %q: %s", s3key, s3bucket, err.Error())
+		log.Infof("Object %q not found in bucket %q: %s", objectKey, objectBucket, err.Error())
 	}
 
 	var buf bytes.Buffer
@@ -119,32 +141,49 @@ func loadObjectFromStorage(requestHTTP *events.APIGatewayProxyRequest, requestGR
 
 func saveObjectToStorage(requestHTTP *events.APIGatewayProxyRequest, stringPayload string, requestGRPC *proto_gen.InvokeChainRequest) {
 	if requestHTTP != nil {
-		s3key := saveObject(stringPayload, requestHTTP.QueryStringParameters["S3Bucket"])
-		requestHTTP.QueryStringParameters["S3Key"] = s3key
+		key := saveObject(stringPayload, requestHTTP.QueryStringParameters["Bucket"], false)
+		requestHTTP.QueryStringParameters["Key"] = key
 	} else {
-		s3key := saveObject(stringPayload, requestGRPC.S3Bucket)
-		requestGRPC.S3Key = s3key
+		// when using anything but HTTP, at the moment, automatically resort to minio
+		key := saveObject(stringPayload, requestGRPC.Bucket, true)
+		requestGRPC.Key = key
 	}
 }
 
-func saveObject(payload string, s3bucket string) string {
-	log.Infof(`Using S3, saving transfer payload (~%d bytes) to AWS S3.`, len(payload))
-	s3key := fmt.Sprintf("transfer-payload-%s", generateStringPayload(20))
+func saveObject(payload string, bucket string, useMinio bool) string {
+	key := fmt.Sprintf("transfer-payload-%s", GenerateStringPayload(20))
+	log.Infof(`Using storage, saving transfer payload (~%d bytes) as %q to %q.`, len(payload), key, bucket)
 
-	s3Client := authenticateStorageClient(true) // always use S3 for now
+	var uploadResult string
+	if useMinio {
+		storageClient := getMinioClient()
 
-	uploadOutput, err := s3Client.PutObject(
-		context.Background(),
-		s3bucket,
-		s3key,
-		strings.NewReader(payload),
-		-1,
-		minio.PutObjectOptions{},
-	)
-	if err != nil {
-		log.Fatalf("Unable to upload %q to %q, %v", s3key, s3bucket, err.Error())
+		uploadOutput, err := storageClient.PutObject(
+			context.Background(),
+			bucket,
+			key,
+			strings.NewReader(payload),
+			int64(len(payload)),
+			minio.PutObjectOptions{},
+		)
+		if err != nil {
+			log.Fatalf("Unable to upload %q to %q, %v", key, bucket, err.Error())
+		}
+		uploadResult = uploadOutput.Location
+	} else {
+		_, s3uploader := authenticateS3Client()
+
+		uploadOutput, err := s3uploader.Upload(&s3manager.UploadInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(key),
+			Body:   strings.NewReader(payload),
+		})
+		if err != nil {
+			log.Fatalf("Unable to upload %q to %q, %v", key, bucket, err.Error())
+		}
+		uploadResult = uploadOutput.Location
 	}
 
-	log.Infof("Successfully uploaded %q to bucket %q (%s)", s3key, s3bucket, uploadOutput.Location)
-	return s3key
+	log.Infof("Successfully uploaded %q to bucket %q (%s)", key, bucket, uploadResult)
+	return key
 }

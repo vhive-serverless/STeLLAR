@@ -16,7 +16,7 @@
       "GatewaysNumber": 10,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT10s-128000KBpayload",
@@ -32,7 +32,7 @@
       "GatewaysNumber": 10,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT10s-256000KBpayload",
@@ -48,7 +48,39 @@
       "GatewaysNumber": 10,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-341000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 349184000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-426000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 436224000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT10s-512000KBpayload",
@@ -64,7 +96,7 @@
       "GatewaysNumber": 10,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT10s-1048576KBpayload",
@@ -80,7 +112,7 @@
       "GatewaysNumber": 10,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     }
   ]
 }

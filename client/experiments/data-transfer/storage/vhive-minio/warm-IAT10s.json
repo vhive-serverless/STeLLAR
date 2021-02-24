@@ -3,7 +3,7 @@
   "Provider": "vhive",
   "SubExperiments": [
     {
-      "Title": "2functions-IAT10s-0KBpayload",
+      "Title": "2functions-128MB-IAT10s-0KBpayload",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -16,10 +16,10 @@
       ],
       "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
-      "Title": "2functions-IAT10s-1KBpayload",
+      "Title": "2functions-128MB-IAT10s-1KBpayload",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -32,10 +32,10 @@
       ],
       "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
-      "Title": "2functions-IAT10s-10KBpayload",
+      "Title": "2functions-128MB-IAT10s-10KBpayload",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -48,10 +48,10 @@
       ],
       "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
-      "Title": "2functions-IAT10s-100KBpayload",
+      "Title": "2functions-128MB-IAT10s-100KBpayload",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -64,10 +64,10 @@
       ],
       "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
-      "Title": "2functions-IAT10s-1024KBpayload",
+      "Title": "2functions-128MB-IAT10s-1024KBpayload",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -80,7 +80,7 @@
       ],
       "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     }
   ]
 }

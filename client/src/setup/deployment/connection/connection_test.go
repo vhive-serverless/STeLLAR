@@ -34,10 +34,3 @@ func TestSetupExternalConnection(t *testing.T) {
 	require.Nil(t, Singleton.RemoveFunction, "External connection: RemoveFunction should be nil.")
 	require.Nil(t, Singleton.UpdateFunction, "External connection: UpdateFunction should be nil.")
 }
-
-func TestSetupFileConnection(t *testing.T) {
-	Initialize("vhive", "../../../../endpoints", apiTemplatePathFromConnectionFolder)
-	require.Equal(t, 10, len(Singleton.ListAPIs()))
-	require.Equal(t, int64(128), Singleton.ListAPIs()[0].FunctionMemoryMB)
-	require.Equal(t, "producer.default.192.168.1.240.xip.io", Singleton.ListAPIs()[0].GatewayID)
-}

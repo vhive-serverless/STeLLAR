@@ -28,6 +28,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	lambdaSDK "github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -78,4 +80,12 @@ func createSessionInstance() *session.Session {
 	}
 
 	return createdSessionInstance
+}
+
+func authenticateS3Client() (*s3.S3, *s3manager.Uploader) {
+	if sessionInstance == nil {
+		sessionInstance = createSessionInstance()
+	}
+
+	return s3.New(sessionInstance), s3manager.NewUploader(sessionInstance)
 }

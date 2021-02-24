@@ -42,7 +42,7 @@ run_vhive:
 
 .PHONY: run_aws_S3
 run_aws_S3:
-	@./main -o ../latency-samples -g ../endpoints -c ../experiments/tests/AWS/data-transfer-S3.json
+	@./main -o ../latency-samples -g ../endpoints -c ../experiments/tests/aws/data-transfer-S3.json
 
 .PHONY: empty_S3_bucket
 empty_S3_bucket:
@@ -50,7 +50,7 @@ empty_S3_bucket:
 
 .PHONY: run_aws
 run_aws:
-	@./main -o ../latency-samples -g ../endpoints -c ../experiments/tests/AWS/data-transfer.json
+	@./main -o ../latency-samples -g ../endpoints -c ../experiments/tests/aws/data-transfer-S3.json
 
 .PHONY: test
 test:
@@ -79,13 +79,17 @@ replace_github_commit: ## This will replace latest commit with a new one having 
 vhive_local_docker_deployment:
 	@docker system prune
 	@docker build -t vhive-bench:latest setup/deployment/raw-code/producer-consumer/go1.x/vhive/
-	@docker run -dp 50051:50051 vhive-function:latest
+	@docker run -dp 50051:50051 vhive-bench:latest
+
+GO_PROD_CONSUMER="./setup/deployment/raw-code/producer-consumer/go1.x"
+SERVER_API_OUT="$(GO_PROD_CONSUMER)/vhive/proto_gen"
+CLIENT_API_OUT="benchmarking/networking/benchgrpc/proto_gen"
+.PHONY: proto_gen
+proto_gen:
+	@protoc chainfunction.proto --proto_path="$(GO_PROD_CONSUMER)/vhive/proto" --go_out=$(SERVER_API_OUT) --go-grpc_out=$(SERVER_API_OUT)
+	@protoc chainfunction.proto --proto_path="$(GO_PROD_CONSUMER)/vhive/proto" --go_out=$(CLIENT_API_OUT) --go-grpc_out=$(CLIENT_API_OUT)
 
 # Cloudlab deployment
-.PHONY: send_to_cloudlab
-send_to_cloudlab:
-	@scp -rp ./setup/deployment/raw-code/ ${CLOUDLAB_REMOTE}:~/vhive-bench-deployment/setup/deployment/
-
 .PHONY: connect_to_cloudlab
 connect_to_cloudlab:
 	@ssh -X -p 22 ${CLOUDLAB_REMOTE}

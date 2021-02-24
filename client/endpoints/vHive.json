@@ -1,60 +1,144 @@
 [
   {
-    "GatewayID": "producer.default.192.168.1.240.xip.io",
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "consumer.default.192.168.1.240.xip.io",
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "producer.default.192.168.1.240.xip.io",
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "consumer.default.192.168.1.240.xip.io",
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "producer.default.192.168.1.240.xip.io",
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "consumer.default.192.168.1.240.xip.io",
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "producer.default.192.168.1.240.xip.io",
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "consumer.default.192.168.1.240.xip.io",
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "producer.default.192.168.1.240.xip.io",
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"
   },
   {
-    "GatewayID": "consumer.default.192.168.1.240.xip.io",
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "producer.default.192.168.1.240.xip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "consumer.default.192.168.1.240.xip.io:80",
     "FunctionMemoryMB": 128,
     "ImageSizeMB": 60,
     "PackageType": "Image"

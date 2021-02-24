@@ -46,7 +46,7 @@ func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 }
 
 func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes int,
-	assignedFunctionIncrementLimit int64, dataTransferChainIDs []string, s3Transfer bool) *http.Request {
+	assignedFunctionIncrementLimit int64, dataTransferChainIDs []string, storageTransfer bool) *http.Request {
 	request.URL.Path = "/prod/benchmarking"
 
 	request.URL.RawQuery = fmt.Sprintf("IncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
@@ -55,8 +55,8 @@ func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes 
 		dataTransferChainIDs,
 	)
 
-	if s3Transfer {
-		request.URL.RawQuery += fmt.Sprintf("&S3Bucket=%v&UseS3=true", amazon.AWSSingletonInstance.S3Bucket)
+	if storageTransfer {
+		request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)
 	}
 
 	return request

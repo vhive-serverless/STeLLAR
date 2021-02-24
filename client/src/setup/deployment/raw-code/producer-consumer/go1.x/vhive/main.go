@@ -53,6 +53,8 @@ func main() {
 	proto_gen.RegisterProducerConsumerServer(s, &server{})
 	log.Print("Registered ProducerConsumerServer")
 
+	common.InitializeGlobalRandomPayload()
+
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

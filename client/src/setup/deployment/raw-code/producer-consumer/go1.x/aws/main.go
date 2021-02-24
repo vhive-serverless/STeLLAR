@@ -31,6 +31,8 @@ import (
 )
 
 func main() {
+	common.InitializeGlobalRandomPayload()
+
 	lambda.Start(producerConsumer)
 }
 
