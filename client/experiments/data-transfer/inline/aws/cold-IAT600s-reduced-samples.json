@@ -73,6 +73,48 @@
       "DataTransferChainLength": 2
     },
     {
+      "Title": "2functions-128MB-IAT600s-2048KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 2097152,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-128MB-IAT600s-3072KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 3145728,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-128MB-IAT600s-4000KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 4100000,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "DataTransferChainLength": 2
+    },
+    {
       "Title": "2functions-1536MB-IAT600s-0KBpayload",
       "Bursts": 100,
       "BurstSizes": [
@@ -148,6 +190,51 @@
       "DataTransferChainLength": 2
     },
     {
+      "Title": "2functions-1536MB-IAT600s-2048KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 2097152,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-1536MB-IAT600s-3072KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 3145728,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-1536MB-IAT600s-4000KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 4100000,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 2
+    },
+    {
       "Title": "2functions-10240MB-IAT600s-0KBpayload",
       "Bursts": 100,
       "BurstSizes": [
@@ -214,6 +301,51 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-10240MB-IAT600s-2048KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 2097152,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-10240MB-IAT600s-3072KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 3145728,
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 5,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-10240MB-IAT600s-4000KBpayload",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 4100000,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
         "0ms"

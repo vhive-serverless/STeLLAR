@@ -36,25 +36,34 @@ import (
 	"time"
 )
 
+//GlobalRandomPayload is a 1MB string used for quick random payload generation
+var GlobalRandomPayload string
+
 //GenerateResponse creates the HTTP or gRPC producer-consumer response payload
 func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
 	var updatedTimestampChain []string
 	if firstFunctionInChain(requestGRPC, requestHTTP) {
-		var payloadLengthBytes string
+		var payloadLengthBytesString string
 		if requestHTTP != nil {
-			payloadLengthBytes = requestHTTP.QueryStringParameters["PayloadLengthBytes"]
+			payloadLengthBytesString = requestHTTP.QueryStringParameters["PayloadLengthBytes"]
 		} else {
-			payloadLengthBytes = requestGRPC.PayloadLengthBytes
+			payloadLengthBytesString = requestGRPC.PayloadLengthBytes
 		}
 
-		stringPayload := generateStringPayload(payloadLengthBytes)
+		payloadLengthBytes, err := strconv.Atoi(payloadLengthBytesString)
+		if err != nil {
+			log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
+		}
+
+		log.Infof("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
+		stringPayload := GenerateStringPayload(payloadLengthBytes)
 
 		updatedTimestampChain = AppendTimestampToChain([]string{})
 
-		if usingStorage(requestGRPC, requestHTTP) {
+		if isUsingStorage(requestGRPC, requestHTTP) && len(stringPayload) != 0 {
 			saveObjectToStorage(requestHTTP, stringPayload, requestGRPC)
 		} else {
-			log.Info("Using direct JSON, setting TransferPayload field.")
+			log.Info("Using inline JSON, setting the TransferPayload field.")
 
 			if requestHTTP != nil {
 				requestHTTP.QueryStringParameters["TransferPayload"] = stringPayload
@@ -64,7 +73,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		}
 	} else { // not the first function in the chain
 		var stringPayload string
-		if usingStorage(requestGRPC, requestHTTP) {
+		if isUsingStorage(requestGRPC, requestHTTP) && len(stringPayload) != 0 {
 			stringPayload = loadObjectFromStorage(requestHTTP, requestGRPC)
 		}
 
@@ -78,7 +87,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		//log.Infof("Not the first function in the chain, TimestampChain field is %q.", timestampChainStringForm)
 		updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
 
-		if usingStorage(requestGRPC, requestHTTP) {
+		if isUsingStorage(requestGRPC, requestHTTP) && len(stringPayload) != 0 {
 			saveObjectToStorage(requestHTTP, stringPayload, requestGRPC)
 		}
 	}
@@ -118,19 +127,9 @@ func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, re
 		dataTransferChainIDsString = requestHTTP.QueryStringParameters["DataTransferChainIDs"]
 	} else {
 		incrementLimit = requestGRPC.IncrementLimit
-		dataTransferChainIDsString = requestGRPC.DataTransferChainIDs
+		dataTransferChainIDsString = fmt.Sprintf("%v", requestGRPC.DataTransferChainIDs)
 	}
 	return StringArrayToArrayOfString(dataTransferChainIDsString), incrementLimit
-}
-
-func randStringBytes(n int) string {
-	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
 }
 
 func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen.InvokeChainRequest) []string {
@@ -148,7 +147,7 @@ func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimes
 	} else {
 		updatedTimestampChain = invokeNextFunctionGRPC(
 			requestGRPC,
-			fmt.Sprintf("%v", updatedTimestampChain),
+			updatedTimestampChain,
 			dataTransferChainIDs,
 		)
 	}
@@ -170,18 +169,28 @@ func functionsLeftInChain(dataTransferChainIDs []string) bool {
 	return len(dataTransferChainIDs) > 0 && dataTransferChainIDs[0] != ""
 }
 
-//generateStringPayload creates a transfer payload for the producer-consumer chain
-func generateStringPayload(payloadLengthBytesString string) string {
-	payloadLengthBytes, err := strconv.Atoi(payloadLengthBytesString)
-	if err != nil {
-		log.Fatalf("Could not parse PayloadLengthBytes: %s", err)
+//GenerateStringPayload creates a transfer payload for the producer-consumer chain
+func GenerateStringPayload(payloadLengthBytes int) string {
+	repeatedRandomPayload := GlobalRandomPayload
+	for len(repeatedRandomPayload) < payloadLengthBytes {
+		repeatedRandomPayload += GlobalRandomPayload
+	}
+	return repeatedRandomPayload[:payloadLengthBytes]
+}
+
+//InitializeGlobalRandomPayload creates the initial transfer payload to be used for quicker random payload generation
+func InitializeGlobalRandomPayload() {
+	const (
+		allowedChars                 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		globalRandomPayloadSizeBytes = 1024 * 1024
+	)
+
+	generatedTransferPayload := make([]byte, globalRandomPayloadSizeBytes)
+	for i := range generatedTransferPayload {
+		generatedTransferPayload[i] = allowedChars[rand.Intn(len(allowedChars))]
 	}
 
-	log.Infof("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
-	generatedTransferPayload := make([]byte, payloadLengthBytes)
-	rand.Read(generatedTransferPayload)
-
-	return string(generatedTransferPayload)
+	GlobalRandomPayload = string(generatedTransferPayload)
 }
 
 //extractJSONTimestampChain will process raw bytes into a string array of timestamps

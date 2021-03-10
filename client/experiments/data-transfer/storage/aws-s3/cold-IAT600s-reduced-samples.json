@@ -15,7 +15,7 @@
       ],
       "GatewaysNumber": 5,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-128MB-IAT600s-1KBpayload",
@@ -30,7 +30,7 @@
       ],
       "GatewaysNumber": 5,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-128MB-IAT600s-10KBpayload",
@@ -45,7 +45,7 @@
       ],
       "GatewaysNumber": 5,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-128MB-IAT600s-100KBpayload",
@@ -60,7 +60,7 @@
       ],
       "GatewaysNumber": 5,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-128MB-IAT600s-1024KBpayload",
@@ -75,7 +75,7 @@
       ],
       "GatewaysNumber": 5,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-1536MB-IAT600s-0KBpayload",
@@ -91,7 +91,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-1536MB-IAT600s-1KBpayload",
@@ -107,7 +107,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-1536MB-IAT600s-10KBpayload",
@@ -123,7 +123,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-1536MB-IAT600s-100KBpayload",
@@ -139,7 +139,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-1536MB-IAT600s-1024KBpayload",
@@ -155,7 +155,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT600s-0KBpayload",
@@ -171,7 +171,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT600s-1KBpayload",
@@ -187,7 +187,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT600s-10KBpayload",
@@ -203,7 +203,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT600s-100KBpayload",
@@ -219,7 +219,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     },
     {
       "Title": "2functions-10240MB-IAT600s-1024KBpayload",
@@ -235,7 +235,7 @@
       "GatewaysNumber": 5,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
-      "S3Transfer": true
+      "StorageTransfer": true
     }
   ]
 }

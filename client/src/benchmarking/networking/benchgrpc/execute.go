@@ -30,19 +30,15 @@ import (
 	"time"
 	"vhive-bench/client/benchmarking/networking/benchgrpc/proto_gen"
 	"vhive-bench/client/setup"
-	"vhive-bench/client/setup/deployment/connection/amazon"
 )
 
 const (
-	timeout = time.Minute // 15 minutes are not practical for vHive
-	port    = 80
+	timeout = 3 * time.Minute // 15 minutes are not practical for vHive
 )
 
 //ExecuteRequest will send a gRPC request and return the timestamp chain (if any).
-func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, incrementLimit int64, s3Transfer bool) (string, time.Time, time.Time) {
-	address := fmt.Sprintf("%s:%d", gatewayEndpoint.ID, port)
-
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
+func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, incrementLimit int64, storageTransfer bool) (string, time.Time, time.Time) {
+	conn, err := grpc.Dial(gatewayEndpoint.ID, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)
 	}
@@ -59,8 +55,9 @@ func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoin
 		PayloadLengthBytes:   fmt.Sprintf("%d", payloadLengthBytes),
 	}
 
-	if s3Transfer {
-		input.S3Bucket = amazon.AWSBucketName
+	if storageTransfer {
+		input.Bucket = "mybucket" // for gRPC vHive, use minio
+		input.StorageTransfer = true
 	}
 
 	var reply *proto_gen.InvokeChainReply

@@ -29,7 +29,6 @@ on:
     branches: [ master ]
 
 jobs:
-
   build:
     name: vHive-bench Pipeline
     runs-on: ubuntu-18.04
@@ -47,7 +46,7 @@ jobs:
         
     - name: Check Syntax
       uses: Jerome1337/golint-action@v1.0.2
-        
+
     - name: Build client
       working-directory: ${{env.working-directory}}
       run: |
@@ -64,25 +63,38 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-west-1
-      
+        
+    - name: Check that aws producer-consumer function image builds
+      working-directory: ${{env.working-directory}}/setup/deployment/raw-code/producer-consumer/go1.x/aws/
+      run: |
+        touch random.file
+        docker build -t vhive-bench:aws .
+        
+    - name: Check that vhive producer-consumer function image builds
+      working-directory: ${{env.working-directory}}/setup/deployment/raw-code/producer-consumer/go1.x/aws/
+      run: |
+        touch random.file
+        docker build -t vhive-bench:vhive .
+        
     - name: Unit Tests
       working-directory: ${{env.working-directory}}
       run: go test -short -v ./...
 
-    - name: Burstiness ZIP Package (Integration Test)
+    - name: AWS Burstiness ZIP Package (Integration Test)
       working-directory: ${{env.working-directory}}
-      run: ./main --o "../latency-samples" --c "../experiments/tests/AWS/burstiness-zip-package.json"
+      run: ./main --o "../latency-samples" --c "../experiments/tests/aws/burstiness-zip-package.json"
 
-    - name: Burstiness Image Package (Integration Test)
+    - name: AWS Burstiness Image Package (Integration Test)
       working-directory: ${{env.working-directory}}
-      run: ./main --o "../latency-samples" --c "../experiments/tests/AWS/burstiness-image-package.json"
+      run: ./main --o "../latency-samples" --c "../experiments/tests/aws/burstiness-image-package.json"
 
-    - name: Data Transfer Integration (Integration Test)
+    - name: AWS Inline Data Transfer Integration (Integration Test)
       working-directory: ${{env.working-directory}}
-      run: ./main --o "../latency-samples" --c "../experiments/tests/AWS/data-transfer.json"
+      run: ./main --o "../latency-samples" --c "../experiments/tests/aws/data-transfer.json"
       
-    - name: Prepare files for pusing to deployment branch
+    - name: Prepare files for pushing to deployment branch
       run: |
+        cp client/initialize_aws.sh initialize_aws.sh
         cp client/initialize_machine.sh initialize_machine.sh
         cp client/src/main main
         mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/vhive/ && cp client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
@@ -91,6 +103,30 @@ jobs:
         cp -R client/endpoints endpoints
         cp -R client/experiments experiments
 
+    - name: vHive Inline Data Transfer Integration (Integration Test)
+      working-directory: ${{env.working-directory}}
+      run: |
+        cat > ../endpoints/vHive.json <<- EOM
+        [
+        {
+            "GatewayID": "172.18.0.2:50051",
+            "FunctionMemoryMB": 128,
+            "ImageSizeMB": 60,
+            "PackageType": "Image"
+        },
+        {
+            "GatewayID": "172.18.0.3:50051",
+            "FunctionMemoryMB": 128,
+            "ImageSizeMB": 60,
+            "PackageType": "Image"
+        }
+        ]
+        EOM
+        docker network create --subnet=172.18.0.0/16 benchnet
+        docker run -d --net=benchnet --ip 172.18.0.2 vhiveease/vhive-bench:latest
+        docker run -d --net=benchnet --ip 172.18.0.3 vhiveease/vhive-bench:latest
+        ./main -g ../endpoints -o ../latency-samples -c ../experiments/tests/vhive/data-transfer.json
+
     - name: Push to deployment branch
       run: |
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -98,6 +134,6 @@ jobs:
         git remote set-url origin https://ease-lab:${{secrets.ACCESS_TOKEN}}@github.com/ease-lab/vhive-bench.git
         git checkout --orphan deployment
         git rm -rf .
-        git add -f initialize_machine.sh main setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/api-template.json endpoints experiments
+        git add -f initialize_aws.sh initialize_machine.sh main setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/api-template.json endpoints experiments
         git commit -m "Automated push from successful vhive-bench pipeline"
         git push origin HEAD:deployment --force

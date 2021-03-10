@@ -9,12 +9,12 @@
         1
       ],
       "PayloadLengthBytes": 0,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
+      "GatewaysNumber": 1,
       "DataTransferChainLength": 2
     },
     {
@@ -24,12 +24,12 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
+      "GatewaysNumber": 1,
       "DataTransferChainLength": 2
     },
     {
@@ -39,12 +39,12 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
+      "GatewaysNumber": 1,
       "DataTransferChainLength": 2
     },
     {
@@ -54,12 +54,12 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
+      "GatewaysNumber": 1,
       "DataTransferChainLength": 2
     },
     {
@@ -69,12 +69,57 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
+      "IATSeconds": 3,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-IAT10s-2048KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 2097152,
       "IATSeconds": 10,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 5,
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-3072KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 3145728,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-4000KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 4100000,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "GatewaysNumber": 1,
       "DataTransferChainLength": 2
     }
   ]

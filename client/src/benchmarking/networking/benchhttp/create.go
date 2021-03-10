@@ -33,7 +33,7 @@ import (
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
 //configuration object.
-func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, assignedFunctionIncrementLimit int64, S3Transfer bool) *http.Request {
+func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, assignedFunctionIncrementLimit int64, storageTransfer bool) *http.Request {
 	var request *http.Request
 
 	switch provider {
@@ -44,7 +44,7 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 		)
 
 		appendProducerConsumerParameters(request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint.DataTransferChainIDs, S3Transfer)
+			gatewayEndpoint.DataTransferChainIDs, storageTransfer)
 
 		_, err := amazon.AWSSingletonInstance.RequestSigner.Sign(request, nil, "execute-api", amazon.AWSRegion, time.Now())
 		if err != nil {

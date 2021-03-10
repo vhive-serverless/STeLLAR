@@ -18,9 +18,9 @@ message InvokeChainRequest {
   string transferPayload = 4;
   string timestampChain = 5;
 
-  string s3Bucket = 6;
-  string s3Key = 7;
-  bool useS3 = 8;
+  string bucket = 6;
+  string key = 7;
+  bool storageTransfer = 8;
 }
 
 message InvokeChainReply {

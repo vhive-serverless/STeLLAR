@@ -53,7 +53,7 @@ type SubExperiment struct {
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
-	S3Transfer              bool     `json:"S3Transfer"`
+	StorageTransfer         bool     `json:"StorageTransfer"`
 	GatewayEndpoints        []GatewayEndpoint
 	ID                      int
 }

@@ -71,7 +71,7 @@ def plot_cpu_slowdown():
         return latencies, service_times
 
     title = provider + ' CPU Slowdown'
-    fig = plt.figure(figsize=(5, 5))
+    fig = plt.figure(figsize=(12, 5))
     fig.suptitle(title)
     plt.ylabel('Latency (ms)')
     plt.xlabel('Service Time (ms)')

@@ -56,7 +56,7 @@
             }
           },
           {
-            "name": "S3Bucket",
+            "name": "Bucket",
             "in": "query",
             "required": false,
             "schema": {
@@ -64,7 +64,7 @@
             }
           },
           {
-            "name": "S3Key",
+            "name": "Key",
             "in": "query",
             "required": false,
             "schema": {
@@ -72,7 +72,7 @@
             }
           },
           {
-            "name": "UseS3",
+            "name": "StorageTransfer",
             "in": "query",
             "required": false,
             "schema": {

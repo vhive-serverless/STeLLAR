@@ -77,7 +77,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
 		go executeRequestAndWriteResults(&requestsWaitGroup, provider, incrementLimit, latenciesWriter, dataTransfersWriter, burstID,
-			config.PayloadLengthBytes, gatewayEndpoint, config.S3Transfer)
+			config.PayloadLengthBytes, gatewayEndpoint, config.StorageTransfer)
 	}
 
 	requestsWaitGroup.Wait()
