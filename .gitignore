@@ -14,21 +14,21 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-client/.idea/
-client/latency-samples/
-client/cloudlab-latency-samples/
-client/src/only-plot.txt
-client/src/main
-client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
-client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
-client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
-client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
+.idea/
+latency-samples/
+cloudlab-latency-samples/
+src/only-plot.txt
+src/main
+src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
+src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
+src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
+src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
 
-client/plotutil/data-transfer/providers/
-client/plotutil/cold-starts/providers/
-client/plotutil/cpu-slowdown/providers/
-client/plotutil/plot-single-cdf/cdf.png
-client/plotutil/plot-single-cdf/go.mod
-client/plotutil/plot-single-cdf/go.sum
-client/plotutil/plot-single-cdf/latencies.csv
+plotutil/data-transfer/providers/
+plotutil/cold-starts/providers/
+plotutil/cpu-slowdown/providers/
+plotutil/plot-single-cdf/cdf.png
+plotutil/plot-single-cdf/go.mod
+plotutil/plot-single-cdf/go.sum
+plotutil/plot-single-cdf/latencies.csv
 

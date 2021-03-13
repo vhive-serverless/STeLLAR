@@ -1,0 +1,100 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "2functions-128MB-IAT10s-10240KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10485760,
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 20,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-102400KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 104857600,
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 20,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-1536MB-IAT10s-10240KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10485760,
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 20,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-1536MB-IAT10s-102400KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 104857600,
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 20,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-10240KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10485760,
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 20,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-102400KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 104857600,
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 20,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

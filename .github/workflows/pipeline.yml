@@ -33,7 +33,7 @@ jobs:
     name: vHive-bench Pipeline
     runs-on: ubuntu-18.04
     env:
-      working-directory: ./client/src
+      working-directory: ./src
     steps:
     
     - name: Set up Go 1.15
@@ -94,14 +94,14 @@ jobs:
       
     - name: Prepare files for pushing to deployment branch
       run: |
-        cp client/initialize_aws.sh initialize_aws.sh
-        cp client/initialize_machine.sh initialize_machine.sh
-        cp client/src/main main
-        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/vhive/ && cp client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
-        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/aws/ && cp client/src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
-        cp client/src/setup/deployment/raw-code/producer-consumer/api-template.json setup/deployment/raw-code/producer-consumer/api-template.json
-        cp -R client/endpoints endpoints
-        cp -R client/experiments experiments
+        cp initialize_aws.sh initialize_aws.sh
+        cp initialize_machine.sh initialize_machine.sh
+        cp src/main main
+        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/vhive/ && cp src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
+        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/aws/ && cp src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
+        cp src/setup/deployment/raw-code/producer-consumer/api-template.json setup/deployment/raw-code/producer-consumer/api-template.json
+        cp -R endpoints endpoints
+        cp -R experiments experiments
 
     - name: vHive Inline Data Transfer Integration (Integration Test)
       working-directory: ${{env.working-directory}}

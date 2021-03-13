@@ -1,0 +1,33 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "1gateway-24MB",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 2,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    },
+    {
+      "Title": "2gateways-48MB",
+      "Bursts": 3,
+      "BurstSizes": [
+        4
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 48,
+      "Parallelism": 2
+    }
+  ]
+}

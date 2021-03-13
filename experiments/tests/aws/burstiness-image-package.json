@@ -1,0 +1,20 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "1gateway-24MB",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 2,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    }
+  ]
+}

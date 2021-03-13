@@ -1,0 +1,81 @@
+{
+  "Sequential": true,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "2functions-128MB-IAT10s-0KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-1KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-10KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10240,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-100KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 102400,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-128MB-IAT10s-1024KBpayload",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1048576,
+      "IATSeconds": 10,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

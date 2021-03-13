@@ -1,0 +1,118 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "2functions-10240MB-IAT10s-64000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 65536000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-128000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 131072000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-256000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 262144000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-341000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 349184000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-426000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 436224000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-512000KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 524288000,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2functions-10240MB-IAT10s-1048576KBpayload",
+      "Bursts": 20,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1073741824,
+      "IATSeconds": 120,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

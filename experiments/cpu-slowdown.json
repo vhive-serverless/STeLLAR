@@ -1,0 +1,338 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "128MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1
+    },
+    {
+      "Title": "128MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1
+    },
+    {
+      "Title": "128MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1
+    },
+    {
+      "Title": "480MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 480
+    },
+    {
+      "Title": "480MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 480
+    },
+    {
+      "Title": "480MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 480
+    },
+    {
+      "Title": "832MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 832
+    },
+    {
+      "Title": "832MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 832
+    },
+    {
+      "Title": "832MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 832
+    },
+    {
+      "Title": "1184MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 1184
+    },
+    {
+      "Title": "1184MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 1184
+    },
+    {
+      "Title": "1184MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 1184
+    },
+    {
+      "Title": "1536MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Title": "1536MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Title": "1536MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Title": "2304MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 2304
+    },
+    {
+      "Title": "2304MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 2304
+    },
+    {
+      "Title": "2304MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 2304
+    },
+    {
+      "Title": "5120MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 5120
+    },
+    {
+      "Title": "5120MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 5120
+    },
+    {
+      "Title": "5120MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 5120
+    },
+    {
+      "Title": "10240MB-st-100ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 10240
+    },
+    {
+      "Title": "10240MB-st-500ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 10240
+    },
+    {
+      "Title": "10240MB-st-1000ms",
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "Parallelism": 1,
+      "FunctionMemoryMB": 10240
+    }
+  ]
+}

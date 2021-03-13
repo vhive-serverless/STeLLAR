@@ -1,0 +1,19 @@
+{
+  "Sequential": false,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "1gateway",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "PayloadLengthBytes": 0,
+      "IATSeconds": 2,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,0 @@
-FROM public.ecr.aws/lambda/provided:al2
-ADD handler /main
-ADD random.file /random.file
-ENTRYPOINT [ "/main" ]
