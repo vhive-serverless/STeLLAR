@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package proto_gen;
+
+// The producer and consumer functions as a single service (for simplicity)
+service ProducerConsumer {
+  rpc InvokeNext (InvokeChainRequest) returns (InvokeChainReply) {}
+}
+
+message InvokeChainRequest {
+  // simulate work with increment
+  string incrementLimit = 1;
+
+  string dataTransferChainIDs = 2;
+  string payloadLengthBytes = 3;
+
+  // created by first function
+  string transferPayload = 4;
+  string timestampChain = 5;
+
+  string bucket = 6;
+  string key = 7;
+  bool storageTransfer = 8;
+}
+
+message InvokeChainReply {
+  string timestampChain = 1;
+}
