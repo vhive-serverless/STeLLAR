@@ -20,39 +20,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package common
+package main
 
 import (
+	common2 "common"
 	"context"
 	"fmt"
-	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
-	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"time"
+	"log"
+	"net"
+	proto_gen2 "proto_gen"
 )
 
-func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimestampChain []string, dataTransferChainIDs []string) []string {
-	log.Printf("Invoking next function: %s", dataTransferChainIDs[0])
-	conn, err := grpc.Dial(dataTransferChainIDs[0], grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
+const (
+	port = ":50051"
+)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
+type server struct {
+	proto_gen2.UnimplementedProducerConsumerServer
+}
 
-	client, err := proto_gen.NewProducerConsumerClient(conn).InvokeNext(ctx, &proto_gen.InvokeChainRequest{
-		IncrementLimit:       request.IncrementLimit,
-		DataTransferChainIDs: fmt.Sprintf("%v", dataTransferChainIDs[1:]),
-		TransferPayload:      request.TransferPayload,
-		TimestampChain:       fmt.Sprintf("%v", updatedTimestampChain),
-		Bucket:               request.Bucket,
-		Key:                  request.Key,
-	})
+func main() {
+	log.Printf("Started listening on port %s", port)
+	lis, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatalf("could not create new producer consumer client: %v", err)
+		log.Fatalf("failed to listen: %v", err)
 	}
 
-	return StringArrayToArrayOfString(client.GetTimestampChain())
+	s := grpc.NewServer()
+	log.Print("Created new server")
+
+	proto_gen2.RegisterProducerConsumerServer(s, &server{})
+	log.Print("Registered ProducerConsumerServer")
+
+	common2.InitializeGlobalRandomPayload()
+
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+}
+
+func (s *server) InvokeNext(ctx context.Context, request *proto_gen2.InvokeChainRequest) (*proto_gen2.InvokeChainReply, error) {
+	_, grpcOutput := common2.GenerateResponse(ctx, nil, request)
+
+	return &proto_gen2.InvokeChainReply{
+		TimestampChain: fmt.Sprintf("%v", grpcOutput),
+	}, nil
 }

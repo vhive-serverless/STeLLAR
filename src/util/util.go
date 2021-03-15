@@ -42,15 +42,6 @@ func ReadFile(path string) *os.File {
 	return file
 }
 
-//FileExists checks if a file exists on disk
-func FileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
 //BytesToMB transforms bytes into megabytes
 func BytesToMB(sizeBytes int64) float64 {
 	return float64(sizeBytes) / 1024. / 1024.
@@ -69,7 +60,7 @@ func IntegerMin(x, y int) int {
 	return y
 }
 
-//RunCommandAndLog runs a command in the terminal and logs and returns the result
+//RunCommandAndLog runs a command in the terminal, logs the result and returns it
 func RunCommandAndLog(cmd *exec.Cmd) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
