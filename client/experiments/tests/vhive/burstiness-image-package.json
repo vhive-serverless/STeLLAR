@@ -13,8 +13,7 @@
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
-      ],
-      "GatewaysNumber": 1
+      ]
     }
   ]
 }

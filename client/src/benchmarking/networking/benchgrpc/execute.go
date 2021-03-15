@@ -37,7 +37,7 @@ const (
 )
 
 //ExecuteRequest will send a gRPC request and return the timestamp chain (if any).
-func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, incrementLimit int64, storageTransfer bool) (string, time.Time, time.Time) {
+func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, incrementLimit int64, storageTransfer bool) (string, time.Time, time.Time) {
 	conn, err := grpc.Dial(gatewayEndpoint.ID, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)

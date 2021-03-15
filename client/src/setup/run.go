@@ -33,18 +33,17 @@ import (
 	"vhive-bench/client/util"
 )
 
-//GatewayEndpoint represents the initial endpoint ID together with the IDs of lambda functions further in the data transfer chain
-type GatewayEndpoint struct {
-	ID                   string
-	DataTransferChainIDs []string
-}
-
 //PrepareSubExperiments will read any required files, deploy functions etc. to get ready for the sub-experiments.
 func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Configuration {
+	const (
+		nicContentionWarnThreshold = 800 // Experimentally found
+		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
+	)
+
 	configFile := util.ReadFile(configPath)
 	config := extractConfiguration(configFile)
 
-	transformServiceTimesToFunctionIncrements(&config)
+	findBusySpinIncrements(&config)
 
 	connection.Initialize(config.Provider, endpointsDirectoryPath, "./setup/deployment/raw-code/producer-consumer/api-template.json")
 
@@ -54,7 +53,7 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 		config.SubExperiments[index].ID = index
 
 		for _, burstSize := range subExperiment.BurstSizes {
-			if burstSize > manyRequestsInBurstWarnThreshold {
+			if burstSize > nicContentionWarnThreshold {
 				log.Warnf("Experiment %d has a burst of size %d, NIC (Network Interface Controller) contention may occur.",
 					index, burstSize)
 				if !promptForBool("Do you wish to continue?") {
@@ -63,9 +62,9 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 			}
 		}
 
-		if subExperiment.Bursts >= manyFilesWarnThreshold &&
+		if subExperiment.Bursts >= storageSpaceWarnThreshold &&
 			(subExperiment.Visualization == "all" || subExperiment.Visualization == "histogram") {
-			log.Warnf("SubExperiment %d is generating histograms for each burst, this will create a large number (%d) of new files.",
+			log.Warnf("SubExperiment %d is generating histograms for each burst, this will create a large number (%d) of new files (>10MB).",
 				index, subExperiment.Bursts)
 			if !promptForBool("Do you wish to continue?") {
 				os.Exit(0)
@@ -73,7 +72,7 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 		}
 
 		if availableEndpoints == nil { // hostname must be the endpoint itself (external URL)
-			config.SubExperiments[index].GatewayEndpoints = []GatewayEndpoint{{ID: config.Provider}}
+			config.SubExperiments[index].Endpoints = []EndpointInfo{{ID: config.Provider}}
 			continue
 		}
 

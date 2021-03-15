@@ -46,11 +46,11 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		)
 	}
 
-	var assignedEndpoints []GatewayEndpoint
-	for i := 0; i < experiment.GatewaysNumber; i++ {
+	var assignedEndpoints []EndpointInfo
+	for i := 0; i < experiment.Parallelism; i++ {
 		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, assignedBinaryPath, runtime)
 
-		gatewayEndpoint := GatewayEndpoint{ID: foundEndpointID}
+		gatewayEndpoint := EndpointInfo{ID: foundEndpointID}
 
 		for j := experiment.DataTransferChainLength; j > 1; j-- {
 			gatewayEndpoint.DataTransferChainIDs = append(
@@ -63,7 +63,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 	}
 
 	log.Debugf("[sub-experiment %d] Assigning following endpoints: %v", experiment.ID, assignedEndpoints)
-	experiment.GatewayEndpoints = assignedEndpoints
+	experiment.Endpoints = assignedEndpoints
 	return availableEndpoints
 }
 

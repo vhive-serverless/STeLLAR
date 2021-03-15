@@ -36,7 +36,7 @@ const randomGatewayID = "uicnaywo3rb3nsci"
 
 func TestCreateAWSRequest(t *testing.T) {
 	randomPayloadLength := 7
-	randomEndpoint := setup.GatewayEndpoint{
+	randomEndpoint := setup.EndpointInfo{
 		ID:                   randomGatewayID,
 		DataTransferChainIDs: []string{},
 	}
@@ -56,7 +56,7 @@ func TestCreateAWSRequest(t *testing.T) {
 func TestCreateExternalRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, setup.GatewayEndpoint{}, randomAssignedIncrement, false)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.EndpointInfo{}, randomAssignedIncrement, false)
 
 	require.Equal(t, "www.google.com", req.Host)
 	require.Equal(t, "www.google.com", req.URL.Host)

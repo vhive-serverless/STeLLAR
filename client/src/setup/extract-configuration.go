@@ -37,38 +37,43 @@ type Configuration struct {
 	SubExperiments []SubExperiment `json:"SubExperiments"`
 }
 
-//SubExperiment is the schema for sub-experiment configurations.
+//EndpointInfo contains an ID identifying the function together with the IDs of other functions further in the data transfer chain
+type EndpointInfo struct {
+	ID                   string
+	DataTransferChainIDs []string
+}
+
+//SubExperiment contains all the information needed for a sub-experiment to run.
 type SubExperiment struct {
+	ID                      int
 	Title                   string   `json:"Title"`
 	Bursts                  int      `json:"Bursts"`
 	BurstSizes              []int    `json:"BurstSizes"`
 	PayloadLengthBytes      int      `json:"PayloadLengthBytes"`
 	IATSeconds              float64  `json:"IATSeconds"`
-	FunctionIncrementLimits []int64  `json:"FunctionIncrementLimits"`
 	DesiredServiceTimes     []string `json:"DesiredServiceTimes"`
 	IATType                 string   `json:"IATType"`
 	PackageType             string   `json:"PackageType"`
-	GatewaysNumber          int      `json:"GatewaysNumber"`
+	Parallelism             int      `json:"Parallelism"`
 	Visualization           string   `json:"Visualization"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
 	StorageTransfer         bool     `json:"StorageTransfer"`
-	GatewayEndpoints        []GatewayEndpoint
-	ID                      int
+	// All of the below are computed after reading the configuration
+	BusySpinIncrements      []int64  `json:"BusySpinIncrements"`
+	Endpoints               []EndpointInfo
 }
 
 const (
-	defaultVisualization             = "cdf"
-	defaultIATType                   = "stochastic"
-	defaultProvider                  = "aws"
-	defaultRuntime                   = "go1.x"
-	defaultPackageType               = "Zip"
-	defaultGatewaysNumber            = 1
-	defaultDataTransferChainLength   = 1
-	defaultFunctionMemoryMB          = 128
-	manyRequestsInBurstWarnThreshold = 2000
-	manyFilesWarnThreshold           = 500
+	defaultVisualization           = "cdf"
+	defaultIATType                 = "stochastic"
+	defaultProvider                = "aws"
+	defaultRuntime                 = "go1.x"
+	defaultPackageType             = "Zip"
+	defaultParallelism             = 1
+	defaultDataTransferChainLength = 1
+	defaultFunctionMemoryMB        = 128
 )
 
 func extractConfiguration(configFile *os.File) Configuration {
@@ -102,8 +107,8 @@ func extractConfiguration(configFile *os.File) Configuration {
 		if parsedConfig.SubExperiments[index].FunctionMemoryMB == 0 {
 			parsedConfig.SubExperiments[index].FunctionMemoryMB = defaultFunctionMemoryMB
 		}
-		if parsedConfig.SubExperiments[index].GatewaysNumber == 0 {
-			parsedConfig.SubExperiments[index].GatewaysNumber = defaultGatewaysNumber
+		if parsedConfig.SubExperiments[index].Parallelism == 0 {
+			parsedConfig.SubExperiments[index].Parallelism = defaultParallelism
 		}
 	}
 

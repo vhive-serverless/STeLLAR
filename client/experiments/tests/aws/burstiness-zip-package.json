@@ -13,8 +13,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 24,
-      "GatewaysNumber": 1
+      "FunctionImageSizeMB": 24
     },
     {
       "Title": "2gateways-48MB",
@@ -28,7 +27,7 @@
         "0ms"
       ],
       "FunctionImageSizeMB": 48,
-      "GatewaysNumber": 2
+      "Parallelism": 2
     }
   ]
 }

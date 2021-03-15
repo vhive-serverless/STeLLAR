@@ -12,7 +12,6 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 1,
       "FunctionMemoryMB": 1536
     },
     {
@@ -27,7 +26,6 @@
         "0ms"
       ],
       "FunctionImageSizeMB": 60,
-      "GatewaysNumber": 1,
       "FunctionMemoryMB": 1536
     },
     {
@@ -42,7 +40,6 @@
         "0ms"
       ],
       "FunctionImageSizeMB": 120,
-      "GatewaysNumber": 1,
       "FunctionMemoryMB": 1536
     },
     {
@@ -57,7 +54,6 @@
         "0ms"
       ],
       "FunctionImageSizeMB": 180,
-      "GatewaysNumber": 1,
       "FunctionMemoryMB": 1536
     },
     {
@@ -72,7 +68,6 @@
         "0ms"
       ],
       "FunctionImageSizeMB": 240,
-      "GatewaysNumber": 1,
       "FunctionMemoryMB": 1536
     }
   ]

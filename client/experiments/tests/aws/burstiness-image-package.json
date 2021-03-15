@@ -14,8 +14,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 24,
-      "GatewaysNumber": 1
+      "FunctionImageSizeMB": 24
     }
   ]
 }

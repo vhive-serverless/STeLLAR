@@ -13,7 +13,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 20,
+      "Parallelism": 20,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
     },
@@ -28,7 +28,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 20,
+      "Parallelism": 20,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
     },
@@ -43,7 +43,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 20,
+      "Parallelism": 20,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
@@ -59,7 +59,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 20,
+      "Parallelism": 20,
       "FunctionMemoryMB": 1536,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
@@ -75,7 +75,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 20,
+      "Parallelism": 20,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
@@ -91,7 +91,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 20,
+      "Parallelism": 20,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
