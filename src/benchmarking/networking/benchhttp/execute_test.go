@@ -25,7 +25,7 @@ package benchhttp
 import (
 	"github.com/stretchr/testify/require"
 	"testing"
-	"vhive-bench/client/setup"
+	"vhive-bench/setup"
 )
 
 func TestExecuteExternalHTTPRequest(t *testing.T) {

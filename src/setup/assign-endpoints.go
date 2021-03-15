@@ -27,9 +27,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 	log "github.com/sirupsen/logrus"
 	"math"
-	"vhive-bench/client/setup/deployment"
-	"vhive-bench/client/setup/deployment/connection"
-	"vhive-bench/client/util"
+	"vhive-bench/setup/deployment"
+	"vhive-bench/setup/deployment/connection"
+	"vhive-bench/util"
 )
 
 func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {

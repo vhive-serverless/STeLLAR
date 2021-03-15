@@ -25,13 +25,13 @@ package common
 import (
 	"context"
 	"fmt"
+	"github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	proto_gen2 "proto_gen"
 	"time"
 )
 
-func invokeNextFunctionGRPC(request *proto_gen2.InvokeChainRequest, updatedTimestampChain []string, dataTransferChainIDs []string) []string {
+func invokeNextFunctionGRPC(request *proto_gen.InvokeChainRequest, updatedTimestampChain []string, dataTransferChainIDs []string) []string {
 	log.Printf("Invoking next function: %s", dataTransferChainIDs[0])
 	conn, err := grpc.Dial(dataTransferChainIDs[0], grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
@@ -42,7 +42,7 @@ func invokeNextFunctionGRPC(request *proto_gen2.InvokeChainRequest, updatedTimes
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	client, err := proto_gen2.NewProducerConsumerClient(conn).InvokeNext(ctx, &proto_gen2.InvokeChainRequest{
+	client, err := proto_gen.NewProducerConsumerClient(conn).InvokeNext(ctx, &proto_gen.InvokeChainRequest{
 		IncrementLimit:       request.IncrementLimit,
 		DataTransferChainIDs: fmt.Sprintf("%v", dataTransferChainIDs[1:]),
 		TransferPayload:      request.TransferPayload,

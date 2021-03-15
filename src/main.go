@@ -32,8 +32,8 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
-	"vhive-bench/client/benchmarking"
-	"vhive-bench/client/setup"
+	"vhive-bench/benchmarking"
+	"vhive-bench/setup"
 )
 
 var outputPathFlag = flag.String("o", "latency-samples", "The directory path where latency samples should be written.")

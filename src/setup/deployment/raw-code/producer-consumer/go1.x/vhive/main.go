@@ -23,13 +23,13 @@
 package main
 
 import (
-	common2 "common"
 	"context"
 	"fmt"
+	"github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/common"
+	"github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	proto_gen2 "proto_gen"
 )
 
 const (
@@ -37,7 +37,7 @@ const (
 )
 
 type server struct {
-	proto_gen2.UnimplementedProducerConsumerServer
+	proto_gen.UnimplementedProducerConsumerServer
 }
 
 func main() {
@@ -50,20 +50,20 @@ func main() {
 	s := grpc.NewServer()
 	log.Print("Created new server")
 
-	proto_gen2.RegisterProducerConsumerServer(s, &server{})
+	proto_gen.RegisterProducerConsumerServer(s, &server{})
 	log.Print("Registered ProducerConsumerServer")
 
-	common2.InitializeGlobalRandomPayload()
+	common.InitializeGlobalRandomPayload()
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
-func (s *server) InvokeNext(ctx context.Context, request *proto_gen2.InvokeChainRequest) (*proto_gen2.InvokeChainReply, error) {
-	_, grpcOutput := common2.GenerateResponse(ctx, nil, request)
+func (s *server) InvokeNext(ctx context.Context, request *proto_gen.InvokeChainRequest) (*proto_gen.InvokeChainReply, error) {
+	_, grpcOutput := common.GenerateResponse(ctx, nil, request)
 
-	return &proto_gen2.InvokeChainReply{
+	return &proto_gen.InvokeChainReply{
 		TimestampChain: fmt.Sprintf("%v", grpcOutput),
 	}, nil
 }

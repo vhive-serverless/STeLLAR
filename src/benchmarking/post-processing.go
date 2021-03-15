@@ -33,8 +33,8 @@ import (
 	"sort"
 	"strconv"
 	"time"
-	"vhive-bench/client/benchmarking/visualization"
-	"vhive-bench/client/setup"
+	"vhive-bench/benchmarking/visualization"
+	"vhive-bench/setup"
 )
 
 func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File) {

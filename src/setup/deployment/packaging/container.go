@@ -27,8 +27,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os/exec"
 	"strings"
-	"vhive-bench/client/setup/deployment/connection/amazon"
-	"vhive-bench/client/util"
+	"vhive-bench/setup/deployment/connection/amazon"
+	"vhive-bench/util"
 )
 
 //SetupContainerImageDeployment will package the function using container images

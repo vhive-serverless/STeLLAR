@@ -38,7 +38,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"vhive-bench/client/util"
+	"vhive-bench/util"
 )
 
 const (

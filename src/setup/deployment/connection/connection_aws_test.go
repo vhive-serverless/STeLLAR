@@ -28,8 +28,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-	"vhive-bench/client/setup/deployment"
-	"vhive-bench/client/util"
+	"vhive-bench/setup/deployment"
+	"vhive-bench/util"
 )
 
 const (
