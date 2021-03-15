@@ -11,8 +11,7 @@
       "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
-      ],
-      "GatewaysNumber": 1
+      ]
     },
     {
       "Title": "cold-cdf-10min-size100",
@@ -24,8 +23,7 @@
       "IATSeconds": 600,
       "DesiredServiceTimes": [
         "0ms"
-      ],
-      "GatewaysNumber": 1
+      ]
     },
     {
       "Title": "warm-cdf-1sec-size1",
@@ -37,8 +35,7 @@
       "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
-      ],
-      "GatewaysNumber": 1
+      ]
     },
     {
       "Title": "cold-cdf-10min-size1",
@@ -51,7 +48,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 147
+      "Parallelism": 147
     }
   ]
 }

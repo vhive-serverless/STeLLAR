@@ -31,21 +31,22 @@ import (
 
 var cachedServiceTimeIncrement map[string]int64
 
-func transformServiceTimesToFunctionIncrements(config *Configuration) {
+// findBusySpinIncrements transforms given service times (e.g., 10s) into busy-spin increments (e.g., 10,000,000)
+func findBusySpinIncrements(config *Configuration) {
 	standardIncrement := int64(1e10)
 	standardDurationMs := timeSession(standardIncrement).Milliseconds()
 	cachedServiceTimeIncrement = make(map[string]int64)
+
 	for subExperimentIndex := range config.SubExperiments {
-		determineFunctionIncrementLimits(&config.SubExperiments[subExperimentIndex],
-			standardIncrement, standardDurationMs)
+		findBusySpinIncrement(&config.SubExperiments[subExperimentIndex], standardIncrement, standardDurationMs)
 	}
 }
 
-func determineFunctionIncrementLimits(subExperiment *SubExperiment, standardIncrement int64, standardDurationMs int64) {
+func findBusySpinIncrement(subExperiment *SubExperiment, standardIncrement int64, standardDurationMs int64) {
 	for _, serviceTime := range subExperiment.DesiredServiceTimes {
 		if cachedIncrement, ok := cachedServiceTimeIncrement[serviceTime]; ok {
-			log.Infof("Using cached increment %d for desired %v", cachedIncrement, serviceTime)
-			subExperiment.FunctionIncrementLimits = append(subExperiment.FunctionIncrementLimits, cachedIncrement)
+			log.Debugf("Using cached increment %d for desired service time %v", cachedIncrement, serviceTime)
+			subExperiment.BusySpinIncrements = append(subExperiment.BusySpinIncrements, cachedIncrement)
 			continue
 		}
 
@@ -76,7 +77,7 @@ func determineFunctionIncrementLimits(subExperiment *SubExperiment, standardIncr
 
 		log.Infof("Using increment %d (timed ~%dms) for desired %dms", suggestedIncrement, suggestedDurationMs, desiredDurationMs)
 		cachedServiceTimeIncrement[serviceTime] = suggestedIncrement
-		subExperiment.FunctionIncrementLimits = append(subExperiment.FunctionIncrementLimits, suggestedIncrement)
+		subExperiment.BusySpinIncrements = append(subExperiment.BusySpinIncrements, suggestedIncrement)
 	}
 }
 

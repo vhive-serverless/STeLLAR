@@ -13,7 +13,6 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "GatewaysNumber": 1,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
     }

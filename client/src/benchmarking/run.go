@@ -44,16 +44,16 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 		time.Sleep(burstDeltas[deltaIndex])
 
 		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
-		for gatewayID := 0; gatewayID < len(experiment.GatewayEndpoints) && burstID < experiment.Bursts; gatewayID++ {
+		for gatewayID := 0; gatewayID < len(experiment.Endpoints) && burstID < experiment.Bursts; gatewayID++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
-			incrementLimit := experiment.FunctionIncrementLimits[util.IntegerMin(deltaIndex, len(experiment.FunctionIncrementLimits)-1)]
+			incrementLimit := experiment.BusySpinIncrements[util.IntegerMin(deltaIndex, len(experiment.BusySpinIncrements)-1)]
 			burstSize := experiment.BurstSizes[util.IntegerMin(deltaIndex, len(experiment.BurstSizes)-1)]
-			sendBurst(provider, experiment, burstID, burstSize, experiment.GatewayEndpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter)
+			sendBurst(provider, experiment, burstID, burstSize, experiment.Endpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter)
 			burstID++
 		}
 
 		deltaIndex++
-		log.Debugf("[sub-experiment %d] All %d gateways have been used for bursts, flushing and sleeping for %v...", experiment.ID, len(experiment.GatewayEndpoints), burstDeltas[deltaIndex-1])
+		log.Debugf("[sub-experiment %d] All %d gateways have been used for bursts, flushing and sleeping for %v...", experiment.ID, len(experiment.Endpoints), burstDeltas[deltaIndex-1])
 		latenciesWriter.Writer.Flush()
 		if dataTransferWriter != nil {
 			dataTransferWriter.Writer.Flush()
@@ -61,7 +61,7 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 	}
 }
 
-func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpoint setup.GatewayEndpoint,
+func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpoint setup.EndpointInfo,
 	incrementLimit int64, latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter) {
 
 	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to gateway with ID %q of provider %q.",
@@ -86,7 +86,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 
 func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider string, incrementLimit int64,
 	latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, burstID int,
-	payloadLengthBytes int, gatewayEndpoint setup.GatewayEndpoint, S3Transfer bool) {
+	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, S3Transfer bool) {
 	defer requestsWaitGroup.Done()
 
 	var reqSentTime, reqReceivedTime time.Time
