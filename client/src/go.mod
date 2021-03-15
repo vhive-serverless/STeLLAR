@@ -20,10 +20,8 @@ require (
 	github.com/sirupsen/logrus v1.8.0
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
-	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
-	golang.org/x/text v0.3.5 // indirect
-	gonum.org/v1/gonum v0.8.1
-	gonum.org/v1/plot v0.8.0
+	gonum.org/v1/gonum v0.8.2
+	gonum.org/v1/plot v0.9.0
 	google.golang.org/genproto v0.0.0-20210212180131-e7f2df4ecc2d // indirect
 	google.golang.org/grpc v1.36.0
 	google.golang.org/protobuf v1.25.0
