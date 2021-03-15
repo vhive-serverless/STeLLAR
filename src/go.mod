@@ -1,15 +1,15 @@
-module vhive-bench/client
+module vhive-bench
 
-go 1.15
+go 1.16
 
 replace (
-	vhive-bench/client/benchmarking => ./benchmarking
-	vhive-bench/client/benchmarking/networking => ./benchmarking/networking
-	vhive-bench/client/benchmarking/networking/benchgrpc/proto_gen => ./benchmarking/networking/benchgrpc/proto_gen
-	vhive-bench/client/benchmarking/visualization => ./benchmarking/visualization
-	vhive-bench/client/benchmarking/writers => ./benchmarking/writers
-	vhive-bench/client/setup => ./setup
-	vhive-bench/client/util => ./util
+	vhive-bench/benchmarking => ./benchmarking
+	vhive-bench/benchmarking/networking => ./benchmarking/networking
+	vhive-bench/benchmarking/networking/benchgrpc/proto_gen => ./benchmarking/networking/benchgrpc/proto_gen
+	vhive-bench/benchmarking/visualization => ./benchmarking/visualization
+	vhive-bench/benchmarking/writers => ./benchmarking/writers
+	vhive-bench/setup => ./setup
+	vhive-bench/util => ./util
 )
 
 require (

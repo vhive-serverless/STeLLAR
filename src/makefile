@@ -31,7 +31,7 @@ build_and_run: build run_aws
 build:
 	@docker build -t vhive-bench .
 	@docker create --name temp vhive-bench /bin/bash
-	@docker cp temp:/app/client ./main
+	@docker cp temp:/app/vhive-bench ./main
 	@docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
 	@docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
 	@docker container rm temp
@@ -66,12 +66,12 @@ edit_local_env_vars:
 
 .PHONY: workflows_edit
 workflows_edit:
-	@kate ../../.github/workflows/pipeline.yml
+	@kate ../.github/workflows/pipeline.yml
 
 .PHONY: replace_github_commit
 replace_github_commit: ## This will replace latest commit with a new one having the newest changes, risks are involved.
 	@echo "WARNING: This will replace latest commit with a new one having the newest changes, risks are involved."
-	@git add ../../.
+	@git add ../.
 	@git commit -S --no-edit --amend --no-gpg-sign
 	@git push --force
 

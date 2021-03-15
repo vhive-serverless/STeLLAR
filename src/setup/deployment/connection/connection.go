@@ -30,8 +30,8 @@ import (
 	"io/ioutil"
 	"path"
 	"strings"
-	"vhive-bench/client/setup/deployment/connection/amazon"
-	"vhive-bench/client/util"
+	"vhive-bench/setup/deployment/connection/amazon"
+	"vhive-bench/util"
 )
 
 //Endpoint is the schema for the configuration of provider endpoints.

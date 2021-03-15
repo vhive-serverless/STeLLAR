@@ -27,7 +27,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"vhive-bench/client/setup/deployment/connection/amazon"
+	"vhive-bench/setup/deployment/connection/amazon"
 )
 
 //ProducerConsumerResponse is the structure holding the response from a producer-consumer function

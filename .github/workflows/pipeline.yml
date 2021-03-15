@@ -53,7 +53,7 @@ jobs:
         mkdir -p "../latency-samples"
         docker build -t vhive-bench .
         docker create --name temp vhive-bench /bin/bash
-        docker cp temp:/app/client ./main
+        docker cp temp:/app/vhive-bench ./main
         docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
         docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
       
@@ -94,14 +94,10 @@ jobs:
       
     - name: Prepare files for pushing to deployment branch
       run: |
-        cp initialize_aws.sh initialize_aws.sh
-        cp initialize_machine.sh initialize_machine.sh
         cp src/main main
         mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/vhive/ && cp src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
         mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/aws/ && cp src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
         cp src/setup/deployment/raw-code/producer-consumer/api-template.json setup/deployment/raw-code/producer-consumer/api-template.json
-        cp -R endpoints endpoints
-        cp -R experiments experiments
 
     - name: vHive Inline Data Transfer Integration (Integration Test)
       working-directory: ${{env.working-directory}}
@@ -133,7 +129,10 @@ jobs:
         git config user.name "vHive Bench Bot"
         git remote set-url origin https://ease-lab:${{secrets.ACCESS_TOKEN}}@github.com/ease-lab/vhive-bench.git
         git checkout --orphan deployment
-        git rm -rf .
-        git add -f initialize_aws.sh initialize_machine.sh main setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/api-template.json endpoints experiments
+        git rm -rf --cached .
+        git add -f initialize_aws.sh initialize_machine.sh endpoints experiments main \
+        setup/deployment/raw-code/producer-consumer/go1.x/aws/handler \
+        setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler \
+        setup/deployment/raw-code/producer-consumer/api-template.json
         git commit -m "Automated push from successful vhive-bench pipeline"
         git push origin HEAD:deployment --force

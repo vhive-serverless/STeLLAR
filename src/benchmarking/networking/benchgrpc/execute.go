@@ -28,8 +28,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"time"
-	"vhive-bench/client/benchmarking/networking/benchgrpc/proto_gen"
-	"vhive-bench/client/setup"
+	"vhive-bench/benchmarking/networking/benchgrpc/proto_gen"
+	"vhive-bench/setup"
 )
 
 const (

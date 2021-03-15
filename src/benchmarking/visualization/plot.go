@@ -31,7 +31,7 @@ import (
 	"gonum.org/v1/plot/plotutil"
 	"strings"
 	"time"
-	"vhive-bench/client/setup"
+	"vhive-bench/setup"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"

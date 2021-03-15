@@ -27,8 +27,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
-	"vhive-bench/client/setup"
-	"vhive-bench/client/setup/deployment/connection/amazon"
+	"vhive-bench/setup"
+	"vhive-bench/setup/deployment/connection/amazon"
 )
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment

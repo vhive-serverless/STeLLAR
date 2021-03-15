@@ -30,8 +30,8 @@ import (
 	"math/rand"
 	"os"
 	"strings"
-	"vhive-bench/client/setup/deployment/packaging"
-	"vhive-bench/client/util"
+	"vhive-bench/setup/deployment/packaging"
+	"vhive-bench/util"
 )
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,

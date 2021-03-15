@@ -32,7 +32,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"vhive-bench/client/setup"
+	"vhive-bench/setup"
 )
 
 const defaultColdThreshold = 300.

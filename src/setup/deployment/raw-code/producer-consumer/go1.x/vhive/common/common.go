@@ -28,9 +28,9 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	log "github.com/sirupsen/logrus"
 	"math/rand"
-	proto_gen2 "proto_gen"
 	"strconv"
 	"strings"
 	"time"
@@ -40,7 +40,7 @@ import (
 var GlobalRandomPayload string
 
 //GenerateResponse creates the HTTP or gRPC producer-consumer response payload
-func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen2.InvokeChainRequest) ([]byte, []string) {
+func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
 	var updatedTimestampChain []string
 	if firstFunctionInChain(requestGRPC, requestHTTP) {
 		var payloadLengthBytesString string
@@ -120,7 +120,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 	return nil, updatedTimestampChain
 }
 
-func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen2.InvokeChainRequest) ([]string, string) {
+func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]string, string) {
 	var dataTransferChainIDsString, incrementLimit string
 	if requestHTTP != nil {
 		incrementLimit = requestHTTP.QueryStringParameters["IncrementLimit"]
@@ -132,7 +132,7 @@ func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, re
 	return StringArrayToArrayOfString(dataTransferChainIDsString), incrementLimit
 }
 
-func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen2.InvokeChainRequest) []string {
+func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen.InvokeChainRequest) []string {
 	if requestHTTP != nil {
 		result := invokeNextFunctionAWS(map[string]string{
 			"IncrementLimit":       requestHTTP.QueryStringParameters["IncrementLimit"],
@@ -154,7 +154,7 @@ func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimes
 	return updatedTimestampChain
 }
 
-func firstFunctionInChain(requestGRPC *proto_gen2.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
+func firstFunctionInChain(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
 	if requestHTTP != nil {
 		_, hasTimestampChain := requestHTTP.QueryStringParameters["TimestampChain"]
 		return !hasTimestampChain
