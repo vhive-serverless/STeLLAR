@@ -23,21 +23,21 @@
 package main
 
 import (
+	common2 "common"
 	"context"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/common"
 	"net/http"
 )
 
 func main() {
-	common.InitializeGlobalRandomPayload()
+	common2.InitializeGlobalRandomPayload()
 
 	lambda.Start(producerConsumer)
 }
 
 func producerConsumer(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	httpOutput, _ := common.GenerateResponse(ctx, &request, nil)
+	httpOutput, _ := common2.GenerateResponse(ctx, &request, nil)
 
 	return events.APIGatewayProxyResponse{
 		IsBase64Encoded: false,

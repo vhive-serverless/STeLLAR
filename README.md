@@ -7,7 +7,7 @@ A framework for benchmarking the performance of popular serverless platforms.
 ## Flow Chart
 ![flow chart](design/flow-chart.png)
 
-## Provider Limitations
+## Common problems
 
 ### AWS
 - Code storage limit

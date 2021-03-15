@@ -30,12 +30,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
+	proto_gen2 "proto_gen"
 	"strconv"
 	"strings"
 	"time"
@@ -66,7 +66,7 @@ func getMinioClient() *minio.Client {
 	return minioClientSingleton
 }
 
-func isUsingStorage(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
+func isUsingStorage(requestGRPC *proto_gen2.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
 	if requestHTTP != nil {
 		value, hasStorageTransferField := requestHTTP.QueryStringParameters["StorageTransfer"]
 
@@ -86,7 +86,7 @@ func isUsingStorage(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *even
 	return requestGRPC.StorageTransfer == true
 }
 
-func loadObjectFromStorage(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) string {
+func loadObjectFromStorage(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen2.InvokeChainRequest) string {
 	var objectKey, objectBucket string
 	if requestHTTP != nil {
 		objectKey = requestHTTP.QueryStringParameters["Key"]
@@ -139,7 +139,7 @@ func loadObjectFromStorage(requestHTTP *events.APIGatewayProxyRequest, requestGR
 	return buf.String()
 }
 
-func saveObjectToStorage(requestHTTP *events.APIGatewayProxyRequest, stringPayload string, requestGRPC *proto_gen.InvokeChainRequest) {
+func saveObjectToStorage(requestHTTP *events.APIGatewayProxyRequest, stringPayload string, requestGRPC *proto_gen2.InvokeChainRequest) {
 	if requestHTTP != nil {
 		key := saveObject(stringPayload, requestHTTP.QueryStringParameters["Bucket"], false)
 		requestHTTP.QueryStringParameters["Key"] = key

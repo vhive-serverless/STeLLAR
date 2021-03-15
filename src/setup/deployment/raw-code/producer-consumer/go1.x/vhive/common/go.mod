@@ -2,7 +2,7 @@ module common
 
 go 1.15
 
-replace github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen => ../proto_gen
+replace github.com/ease-lab/vhive-bench/client/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen => ./../proto_gen
 
 require (
 	github.com/aws/aws-lambda-go v1.22.0
