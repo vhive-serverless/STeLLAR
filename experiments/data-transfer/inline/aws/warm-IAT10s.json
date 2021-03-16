@@ -3,12 +3,11 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "2functions-128MB-IAT5s-0KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 5,
       "DesiredServiceTimes": [
         "0ms"
@@ -17,7 +16,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-1KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -31,7 +30,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-10KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -45,7 +44,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-100KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -59,7 +58,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-1024KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -73,7 +72,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-2048KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -87,7 +86,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-3072KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -101,7 +100,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT5s-4000KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -115,12 +114,11 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-0KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 5,
       "DesiredServiceTimes": [
         "0ms"
@@ -130,7 +128,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-1KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -145,7 +143,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-10KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -160,7 +158,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-100KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -175,7 +173,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-1024KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -190,7 +188,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-2048KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -205,7 +203,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-3072KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -220,7 +218,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-1536MB-IAT5s-4000KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -235,12 +233,11 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-0KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 5,
       "DesiredServiceTimes": [
         "0ms"
@@ -250,7 +247,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-1KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -265,7 +262,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-10KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -280,7 +277,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-100KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -295,7 +292,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-1024KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -310,7 +307,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-2048KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -325,7 +322,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-3072KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -340,7 +337,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-10240MB-IAT5s-4000KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 3000,
       "BurstSizes": [
         1

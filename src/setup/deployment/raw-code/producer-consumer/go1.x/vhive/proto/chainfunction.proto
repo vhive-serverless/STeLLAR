@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen";
+
 package proto_gen;
 
 // The producer and consumer functions as a single service (for simplicity)

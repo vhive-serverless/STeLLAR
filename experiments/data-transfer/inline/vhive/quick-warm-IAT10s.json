@@ -3,12 +3,11 @@
   "Provider": "vhive",
   "SubExperiments": [
     {
-      "Title": "2functions-128MB-IAT10s-0KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 3,
       "PackageType": "Image",
       "DesiredServiceTimes": [
@@ -17,7 +16,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-1KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -31,7 +30,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-10KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -45,7 +44,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-100KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -59,7 +58,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-200KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -73,7 +72,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-400KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -87,7 +86,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-600KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -101,7 +100,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-800KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -115,7 +114,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-1024KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -129,7 +128,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-2048KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -143,7 +142,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-3072KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1
@@ -157,7 +156,7 @@
       "DataTransferChainLength": 2
     },
     {
-      "Title": "2functions-128MB-IAT10s-4096KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 10,
       "BurstSizes": [
         1

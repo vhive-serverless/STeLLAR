@@ -3,7 +3,7 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "2functions-128MB-IAT10s-10240KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -18,7 +18,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT10s-102400KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -33,7 +33,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT10s-10240KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -49,7 +49,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT10s-102400KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -65,7 +65,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT10s-10240KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -81,7 +81,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT10s-102400KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 3000,
       "BurstSizes": [
         1

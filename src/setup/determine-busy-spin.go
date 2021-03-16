@@ -31,18 +31,24 @@ import (
 
 var cachedServiceTimeIncrement map[string]int64
 
+const (
+	standardIncrement = int64(1e10)
+	precision         = 0.05
+	retryLimit        = 10
+)
+
 // findBusySpinIncrements transforms given service times (e.g., 10s) into busy-spin increments (e.g., 10,000,000)
 func findBusySpinIncrements(config *Configuration) {
-	standardIncrement := int64(1e10)
-	standardDurationMs := timeSession(standardIncrement).Milliseconds()
 	cachedServiceTimeIncrement = make(map[string]int64)
+	cachedServiceTimeIncrement["0ms"] = 0
 
+	standardDurationMs := timeSession(standardIncrement).Milliseconds()
 	for subExperimentIndex := range config.SubExperiments {
-		findBusySpinIncrement(&config.SubExperiments[subExperimentIndex], standardIncrement, standardDurationMs)
+		findBusySpinIncrement(&config.SubExperiments[subExperimentIndex], standardDurationMs)
 	}
 }
 
-func findBusySpinIncrement(subExperiment *SubExperiment, standardIncrement int64, standardDurationMs int64) {
+func findBusySpinIncrement(subExperiment *SubExperiment, standardDurationMs int64) {
 	for _, serviceTime := range subExperiment.DesiredServiceTimes {
 		if cachedIncrement, ok := cachedServiceTimeIncrement[serviceTime]; ok {
 			log.Debugf("Using cached increment %d for desired service time %v", cachedIncrement, serviceTime)
@@ -65,13 +71,16 @@ func findBusySpinIncrement(subExperiment *SubExperiment, standardIncrement int64
 		suggestedIncrementFloat, _ := currentIncrement.Float64()
 		suggestedIncrement := int64(suggestedIncrementFloat)
 		suggestedDurationMs := timeSession(suggestedIncrement).Milliseconds()
-		if math.Abs(float64(suggestedDurationMs)-float64(desiredDurationMs)) > 0.05 {
-			log.Warnf("Suggested increment %d (duration %dms) is not within 5%% of desired duration %dms",
-				suggestedIncrement, suggestedDurationMs, desiredDurationMs)
 
-			promptedIncrement := promptForNumber("Please enter a better increment (leave empty for unchanged): ")
-			if promptedIncrement != nil {
-				suggestedIncrement = *promptedIncrement
+		retries := 0
+		for math.Abs(float64(suggestedDurationMs)-float64(desiredDurationMs)) > precision*float64(desiredDurationMs) {
+			log.Warnf("Suggested increment %d (duration %dms) was not within %v%% of desired duration %dms, timing again...", suggestedIncrement, suggestedDurationMs, precision*100, desiredDurationMs)
+
+			suggestedDurationMs = timeSession(suggestedIncrement).Milliseconds()
+
+			retries++
+			if retries == retryLimit {
+				log.Fatalf("Suggested increment did not produce desired duration after %d tries!", retries)
 			}
 		}
 

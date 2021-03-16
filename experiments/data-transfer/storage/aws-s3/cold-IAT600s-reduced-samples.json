@@ -3,12 +3,11 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "2functions-128MB-IAT600s-0KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
         "0ms"
@@ -18,7 +17,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT600s-1KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -33,7 +32,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT600s-10KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -48,7 +47,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT600s-100KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -63,7 +62,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT600s-1024KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -78,12 +77,11 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT600s-0KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
         "0ms"
@@ -94,7 +92,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT600s-1KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -110,7 +108,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT600s-10KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -126,7 +124,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT600s-100KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -142,7 +140,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-1536MB-IAT600s-1024KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -158,12 +156,11 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT600s-0KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
         "0ms"
@@ -174,7 +171,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT600s-1KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -190,7 +187,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT600s-10KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -206,7 +203,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT600s-100KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1
@@ -222,7 +219,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-10240MB-IAT600s-1024KBpayload",
+      "Title": "2chain,S3",
       "Bursts": 100,
       "BurstSizes": [
         1

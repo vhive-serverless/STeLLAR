@@ -25,6 +25,7 @@ src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
 src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
 src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
 
+__pycache__
 providers/
 plotutil/plot-single-cdf/cdf.png
 plotutil/plot-single-cdf/go.mod

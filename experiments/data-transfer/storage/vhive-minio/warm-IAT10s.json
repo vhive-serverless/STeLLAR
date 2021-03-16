@@ -3,12 +3,11 @@
   "Provider": "vhive",
   "SubExperiments": [
     {
-      "Title": "2functions-128MB-IAT10s-0KBpayload",
+      "Title": "2chain,minio",
       "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 10,
       "PackageType": "Image",
       "DesiredServiceTimes": [
@@ -18,7 +17,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT10s-1KBpayload",
+      "Title": "2chain,minio",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -33,7 +32,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT10s-10KBpayload",
+      "Title": "2chain,minio",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -48,7 +47,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT10s-100KBpayload",
+      "Title": "2chain,minio",
       "Bursts": 3000,
       "BurstSizes": [
         1
@@ -63,7 +62,7 @@
       "StorageTransfer": true
     },
     {
-      "Title": "2functions-128MB-IAT10s-1024KBpayload",
+      "Title": "2chain,minio",
       "Bursts": 3000,
       "BurstSizes": [
         1

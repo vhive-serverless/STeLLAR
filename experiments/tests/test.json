@@ -3,7 +3,7 @@
   "Provider": "www.google.com",
   "SubExperiments": [
     {
-      "Title": "test1",
+      "Title": "Google-SubExperiment1",
       "Bursts": 6,
       "BurstSizes": [
         1,
@@ -12,21 +12,17 @@
         4,
         50
       ],
-      "PayloadLengthBytes": 0,
-      "IATSeconds": 0,
       "DesiredServiceTimes": [
         "0ms"
       ],
       "Visualization": "all"
     },
     {
-      "Title": "test2",
+      "Title": "Google-SubExperiment2",
       "Bursts": 10,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 0,
-      "IATSeconds": 0,
       "DesiredServiceTimes": [
         "0ms"
       ],
