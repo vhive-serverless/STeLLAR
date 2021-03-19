@@ -31,37 +31,32 @@ import (
 )
 
 func TestGeneratePayload(t *testing.T) {
-	emptyPayload := GenerateStringPayload(0)
+	InitializeGlobalRandomPayload()
+	require.Equal(t, 8388608, len(GlobalRandomPayload))
+
+	emptyPayload := GeneratePayloadFromGlobalRandom(0)
 	require.Equal(t, 0, len(emptyPayload))
 
-	smallPayload := GenerateStringPayload(12)
+	smallPayload := GeneratePayloadFromGlobalRandom(12)
 	require.Equal(t, 12, len(smallPayload))
 
-	mediumPayload := GenerateStringPayload(512)
+	mediumPayload := GeneratePayloadFromGlobalRandom(512)
 	require.Equal(t, 512, len(mediumPayload))
 
-	largePayload := GenerateStringPayload(1024)
+	largePayload := GeneratePayloadFromGlobalRandom(1024)
 	require.Equal(t, 1024, len(largePayload))
 
-	GlobalRandomPayload = GenerateStringPayload(1048576)
-
-	emptyPayload = GenerateStringPayload(0)
-	require.Equal(t, 0, len(emptyPayload))
-
-	smallPayload = GenerateStringPayload(12)
-	require.Equal(t, 12, len(smallPayload))
-
-	mediumPayload = GenerateStringPayload(512)
-	require.Equal(t, 512, len(mediumPayload))
-
-	largePayload = GenerateStringPayload(1024)
-	require.Equal(t, 1024, len(largePayload))
-
-	veryLargePayload := GenerateStringPayload(1048576)
+	veryLargePayload := GeneratePayloadFromGlobalRandom(1048576)
 	require.Equal(t, 1048576, len(veryLargePayload))
 
-	veryLargePayload2 := GenerateStringPayload(1572864)
+	veryLargePayload2 := GeneratePayloadFromGlobalRandom(1572864)
 	require.Equal(t, 1572864, len(veryLargePayload2))
+
+	veryLargePayload3 := GeneratePayloadFromGlobalRandom(8388608)
+	require.Equal(t, 8388608, len(veryLargePayload3))
+
+	veryLargePayload4 := GeneratePayloadFromGlobalRandom(8388609)
+	require.Equal(t, 8388609, len(veryLargePayload4))
 }
 
 func TestExtractJSONTimestampChain(t *testing.T) {

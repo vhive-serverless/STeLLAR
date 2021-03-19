@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -46,10 +47,10 @@ def plot_cpu_stats(args):
         slowdown = res[0][0]
 
         memory_to_slowdown[memory_allocated_mb] = slowdown
-        print("Slowdown for {0}MB: {1:0.2f}".format(memory_allocated_mb, slowdown))
 
         pred_latency = res[0] * time + fixed_infra_constant
-        plt.plot(time, pred_latency, color=p[-1].get_color(), label=f'Predicted ({memory_allocated_mb}MB)')
+        plt.plot(time, pred_latency, color=p[-1].get_color(),
+                 label=f'Slowdown {slowdown:0.2f} ({memory_allocated_mb}MB)')
 
     def get_experiment_results(memory_allocated_mb):
         experiment_dirs = []
@@ -75,15 +76,15 @@ def plot_cpu_stats(args):
     def plot_cpu_slowdown():
         title = f'{args.provider} CPU Slowdown'
         fig = plt.figure(figsize=(10, 5))
-        fig.suptitle(title)
+        fig.suptitle(title, fontsize=16)
         plt.ylabel('Latency (ms)')
         plt.xlabel('Service Time (ms)')
         plt.grid(True)
 
-        for memory in ['128', '480', '832', '1184', '1536', '2304', '5120', '10240']:
+        for memory in ['128', '480', '1184', '2304', '10240']:  # '832', '1536', '5120',
             add_memory_result_to_plots(memory)
 
-        plt.legend(loc='upper left')
+        plt.legend(loc='upper left', fontsize=12)
         fig.savefig(f'{args.path}/{title}.png')
         fig.savefig(f'{args.path}/{title}.pdf')
         plt.close()
@@ -103,8 +104,7 @@ def plot_cpu_stats(args):
         for memory_mb in memory_to_slowdown:
             cpu_utilization = 1 / memory_to_slowdown[memory_mb]
             plt.plot(int(memory_mb), cpu_utilization, 'o--', color='tab:blue')
-            plt.annotate(f'{cpu_utilization:0.2f}', (int(memory_mb), cpu_utilization+0.01))
-            print("CPU utilization for {0}MB: {1:0.2f}".format(memory_mb, cpu_utilization))
+            plt.annotate(f'{cpu_utilization:0.2f}', (int(memory_mb), cpu_utilization + 0.01))
 
         fig.savefig(f'{args.path}/{title}.png')
         fig.savefig(f'{args.path}/{title}.pdf')

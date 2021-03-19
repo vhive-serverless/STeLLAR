@@ -10,8 +10,6 @@ sudo sh -c "echo \"* hard nofile 1000000\" >> /etc/security/limits.conf"
 sudo sh -c "echo \"root soft nofile 1000000\" >> /etc/security/limits.conf"
 sudo sh -c "echo \"root hard nofile 1000000\" >> /etc/security/limits.conf"
 
-ulimit -n 8192
-
 sudo mkdir latency-samples
 echo "Please run: ulimit -n 8192"
 echo "Recommended: tmux new -s vhive-bench"

@@ -7,6 +7,9 @@ A framework for benchmarking the performance of popular serverless platforms.
 ## Flow Chart
 ![flow chart](design/flow-chart.png)
 
+## Data Transfer Measurement
+![transfer method](design/transfer-method.png)
+
 ## Common problems
 
 ### AWS

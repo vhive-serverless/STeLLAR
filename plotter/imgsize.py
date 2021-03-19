@@ -50,7 +50,7 @@ def load_experiment_results(args):
 
         with open(experiment + "/latencies.csv") as file:
             data = pd.read_csv(file)
-            read_latencies = data['Client Latency (ms)'].to_numpy()
+            read_latencies = data['Client Latency (ms)'].to_numpy()[:3000]
             sorted_latencies = np.sort(read_latencies)
 
             median_value = sorted_latencies[int(len(sorted_latencies) * 0.5)]
@@ -79,18 +79,20 @@ def plot_imgsize_experiment(args):
         subplot.grid(True)
 
         for burst_size in sorted(args.burst_sizes):
-            subplot.plot(image_sizes_mb, chosen_percentiles[burst_size], 'o-', label=f"Burst Size {burst_size}")
+            subplot.plot(image_sizes_mb, chosen_percentiles[burst_size], 'o-', label=f"Burst Size {burst_size}",
+                         linewidth=2)
 
             for i, txt in enumerate(chosen_percentiles[burst_size]):
                 if not np.isnan(chosen_percentiles[burst_size][i]):
-                    subplot.annotate(int(txt), (image_sizes_mb[i], chosen_percentiles[burst_size][i]))
+                    subplot.annotate(int(txt), (image_sizes_mb[i] + 5, chosen_percentiles[burst_size][i]))
 
-        subplot.legend(loc='upper left')
+        if "Median" in subtitle_percentile:  # only plot the legend once
+            subplot.legend(loc='upper left')
 
-    title = f'{args.provider} Cold Starts - Image Size Experiments (Service Time {args.service_time})'
+    title = f'{args.provider} Image Fetch Delay (Service Time {args.service_time})'
 
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(10, 5))
-    fig.suptitle(title)
+    fig.suptitle(title, fontsize=16)
 
     add_percentile_subplot(f"{args.desired_percentile}% percentile", axes[0], args.percentiles, args.image_sizes_mb)
     add_percentile_subplot('Median (50% percentile)', axes[1], args.median, args.image_sizes_mb)
@@ -109,23 +111,27 @@ def plot_imgsize_cdfs(args):
         # put the copies into the legend
         axes[col].legend(handles=handles, labels=labels, loc='lower right', prop={'size': 14})
 
-    title = f'{args.provider} Cold Starts CDFs (Service Time {args.service_time})'
+    title = f'{args.provider} Image Fetch Tail Latencies (Service Time {args.service_time})'
 
-    fig = plt.figure(figsize=(12, 5))
-    fig.suptitle(title)
-
-    fig, axes = plt.subplots(nrows=1, ncols=len(args.burst_sizes), sharex=True, sharey=True, figsize=(20, 5))
+    fig, axes = plt.subplots(nrows=1, ncols=len(args.burst_sizes), sharex=True, sharey=True, figsize=(18, 5))
     fig.suptitle(title, fontsize=18)
 
     for col, burst_size in enumerate(sorted(args.burst_sizes)):
         axes[col].set_title(f'Burst Size {burst_size}', fontsize=15)
         axes[col].set_ylabel('Fraction')
         axes[col].set_xlabel('Latency (ms)')
-        axes[col].set_xlim([0, 5000. if args.service_time == '1s' else 3800.])
+        axes[col].set_xlim([0, 5000. if args.service_time == '1s' else 3700.])
 
-        for image_size in sorted(args.image_sizes_mb):
-            axes[col].plot(args.latencies[(burst_size, image_size)], args.quantiles[(burst_size, image_size)], '--o',
-                           markersize=1, label=f"Image Size {image_size}MB")
+        for i, image_size in enumerate(sorted(args.image_sizes_mb)):
+            latencies = args.latencies[(burst_size, image_size)]
+
+            recent = axes[col].plot(latencies, args.quantiles[(burst_size, image_size)], '--o',
+                                    markersize=3, label=f"Image Size {image_size}MB", markerfacecolor='none')
+
+            tail_latency = latencies[int(0.99 * len(latencies))]
+            axes[col].axvline(x=tail_latency, color=recent[-1].get_color(), linestyle='--')
+            axes[col].annotate(f'{tail_latency:0.0f}ms', (int(tail_latency) + 20, 0.8 - 0.07 * i),
+                               color=recent[-1].get_color(), fontsize=12)
 
         if col == len(args.burst_sizes) - 1:
             plot_legend()
@@ -137,7 +143,7 @@ def plot_imgsize_cdfs(args):
 
 
 def plot_imgsize_stats(args):
-    args.desired_percentile = 95
+    args.desired_percentile = 99
 
     args.service_time = '1s' if "service-time-1s" in args.path else '0ms'
 
@@ -150,3 +156,5 @@ def plot_imgsize_stats(args):
 
     plot_imgsize_experiment(args)
     plot_imgsize_cdfs(args)
+
+    print("Completed successfully.")

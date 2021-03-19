@@ -25,7 +25,7 @@
       "FunctionMemoryMB": 2048
     },
     {
-      "Bursts": 15,
+      "Bursts": 10,
       "BurstSizes": [
         300
       ],
@@ -72,7 +72,7 @@
       "FunctionMemoryMB": 2048
     },
     {
-      "Bursts": 15,
+      "Bursts": 10,
       "BurstSizes": [
         300
       ],
@@ -121,7 +121,7 @@
       "FunctionMemoryMB": 2048
     },
     {
-      "Bursts": 15,
+      "Bursts": 10,
       "BurstSizes": [
         300
       ],
@@ -170,7 +170,7 @@
       "FunctionMemoryMB": 2048
     },
     {
-      "Bursts": 15,
+      "Bursts": 10,
       "BurstSizes": [
         300
       ],
@@ -219,7 +219,7 @@
       "FunctionMemoryMB": 2048
     },
     {
-      "Bursts": 15,
+      "Bursts": 10,
       "BurstSizes": [
         300
       ],

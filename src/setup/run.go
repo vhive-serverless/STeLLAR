@@ -30,22 +30,14 @@ import (
 	"time"
 	"vhive-bench/setup/deployment/connection"
 	"vhive-bench/setup/deployment/connection/amazon"
-	"vhive-bench/util"
 )
 
-//PrepareSubExperiments will read any required files, deploy functions etc. to get ready for the sub-experiments.
-func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Configuration {
+//ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+func ProvisionFunctions(config Configuration) {
 	const (
 		nicContentionWarnThreshold = 800 // Experimentally found
 		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
 	)
-
-	configFile := util.ReadFile(configPath)
-	config := extractConfiguration(configFile)
-
-	findBusySpinIncrements(&config)
-
-	connection.Initialize(config.Provider, endpointsDirectoryPath, "./setup/deployment/raw-code/producer-consumer/api-template.json")
 
 	availableEndpoints := connection.Singleton.ListAPIs()
 
@@ -83,6 +75,4 @@ func PrepareSubExperiments(endpointsDirectoryPath string, configPath string) Con
 		log.Info("A deployment was made using container images, waiting 10 seconds for changes to take effect with the provider...")
 		time.Sleep(time.Second * 10)
 	}
-
-	return config
 }

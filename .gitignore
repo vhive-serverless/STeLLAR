@@ -18,7 +18,6 @@
 latency-samples/
 
 cloudlab-latency-samples/
-src/only-plot.txt
 src/main
 src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
 src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
@@ -27,8 +26,4 @@ src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
 
 __pycache__
 providers/
-plotutil/plot-single-cdf/cdf.png
-plotutil/plot-single-cdf/go.mod
-plotutil/plot-single-cdf/go.sum
-plotutil/plot-single-cdf/latencies.csv
 

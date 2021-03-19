@@ -4,11 +4,11 @@
   "SubExperiments": [
     {
       "Title": "2chain,minio",
-      "Bursts": 3000,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 65536000,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -18,12 +18,11 @@
     },
     {
       "Title": "2chain,minio",
-      "Bursts": 3000,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 1024,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 131072000,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -33,12 +32,11 @@
     },
     {
       "Title": "2chain,minio",
-      "Bursts": 3000,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 10240,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 262144000,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -48,12 +46,11 @@
     },
     {
       "Title": "2chain,minio",
-      "Bursts": 3000,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 102400,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 393216000,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -63,12 +60,41 @@
     },
     {
       "Title": "2chain,minio",
-      "Bursts": 3000,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 1048576,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 524288000,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "PayloadLengthBytes": 786432000,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 5,
+      "PayloadLengthBytes": 1073741824,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"

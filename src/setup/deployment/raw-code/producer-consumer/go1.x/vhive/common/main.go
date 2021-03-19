@@ -30,19 +30,24 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen"
 	log "github.com/sirupsen/logrus"
-	"math/rand"
 	"strconv"
-	"strings"
-	"time"
 )
 
 //GlobalRandomPayload is a 1MB string used for quick random payload generation
 var GlobalRandomPayload string
 
+//ProducerConsumerResponse is the structure that we expect a consumer-producer function response to follow
+type ProducerConsumerResponse struct {
+	RequestID      string   `json:"RequestID"`
+	TimestampChain []string `json:"TimestampChain"`
+}
+
 //GenerateResponse creates the HTTP or gRPC producer-consumer response payload
 func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]byte, []string) {
+	dataTransferChainIDs, incrementLimit := extractChainIDsAndIncrementLimit(requestHTTP, requestGRPC)
+
 	var updatedTimestampChain []string
-	if firstFunctionInChain(requestGRPC, requestHTTP) {
+	if isFirstFunctionInChain(requestGRPC, requestHTTP) {
 		var payloadLengthBytesString string
 		if requestHTTP != nil {
 			payloadLengthBytesString = requestHTTP.QueryStringParameters["PayloadLengthBytes"]
@@ -56,7 +61,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		}
 
 		log.Infof("Generating transfer payload for producer-consumer chain (length %d bytes)", payloadLengthBytes)
-		stringPayload := GenerateStringPayload(payloadLengthBytes)
+		stringPayload := GeneratePayloadFromGlobalRandom(payloadLengthBytes)
 
 		updatedTimestampChain = AppendTimestampToChain([]string{})
 
@@ -87,12 +92,12 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 		//log.Infof("Not the first function in the chain, TimestampChain field is %q.", timestampChainStringForm)
 		updatedTimestampChain = AppendTimestampToChain(StringArrayToArrayOfString(timestampChainStringForm))
 
-		if isUsingStorage(requestGRPC, requestHTTP) && len(stringPayload) != 0 {
-			saveObjectToStorage(requestHTTP, stringPayload, requestGRPC)
+		if isUsingStorage(requestGRPC, requestHTTP) &&
+			len(stringPayload) != 0 &&
+			functionsLeftInChain(dataTransferChainIDs) {
+			saveObjectToStorage(requestHTTP, stringPayload, requestGRPC) // save again for the next function in the chain
 		}
 	}
-
-	dataTransferChainIDs, incrementLimit := getChainIDsAndIncrementLimit(requestHTTP, requestGRPC)
 
 	simulateWork(incrementLimit)
 
@@ -120,7 +125,7 @@ func GenerateResponse(ctx context.Context, requestHTTP *events.APIGatewayProxyRe
 	return nil, updatedTimestampChain
 }
 
-func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]string, string) {
+func extractChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, requestGRPC *proto_gen.InvokeChainRequest) ([]string, string) {
 	var dataTransferChainIDsString, incrementLimit string
 	if requestHTTP != nil {
 		incrementLimit = requestHTTP.QueryStringParameters["IncrementLimit"]
@@ -130,6 +135,21 @@ func getChainIDsAndIncrementLimit(requestHTTP *events.APIGatewayProxyRequest, re
 		dataTransferChainIDsString = fmt.Sprintf("%v", requestGRPC.DataTransferChainIDs)
 	}
 	return StringArrayToArrayOfString(dataTransferChainIDsString), incrementLimit
+}
+
+func isFirstFunctionInChain(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
+	if requestHTTP != nil {
+		_, hasTimestampChain := requestHTTP.QueryStringParameters["TimestampChain"]
+		return !hasTimestampChain
+	}
+
+	// gRPC
+	return requestGRPC.TimestampChain == ""
+}
+
+//functionsLeftInChain checks if there are functions left in the chain
+func functionsLeftInChain(dataTransferChainIDs []string) bool {
+	return len(dataTransferChainIDs) > 0 && dataTransferChainIDs[0] != ""
 }
 
 func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimestampChain []string, dataTransferChainIDs []string, requestGRPC *proto_gen.InvokeChainRequest) []string {
@@ -154,68 +174,6 @@ func invokeNextFunction(requestHTTP *events.APIGatewayProxyRequest, updatedTimes
 	return updatedTimestampChain
 }
 
-func firstFunctionInChain(requestGRPC *proto_gen.InvokeChainRequest, requestHTTP *events.APIGatewayProxyRequest) bool {
-	if requestHTTP != nil {
-		_, hasTimestampChain := requestHTTP.QueryStringParameters["TimestampChain"]
-		return !hasTimestampChain
-	}
-
-	// gRPC
-	return requestGRPC.TimestampChain == ""
-}
-
-//functionsLeftInChain checks if there are functions left in the chain
-func functionsLeftInChain(dataTransferChainIDs []string) bool {
-	return len(dataTransferChainIDs) > 0 && dataTransferChainIDs[0] != ""
-}
-
-//GenerateStringPayload creates a transfer payload for the producer-consumer chain
-func GenerateStringPayload(payloadLengthBytes int) string {
-	repeatedRandomPayload := GlobalRandomPayload
-	for len(repeatedRandomPayload) < payloadLengthBytes {
-		repeatedRandomPayload += GlobalRandomPayload
-	}
-	return repeatedRandomPayload[:payloadLengthBytes]
-}
-
-//InitializeGlobalRandomPayload creates the initial transfer payload to be used for quicker random payload generation
-func InitializeGlobalRandomPayload() {
-	const (
-		allowedChars                 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		globalRandomPayloadSizeBytes = 1024 * 1024
-	)
-
-	generatedTransferPayload := make([]byte, globalRandomPayloadSizeBytes)
-	for i := range generatedTransferPayload {
-		generatedTransferPayload[i] = allowedChars[rand.Intn(len(allowedChars))]
-	}
-
-	GlobalRandomPayload = string(generatedTransferPayload)
-}
-
-//extractJSONTimestampChain will process raw bytes into a string array of timestamps
-func extractJSONTimestampChain(responsePayload []byte) []string {
-	var reply map[string]interface{}
-	err := json.Unmarshal(responsePayload, &reply)
-	if err != nil {
-		log.Fatalf("Could not unmarshal lambda response into map[string]interface{}: %s", err)
-	}
-
-	var parsedReply ProducerConsumerResponse
-	err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
-	if err != nil {
-		log.Fatalf("Could not unmarshal lambda response body into producerConsumerResponse: %s", err)
-	}
-
-	return parsedReply.TimestampChain
-}
-
-//AppendTimestampToChain will add a new timestamp to the chain
-func AppendTimestampToChain(timestampChain []string) []string {
-	timestampMilliString := strconv.FormatInt(time.Now().UnixNano()/(int64(time.Millisecond)/int64(time.Nanosecond)), 10)
-	return append(timestampChain, timestampMilliString)
-}
-
 //simulateWork will keep the CPU busy-spinning
 func simulateWork(incrementLimitString string) {
 	incrementLimit, err := strconv.Atoi(incrementLimitString)
@@ -226,17 +184,4 @@ func simulateWork(incrementLimitString string) {
 	log.Infof("Running function up to increment limit (%d)...", incrementLimit)
 	for i := 0; i < incrementLimit; i++ {
 	}
-}
-
-//ProducerConsumerResponse is the structure that we expect a consumer-producer function response to follow
-type ProducerConsumerResponse struct {
-	RequestID      string   `json:"RequestID"`
-	TimestampChain []string `json:"TimestampChain"`
-}
-
-//StringArrayToArrayOfString will process, e.g., "[14 35 8]" into []string{14, 35, 8}
-func StringArrayToArrayOfString(str string) []string {
-	str = strings.Split(str, "]")[0]
-	str = strings.Split(str, "[")[1]
-	return strings.Split(str, " ")
 }

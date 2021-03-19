@@ -4,94 +4,98 @@
   "SubExperiments": [
     {
       "Title": "2chain,S3",
-      "Bursts": 3000,
+      "Bursts": 10,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 10485760,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 65536000,
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Parallelism": 20,
-      "DataTransferChainLength": 2,
-      "StorageTransfer": true
-    },
-    {
-      "Title": "2chain,S3",
-      "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 104857600,
-      "IATSeconds": 10,
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "Parallelism": 20,
-      "DataTransferChainLength": 2,
-      "StorageTransfer": true
-    },
-    {
-      "Title": "2chain,S3",
-      "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 10485760,
-      "IATSeconds": 10,
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "Parallelism": 20,
-      "FunctionMemoryMB": 1536,
-      "DataTransferChainLength": 2,
-      "StorageTransfer": true
-    },
-    {
-      "Title": "2chain,S3",
-      "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 104857600,
-      "IATSeconds": 10,
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "Parallelism": 20,
-      "FunctionMemoryMB": 1536,
-      "DataTransferChainLength": 2,
-      "StorageTransfer": true
-    },
-    {
-      "Title": "2chain,S3",
-      "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 10485760,
-      "IATSeconds": 10,
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "Parallelism": 20,
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
       "StorageTransfer": true
     },
     {
       "Title": "2chain,S3",
-      "Bursts": 3000,
+      "Bursts": 10,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 104857600,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 131072000,
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Parallelism": 20,
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 262144000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 393216000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 524288000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 786432000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1073741824,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
       "FunctionMemoryMB": 10240,
       "DataTransferChainLength": 2,
       "StorageTransfer": true

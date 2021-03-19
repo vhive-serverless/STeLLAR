@@ -37,8 +37,8 @@ const (
 	retryLimit        = 10
 )
 
-// findBusySpinIncrements transforms given service times (e.g., 10s) into busy-spin increments (e.g., 10,000,000)
-func findBusySpinIncrements(config *Configuration) {
+// FindBusySpinIncrements transforms given service times (e.g., 10s) into busy-spin increments (e.g., 10,000,000)
+func FindBusySpinIncrements(config *Configuration) {
 	cachedServiceTimeIncrement = make(map[string]int64)
 	cachedServiceTimeIncrement["0ms"] = 0
 

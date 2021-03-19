@@ -4,11 +4,11 @@
   "SubExperiments": [
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 3,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -17,12 +17,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 3,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -31,12 +31,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 3,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -45,12 +45,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 3,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -59,68 +59,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 204800,
-      "IATSeconds": 10,
-      "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "DataTransferChainLength": 2
-    },
-    {
-      "Title": "2chain,inline",
-      "Bursts": 10,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 409600,
-      "IATSeconds": 10,
-      "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "DataTransferChainLength": 2
-    },
-    {
-      "Title": "2chain,inline",
-      "Bursts": 10,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 614400,
-      "IATSeconds": 10,
-      "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "DataTransferChainLength": 2
-    },
-    {
-      "Title": "2chain,inline",
-      "Bursts": 10,
-      "BurstSizes": [
-        1
-      ],
-      "PayloadLengthBytes": 819200,
-      "IATSeconds": 10,
-      "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "DataTransferChainLength": 2
-    },
-    {
-      "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 10,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -129,12 +73,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
       "PayloadLengthBytes": 2097152,
-      "IATSeconds": 10,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -143,12 +87,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
       "PayloadLengthBytes": 3145728,
-      "IATSeconds": 10,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
@@ -157,12 +101,12 @@
     },
     {
       "Title": "2chain,inline",
-      "Bursts": 10,
+      "Bursts": 3000,
       "BurstSizes": [
         1
       ],
-      "PayloadLengthBytes": 4190000,
-      "IATSeconds": 10,
+      "PayloadLengthBytes": 4100000,
+      "IATSeconds": 0.1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
