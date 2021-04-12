@@ -25,7 +25,7 @@ require (
 	gonum.org/v1/gonum v0.8.1
 	gonum.org/v1/plot v0.8.0
 	google.golang.org/genproto v0.0.0-20210212180131-e7f2df4ecc2d // indirect
-	google.golang.org/grpc v1.36.0
+	google.golang.org/grpc v1.37.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
