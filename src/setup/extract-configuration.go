@@ -26,7 +26,7 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"os"
+	"vhive-bench/util"
 )
 
 //Configuration is the schema for all experiment configurations.
@@ -61,8 +61,8 @@ type SubExperiment struct {
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
 	StorageTransfer         bool     `json:"StorageTransfer"`
 	// All of the below are computed after reading the configuration
-	BusySpinIncrements      []int64  `json:"BusySpinIncrements"`
-	Endpoints               []EndpointInfo
+	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
+	Endpoints          []EndpointInfo
 }
 
 const (
@@ -76,7 +76,9 @@ const (
 	defaultFunctionMemoryMB        = 128
 )
 
-func extractConfiguration(configFile *os.File) Configuration {
+//ExtractConfiguration will read and parse the JSON configuration file, assign any default values and return the config object
+func ExtractConfiguration(configFilePath string) Configuration {
+	configFile := util.ReadFile(configFilePath)
 	configByteValue, _ := ioutil.ReadAll(configFile)
 
 	var parsedConfig Configuration

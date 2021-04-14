@@ -34,6 +34,7 @@ import (
 	"time"
 	"vhive-bench/benchmarking"
 	"vhive-bench/setup"
+	"vhive-bench/setup/deployment/connection"
 )
 
 var outputPathFlag = flag.String("o", "latency-samples", "The directory path where latency samples should be written.")
@@ -66,7 +67,14 @@ func main() {
 
 	setupCtrlCHandler()
 
-	config := setup.PrepareSubExperiments(*endpointsDirectoryPathFlag, *configPathFlag)
+	config := setup.ExtractConfiguration(*configPathFlag)
+
+	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
+	setup.FindBusySpinIncrements(&config)
+
+	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/producer-consumer/api-template.json")
+
+	setup.ProvisionFunctions(config)
 
 	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 

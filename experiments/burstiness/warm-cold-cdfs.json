@@ -1,0 +1,94 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "warm",
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "warm",
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "warm",
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "warm",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 147
+    }
+  ]
+}

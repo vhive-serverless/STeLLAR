@@ -28,22 +28,17 @@ import (
 	"github.com/go-gota/gota/series"
 	log "github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
 	"strings"
 	"time"
 	"vhive-bench/setup"
-
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
 )
 
 func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, coldThreshold float64, latenciesDF dataframe.DataFrame) {
-	plotInstance, err := plot.New()
-	if err != nil {
-		log.Errorf("[sub-experiment %d] Creating a new bar chart failed with error %s", experiment.ID, err.Error())
-		return
-	}
+	plotInstance:= plot.New()
 
 	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold, cooldown ~%vs)",
 		coldThreshold, experiment.IATSeconds)
@@ -111,11 +106,7 @@ func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, coldThr
 }
 
 func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burstIndex int, duration time.Duration) {
-	plotInstance, err := plot.New()
-	if err != nil {
-		log.Errorf("Creating a new histogram plot failed with error %s", err.Error())
-		return
-	}
+	plotInstance := plot.New()
 
 	plotInstance.Title.Text = fmt.Sprintf("Burst %v Histogram (%v since last)", burstIndex, duration)
 	plotInstance.X.Label.Text = "Latency (ms)"
@@ -138,11 +129,7 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 }
 
 func plotLatenciesCDF(plotPath string, sortedLatencies []float64, experiment setup.SubExperiment) {
-	plotInstance, err := plot.New()
-	if err != nil {
-		log.Errorf("[sub-experiment %d] Creating a new CDF plot failed with error %s", experiment.ID, err.Error())
-		return
-	}
+	plotInstance := plot.New()
 
 	plotInstance.Title.Text = fmt.Sprintf("IAT ~%vs, Burst sizes %v", experiment.IATSeconds, experiment.BurstSizes)
 	plotInstance.Y.Label.Text = "Portion of requests"
@@ -169,7 +156,7 @@ func plotLatenciesCDF(plotPath string, sortedLatencies []float64, experiment set
 		)
 	}
 
-	err = plotutil.AddLinePoints(plotInstance, latenciesToPlot)
+	err := plotutil.AddLinePoints(plotInstance, latenciesToPlot)
 	if err != nil {
 		log.Errorf("[sub-experiment %d] Could not add line points to CDF plot: %s", experiment.ID, err.Error())
 	}

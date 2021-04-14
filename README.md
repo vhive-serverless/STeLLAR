@@ -7,6 +7,9 @@ A framework for benchmarking the performance of popular serverless platforms.
 ## Flow Chart
 ![flow chart](design/flow-chart.png)
 
+## Data Transfer Measurement
+![transfer method](design/transfer-method.png)
+
 ## Common problems
 
 ### AWS
@@ -24,3 +27,10 @@ Cannot update function code: CodeStorageExceededException: Code storage limit ex
 ```
 
 - Regional APIs limit `600`
+
+- Unexplained AWS errors (solved by restarting experiment)
+
+```
+HTTP request failed with error dial tcp: lookup msi6v4vdwk.execute-api.us-west-1.amazonaws.com on 128.110.156.4:53: no such host 
+HTTP request failed with error dial tcp: lookup 10m09hsby0.execute-api.us-west-1.amazonaws.com on 128.110.156.4:53: server misbehaving 
+```

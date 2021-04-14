@@ -23,6 +23,7 @@
 package benchmarking
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"math"
 	"math/rand"
@@ -89,7 +90,11 @@ func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string,
 }
 
 func createSubExperimentOutput(path string, experiment setup.SubExperiment) (string, *os.File, *os.File, *os.File) {
-	directoryPath := filepath.Join(path, experiment.Title)
+	detailedTitle := fmt.Sprintf("%s-memory%dMB-img%dMB-IAT%vs-burst%d-st%s-payload%dKB", experiment.Title,
+		int(experiment.FunctionMemoryMB), int(experiment.FunctionImageSizeMB), experiment.IATSeconds, experiment.BurstSizes[0],
+		experiment.DesiredServiceTimes[0], experiment.PayloadLengthBytes/1024.0)
+
+	directoryPath := filepath.Join(path, detailedTitle)
 	log.Infof("[sub-experiment %d] Creating directory at `%s`", experiment.ID, directoryPath)
 	if err := os.MkdirAll(directoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
@@ -156,4 +161,3 @@ func getSpinTime(frequencySeconds float64) float64 {
 	rateParameter := 1 / math.Log(frequencySeconds) // experimentally deduced formula
 	return frequencySeconds + rand.ExpFloat64()/rateParameter
 }
-

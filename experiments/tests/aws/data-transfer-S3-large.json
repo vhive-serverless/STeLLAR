@@ -1,0 +1,104 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 65536000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 131072000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 262144000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 393216000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 524288000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 786432000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1073741824,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionMemoryMB": 10240,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

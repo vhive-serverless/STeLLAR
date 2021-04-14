@@ -2,73 +2,63 @@
   "Sequential": true,
   "SubExperiments": [
     {
-      "Title": "size1000-img0mb",
       "Bursts": 3,
       "BurstSizes": [
         1000
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
-        "0ms"
+        "1s"
       ],
-      "FunctionMemoryMB": 1536
+      "FunctionMemoryMB": 2048
     },
     {
-      "Title": "size1000-img60mb",
       "Bursts": 3,
       "BurstSizes": [
         1000
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
-        "0ms"
+        "1s"
       ],
       "FunctionImageSizeMB": 60,
-      "FunctionMemoryMB": 1536
+      "FunctionMemoryMB": 2048
     },
     {
-      "Title": "size1000-img120mb",
       "Bursts": 3,
       "BurstSizes": [
         1000
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
-        "0ms"
+        "1s"
       ],
       "FunctionImageSizeMB": 120,
-      "FunctionMemoryMB": 1536
+      "FunctionMemoryMB": 2048
     },
     {
-      "Title": "size1000-img180mb",
       "Bursts": 3,
       "BurstSizes": [
         1000
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
-        "0ms"
+        "1s"
       ],
       "FunctionImageSizeMB": 180,
-      "FunctionMemoryMB": 1536
+      "FunctionMemoryMB": 2048
     },
     {
-      "Title": "size1000-img240mb",
       "Bursts": 3,
       "BurstSizes": [
         1000
       ],
-      "PayloadLengthBytes": 0,
       "IATSeconds": 600,
       "DesiredServiceTimes": [
-        "0ms"
+        "1s"
       ],
-      "FunctionImageSizeMB": 240,
-      "FunctionMemoryMB": 1536
+      "FunctionImageSizeMB": 230,
+      "FunctionMemoryMB": 2048
     }
   ]
 }

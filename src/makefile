@@ -50,7 +50,7 @@ empty_S3_bucket:
 
 .PHONY: run_aws
 run_aws:
-	@./main -o ../latency-samples -g ../endpoints -c ../experiments/tests/aws/data-transfer-S3.json
+	@./main -o ../latency-samples -g ../endpoints -c ../experiments/tests/aws/data-transfer.json
 
 .PHONY: test
 test:

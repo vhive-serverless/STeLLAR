@@ -3,7 +3,7 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "2functions-1KBpayload",
+      "Title": "2chain,inline",
       "Bursts": 2,
       "BurstSizes": [
         1

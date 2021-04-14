@@ -3,7 +3,7 @@
   "Provider": "vhive",
   "SubExperiments": [
     {
-      "Title": "2functions-IAT10s-1KBpayload",
+      "Title": "2chain,minio",
       "Bursts": 3,
       "BurstSizes": [
         1
