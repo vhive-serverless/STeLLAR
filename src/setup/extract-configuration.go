@@ -56,6 +56,7 @@ type SubExperiment struct {
 	PackageType             string   `json:"PackageType"`
 	Parallelism             int      `json:"Parallelism"`
 	Visualization           string   `json:"Visualization"`
+	Function                string   `json:"Function"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
@@ -66,6 +67,7 @@ type SubExperiment struct {
 }
 
 const (
+	defaultFunction                = "producer-consumer"
 	defaultVisualization           = "cdf"
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
@@ -103,6 +105,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 		if parsedConfig.SubExperiments[index].IATType == "" {
 			parsedConfig.SubExperiments[index].IATType = defaultIATType
 		}
+		if parsedConfig.SubExperiments[index].Function == "" {
+			parsedConfig.SubExperiments[index].Function = defaultFunction
+		}
 		if parsedConfig.SubExperiments[index].DataTransferChainLength == 0 {
 			parsedConfig.SubExperiments[index].DataTransferChainLength = defaultDataTransferChainLength
 		}
@@ -111,6 +116,10 @@ func ExtractConfiguration(configFilePath string) Configuration {
 		}
 		if parsedConfig.SubExperiments[index].Parallelism == 0 {
 			parsedConfig.SubExperiments[index].Parallelism = defaultParallelism
+		}
+
+		if parsedConfig.SubExperiments[index].Function != defaultFunction && parsedConfig.SubExperiments[index].PackageType != "Image" {
+			log.Fatalf("PackageType for SubExperiment %d was %s, but only Image is supported.", index, parsedConfig.SubExperiments[index].PackageType)
 		}
 	}
 

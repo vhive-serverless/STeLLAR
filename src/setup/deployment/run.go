@@ -34,11 +34,14 @@ import (
 	"vhive-bench/util"
 )
 
-//SetupDeployment will create the serverless function zip deployment for the given provider,
+//SetupDeployment will create the serverless function deployment for the given provider,
 //in the given language and of the given size in bytes. Returns size of deployment in MB.
-func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int) (float64, string) {
-	_, binaryPath := getBinaryInfo(rawCodePath, experimentID)
-	fillerFilePath := strings.TrimSuffix(binaryPath, "/handler") + "/random.file"
+func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int, function string) (float64, string) {
+	var binaryPath, fillerFilePath string
+	if function == "producer-consumer" {
+		_, binaryPath = getBinaryInfo(rawCodePath, experimentID)
+		fillerFilePath = strings.TrimSuffix(binaryPath, "/handler") + "/random.file"
+	}
 
 	switch packageType {
 	case "Zip":
@@ -67,9 +70,12 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 	case "Image":
 		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
-		// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
-		generateFillerFile(experimentID, fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
-		packaging.SetupContainerImageDeployment(provider, binaryPath)
+		if function == "producer-consumer" {
+			// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
+			generateFillerFile(experimentID, fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
+		}
+
+		packaging.SetupContainerImageDeployment(provider, rawCodePath)
 
 	default:
 		log.Fatalf("[sub-experiment %d] Unrecognized package type: %s", experimentID, packageType)
@@ -97,7 +103,7 @@ func generateFillerFile(experimentID int, fillerFilePath string, sizeBytes int64
 func getBinaryInfo(rawCodePath string, experimentID int) (int64, string) {
 	log.Infof("[sub-experiment %d] Building binary file for the function(s) to be deployed...", experimentID)
 
-	binaryPath := fmt.Sprintf("%s/%s", strings.TrimSuffix(rawCodePath, "/main.go"), "handler")
+	binaryPath := fmt.Sprintf("%s/%s", rawCodePath, "handler")
 
 	fi, err := os.Stat(binaryPath)
 	if err != nil {
