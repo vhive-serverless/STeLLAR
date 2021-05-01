@@ -20,138 +20,244 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-name: Go
+name: vHive-bench Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
-  build:
-    name: vHive-bench Pipeline
+
+  build_client:
+    name: Build framework
     runs-on: ubuntu-18.04
     env:
       working-directory: ./src
     steps:
-    
-    - name: Set up Go 1.16
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.16
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-        
-    - name: Check Syntax
-      uses: Jerome1337/golint-action@v1.0.2
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
-    - name: Build client
-      working-directory: ${{env.working-directory}}
-      run: |
-        mkdir -p "../latency-samples"
-        docker build -t vhive-bench .
-        docker create --name temp vhive-bench /bin/bash
-        docker cp temp:/app/vhive-bench ./main
-        docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
-        docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
-      
-    - name: Configure AWS credentials using EASE lab account
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-west-1
-        
-    - name: Check that aws producer-consumer function image builds
-      working-directory: ${{env.working-directory}}/setup/deployment/raw-code/producer-consumer/go1.x/aws/
-      run: |
-        touch random.file
-        docker build -t vhive-bench:aws .
-        
-    - name: Check that vhive producer-consumer function image builds
-      working-directory: ${{env.working-directory}}/setup/deployment/raw-code/producer-consumer/go1.x/aws/
-      run: |
-        touch random.file
-        docker build -t vhive-bench:vhive .
-        
-    - name: Unit Tests
-      working-directory: ${{env.working-directory}}
-      run: go test -short -v ./...
+      - name: Check Syntax
+        uses: Jerome1337/golint-action@v1.0.2
 
-    - name: AWS Burstiness ZIP Package Integration Test
-      working-directory: ${{env.working-directory}}
-      run: ./main --o "../latency-samples" --c "../experiments/tests/aws/burstiness-zip-package.json"
+      - name: Build client binary
+        working-directory: ${{env.working-directory}}
+        run: |
+          mkdir -p "../latency-samples"
+          docker build -t vhive-bench .
+          docker create --name temp vhive-bench /bin/bash
+          docker cp temp:/app/vhive-bench ./main
+          docker cp temp:/app/setup/deployment/raw-code/functions/producer-consumer/aws/handler setup/deployment/raw-code/functions/producer-consumer/aws/handler
+          docker cp temp:/app/setup/deployment/raw-code/functions/producer-consumer/vhive/handler setup/deployment/raw-code/functions/producer-consumer/vhive/handler
 
-    - name: AWS Burstiness Image Package Integration Test
-      working-directory: ${{env.working-directory}}
-      run: ./main --o "../latency-samples" --c "../experiments/tests/aws/burstiness-image-package.json"
+      - name: Tar client build
+        run: tar -cvf build.tar src/main src/setup/deployment/raw-code/functions/producer-consumer/aws/handler  src/setup/deployment/raw-code/functions/producer-consumer/vhive/handler
 
-    - name: AWS Inline Data Transfer Integration Test
-      working-directory: ${{env.working-directory}}
-      run: ./main --o "../latency-samples" --c "../experiments/tests/aws/data-transfer.json"
-      
-    - name: Prepare files for pushing to deployment branch
-      run: |
-        cp src/main main
-        cp endpoints/vHive.json endpoints/vHive-copy.json
-        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/vhive/
-        cp src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
-        mkdir -p setup/deployment/raw-code/producer-consumer/go1.x/aws/
-        cp src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
-        cp src/setup/deployment/raw-code/producer-consumer/go1.x/aws/dockerfile setup/deployment/raw-code/producer-consumer/go1.x/aws/dockerfile
-        cp src/setup/deployment/raw-code/producer-consumer/api-template.json setup/deployment/raw-code/producer-consumer/api-template.json
-        
-    - name: Setup vHive Data Transfer Containers
-      working-directory: ${{env.working-directory}}
-      run: |
-        cat > vHive.json <<- EOM
-        [
-        {
-            "GatewayID": "10.96.0.2:50051",
-            "FunctionMemoryMB": 128,
-            "ImageSizeMB": 60,
-            "PackageType": "Image"
-        },
-        {
-            "GatewayID": "10.96.0.3:50051",
-            "FunctionMemoryMB": 128,
-            "ImageSizeMB": 60,
-            "PackageType": "Image"
-        }
-        ]
-        EOM
-        docker network create --subnet=10.96.0.0/16 benchnet
-        docker run -d --name=producer --net=benchnet --ip 10.96.0.2 vhiveease/vhive-bench:latest
-        docker run -d --name=consumer --net=benchnet --ip 10.96.0.3 vhiveease/vhive-bench:latest
-        docker run -d -p 50052:9000 --net=benchnet --ip 10.96.0.46 --name minio -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=minio123" minio/minio server /data
-        wget https://dl.min.io/client/mc/release/linux-amd64/mc
-        chmod +x mc
-        sudo mv mc /usr/local/bin
-        mc alias set myminio http://10.96.0.46:9000 minio minio123
-        mc mb myminio/mybucket
+      - name: Upload client build
+        uses: actions/upload-artifact@v2
+        with:
+          name: vHive-bench-build
+          path: build.tar
+          retention-days: 1
 
-    - name: vHive Inline Data Transfer Integration Tests
-      working-directory: ${{env.working-directory}}
-      run: ./main --g "." --o "../latency-samples" --c "../experiments/tests/vhive/data-transfer.json"
+  test_aws:
+    name: Unit tests (incl. AWS API tests) and AWS integration tests
+    needs: [ build_client ]
+    runs-on: ubuntu-18.04
+    env:
+      working-directory: ./src
+    steps:
 
-    - name: vHive Storage Data Transfer Integration Tests
-      working-directory: ${{env.working-directory}}
-      run: ./main --g "." --o "../latency-samples" --c "../experiments/tests/vhive/data-transfer-minio.json"
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
-    - name: Push to deployment branch
-      run: |
-        mv endpoints/vHive-copy.json endpoints/vHive.json
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config user.name "vHive Bench Bot"
-        git remote set-url origin https://ease-lab:${{secrets.ACCESS_TOKEN}}@github.com/ease-lab/vhive-bench.git
-        git checkout --orphan deployment
-        git rm -rf --ignore-unmatch --cached .
-        git add -f initialize_aws.sh initialize_machine.sh endpoints experiments main \
-        setup/deployment/raw-code/producer-consumer/go1.x/aws/handler \
-        setup/deployment/raw-code/producer-consumer/go1.x/aws/dockerfile \
-        setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler \
-        setup/deployment/raw-code/producer-consumer/api-template.json
-        git commit -m "Automated push from successful vhive-bench pipeline"
-        git push origin HEAD:deployment --force
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Set up Go 1.16
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Download client build
+        uses: actions/download-artifact@v2
+        with:
+          name: vHive-bench-build
+
+      - name: Untar client build
+        run: tar --strip-components=1 -xvf build.tar
+
+      - name: Prepare files
+        run: |
+          mkdir -p setup/deployment/raw-code/functions/producer-consumer/aws/
+          cp src/setup/deployment/raw-code/functions/producer-consumer/api-template.json setup/deployment/raw-code/functions/producer-consumer/api-template.json
+          cp src/setup/deployment/raw-code/functions/producer-consumer/aws/Dockerfile setup/deployment/raw-code/functions/producer-consumer/aws/Dockerfile
+          cp src/setup/deployment/raw-code/functions/producer-consumer/aws/go.mod setup/deployment/raw-code/functions/producer-consumer/aws/go.mod
+          cp src/setup/deployment/raw-code/functions/producer-consumer/aws/main.go setup/deployment/raw-code/functions/producer-consumer/aws/main.go
+          cp -r src/setup/deployment/raw-code/functions/producer-consumer/aws/common setup/deployment/raw-code/functions/producer-consumer/aws/common
+          cp -r src/setup/deployment/raw-code/functions/producer-consumer/aws/proto_gen setup/deployment/raw-code/functions/producer-consumer/aws/proto_gen
+          cp setup/deployment/raw-code/functions/producer-consumer/aws/handler src/setup/deployment/raw-code/functions/producer-consumer/aws/handler
+
+      - name: Unit Tests
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./...
+
+      - name: AWS Burstiness ZIP (Package) Integration Test
+        run: ./main --o ../latency-samples --c experiments/tests/aws/burstiness-zip-package.json
+
+      - name: AWS Burstiness Image (Package) Integration Test
+        run: ./main --o latency-samples --c experiments/tests/aws/burstiness-image-package.json
+
+      - name: AWS Inline Data Transfer Integration Test
+        run: ./main --o latency-samples --c experiments/tests/aws/data-transfer.json
+
+  test_vhive:
+    name: vHive integration tests
+    needs: [ build_client ]
+    runs-on: ubuntu-18.04
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Download client build
+        uses: actions/download-artifact@v2
+        with:
+          name: vHive-bench-build
+
+      - name: Untar client build
+        run: tar --strip-components=1 -xvf build.tar
+
+      - name: Setup vHive Data Transfer (producer-consumer) Containers
+        run: |
+          cat > vHive.json <<- EOM
+          [
+          {
+              "GatewayID": "10.96.0.2:50051",
+              "FunctionMemoryMB": 128,
+              "ImageSizeMB": 60,
+              "PackageType": "Image"
+          },
+          {
+              "GatewayID": "10.96.0.3:50051",
+              "FunctionMemoryMB": 128,
+              "ImageSizeMB": 60,
+              "PackageType": "Image"
+          }
+          ]
+          EOM
+          docker network create --subnet=10.96.0.0/16 benchnet
+          docker run -d --name=producer --net=benchnet --ip 10.96.0.2 vhiveease/producer-consumer:latest
+          docker run -d --name=consumer --net=benchnet --ip 10.96.0.3 vhiveease/producer-consumer:latest
+          docker run -d -p 50052:9000 --net=benchnet --ip 10.96.0.46 --name minio -e "MINIO_ROOT_USER=minio" -e "MINIO_ROOT_PASSWORD=minio123" minio/minio server /data
+          wget https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv mc /usr/local/bin
+          mc alias set myminio http://10.96.0.46:9000 minio minio123
+          mc mb myminio/mybucket
+
+      - name: vHive Producer-consumer (Inline Data Transfer) Integration Tests
+        run: ./main --g . --o latency-samples --c experiments/tests/vhive/data-transfer.json
+
+      - name: vHive Producer-consumer (Storage Data Transfer) Integration Tests
+        run: ./main --g . --o latency-samples --c experiments/tests/vhive/data-transfer-minio.json
+
+      - name: vHive Chameleon Integration Tests
+        run: |
+          cat > vHive.json <<- EOM
+          [
+          {
+              "GatewayID": "10.96.0.4:50051",
+              "FunctionMemoryMB": 128,
+              "ImageSizeMB": 60,
+              "PackageType": "Image"
+          }
+          ]
+          EOM
+          docker run -d --name=chameleon-func --net=benchnet --ip 10.96.0.4 vhiveease/chameleon:latest
+          ./main --g . --o latency-samples --c experiments/tests/vhive/chameleon.json
+
+      - name: vHive Hello Python Integration Tests
+        run: |
+          cat > vHive.json <<- EOM
+          [
+          {
+              "GatewayID": "10.96.0.5:50051",
+              "FunctionMemoryMB": 128,
+              "ImageSizeMB": 60,
+              "PackageType": "Image"
+          }
+          ]
+          EOM
+          docker run -d --name=hellopy-func --net=benchnet --ip 10.96.0.5 vhiveease/hellopy:latest
+          ./main --g . --o latency-samples --c experiments/tests/vhive/hellopy.json
+
+      - name: vHive RNN Serving Integration Tests
+        run: |
+          cat > vHive.json <<- EOM
+          [
+          {
+              "GatewayID": "10.96.0.6:50051",
+              "FunctionMemoryMB": 128,
+              "ImageSizeMB": 60,
+              "PackageType": "Image"
+          }
+          ]
+          EOM
+          docker run -d --name=rnnserving-func --net=benchnet --ip 10.96.0.6 vhiveease/rnnserving:latest
+          ./main --g . --o latency-samples --c experiments/tests/vhive/rnnserving.json
+
+  deploy:
+    name: Deploy framework
+    needs: [ test_aws, test_vhive ]
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Download client build
+        uses: actions/download-artifact@v2
+        with:
+          name: vHive-bench-build
+
+      - name: Untar client build
+        run: tar --strip-components=1 -xvf build.tar
+
+      - name: Prepare files
+        run: |
+          mkdir -p setup/deployment/raw-code/functions/producer-consumer/aws/
+          cp src/setup/deployment/raw-code/functions/producer-consumer/api-template.json setup/deployment/raw-code/functions/producer-consumer/api-template.json
+          cp src/setup/deployment/raw-code/functions/producer-consumer/aws/go.mod setup/deployment/raw-code/functions/producer-consumer/aws/go.mod
+          cp src/setup/deployment/raw-code/functions/producer-consumer/aws/main.go setup/deployment/raw-code/functions/producer-consumer/aws/main.go
+          cp -r src/setup/deployment/raw-code/functions/producer-consumer/aws/common setup/deployment/raw-code/functions/producer-consumer/aws/common
+          cp -r src/setup/deployment/raw-code/functions/producer-consumer/aws/proto_gen setup/deployment/raw-code/functions/producer-consumer/aws/proto_gen
+          cp src/setup/deployment/raw-code/functions/producer-consumer/aws/Dockerfile setup/deployment/raw-code/functions/producer-consumer/aws/Dockerfile
+
+      - name: Push to deployment branch
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "vHive Bench Bot"
+          git remote set-url origin https://ease-lab:${{secrets.ACCESS_TOKEN}}@github.com/ease-lab/vhive-bench.git
+          git checkout --orphan deployment
+          git rm -rf --ignore-unmatch --cached .
+
+          git add --ignore-errors --force scripts endpoints experiments main \
+          setup/deployment/raw-code/functions/producer-consumer/api-template.json \
+          setup/deployment/raw-code/functions/producer-consumer/aws/Dockerfile \
+          setup/deployment/raw-code/functions/producer-consumer/aws/go.mod \
+          setup/deployment/raw-code/functions/producer-consumer/aws/main.go \
+          setup/deployment/raw-code/functions/producer-consumer/aws/common \
+          setup/deployment/raw-code/functions/producer-consumer/aws/proto_gen
+
+          git commit -m "Automated push from successful vhive-bench pipeline"
+          git push origin HEAD:deployment --force

@@ -1,4 +1,4 @@
-# vHive-bench ![CI Result](https://github.com/ease-lab/vhive-bench/workflows/Go/badge.svg?branch=master)
+# vHive-bench [![vHive-bench Pipeline](https://github.com/ease-lab/vhive-bench/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ease-lab/vhive-bench/actions/workflows/pipeline.yml) [![Docker function images build](https://github.com/ease-lab/vhive-bench/actions/workflows/image-build.yml/badge.svg)](https://github.com/ease-lab/vhive-bench/actions/workflows/image-build.yml)
 A framework for benchmarking the performance of popular serverless platforms. 
 
 ## Design
@@ -9,6 +9,10 @@ A framework for benchmarking the performance of popular serverless platforms.
 
 ## Data Transfer Measurement
 ![transfer method](design/transfer-method.png)
+
+## Notes
+
+- `Zip` packaging deployment only applies to `prodcons` images and will not support any future images.
 
 ## Common problems
 

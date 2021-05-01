@@ -26,13 +26,12 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
-	"strings"
 	"vhive-bench/setup/deployment/connection/amazon"
 	"vhive-bench/util"
 )
 
 //SetupContainerImageDeployment will package the function using container images
-func SetupContainerImageDeployment(provider string, binaryPath string) {
+func SetupContainerImageDeployment(function string, provider string, rawCodePath string) {
 	var privateRepoURI string
 	switch provider {
 	case "aws":
@@ -52,11 +51,14 @@ func SetupContainerImageDeployment(provider string, binaryPath string) {
 		return
 	}
 
-	util.RunCommandAndLog(exec.Command("docker", "build", "-t", "vhive-bench:latest", strings.TrimSuffix(binaryPath, "/handler")))
+	taggedImage := fmt.Sprintf("%s:latest", function)
 
-	log.Info("Pushing container image to the registry...")
-	imageName := fmt.Sprintf("%s/%s", privateRepoURI, "vhive-bench:latest")
-	util.RunCommandAndLog(exec.Command("docker", "tag", "vhive-bench:latest", imageName))
+	util.RunCommandAndLog(exec.Command("docker", "build", "-t", taggedImage, rawCodePath))
+
+	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
+	log.Infof("Pushing container image to %q...", imageName)
+
+	util.RunCommandAndLog(exec.Command("docker", "tag", taggedImage, imageName))
 	util.RunCommandAndLog(exec.Command("docker", "push", imageName))
 
 	if provider == "aws" {

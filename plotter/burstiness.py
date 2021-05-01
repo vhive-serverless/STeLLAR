@@ -34,12 +34,12 @@ from matplotlib.lines import Line2D
 def plot_cdfs(args):
     def plot_dual_cdf(path, latencies_dict, burst_size):
         _fig = plt.figure(figsize=(5, 5))
-        _fig.suptitle(f'Burst size {burst_size}')
+        _fig.suptitle(f'Minimal Golang (AWS Image)')
         plt.xlabel('Latency (ms)')
         plt.ylabel('Portion of requests')
         plt.grid(True)
 
-        for iat in ['600s', '3s']:
+        for iat in ['600s']:
             latencies = latencies_dict[iat][burst_size]
             if 'warm' in path or burst_size == '1':
                 latencies = latencies[:-int(burst_size)]  # remove extra cold latencies
@@ -50,9 +50,9 @@ def plot_cdfs(args):
 
             print(f'Max latency {latencies[-1]}, stddev {statistics.stdev(latencies)}')
 
-            average_latency = sum(latencies) / len(latencies)
-            plt.axvline(x=average_latency, color=recent[-1].get_color(), linestyle='--')
-            plt.annotate(f'{average_latency:0.0f}ms', (int(average_latency) + 20, 0.5), color='black')
+            median_lat = latencies[int(0.5 * len(latencies))]
+            plt.axvline(x=median_lat, color=recent[-1].get_color(), linestyle='--')
+            plt.annotate(f'{median_lat:0.0f}ms', (int(median_lat) + 20, 0.5), color='black')
 
             tail_latency = latencies[int(0.99 * len(latencies))]
             plt.axvline(x=tail_latency, color=recent[-1].get_color(), linestyle='--')
@@ -126,7 +126,7 @@ def plot_cdfs(args):
         return burstsize_to_latencies
 
     def plot_composing_cdf_return_latencies(subplot, inter_arrival_time, xlim):
-        subplot.set_title(f'{"Warm" if int(inter_arrival_time) < 600 else "Cold"} (IAT {inter_arrival_time}s)')
+        subplot.set_title(f'{"Warm" if int(inter_arrival_time) < 30 else "Cold"} (IAT {inter_arrival_time}s)')
         subplot.set_xlabel('Latency (ms)')
         subplot.set_ylabel('Portion of requests')
         subplot.grid(True)
@@ -153,11 +153,10 @@ def plot_cdfs(args):
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(10, 5))
     fig.suptitle(title, fontsize=16)
 
-    iat_burst_sizes_latencies = {'3s': plot_composing_cdf_return_latencies(axes[0], '3', 250),
-                                 '600s': plot_composing_cdf_return_latencies(axes[1], '600', 1200)}
+    iat_burst_sizes_latencies = {'600s': plot_composing_cdf_return_latencies(axes[1], '600', 1200)}
 
     plot_dual_cdf(path=args.path, latencies_dict=iat_burst_sizes_latencies, burst_size='1')
-    plot_dual_cdf(path=args.path, latencies_dict=iat_burst_sizes_latencies, burst_size='500')
+    # plot_dual_cdf(path=args.path, latencies_dict=iat_burst_sizes_latencies, burst_size='500')
 
     plt.legend(loc='lower right')
     fig.tight_layout(rect=[0, 0, 1, 0.95])

@@ -1,0 +1,19 @@
+{
+  "Sequential": false,
+  "Provider": "vhive",
+  "Function": "rnnserving",
+  "SubExperiments": [
+    {
+      "Title": "cold",
+      "Bursts": 3,
+      "BurstSizes": [
+        3
+      ],
+      "IATSeconds": 2,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

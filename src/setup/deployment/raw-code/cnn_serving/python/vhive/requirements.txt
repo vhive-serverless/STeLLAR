@@ -1,3 +1,0 @@
-futures
-pillow
-h5py

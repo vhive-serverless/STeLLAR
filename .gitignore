@@ -19,10 +19,8 @@ latency-samples/
 
 cloudlab-latency-samples/
 src/main
-src/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
-src/setup/deployment/raw-code/producer-consumer/go1.x/aws/random.file
-src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
-src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
+src/setup/deployment/raw-code/functions/producer-consumer/aws/handler
+src/setup/deployment/raw-code/functions/producer-consumer/vhive/handler
 
 __pycache__
 providers/
