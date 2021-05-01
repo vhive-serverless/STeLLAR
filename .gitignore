@@ -27,3 +27,4 @@ src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/random.file
 __pycache__
 providers/
 
+pkg
