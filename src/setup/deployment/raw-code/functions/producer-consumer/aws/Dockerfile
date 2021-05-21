@@ -1,4 +1,4 @@
-FROM amd64/golang:1.15.7-alpine3.13 as build
+FROM docker.io/vhiveease/vhive-golang:latest as build
 
 WORKDIR /app
 

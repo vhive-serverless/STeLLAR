@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     if "AWS" in args.path:
         args.provider = "AWS"
-    elif "vhive" in args.path:
+    elif "vhive" in args.path or "vHive" in args.path:
         args.provider = "vHive"
     else:
         raise Exception(f"Unrecognized provider in path {args.path}")
