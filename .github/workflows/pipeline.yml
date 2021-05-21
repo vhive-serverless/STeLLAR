@@ -184,7 +184,7 @@ jobs:
           ]
           EOM
           docker run -d --name=chameleon-func --net=benchnet --ip 10.96.0.4 vhiveease/chameleon:latest
-          ./main --g . --o latency-samples --c experiments/tests/vhive/chameleon.json
+          ./main --g . --o latency-samples --c experiments/tests/vhive/burstiness-image-package.json
 
       - name: vHive Hello Python Integration Tests
         run: |
@@ -199,7 +199,7 @@ jobs:
           ]
           EOM
           docker run -d --name=hellopy-func --net=benchnet --ip 10.96.0.5 vhiveease/hellopy:latest
-          ./main --g . --o latency-samples --c experiments/tests/vhive/hellopy.json
+          ./main --g . --o latency-samples --c experiments/tests/vhive/burstiness-image-package.json
 
       - name: vHive RNN Serving Integration Tests
         run: |
@@ -214,7 +214,7 @@ jobs:
           ]
           EOM
           docker run -d --name=rnnserving-func --net=benchnet --ip 10.96.0.6 vhiveease/rnnserving:latest
-          ./main --g . --o latency-samples --c experiments/tests/vhive/rnnserving.json
+          ./main --g . --o latency-samples --c experiments/tests/vhive/burstiness-image-package.json
 
   deploy:
     name: Deploy framework
