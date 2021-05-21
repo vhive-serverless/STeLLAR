@@ -75,7 +75,7 @@ func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string,
 
 	burstDeltas := generateIAT(experiment)
 
-	log.Infof("[sub-experiment %d] Started benchmarking, scheduling %d bursts with freq ~%vs and %d gateways (bursts/gateways*freq=%v)",
+	log.Infof("[sub-experiment %d] Started benchmarking, scheduling %d bursts with IAT ~%vs and %d gateways (bursts/gateways*freq=%v)",
 		experiment.ID, experiment.Bursts, experiment.IATSeconds, len(experiment.Endpoints),
 		float64(experiment.Bursts)/float64(len(experiment.Endpoints))*experiment.IATSeconds)
 

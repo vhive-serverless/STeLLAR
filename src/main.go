@@ -72,7 +72,7 @@ func main() {
 	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
 	setup.FindBusySpinIncrements(&config)
 
-	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/producer-consumer/api-template.json")
+	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
 
 	setup.ProvisionFunctions(config)
 

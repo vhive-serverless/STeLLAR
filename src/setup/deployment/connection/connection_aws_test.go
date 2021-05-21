@@ -34,7 +34,7 @@ import (
 
 const (
 	awsAPIsLimitIncl                    = 600
-	apiTemplatePathFromConnectionFolder = "../raw-code/producer-consumer/api-template.json"
+	apiTemplatePathFromConnectionFolder = "../raw-code/functions/producer-consumer/api-template.json"
 	aws                                 = "aws"
 	golang                              = "go1.x"
 )
@@ -139,17 +139,19 @@ func TestAWSUpdateFunction(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
+
 	var repurposedAPIID string
-	if len(apis) == 0 {
-		repurposedAPIID, _, _ = deployRandomMemoryFunction("Zip")
-	} else {
-		// Update first api that is not "Image"-packaged
-		for _, api := range apis {
-			if api.PackageType == "Zip" {
-				repurposedAPIID = api.GatewayID
-			}
+	// Update first api that is not "Image"-packaged
+	for _, api := range apis {
+		if api.PackageType == "Zip" {
+			repurposedAPIID = api.GatewayID
 		}
-		setupDeployment("Zip")
+	}
+	setupDeployment("Zip")
+
+	// No non-"Image"-packaged api, deploying one...
+	if repurposedAPIID == "" {
+		repurposedAPIID, _, _ = deployRandomMemoryFunction("Zip")
 	}
 
 	repurposedFunctionMemory := rand.Intn(1000-128) + 128
@@ -183,7 +185,14 @@ func setupDeployment(packageType string) (float64, string) {
 	// Deployment images over 50MB use S3, meaning calls are made to the service which can incur extra charges.
 	// In unit testing we use an image size of 45MB to avoid this.
 
-	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(fmt.Sprintf("../raw-code/producer-consumer/%s/%s/main.go", golang, aws), aws, util.MBToBytes(45.), packageType, 0)
+	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(
+		fmt.Sprintf("../raw-code/functions/producer-consumer/%s", aws),
+		aws,
+		util.MBToBytes(0.),
+		packageType,
+		0,
+		"producer-consumer",
+	)
 
 	return deployedImageSizeMB, binaryPath
 }

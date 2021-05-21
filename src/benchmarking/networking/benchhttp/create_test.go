@@ -41,7 +41,7 @@ func TestCreateAWSRequest(t *testing.T) {
 		DataTransferChainIDs: []string{},
 	}
 
-	connection.Initialize("aws", "", "../../../setup/deployment/raw-code/producer-consumer/api-template.json")
+	connection.Initialize("aws", "", "../../../setup/deployment/raw-code/functions/producer-consumer/api-template.json")
 
 	randomAssignedIncrement := int64(1482911482)
 	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement, false)

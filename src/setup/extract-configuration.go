@@ -56,6 +56,7 @@ type SubExperiment struct {
 	PackageType             string   `json:"PackageType"`
 	Parallelism             int      `json:"Parallelism"`
 	Visualization           string   `json:"Visualization"`
+	Function                string   `json:"Function"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
@@ -70,6 +71,7 @@ const (
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
 	defaultRuntime                 = "go1.x"
+	defaultFunction                = "producer-consumer"
 	defaultPackageType             = "Zip"
 	defaultParallelism             = 1
 	defaultDataTransferChainLength = 1
@@ -94,6 +96,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 	}
 
 	for index := range parsedConfig.SubExperiments {
+		if parsedConfig.SubExperiments[index].Function == "" {
+			parsedConfig.SubExperiments[index].Function = defaultFunction
+		}
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
 		}

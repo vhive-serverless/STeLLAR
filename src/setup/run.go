@@ -68,7 +68,12 @@ func ProvisionFunctions(config Configuration) {
 			continue
 		}
 
-		availableEndpoints = assignEndpoints(availableEndpoints, &config.SubExperiments[index], config.Provider, config.Runtime)
+		availableEndpoints = assignEndpoints(
+			availableEndpoints,
+			&config.SubExperiments[index],
+			config.Provider,
+			config.Runtime,
+		)
 	}
 
 	if amazon.AWSSingletonInstance != nil && amazon.AWSSingletonInstance.ImageURI != "" {

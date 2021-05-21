@@ -136,6 +136,7 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 
 //stringArrayToArrayOfString will process, e.g., "[14 35 8]" into []string{14, 35, 8}
 func stringArrayToArrayOfString(str string) []string {
+	log.Debugf("stringArrayToArrayOfString argument was %q", str)
 	str = strings.Split(str, "]")[0]
 	str = strings.Split(str, "[")[1]
 	return strings.Split(str, " ")
