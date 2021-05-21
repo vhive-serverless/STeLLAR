@@ -1,0 +1,26 @@
+[
+  {
+    "GatewayID": "producer.default.192.168.1.240.nip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "chameleon.default.192.168.1.240.nip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "hellopy.default.192.168.1.240.nip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  },
+  {
+    "GatewayID": "rnnserving.default.192.168.1.240.nip.io:80",
+    "FunctionMemoryMB": 128,
+    "ImageSizeMB": 60,
+    "PackageType": "Image"
+  }
+]
