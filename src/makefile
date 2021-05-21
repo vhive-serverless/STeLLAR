@@ -20,10 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-.PHONY: setup_machine
-setup_machine:
-	@sudo bash initialize_machine.sh
-
 .PHONY: build_and_run
 build_and_run: build run_aws
 
@@ -32,8 +28,8 @@ build:
 	@docker build -t vhive-bench .
 	@docker create --name temp vhive-bench /bin/bash
 	@docker cp temp:/app/vhive-bench ./main
-	@docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/aws/handler setup/deployment/raw-code/producer-consumer/go1.x/aws/handler
-	@docker cp temp:/app/setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler setup/deployment/raw-code/producer-consumer/go1.x/vhive/handler
+	@docker cp temp:/app/setup/deployment/raw-code/functions/producer-consumer/aws/handler setup/deployment/raw-code/functions/producer-consumer/aws/handler
+	@docker cp temp:/app/setup/deployment/raw-code/functions/producer-consumer/vhive/handler setup/deployment/raw-code/functions/producer-consumer/vhive/handler
 	@docker container rm temp
 
 .PHONY: run_vhive
@@ -78,10 +74,10 @@ replace_github_commit: ## This will replace latest commit with a new one having 
 .PHONY: vhive_local_function_deployment
 vhive_local_docker_deployment:
 	@docker system prune
-	@docker build -t vhive-bench:latest setup/deployment/raw-code/producer-consumer/go1.x/vhive/
+	@docker build -t vhive-bench:latest setup/deployment/raw-code/functions/producer-consumer/vhive/
 	@docker run -dp 50051:50051 vhive-bench:latest
 
-GO_PROD_CONSUMER="./setup/deployment/raw-code/producer-consumer/go1.x"
+GO_PROD_CONSUMER="./setup/deployment/raw-code/functions/producer-consumer"
 SERVER_API_OUT="$(GO_PROD_CONSUMER)/vhive/proto_gen"
 CLIENT_API_OUT="benchmarking/networking/benchgrpc/proto_gen"
 .PHONY: proto_gen

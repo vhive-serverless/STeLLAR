@@ -64,11 +64,13 @@ var Singleton *ServerlessInterface
 
 //Initialize will create a new provider connection to interact with
 func Initialize(provider string, endpointsDirectoryPath string, apiTemplatePath string) {
-	switch provider {
+	switch strings.ToLower(provider) {
 	case "aws":
 		setupAWSConnection(apiTemplatePath)
 	case "vhive":
 		setupFileConnection(path.Join(endpointsDirectoryPath, "vHive.json"))
+	case "azure":
+		setupAzureConnection()
 	default:
 		setupExternalConnection()
 		log.Warnf("Provider %s does not support initialization with the client, setting to external URL.", provider)
@@ -111,10 +113,10 @@ func setupAWSConnection(apiTemplatePath string) {
 	}
 }
 
-func setupFileConnection(path string) {
+func setupFileConnection(filePath string) {
 	Singleton = &ServerlessInterface{
 		ListAPIs: func() []Endpoint {
-			endpointsFile := util.ReadFile(path)
+			endpointsFile := util.ReadFile(filePath)
 			configByteValue, _ := ioutil.ReadAll(endpointsFile)
 
 			var parsedEndpoints []Endpoint
@@ -124,6 +126,16 @@ func setupFileConnection(path string) {
 
 			return parsedEndpoints
 		},
+	}
+}
+
+//TODO: implement Azure Functions connection
+func setupAzureConnection() {
+	Singleton = &ServerlessInterface{
+		ListAPIs:       nil,
+		DeployFunction: nil,
+		RemoveFunction: nil,
+		UpdateFunction: nil,
 	}
 }
 
