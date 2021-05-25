@@ -22,9 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-
 import numpy as np
+import os
 import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
@@ -46,7 +45,7 @@ def add_subplot(args, subtitle_percentile, ylabel, subplot, rtt_latencies, stamp
     subplot.xaxis.set_major_formatter(ScalarFormatter())
     subplot.grid(True)
 
-    subplot.set_xticks([int(size/1024.) for size in args.transfer_sizes])
+    # subplot.set_xticks([int(size / 1024.) for size in args.transfer_sizes])
 
     used_transfer_sizes = args.transfer_sizes
     if max(used_transfer_sizes) >= 1e4:
@@ -64,7 +63,7 @@ def add_subplot(args, subtitle_percentile, ylabel, subplot, rtt_latencies, stamp
             rtt_latencies[memory_mb].append(np.nan)
 
         used_latencies = rtt_latencies[memory_mb]
-        if max(used_latencies) >= 1e3:
+        if max(used_latencies) >= 1e4:
             used_latencies = change_to_seconds()
 
         rtts_plotted = subplot.plot(used_transfer_sizes, used_latencies, 'o--',
@@ -170,9 +169,8 @@ def load_experiment_results(args, inter_arrival_time):
     return transfer_sizes_kb, rtt_median, rtt_percentiles, stamp_diff_median, stamp_diff_percentiles
 
 
-def generate_transfer_bandwidth_figure(args, inter_arrival_time, rtt_median, stamp_diff_median):
+def generate_transfer_bandwidth_figure(args, rtt_median, stamp_diff_median):
     title = f'{args.provider} {"Storage" if "storage" in args.path else "Inline"} Transfer Bandwidth'
-    # (IAT {inter_arrival_time}) <- they differ e.g. 3s and 10s
 
     fig, axes = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(7, 5))
     fig.suptitle(title, fontsize=16)
@@ -191,10 +189,9 @@ def generate_transfer_bandwidth_figure(args, inter_arrival_time, rtt_median, sta
     plt.close()
 
 
-def generate_transfer_latency_figure(args, inter_arrival_time, rtt_median, rtt_percentiles, stamp_diff_median,
+def generate_transfer_latency_figure(args, rtt_median, rtt_percentiles, stamp_diff_median,
                                      stamp_diff_percentiles):
     title = f'{args.provider} {"Storage" if "storage" in args.path else "Inline"} Transfer Latency'
-    # (IAT {inter_arrival_time}) <- they differ e.g. 3s and 10s
     fig, axes = plt.subplots(nrows=1, ncols=1 if args.just_median else 2, sharey=True, figsize=(10, 5))
     fig.suptitle(title, fontsize=16)
     plt.grid(True)
@@ -219,9 +216,9 @@ def generate_figures(args, inter_arrival_time):
         inter_arrival_time)
     args.transfer_sizes = list(dict.fromkeys(args.transfer_sizes))  # remove duplicates
 
-    generate_transfer_latency_figure(args, inter_arrival_time, rtt_median, rtt_percentiles, stamp_diff_median,
+    generate_transfer_latency_figure(args, rtt_median, rtt_percentiles, stamp_diff_median,
                                      stamp_diff_percentiles)
-    generate_transfer_bandwidth_figure(args, inter_arrival_time, rtt_median, stamp_diff_median)
+    generate_transfer_bandwidth_figure(args, rtt_median, stamp_diff_median)
 
 
 def plot_data_transfer_stats(args):
