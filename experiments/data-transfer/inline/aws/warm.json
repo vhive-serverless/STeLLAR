@@ -8,7 +8,6 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -22,7 +21,6 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -36,7 +34,6 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -50,7 +47,6 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -64,7 +60,6 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -78,7 +73,6 @@
         1
       ],
       "PayloadLengthBytes": 2097152,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -92,7 +86,6 @@
         1
       ],
       "PayloadLengthBytes": 3145728,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -106,7 +99,6 @@
         1
       ],
       "PayloadLengthBytes": 4100000,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -119,7 +111,6 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -134,7 +125,6 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -149,7 +139,6 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -164,7 +153,6 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -179,7 +167,6 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -194,7 +181,6 @@
         1
       ],
       "PayloadLengthBytes": 2097152,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -209,7 +195,6 @@
         1
       ],
       "PayloadLengthBytes": 3145728,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -224,7 +209,6 @@
         1
       ],
       "PayloadLengthBytes": 4100000,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -238,7 +222,6 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -253,7 +236,6 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -268,7 +250,6 @@
         1
       ],
       "PayloadLengthBytes": 10240,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -283,7 +264,6 @@
         1
       ],
       "PayloadLengthBytes": 102400,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -298,7 +278,6 @@
         1
       ],
       "PayloadLengthBytes": 1048576,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -313,7 +292,6 @@
         1
       ],
       "PayloadLengthBytes": 2097152,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -328,7 +306,6 @@
         1
       ],
       "PayloadLengthBytes": 3145728,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -343,7 +320,6 @@
         1
       ],
       "PayloadLengthBytes": 4100000,
-      "IATSeconds": 1,
       "DesiredServiceTimes": [
         "0ms"
       ],
