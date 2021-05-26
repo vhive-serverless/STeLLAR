@@ -12,5 +12,5 @@ RUN go mod download && \
 
 FROM scratch as bin-unix
 COPY --from=build /main /main
-COPY random.file /random.file
+COPY filler.file /filler.file
 ENTRYPOINT [ "/main" ]
