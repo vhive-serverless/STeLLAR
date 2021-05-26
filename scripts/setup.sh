@@ -2,7 +2,7 @@
 sudo apt-get update
 
 # For the client to run unattended
-sudo apt-get install tmux
+sudo apt-get install --no-install-recommends --assume-yes tmux
 
 # Equivalent to "ulimit -n 1000000", see https://superuser.com/questions/1289345/why-doesnt-ulimit-n-work-when-called-inside-a-script
 sudo sh -c "echo \"* soft nofile 1000000\" >> /etc/security/limits.conf"
