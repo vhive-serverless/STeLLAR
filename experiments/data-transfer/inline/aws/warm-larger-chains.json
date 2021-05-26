@@ -1,0 +1,81 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "1chain,inline",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 1
+    },
+    {
+      "Title": "2chain,inline",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 2
+    },
+    {
+      "Title": "4chain,inline",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 4
+    },
+    {
+      "Title": "8chain,inline",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 8
+    },
+    {
+      "Title": "16chain,inline",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 5,
+      "FunctionMemoryMB": 1536,
+      "DataTransferChainLength": 16
+    }
+  ]
+}
