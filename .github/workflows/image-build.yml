@@ -20,7 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-name: Check successful docker function images build
+name: Build function images
+
+concurrency: staging_environment
 
 on:
   workflow_dispatch:
