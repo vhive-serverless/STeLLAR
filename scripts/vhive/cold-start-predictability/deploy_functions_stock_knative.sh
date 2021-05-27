@@ -1,4 +1,4 @@
-cat >prod-cons.yaml <<-EOM
+cat >producer-consumer.yaml <<-EOM
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -82,7 +82,7 @@ spec:
         - name: h2c # For GRPC support
           containerPort: 50051
 EOM
-kn service apply "producer" -f prod-cons.yaml --concurrency-target 1
+kn service apply "producer" -f producer-consumer.yaml --concurrency-target 1
 kn service apply "chameleon" -f chameleon.yaml --concurrency-target 1
 kn service apply "hellopy" -f hello.yaml --concurrency-target 1
 kn service apply "rnnserving" -f rnnserving.yaml --concurrency-target 1
