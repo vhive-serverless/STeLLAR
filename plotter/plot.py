@@ -23,28 +23,37 @@
 # SOFTWARE.
 
 import argparse
-
-import burstiness
 import cpustats
-import imgsize
 import transfer
+import burstiness
+import imgsize
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Visualize experiment results.')
-    parser.add_argument('--type', type=str, default='cpustats', help='Experiment type to be visualized.')
+    parser.add_argument('--type', type=str, default='cpustats',
+                        help='Experiment type to be visualized.')  # [cpustats, cdfs, transfer, imgsize, imgsize-burstiness] are the possible options
     parser.add_argument('--path', type=str, default='.', help='Path where the experiment results are located.')
-    parser.add_argument('--seconds', type=bool, default=False, help='Whether to use seconds when plotting the Y axes.')
     return parser.parse_args()
 
 
+# Examples:
+# 1. CPU stats:
+# python plot.py --type cpustats --path ../latency-samples/cloudlab/cpu-stats/AWS/
+# 2. Transfers:
+# python plot.py --type transfer --path ../latency-samples/cloudlab/data-transfer/AWS/inline/
+# 3. Burstiness CDFs
+# python plot.py --type burstiness --path ../latency-samples/cloudlab/burstiness/AWS/Tuesday\,\ 16-Mar-21\ 08\:19\:39\ MDT/
+# 4. Cold starts image size:
+# python plot.py --type imgsize --path ../latency-samples/cloudlab/image-size/AWS/1536MB\ memory\,\ st1s\ imgsize\ experiment/
+
 if __name__ == "__main__":
     args = parse_args()
-    print(f"Path is {args.path}, visualization type is {args.type}, using seconds? {args.seconds}")
+    print(f"Path is {args.path} and visualization type is {args.type}")
 
-    if "aws" in args.path.lower():
+    if "AWS" in args.path:
         args.provider = "AWS"
-    elif "vhive" in args.path.lower():
+    elif "vhive" in args.path or "vHive" in args.path:
         args.provider = "vHive"
     else:
         raise Exception(f"Unrecognized provider in path {args.path}")
