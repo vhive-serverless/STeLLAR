@@ -9,6 +9,7 @@
         1
       ],
       "PayloadLengthBytes": 1024,
+      "IATSeconds": 1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"

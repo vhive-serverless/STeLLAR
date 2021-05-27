@@ -8,6 +8,7 @@
       "BurstSizes": [
         1
       ],
+      "IATSeconds": 1,
       "PackageType": "Image",
       "DesiredServiceTimes": [
         "0ms"
