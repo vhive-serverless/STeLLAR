@@ -14,7 +14,7 @@ replace (
 
 require (
 	github.com/ajstarks/svgo v0.0.0-20200725142600-7a3c8b57fecb // indirect
-	github.com/aws/aws-sdk-go v1.38.40
+	github.com/aws/aws-sdk-go v1.38.45
 	github.com/go-gota/gota v0.10.1
 	github.com/golang/protobuf v1.5.2
 	github.com/sirupsen/logrus v1.8.1
@@ -25,7 +25,7 @@ require (
 	gonum.org/v1/gonum v0.9.0
 	gonum.org/v1/plot v0.9.0
 	google.golang.org/genproto v0.0.0-20210319143718-93e7006c17a6 // indirect
-	google.golang.org/grpc v1.37.1
+	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

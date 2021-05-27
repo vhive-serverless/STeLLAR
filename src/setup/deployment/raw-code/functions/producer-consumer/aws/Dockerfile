@@ -10,7 +10,7 @@ COPY proto_gen /app/proto_gen/
 RUN go mod download && \
    CGO_ENABLED=0 GOOS=linux go build -v -o /main /app/main.go
 
-FROM docker.io/vhiveease/aws-golang:latest
+FROM docker.io/vhiveease/aws-golang:latest as bin-aws
 COPY --from=build /main /main
-COPY random.file /random.file
+COPY filler.file /filler.file
 ENTRYPOINT [ "/main" ]

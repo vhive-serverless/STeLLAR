@@ -36,7 +36,7 @@ import (
 //SetupDeployment will create the serverless function zip deployment for the given provider,
 //in the given language and of the given size in bytes. Returns size of deployment in MB.
 func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int, function string) (float64, string) {
-	fillerFilePath := rawCodePath + "/random.file"
+	fillerFilePath := rawCodePath + "/filler.file"
 
 	switch packageType {
 	case "Zip":
