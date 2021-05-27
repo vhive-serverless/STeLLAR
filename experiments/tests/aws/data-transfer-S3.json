@@ -9,7 +9,6 @@
         1
       ],
       "PayloadLengthBytes": 1024,
-      "IATSeconds": 5,
       "DesiredServiceTimes": [
         "0ms"
       ],
