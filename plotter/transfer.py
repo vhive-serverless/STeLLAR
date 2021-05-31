@@ -115,11 +115,11 @@ def add_subplot(args, subtitle_percentile, ylabel, subplot, latencies, experimen
 def generate_latency_bandwidth_figures(args, iat_warm_threshold, warm_plots, experiment_type='memory'):
     def load_rtt_and_stampdiff_latencies():
         def fetch_experiment_directories():
-            experiment_dirs = []
+            _experiment_dirs = []
             for dir_path, dir_names, filenames in os.walk(args.path):
                 if not dir_names:  # no subdirectories
-                    experiment_dirs.append(dir_path)
-            return experiment_dirs
+                    _experiment_dirs.append(dir_path)
+            return _experiment_dirs
 
         def read_latencies_median_and_tail():
             with open(experiment + "/latencies.csv") as rtt_file:
@@ -242,11 +242,12 @@ def generate_latency_bandwidth_figures(args, iat_warm_threshold, warm_plots, exp
     median['timestamp_diff']['chain'], percentiles['timestamp_diff']['chain'] = {}, {}
     load_rtt_and_stampdiff_latencies()
 
-    if experiment_type == 'memory':
-        args.transfer_sizes = list(dict.fromkeys(args.transfer_sizes))  # remove duplicates
+    args.transfer_sizes = list(dict.fromkeys(args.transfer_sizes))  # remove duplicates
 
     generate_transfer_latency_figure()
-    generate_transfer_bandwidth_figure()
+
+    if experiment_type == 'memory':
+        generate_transfer_bandwidth_figure()
 
 
 def plot_data_transfer_stats(args):
