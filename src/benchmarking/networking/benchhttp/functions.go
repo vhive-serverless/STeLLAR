@@ -27,6 +27,8 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strings"
+	"vhive-bench/setup"
 	"vhive-bench/setup/deployment/connection/amazon"
 )
 
@@ -45,15 +47,30 @@ func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 	return response
 }
 
-func appendProducerConsumerParameters(request *http.Request, payloadLengthBytes int,
-	assignedFunctionIncrementLimit int64, dataTransferChainIDs []string, storageTransfer bool) *http.Request {
-	request.URL.Path = "/prod/benchmarking"
+func appendProducerConsumerParameters(provider string, request *http.Request, payloadLengthBytes int, assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) *http.Request {
+	switch provider {
+	case "aws":
+		request.URL.Path = "/prod/benchmarking"
+	case "azure":
+		// Example Azure Functions URL:
+		// vhive-bench.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
+
+		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
+		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
+	default:
+		log.Fatalf("Unrecognized provider %q", provider)
+	}
 
 	request.URL.RawQuery = fmt.Sprintf("IncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
 		assignedFunctionIncrementLimit,
 		payloadLengthBytes,
-		dataTransferChainIDs,
+		gatewayEndpoint.DataTransferChainIDs,
 	)
+
+	if provider == "azure" {
+		queryCode := strings.Split(gatewayEndpoint.ID, "code=")[1]
+		request.URL.RawQuery += fmt.Sprintf("&code=%v", queryCode)
+	}
 
 	if storageTransfer {
 		request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)

@@ -36,7 +36,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 	log.Infof("[sub-experiment %d] Setting up deployment...", experiment.ID)
 	var assignedBinaryPath string
 
-	if provider != "vhive" { // cannot deploy to vhive
+	if provider == "aws" { // cannot deploy to vhive or azure
 		experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/functions/%s/%s", experiment.Function, provider),
 			provider,

@@ -70,7 +70,8 @@ func Initialize(provider string, endpointsDirectoryPath string, apiTemplatePath 
 	case "vhive":
 		setupFileConnection(path.Join(endpointsDirectoryPath, "vHive.json"))
 	case "azure":
-		setupAzureConnection()
+		setupFileConnection(path.Join(endpointsDirectoryPath, "azure.json"))
+		//setupAzureConnection()
 	default:
 		setupExternalConnection()
 		log.Warnf("Provider %s does not support initialization with the client, setting to external URL.", provider)

@@ -1,5 +1,6 @@
 {
   "Sequential": false,
+  "Provider": "azure",
   "SubExperiments": [
     {
       "Title": "warm",
