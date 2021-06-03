@@ -86,7 +86,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 
 func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider string, incrementLimit int64,
 	latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, burstID int,
-	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, S3Transfer bool) {
+	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) {
 	defer requestsWaitGroup.Done()
 
 	var reqSentTime, reqReceivedTime time.Time
@@ -96,13 +96,15 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 	switch provider {
 	case "vhive":
 		var stringArrayTimeStampChain string
-		stringArrayTimeStampChain, reqSentTime, reqReceivedTime = benchgrpc.ExecuteRequest(payloadLengthBytes, gatewayEndpoint, incrementLimit, S3Transfer)
+		stringArrayTimeStampChain, reqSentTime, reqReceivedTime = benchgrpc.ExecuteRequest(payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer)
 
 		timestampChain = stringArrayToArrayOfString(stringArrayTimeStampChain)
 		hostname = gatewayEndpoint.ID
 		responseID = "N/A"
 	case "aws":
-		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, S3Transfer)
+	case "azure":
+		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer)
+		log.Debugf("Created HTTP request with URL (%q), Body (%q)", request.URL, request.Body)
 
 		var respBody []byte
 		respBody, reqSentTime, reqReceivedTime = benchhttp.ExecuteRequest(*request)
@@ -112,7 +114,7 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		hostname = request.URL.Hostname()
 		responseID = response.RequestID
 	default:
-		responseID = ""
+		log.Fatalf("Unrecognized provider %q, benchmarking module cannot run.", provider)
 	}
 
 	if dataTransfersWriter != nil {

@@ -26,6 +26,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strings"
 	"time"
 	"vhive-bench/setup"
 	"vhive-bench/setup/deployment/connection/amazon"
@@ -43,13 +44,20 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 			fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpoint.ID, amazon.AWSRegion),
 		)
 
-		appendProducerConsumerParameters(request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint.DataTransferChainIDs, storageTransfer)
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
+			gatewayEndpoint, storageTransfer)
 
 		_, err := amazon.AWSSingletonInstance.RequestSigner.Sign(request, nil, "execute-api", amazon.AWSRegion, time.Now())
 		if err != nil {
 			log.Fatalf("Could not sign AWS HTTP request: %s", err.Error())
 		}
+	case "azure":
+		// Example Azure Functions URL:
+		// vhive-bench.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
+		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
+
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
+			gatewayEndpoint, storageTransfer)
 	default:
 		return createGeneralRequest(http.MethodGet, provider)
 	}
