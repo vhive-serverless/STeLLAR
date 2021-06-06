@@ -58,6 +58,13 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
 			gatewayEndpoint, storageTransfer)
+	case "google":
+		// Example Google Cloud Functions URL:
+		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
+		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
+
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
+			gatewayEndpoint, storageTransfer)
 	default:
 		return createGeneralRequest(http.MethodGet, provider)
 	}

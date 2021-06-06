@@ -1,0 +1,95 @@
+{
+  "Sequential": false,
+  "Provider": "google",
+  "SubExperiments": [
+    {
+      "Title": "warm",
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 25,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 960,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "warm",
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 15,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 960,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "warm",
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 10,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 960,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "warm",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 0.5,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "cold",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 960,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10
+    }
+  ]
+}

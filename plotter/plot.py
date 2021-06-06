@@ -48,6 +48,8 @@ if __name__ == "__main__":
         args.provider = "vHive"
     elif "azure" in args.path.lower():
         args.provider = "Azure"
+    elif "google" in args.path.lower():
+        args.provider = "Google"
     else:
         raise Exception(f"Unrecognized provider in path {args.path}")
     print(f'Identified provider is {args.provider}')

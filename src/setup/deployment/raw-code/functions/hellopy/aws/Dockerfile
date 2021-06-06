@@ -1,5 +1,5 @@
 FROM docker.io/vhiveease/aws-python:latest
 RUN pip install futures
 
-COPY server.py   ./
-CMD ["server.handler"]
+COPY lambda_function.py   ./
+CMD ["lambda_function.lambda_handler"]

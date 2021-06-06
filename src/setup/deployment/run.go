@@ -34,13 +34,13 @@ import (
 )
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,
-//in the given language and of the given size in bytes. Returns size of deployment in MB.
+//in the given language and of the given size in bytes. Returns size of deployment in MB and the handler path for AWS automation.
 func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int, function string) (float64, string) {
 	fillerFilePath := rawCodePath + "/filler.file"
 
 	switch packageType {
 	case "Zip":
-		_, binaryPath := getBinaryInfo(rawCodePath, experimentID)
+		_, binaryPath, handlerPath := getExecutableInfo(rawCodePath, experimentID, function)
 
 		zippedBinaryFileSizeBytes := packaging.GetZippedBinaryFileSize(experimentID, binaryPath)
 
@@ -64,7 +64,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		zipPath := packaging.GenerateZIP(experimentID, fillerFilePath, binaryPath)
 		packaging.SetupZIPDeployment(provider, deploymentSizeBytes, zipPath)
 
-		return util.BytesToMB(deploymentSizeBytes), binaryPath
+		return util.BytesToMB(deploymentSizeBytes), handlerPath
 	case "Image":
 		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
@@ -95,8 +95,19 @@ func generateFillerFile(experimentID int, fillerFilePath string, sizeBytes int64
 	log.Infof("[sub-experiment %d] Successfully generated the filler file.", experimentID)
 }
 
-func getBinaryInfo(rawCodePath string, experimentID int) (int64, string) {
-	binaryPath := fmt.Sprintf("%s/%s", rawCodePath, "handler")
+func getExecutableInfo(rawCodePath string, experimentID int, function string) (int64, string, string) {
+	var binaryPath string
+	var handlerPath string
+	switch function {
+	case "producer-consumer":
+		binaryPath = fmt.Sprintf("%s/%s", rawCodePath, "handler")
+		handlerPath = binaryPath
+	case "hellopy":
+		binaryPath = fmt.Sprintf("%s/%s", rawCodePath, "lambda_function.py")
+		handlerPath = fmt.Sprintf("%s/%s", rawCodePath, "lambda_function.lambda_handler")
+	default:
+		log.Fatalf("[sub-experiment %d] Unrecognized or unimplemented function type for ZIP deployment: %s", experimentID, function)
+	}
 
 	log.Infof("[sub-experiment %d] Getting binary file size for the function(s) to be deployed, path is %q...", experimentID, binaryPath)
 
@@ -105,6 +116,6 @@ func getBinaryInfo(rawCodePath string, experimentID int) (int64, string) {
 		log.Fatalf("[sub-experiment %d] Could not get size of binary file: %s", experimentID, err.Error())
 	}
 
-	log.Infof("[sub-experiment %d] Successfully retrieved binary file size (%d bytes) for deployment.", experimentID, fi.Size())
-	return fi.Size(), binaryPath
+	log.Infof("[sub-experiment %d] Successfully retrieved exec file size (%d bytes) for deployment.", experimentID, fi.Size())
+	return fi.Size(), binaryPath, handlerPath
 }

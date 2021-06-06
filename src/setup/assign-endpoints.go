@@ -32,12 +32,12 @@ import (
 	"vhive-bench/util"
 )
 
-func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string, runtime string) []connection.Endpoint {
+func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string) []connection.Endpoint {
 	log.Infof("[sub-experiment %d] Setting up deployment...", experiment.ID)
-	var assignedBinaryPath string
+	var assignedHandler string
 
-	if provider == "aws" { // cannot deploy to vhive or azure
-		experiment.FunctionImageSizeMB, assignedBinaryPath = deployment.SetupDeployment(
+	if provider == "aws" { // deployment has only been automated for AWS so far
+		experiment.FunctionImageSizeMB, assignedHandler = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/functions/%s/%s", experiment.Function, provider),
 			provider,
 			util.MBToBytes(experiment.FunctionImageSizeMB),
@@ -49,14 +49,14 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 
 	var assignedEndpoints []EndpointInfo
 	for i := 0; i < experiment.Parallelism; i++ {
-		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, assignedBinaryPath, runtime)
+		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, assignedHandler)
 
 		gatewayEndpoint := EndpointInfo{ID: foundEndpointID}
 
 		for j := experiment.DataTransferChainLength; j > 1; j-- {
 			gatewayEndpoint.DataTransferChainIDs = append(
 				gatewayEndpoint.DataTransferChainIDs,
-				findEndpointToAssign(&availableEndpoints, experiment, assignedBinaryPath, runtime),
+				findEndpointToAssign(&availableEndpoints, experiment, assignedHandler),
 			)
 		}
 
@@ -68,7 +68,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 	return availableEndpoints
 }
 
-func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, binaryPath string, runtime string) string {
+func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, assignedHandler string) string {
 	for index, endpoint := range *availableEndpoints {
 		if specsMatch(endpoint, experiment) {
 			*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
@@ -108,7 +108,7 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 	}
 
 	log.Infof("[sub-experiment %d] Could not find an existing function to repurpose, creating a new function...", experiment.ID)
-	return connection.Singleton.DeployFunction(binaryPath, experiment.PackageType, runtime, experiment.FunctionMemoryMB)
+	return connection.Singleton.DeployFunction(assignedHandler, experiment.PackageType, experiment.Function, experiment.FunctionMemoryMB)
 }
 
 func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoint {

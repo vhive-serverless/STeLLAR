@@ -1,6 +1,5 @@
 {
   "Sequential": false,
-  "Provider": "azure",
   "SubExperiments": [
     {
       "Title": "warm",
@@ -8,7 +7,7 @@
       "BurstSizes": [
         500
       ],
-      "IATSeconds": 3,
+      "IATSeconds": 25,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -30,7 +29,7 @@
       "BurstSizes": [
         300
       ],
-      "IATSeconds": 3,
+      "IATSeconds": 15,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -52,7 +51,7 @@
       "BurstSizes": [
         100
       ],
-      "IATSeconds": 3,
+      "IATSeconds": 10,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -74,7 +73,7 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 3,
+      "IATSeconds": 0.5,
       "DesiredServiceTimes": [
         "0ms"
       ]

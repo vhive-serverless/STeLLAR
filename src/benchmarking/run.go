@@ -102,9 +102,12 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		hostname = gatewayEndpoint.ID
 		responseID = "N/A"
 	case "aws":
+		fallthrough
 	case "azure":
+		fallthrough
+	case "google":
 		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer)
-		log.Debugf("Created HTTP request with URL (%q), Body (%q)", request.URL, request.Body)
+		log.Debugf("Created HTTP request with URL (%q), Body (%q)", (*request).URL, (*request).Body)
 
 		var respBody []byte
 		respBody, reqSentTime, reqReceivedTime = benchhttp.ExecuteRequest(*request)

@@ -1,0 +1,17 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "warm",
+      "Function": "hellopy",
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 25,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

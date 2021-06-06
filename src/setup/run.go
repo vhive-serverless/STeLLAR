@@ -72,7 +72,6 @@ func ProvisionFunctions(config Configuration) {
 			availableEndpoints,
 			&config.SubExperiments[index],
 			config.Provider,
-			config.Runtime,
 		)
 	}
 

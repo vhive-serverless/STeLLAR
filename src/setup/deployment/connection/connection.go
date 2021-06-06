@@ -71,7 +71,8 @@ func Initialize(provider string, endpointsDirectoryPath string, apiTemplatePath 
 		setupFileConnection(path.Join(endpointsDirectoryPath, "vHive.json"))
 	case "azure":
 		setupFileConnection(path.Join(endpointsDirectoryPath, "azure.json"))
-		//setupAzureConnection()
+	case "google":
+		setupFileConnection(path.Join(endpointsDirectoryPath, "google.json"))
 	default:
 		setupExternalConnection()
 		log.Warnf("Provider %s does not support initialization with the client, setting to external URL.", provider)
@@ -100,7 +101,22 @@ func setupAWSConnection(apiTemplatePath string) {
 
 			return functions
 		},
-		DeployFunction: func(binaryPath string, packageType string, language string, memoryAssigned int64) string {
+		DeployFunction: func(binaryPath string, packageType string, function string, memoryAssigned int64) string {
+			const (
+				golangRuntime = "go1.x"
+				pythonRuntime = "python3.8"
+			)
+
+			var language string
+			switch function {
+			case "producer-consumer":
+				language = golangRuntime
+			case "hellopy":
+				language = pythonRuntime
+			default:
+				log.Fatalf("DeployFunction could not recognize function image %s", function)
+			}
+
 			return amazon.AWSSingletonInstance.DeployFunction(binaryPath, packageType, language, memoryAssigned)
 		},
 		RemoveFunction: func(uniqueID string) {
