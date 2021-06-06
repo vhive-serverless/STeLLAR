@@ -33,7 +33,6 @@ import (
 type Configuration struct {
 	Sequential     bool            `json:"Sequential"`
 	Provider       string          `json:"Provider"`
-	Runtime        string          `json:"Runtime"`
 	SubExperiments []SubExperiment `json:"SubExperiments"`
 }
 
@@ -70,7 +69,6 @@ const (
 	defaultVisualization           = "cdf"
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
-	defaultRuntime                 = "go1.x"
 	defaultFunction                = "producer-consumer"
 	defaultPackageType             = "Zip"
 	defaultParallelism             = 1
@@ -90,9 +88,6 @@ func ExtractConfiguration(configFilePath string) Configuration {
 
 	if parsedConfig.Provider == "" {
 		parsedConfig.Provider = defaultProvider
-	}
-	if parsedConfig.Runtime == "" {
-		parsedConfig.Runtime = defaultRuntime
 	}
 
 	for index := range parsedConfig.SubExperiments {

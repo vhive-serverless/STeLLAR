@@ -3,8 +3,8 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "prodcons",
-      "Function": "prodcons",
+      "Title": "producer-consumer",
+      "Function": "producer-consumer",
       "Bursts": 500,
       "BurstSizes": [
         1

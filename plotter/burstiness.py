@@ -31,9 +31,48 @@ from matplotlib.lines import Line2D
 
 
 def plot_cdfs(args):
+    def plot_composing_cdf_return_latencies(subplot, iat, xstart, xend):
+        desired_percentile = 0.99
+
+        subplot.set_title(f'{"Warm" if int(iat) < 600 else "Cold"} (IAT {iat}s)')
+        subplot.set_xlabel('Latency (ms)')
+        subplot.set_ylabel('Portion of requests')
+        subplot.grid(True)
+
+        subplot.set_xlim([xstart, xend])
+
+        burst_sizes = get_experiment_results(iat)
+
+        plotting_annotation_index = 1
+        for size in sorted(burst_sizes):
+            latencies = burst_sizes[size]
+            if iat == "3" or size == '1':  # remove cold latencies from warm instance experiments
+                latencies = latencies[:-int(size)]  # remove extra cold latencies
+
+            quantile = np.arange(len(latencies)) / float(len(latencies) - 1)
+            recent = subplot.plot(latencies, quantile, '--o', markersize=3, label=f'Burst Size {size}',
+                                  markerfacecolor='none')
+
+            median_latency = latencies[int(0.5 * len(latencies))]
+            subplot.axvline(x=median_latency, color=recent[-1].get_color(), linestyle='--')
+            subplot.annotate(f'{median_latency:0.0f}ms',
+                             (min(int(median_latency) * 1.1, int(median_latency) + 2),
+                              0.5 + plotting_annotation_index * 0.1),
+                             color='black')
+
+            tail_latency = latencies[int(desired_percentile * len(latencies))]
+            subplot.axvline(x=tail_latency, color=recent[-1].get_color(), linestyle='--')
+            subplot.annotate(f'{tail_latency:0.0f}ms', (
+            min(int(tail_latency) * 1.1, int(tail_latency) + 2), 0.1 + plotting_annotation_index * 0.1),
+                             color='red')
+
+            plotting_annotation_index += 1
+
+        return burst_sizes
+
     def plot_dual_cdf(path, latencies_dict, burst_size):
         _fig = plt.figure(figsize=(5, 5))
-        _fig.suptitle(f'Burst size {burst_size}')
+        _fig.suptitle(f'Burst size {burst_size} ({args.provider})')
         plt.xlabel('Latency (ms)')
         plt.ylabel('Portion of requests')
         plt.grid(True)
@@ -70,7 +109,7 @@ def plot_cdfs(args):
             latencies = latencies[:-int(size)]
 
         _fig = plt.figure(figsize=(5, 5))
-        _fig.suptitle(f'Burst size {size}, IAT ~{inter_arrival_time}s')
+        _fig.suptitle(f'Burst size {size}, IAT ~{inter_arrival_time}s ({args.provider})')
         plt.xlabel('Latency (ms)')
         plt.ylabel('Portion of requests')
         plt.grid(True)
@@ -119,9 +158,20 @@ def plot_cdfs(args):
             with open(experiment + "/latencies.csv") as file:
                 data = pd.read_csv(file)
 
-                data.fillna('', inplace=True)
-                data = data[data["Request ID"].str.len() > 0]
-                print(f'Experiment "{experiment}" had {len(data)} samples not missing/timed out/404!')
+                if args.provider.lower() != "google":
+                    data.fillna('', inplace=True)
+                    data = data[data["Request ID"].str.len() > 0]
+                    print(f'Experiment "{experiment}" had {len(data)} samples not missing/timed out/404!')
+
+                if args.provider.lower() == "azure":
+                    if inter_arrival_time == '600':
+                        data = data[data['Client Latency (ms)'] > 200]  # filter warm reqs from cold reqs
+
+                if args.provider.lower() == "google":
+                    if inter_arrival_time == '960':
+                        data = data[data['Client Latency (ms)'] > 600]  # filter warm reqs from cold reqs
+                    else:
+                        data = data[data['Client Latency (ms)'] < 400]  # filter cold reqs from warm reqs
 
                 read_latencies = data['Client Latency (ms)'].to_numpy()
                 sorted_latencies = np.sort(read_latencies)
@@ -131,46 +181,12 @@ def plot_cdfs(args):
 
         return burstsize_to_latencies
 
-    def plot_composing_cdf_return_latencies(subplot, inter_arrival_time, xlim):
-        desired_percentile = 0.99
-
-        subplot.set_title(f'{"Warm" if int(inter_arrival_time) < 600 else "Cold"} (IAT {inter_arrival_time}s)')
-        subplot.set_xlabel('Latency (ms)')
-        subplot.set_ylabel('Portion of requests')
-        subplot.grid(True)
-
-        subplot.set_xlim([0, xlim])
-
-        burst_sizes = get_experiment_results(inter_arrival_time)
-
-        for size in sorted(burst_sizes):
-            latencies = burst_sizes[size]
-            if inter_arrival_time == "3" or size == '1':  # remove cold latencies from warm instance experiments
-                latencies = latencies[:-int(size)]  # remove extra cold latencies
-
-            quantile = np.arange(len(latencies)) / float(len(latencies) - 1)
-            recent = subplot.plot(latencies, quantile, '--o', markersize=3, label=f'Burst Size {size}',
-                                  markerfacecolor='none')
-
-            median_latency = latencies[int(0.5 * len(latencies))]
-            subplot.axvline(x=median_latency, color=recent[-1].get_color(), linestyle='--')
-            subplot.annotate(f'{median_latency:0.0f}ms',
-                             (min(int(median_latency) * 1.1, int(median_latency) + 2), 0.6),
-                             color='black')
-
-            tail_latency = latencies[int(desired_percentile * len(latencies))]
-            subplot.axvline(x=tail_latency, color=recent[-1].get_color(), linestyle='--')
-            subplot.annotate(f'{tail_latency:0.0f}ms', (min(int(tail_latency) * 1.1, int(tail_latency) + 2), 0.4),
-                             color='red')
-
-        return burst_sizes
-
     title = f'{args.provider} Bursty Behavior Analysis'
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(10, 5))
     fig.suptitle(title, fontsize=16)
 
-    iat_burst_sizes_latencies = {'3s': plot_composing_cdf_return_latencies(axes[0], '3', xlim=1200),
-                                 '600s': plot_composing_cdf_return_latencies(axes[1], '600', xlim=1500)}
+    iat_burst_sizes_latencies = {'3s': plot_composing_cdf_return_latencies(axes[0], iat='3', xstart=0, xend=1000),
+                                 '600s': plot_composing_cdf_return_latencies(axes[1], iat='600', xstart=0, xend=5000)}
 
     plot_dual_cdf(path=args.path, latencies_dict=iat_burst_sizes_latencies, burst_size='1')
     plot_dual_cdf(path=args.path, latencies_dict=iat_burst_sizes_latencies, burst_size='500')

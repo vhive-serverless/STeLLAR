@@ -241,6 +241,9 @@ jobs:
       - name: Prepare files
         run: |
           mkdir -p setup/deployment/raw-code/functions/producer-consumer/aws/
+          mkdir -p setup/deployment/raw-code/functions/hellopy/aws/
+          cp src/setup/deployment/raw-code/functions/hellopy/aws/lambda_function.py setup/deployment/raw-code/functions/hellopy/aws/lambda_function.py
+          cp src/setup/deployment/raw-code/functions/hellopy/aws/Dockerfile setup/deployment/raw-code/functions/hellopy/aws/Dockerfile
           cp src/setup/deployment/raw-code/functions/producer-consumer/api-template.json setup/deployment/raw-code/functions/producer-consumer/api-template.json
           cp src/setup/deployment/raw-code/functions/producer-consumer/aws/go.mod setup/deployment/raw-code/functions/producer-consumer/aws/go.mod
           cp src/setup/deployment/raw-code/functions/producer-consumer/aws/main.go setup/deployment/raw-code/functions/producer-consumer/aws/main.go
@@ -263,7 +266,9 @@ jobs:
           setup/deployment/raw-code/functions/producer-consumer/aws/main.go \
           setup/deployment/raw-code/functions/producer-consumer/aws/common \
           setup/deployment/raw-code/functions/producer-consumer/aws/proto_gen \
-          setup/deployment/raw-code/functions/producer-consumer/aws/handler
+          setup/deployment/raw-code/functions/producer-consumer/aws/handler \
+          setup/deployment/raw-code/functions/hellopy/aws/lambda_function.py \
+          setup/deployment/raw-code/functions/hellopy/aws/Dockerfile
 
           git commit -m "Automated push from successful vhive-bench pipeline"
           git push origin HEAD:deployment --force

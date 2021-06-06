@@ -42,12 +42,13 @@ type ProducerConsumerResponse struct {
 func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 	var response ProducerConsumerResponse
 	if err := json.Unmarshal(respBody, &response); err != nil {
-		log.Error(err)
+		log.Errorf("ExtractProducerConsumerResponse encountered an error: %v", err)
 	}
 	return response
 }
 
-func appendProducerConsumerParameters(provider string, request *http.Request, payloadLengthBytes int, assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) *http.Request {
+func appendProducerConsumerParameters(provider string, request *http.Request, payloadLengthBytes int,
+	assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) *http.Request {
 	switch provider {
 	case "aws":
 		request.URL.Path = "/prod/benchmarking"
@@ -57,6 +58,12 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 
 		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
 		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
+	case "google":
+		// Example Google Cloud Functions URL:
+		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
+
+		request.URL.Path = strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
+		// there is no raw query
 	default:
 		log.Fatalf("Unrecognized provider %q", provider)
 	}

@@ -36,7 +36,7 @@ const (
 	awsAPIsLimitIncl                    = 600
 	apiTemplatePathFromConnectionFolder = "../raw-code/functions/producer-consumer/api-template.json"
 	aws                                 = "aws"
-	golang                              = "go1.x"
+	producerConsumer                    = "producer-consumer"
 )
 
 // TestAWSRemoveAllFunctions is only used to clean up the account's legacy functions
@@ -66,7 +66,7 @@ func TestAWSRemoveFunction(t *testing.T) {
 
 	var removedAPIID string
 	if len(apis) == 0 {
-		removedAPIID, _, _ = deployRandomMemoryFunction("Zip")
+		removedAPIID, _, _ = deployRandomMemoryFunction("Zip", producerConsumer)
 	} else {
 		removedAPIID = apis[0].GatewayID
 	}
@@ -90,7 +90,7 @@ func TestAWSDeployFunctionFromZip(t *testing.T) {
 		Singleton.RemoveFunction(apis[0].GatewayID)
 	}
 
-	deployedFunctionID, deployedImageSizeMB, desiredFunctionMemoryMB := deployRandomMemoryFunction("Zip")
+	deployedFunctionID, deployedImageSizeMB, desiredFunctionMemoryMB := deployRandomMemoryFunction("Zip", producerConsumer)
 
 	// Check that deployment succeeded
 	apis = Singleton.ListAPIs()
@@ -117,7 +117,7 @@ func TestAWSDeployFunctionFromImage(t *testing.T) {
 		Singleton.RemoveFunction(apis[0].GatewayID)
 	}
 
-	deployedFunctionID, _, desiredFunctionMemoryMB := deployRandomMemoryFunction("Image")
+	deployedFunctionID, _, desiredFunctionMemoryMB := deployRandomMemoryFunction("Image", producerConsumer)
 
 	// Check that deployment succeeded
 	apis = Singleton.ListAPIs()
@@ -139,7 +139,6 @@ func TestAWSUpdateFunction(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
 	apis := Singleton.ListAPIs()
 
-
 	var repurposedAPIID string
 	// Update first api that is not "Image"-packaged
 	for _, api := range apis {
@@ -147,11 +146,11 @@ func TestAWSUpdateFunction(t *testing.T) {
 			repurposedAPIID = api.GatewayID
 		}
 	}
-	setupDeployment("Zip")
+	setupDeployment("Zip", producerConsumer)
 
 	// No non-"Image"-packaged api, deploying one...
 	if repurposedAPIID == "" {
-		repurposedAPIID, _, _ = deployRandomMemoryFunction("Zip")
+		repurposedAPIID, _, _ = deployRandomMemoryFunction("Zip", producerConsumer)
 	}
 
 	repurposedFunctionMemory := rand.Intn(1000-128) + 128
@@ -172,16 +171,16 @@ func TestAWSUpdateFunction(t *testing.T) {
 	Singleton.RemoveFunction(repurposedAPIID)
 }
 
-func deployRandomMemoryFunction(packageType string) (string, float64, int64) {
+func deployRandomMemoryFunction(packageType string, function string) (string, float64, int64) {
 	rand.Seed(time.Now().Unix())
 	desiredFunctionMemoryMB := int64(rand.Intn(1000-128) + 128)
 
-	deployedImageSizeMB, binaryPath := setupDeployment(packageType)
+	deployedImageSizeMB, binaryPath := setupDeployment(packageType, function)
 
-	return Singleton.DeployFunction(binaryPath, packageType, golang, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
+	return Singleton.DeployFunction(binaryPath, packageType, function, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
 }
 
-func setupDeployment(packageType string) (float64, string) {
+func setupDeployment(packageType string, function string) (float64, string) {
 	// Deployment images over 50MB use S3, meaning calls are made to the service which can incur extra charges.
 	// In unit testing we use an image size of 45MB to avoid this.
 
@@ -191,7 +190,7 @@ func setupDeployment(packageType string) (float64, string) {
 		util.MBToBytes(0.),
 		packageType,
 		0,
-		"producer-consumer",
+		function,
 	)
 
 	return deployedImageSizeMB, binaryPath
