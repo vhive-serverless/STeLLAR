@@ -29,27 +29,7 @@ import (
 )
 
 func invokeNextFunctionGoogle(parameters map[string]string, functionID string) []byte {
-	//type Payload struct {
-	//	QueryStringParameters map[string]string `json:"queryStringParameters"`
-	//}
-	//nextFunctionPayload, err := json.Marshal(Payload{QueryStringParameters: parameters})
-	//if err != nil {
-	//	log.Fatalf("Could not marshal nextFunctionPayload: %s", err)
-	//}
-	//
-	//log.Printf("Invoking next function: %s", functionID)
-	//cloudFunctionsClient := authenticateCloudFunctionsClient()
-	//result, err := cloudFunctionsClient. .Invoke(&lambdaSDK.InvokeInput{
-	//	FunctionName:   aws.String(fmt.Sprintf("%s%s", namingPrefix, functionID)),
-	//	InvocationType: aws.String("RequestResponse"),
-	//	LogType:        aws.String("Tail"),
-	//	Payload:        nextFunctionPayload,
-	//})
-	//if err != nil {
-	//	log.Fatalf("Could not invoke lambda: %s", err)
-	//}
-	//
-	//return result.Payload
+	// TODO: implement functionality
 	return nil
 }
 

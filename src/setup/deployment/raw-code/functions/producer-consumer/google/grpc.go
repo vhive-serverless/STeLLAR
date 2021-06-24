@@ -25,6 +25,8 @@ package p
 import (
 	"context"
 	"fmt"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"time"
@@ -54,4 +56,29 @@ func invokeNextFunctionGRPC(request *InvokeChainRequest, updatedTimestampChain [
 	}
 
 	return StringArrayToArrayOfString(client.GetTimestampChain())
+}
+
+var minioClientSingleton *minio.Client
+
+func getMinioClient() *minio.Client {
+	if minioClientSingleton != nil {
+		return minioClientSingleton
+	}
+
+	const ( // vHive
+		serverAddress = "10.96.0.46:9000"
+		accessKey     = "minio"
+		secretKey     = "minio123"
+	)
+
+	minioClient, err := minio.New(serverAddress, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure: false,
+	})
+	if err != nil {
+		log.Fatalf("Could not create minio client: %s", err.Error())
+	}
+
+	minioClientSingleton = minioClient
+	return minioClientSingleton
 }

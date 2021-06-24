@@ -30,7 +30,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
@@ -39,31 +38,6 @@ import (
 	"strings"
 	"time"
 )
-
-var minioClientSingleton *minio.Client
-
-func getMinioClient() *minio.Client {
-	if minioClientSingleton != nil {
-		return minioClientSingleton
-	}
-
-	const ( // vHive
-		serverAddress = "10.96.0.46:9000"
-		accessKey     = "minio"
-		secretKey     = "minio123"
-	)
-
-	minioClient, err := minio.New(serverAddress, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: false,
-	})
-	if err != nil {
-		log.Fatalf("Could not create minio client: %s", err.Error())
-	}
-
-	minioClientSingleton = minioClient
-	return minioClientSingleton
-}
 
 func isUsingStorage(requestGRPC *InvokeChainRequest, requestHTTP *http.Request) bool {
 	if requestHTTP != nil {
@@ -96,6 +70,7 @@ func loadObjectFromStorage(requestHTTP *http.Request, requestGRPC *InvokeChainRe
 	}
 
 	if requestHTTP != nil {
+		// TODO: replace S3 load with Google Cloud functions load
 		s3svc, _ := authenticateS3Client()
 		object, err := s3svc.GetObject(&s3.GetObjectInput{
 			Bucket: aws.String(objectBucket),
@@ -170,6 +145,7 @@ func saveObject(payload string, bucket string, useMinio bool) string {
 		}
 		uploadResult = uploadOutput.Location
 	} else {
+		// TODO: replace S3 save with Google Cloud functions save
 		_, s3uploader := authenticateS3Client()
 
 		uploadOutput, err := s3uploader.Upload(&s3manager.UploadInput{
