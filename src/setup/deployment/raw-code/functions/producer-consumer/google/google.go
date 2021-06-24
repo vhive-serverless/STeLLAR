@@ -23,14 +23,40 @@
 package p
 
 import (
-	"cloud.google.com/go/storage"
+	"bytes"
 	"context"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+
+	"cloud.google.com/go/storage"
 	log "github.com/sirupsen/logrus"
 )
 
 func invokeNextFunctionGoogle(parameters map[string]string, functionID string) []byte {
-	// TODO: implement functionality
-	return nil
+	const namingPrefix = "vHive-bench_"
+
+	type Payload struct {
+		QueryStringParameters map[string]string `json:"queryStringParameters"`
+	}
+	nextFunctionPayload, err := json.Marshal(Payload{QueryStringParameters: parameters})
+	if err != nil {
+		log.Fatalf("Could not marshal nextFunctionPayload: %s", err)
+	}
+
+	log.Printf("Invoking next function: %s%s", namingPrefix, functionID)
+	responseBody := bytes.NewBuffer(nextFunctionPayload)
+	resp, err := http.Post(addr, "application/json", responseBody)
+
+	if err != nil {
+		log.Fatalf("Error while issuing http Post request: %v", err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error reading http response body: %v", err)
+	}
+	return body
 }
 
 func authenticateCloudStorageClient() *storage.Client {

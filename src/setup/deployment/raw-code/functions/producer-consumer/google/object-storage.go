@@ -26,24 +26,23 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/minio/minio-go/v7"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"cloud.google.com/go/storage"
+	"github.com/minio/minio-go/v7"
+	log "github.com/sirupsen/logrus"
 )
 
 func isUsingStorage(requestGRPC *InvokeChainRequest, requestHTTP *http.Request) bool {
 	if requestHTTP != nil {
 		value := requestHTTP.URL.Query().Get("StorageTransfer")
 
-		if len(value) ==0 {
+		if len(value) == 0 {
 			return false
 		}
 
@@ -70,17 +69,23 @@ func loadObjectFromStorage(requestHTTP *http.Request, requestGRPC *InvokeChainRe
 	}
 
 	if requestHTTP != nil {
-		// TODO: replace S3 load with Google Cloud functions load
-		s3svc, _ := authenticateS3Client()
-		object, err := s3svc.GetObject(&s3.GetObjectInput{
-			Bucket: aws.String(objectBucket),
-			Key:    aws.String(objectKey),
-		})
+		ctx := context.Background()
+		client, err := storage.NewClient(ctx)
 		if err != nil {
-			log.Infof("Object %q not found in S3 bucket %q: %s", objectKey, objectBucket, err.Error())
+			log.Fatalf("Failed to create cloud storage client: %v", err)
 		}
 
-		payload, err := ioutil.ReadAll(object.Body)
+		bucket := client.Bucket(objectBucket)
+		object := bucket.Object(objectKey)
+
+		reader, err := object.NewReader(ctx)
+		if err != nil {
+			log.Infof("Failed to obtain reader for object %v: %v", objectKey, err)
+			return ""
+		}
+		defer reader.Close()
+
+		payload, err := ioutil.ReadAll(reader)
 		if err != nil {
 			log.Infof("Error reading object body: %v", err)
 			return ""
@@ -145,18 +150,23 @@ func saveObject(payload string, bucket string, useMinio bool) string {
 		}
 		uploadResult = uploadOutput.Location
 	} else {
-		// TODO: replace S3 save with Google Cloud functions save
-		_, s3uploader := authenticateS3Client()
-
-		uploadOutput, err := s3uploader.Upload(&s3manager.UploadInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(key),
-			Body:   strings.NewReader(payload),
-		})
+		ctx := context.Background()
+		client, err := storage.NewClient(ctx)
 		if err != nil {
+			log.Fatalf("Failed to create cloud storage client: %v", err)
+		}
+
+		bucket := client.Bucket(bucket)
+		object := bucket.Object(key)
+		w := object.NewWriter(ctx)
+		if _, err := fmt.Fprintf(w, payload); err != nil {
 			log.Fatalf("Unable to upload %q to %q, %v", key, bucket, err.Error())
 		}
-		uploadResult = uploadOutput.Location
+		if err := w.Close(); err != nil {
+			log.Fatalf("Error in closing google object writer: %v", err)
+		}
+		// No access to anything similar to s3 uploadOutput.Location
+		uploadResult = "GCS location unavailable"
 	}
 
 	log.Infof("Successfully uploaded %q to bucket %q (%s)", key, bucket, uploadResult)
