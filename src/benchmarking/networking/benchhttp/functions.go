@@ -40,8 +40,12 @@ type ProducerConsumerResponse struct {
 
 //ExtractProducerConsumerResponse will process an HTTP response body coming from a producer-consumer function
 func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
+	respBodyString := string(respBody[:])
+	respBodyString = strings.ReplaceAll(respBodyString, "&#34;", "\"")
+	log.Debug(respBodyString)
+
 	var response ProducerConsumerResponse
-	if err := json.Unmarshal(respBody, &response); err != nil {
+	if err := json.Unmarshal([]byte(respBodyString), &response); err != nil {
 		log.Errorf("ExtractProducerConsumerResponse encountered an error: %v", err)
 	}
 	return response
