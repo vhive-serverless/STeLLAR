@@ -70,7 +70,8 @@ func GenerateResponse(ctx context.Context, requestHTTP *http.Request, requestGRP
 			log.Info("Using inline JSON, setting the TransferPayload field.")
 
 			if requestHTTP != nil {
-				requestHTTP.URL.Query().Set("TransferPayload", stringPayload)
+				log.Printf("TransferPayload was set to %s", stringPayload)
+				requestHTTP.URL.RawQuery += fmt.Sprintf("&TransferPayload=%v", stringPayload)
 			} else {
 				requestGRPC.TransferPayload = stringPayload
 			}

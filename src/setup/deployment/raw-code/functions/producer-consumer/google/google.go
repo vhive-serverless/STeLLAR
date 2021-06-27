@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2021 Theodor Amariucai
+// Copyright (c) 2021 Theodor Amariucai, Michal Baczun
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,20 +25,43 @@ package p
 import (
 	"cloud.google.com/go/storage"
 	"context"
+	"fmt"
 	log "github.com/sirupsen/logrus"
+	"io/ioutil"
+	"net/http"
 )
 
 func invokeNextFunctionGoogle(parameters map[string]string, functionID string) []byte {
-	// TODO: implement functionality
-	return nil
+	rawQuery := fmt.Sprintf("IncrementLimit=%s&TimestampChain=%v&TransferPayload=%v&DataTransferChainIDs=%v",
+		parameters["IncrementLimit"],
+		parameters["TimestampChain"],
+		parameters["TransferPayload"],
+		parameters["DataTransferChainIDs"],
+	)
+
+	finalURL := fmt.Sprintf("%s?%s", functionID, rawQuery)
+
+	log.Printf("Invoking next function: %s", finalURL)
+
+	resp, err := http.Get(finalURL)
+	if err != nil {
+		log.Fatalf("Error while issuing http Post request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error reading http response body: %v", err)
+	}
+	return body
 }
 
-func authenticateCloudStorageClient() *storage.Client {
+func authenticateCloudStorageClient() (*storage.Client, context.Context) {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Fatalf("authenticateCloudStorageClient threw %q", err)
+		log.Fatalf("Failed to create cloud storage client: %v", err)
 	}
 
-	return client
+	return client, ctx
 }

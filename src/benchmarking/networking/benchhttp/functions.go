@@ -53,24 +53,9 @@ func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 
 func appendProducerConsumerParameters(provider string, request *http.Request, payloadLengthBytes int,
 	assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) *http.Request {
-	switch provider {
-	case "aws":
-		request.URL.Path = "/prod/benchmarking"
-	case "azure":
-		// Example Azure Functions URL:
-		// vhive-bench.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
-
-		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
-		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
-	case "google":
-		// Example Google Cloud Functions URL:
-		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
-
-		request.URL.Path = strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
-		// there is no raw query
-	default:
-		log.Fatalf("Unrecognized provider %q", provider)
-	}
+	const (
+		googleBucket = "stellar-us-west-2"
+	)
 
 	request.URL.RawQuery = fmt.Sprintf("IncrementLimit=%d&PayloadLengthBytes=%d&DataTransferChainIDs=%v",
 		assignedFunctionIncrementLimit,
@@ -78,13 +63,34 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 		gatewayEndpoint.DataTransferChainIDs,
 	)
 
-	if provider == "azure" {
+	switch provider {
+	case "aws":
+		request.URL.Path = "/prod/benchmarking"
+
+		if storageTransfer {
+			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)
+		}
+	case "azure":
+		// Example Azure Functions URL:
+		// vhive-bench.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
+
+		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
+		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
+
 		queryCode := strings.Split(gatewayEndpoint.ID, "code=")[1]
 		request.URL.RawQuery += fmt.Sprintf("&code=%v", queryCode)
-	}
+	case "google":
+		// Example Google Cloud Functions URL:
+		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
 
-	if storageTransfer {
-		request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)
+		request.URL.Path = strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
+
+		if storageTransfer {
+			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", googleBucket)
+		}
+		// there is no raw query
+	default:
+		log.Fatalf("Unrecognized provider %q", provider)
 	}
 
 	return request

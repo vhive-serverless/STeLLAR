@@ -7,7 +7,7 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -20,7 +20,7 @@
       "BurstSizes": [
         100
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -32,7 +32,7 @@
       "BurstSizes": [
         300
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -44,7 +44,7 @@
       "BurstSizes": [
         500
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -56,7 +56,7 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -69,7 +69,7 @@
       "BurstSizes": [
         100
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -81,7 +81,7 @@
       "BurstSizes": [
         300
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -93,7 +93,7 @@
       "BurstSizes": [
         500
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -105,7 +105,7 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -118,7 +118,7 @@
       "BurstSizes": [
         100
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -130,7 +130,7 @@
       "BurstSizes": [
         300
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -142,7 +142,7 @@
       "BurstSizes": [
         500
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -154,7 +154,7 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -167,7 +167,7 @@
       "BurstSizes": [
         100
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -179,7 +179,7 @@
       "BurstSizes": [
         300
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
@@ -191,7 +191,7 @@
       "BurstSizes": [
         500
       ],
-      "IATSeconds": 600,
+      "IATSeconds": 900,
       "DesiredServiceTimes": [
         "0ms"
       ],
