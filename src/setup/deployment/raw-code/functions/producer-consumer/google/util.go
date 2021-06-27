@@ -70,16 +70,13 @@ func GeneratePayloadFromGlobalRandom(payloadLengthBytes int) string {
 
 //extractJSONTimestampChain will process raw bytes into a string array of timestamps
 func extractJSONTimestampChain(responsePayload []byte) []string {
-	var reply map[string]interface{}
-	err := json.Unmarshal(responsePayload, &reply)
-	if err != nil {
-		log.Fatalf("Could not unmarshal lambda response into map[string]interface{}: %s", err)
-	}
+	respBodyString := string(responsePayload[:])
+	respBodyString = strings.ReplaceAll(respBodyString, "&#34;", "\"")
 
 	var parsedReply ProducerConsumerResponse
-	err = json.Unmarshal([]byte(reply["body"].(string)), &parsedReply)
+	err := json.Unmarshal([]byte(respBodyString), &parsedReply)
 	if err != nil {
-		log.Fatalf("Could not unmarshal lambda response body into producerConsumerResponse: %s", err)
+		log.Fatalf("Could not unmarshal response body into producerConsumerResponse: %s", err)
 	}
 
 	return parsedReply.TimestampChain
