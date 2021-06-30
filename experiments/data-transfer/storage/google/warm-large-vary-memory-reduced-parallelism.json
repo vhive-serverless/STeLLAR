@@ -1,0 +1,98 @@
+{
+  "Sequential": false,
+  "Provider": "google",
+  "SubExperiments": [
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 131072000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 262144000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 393216000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 524288000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 786432000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 2,
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1073741824,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 2,
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

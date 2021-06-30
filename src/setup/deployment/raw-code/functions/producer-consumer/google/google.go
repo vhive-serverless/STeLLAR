@@ -23,6 +23,7 @@
 package p
 
 import (
+	"bytes"
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
@@ -32,10 +33,9 @@ import (
 )
 
 func invokeNextFunctionGoogle(parameters map[string]string, functionID string) []byte {
-	rawQuery := fmt.Sprintf("IncrementLimit=%s&TimestampChain=%v&TransferPayload=%v&DataTransferChainIDs=%v",
+	rawQuery := fmt.Sprintf("IncrementLimit=%s&TimestampChain=%v&DataTransferChainIDs=%v",
 		parameters["IncrementLimit"],
 		parameters["TimestampChain"],
-		parameters["TransferPayload"],
 		parameters["DataTransferChainIDs"],
 	)
 
@@ -43,7 +43,9 @@ func invokeNextFunctionGoogle(parameters map[string]string, functionID string) [
 
 	log.Printf("Invoking next function: %s", finalURL)
 
-	resp, err := http.Get(finalURL)
+	responseBody := bytes.NewBuffer([]byte(parameters["TransferPayload"]))
+
+	resp, err := http.Post(finalURL, "application/json", responseBody)
 	if err != nil {
 		log.Fatalf("Error while issuing http Post request: %v", err)
 	}

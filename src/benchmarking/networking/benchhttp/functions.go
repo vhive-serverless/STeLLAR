@@ -77,7 +77,11 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
 		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
 
-		queryCode := strings.Split(gatewayEndpoint.ID, "code=")[1]
+		codeSplit := strings.Split(gatewayEndpoint.ID, "code=")
+		queryCode := ""
+		if len(codeSplit) > 1 {
+			queryCode = codeSplit[1]
+		}
 		request.URL.RawQuery += fmt.Sprintf("&code=%v", queryCode)
 	case "google":
 		// Example Google Cloud Functions URL:

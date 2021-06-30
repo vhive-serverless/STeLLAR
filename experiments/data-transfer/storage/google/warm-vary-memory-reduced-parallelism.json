@@ -1,0 +1,125 @@
+{
+  "Sequential": false,
+  "Provider": "google",
+  "SubExperiments": [
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10240,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 102400,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1048576,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 2097152,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 3145728,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,storage",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 4100000,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "IATSeconds": 0.5,
+      "FunctionMemoryMB": 8192,
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}
