@@ -1,16 +1,19 @@
 import json
+
 import time
 
 
 def hello_world(request):
-    """Responds to any HTTP request.
-    Args:
-        request (flask.Request): HTTP request object.
-    Returns:
-        The response text or any set of values that can be turned into a
-        Response object using
-        `make_response <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>`.
-    """
+    request_json = request.get_json()
+
+    incr_limit = 0
+    if request.args and 'incrementLimit' in request.args:
+        incr_limit = request.args.get('incrementLimit')
+    elif request_json and 'incrementLimit' in request_json:
+        incr_limit = request_json['incrementLimit']
+
+    simulate_work(incr_limit)
+
     response = {
         "statusCode": 200,
         "headers": {
@@ -24,3 +27,10 @@ def hello_world(request):
     }
 
     return json.dumps(response, indent=4)
+
+
+def simulate_work(incr):
+    # MAXNUM = 6103705
+    num = 0
+    while num < incr:
+        num += 1
