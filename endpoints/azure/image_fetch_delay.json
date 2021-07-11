@@ -1,0 +1,452 @@
+[
+  {
+    "GatewayID": "py-helloworld-spin-99mb-1.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-2.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-3.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-4.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-5.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-6.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-7.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-8.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-9.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-10.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-11.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-12.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-13.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-14.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-15.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-16.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-17.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-18.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-19.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-20.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-21.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-22.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-23.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-24.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-99mb-25.azurewebsites.net/api/py-helloworld-spin-99MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 99,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-1.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-2.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-3.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-4.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-5.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-6.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-7.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-8.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-9.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-10.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-11.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-12.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-13.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-14.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-15.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-16.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-17.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-18.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-19.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-20.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-21.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-22.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-23.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-24.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-9mb-25.azurewebsites.net/api/py-helloworld-spin-9MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 9,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-1.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-2.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-3.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-4.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-5.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-6.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-7.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-8.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-9.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-10.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-11.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-12.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-13.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-14.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-15.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-16.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-17.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-18.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-19.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-20.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-21.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-22.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-23.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-24.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  },
+  {
+    "GatewayID": "py-helloworld-spin-60mb-25.azurewebsites.net/api/py-helloworld-spin-60MB?",
+    "FunctionMemoryMB": 1500,
+    "ImageSizeMB": 60,
+    "PackageType": "Zip"
+  }
+]
