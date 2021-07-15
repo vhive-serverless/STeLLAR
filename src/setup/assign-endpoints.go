@@ -34,6 +34,9 @@ import (
 
 func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubExperiment, provider string) []connection.Endpoint {
 	log.Infof("[sub-experiment %d] Setting up deployment...", experiment.ID)
+	log.Infof("[sub-experiment %d] Experiment configuration: %vMB memory, %vMB image size, %vs IAT, %q package.",
+		experiment.ID, experiment.FunctionMemoryMB, experiment.FunctionImageSizeMB, experiment.IATSeconds,
+		experiment.PackageType)
 	var assignedHandler string
 
 	if provider == "aws" { // deployment has only been automated for AWS so far

@@ -9,6 +9,7 @@
         500
       ],
       "IATSeconds": 25,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -21,6 +22,7 @@
         500
       ],
       "IATSeconds": 600,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -33,6 +35,7 @@
         300
       ],
       "IATSeconds": 15,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -45,6 +48,7 @@
         300
       ],
       "IATSeconds": 600,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -57,6 +61,7 @@
         100
       ],
       "IATSeconds": 10,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -69,6 +74,7 @@
         100
       ],
       "IATSeconds": 600,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -81,6 +87,7 @@
         1
       ],
       "IATSeconds": 0.5,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ]
@@ -93,6 +100,7 @@
         1
       ],
       "IATSeconds": 600,
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ],

@@ -130,3 +130,5 @@ local.settings.json
 .python_packages
 
 hellopy-*
+
+.vscode

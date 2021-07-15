@@ -9,7 +9,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "5ms"
+        "1.5ms"
       ],
       "FunctionImageSizeMB": 9,
       "Parallelism": 22,
@@ -22,7 +22,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "5ms"
+        "1.5ms"
       ],
       "FunctionImageSizeMB": 9,
       "FunctionMemoryMB": 1500
@@ -34,7 +34,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "5ms"
+        "1.5ms"
       ],
       "FunctionImageSizeMB": 9,
       "FunctionMemoryMB": 1500
@@ -46,107 +46,9 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "5ms"
+        "1.5ms"
       ],
       "FunctionImageSizeMB": 9,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 60,
-      "Parallelism": 22,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 30,
-      "BurstSizes": [
-        100
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 60,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 10,
-      "BurstSizes": [
-        300
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 60,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 6,
-      "BurstSizes": [
-        500
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 60,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 99,
-      "Parallelism": 22,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 30,
-      "BurstSizes": [
-        100
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 99,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 10,
-      "BurstSizes": [
-        300
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 99,
-      "FunctionMemoryMB": 1500
-    },
-    {
-      "Bursts": 6,
-      "BurstSizes": [
-        500
-      ],
-      "IATSeconds": 900,
-      "DesiredServiceTimes": [
-        "5ms"
-      ],
-      "FunctionImageSizeMB": 99,
       "FunctionMemoryMB": 1500
     }
   ]
