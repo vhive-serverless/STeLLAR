@@ -9,7 +9,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "1s"
+        "5ms"
       ],
       "FunctionImageSizeMB": 9,
       "Parallelism": 22,
@@ -22,7 +22,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "1s"
+        "5ms"
       ],
       "FunctionImageSizeMB": 9,
       "FunctionMemoryMB": 2048
@@ -34,7 +34,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "1s"
+        "5ms"
       ],
       "FunctionImageSizeMB": 9,
       "FunctionMemoryMB": 2048
@@ -46,7 +46,7 @@
       ],
       "IATSeconds": 900,
       "DesiredServiceTimes": [
-        "1s"
+        "5ms"
       ],
       "FunctionImageSizeMB": 9,
       "FunctionMemoryMB": 2048

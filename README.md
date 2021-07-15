@@ -62,15 +62,9 @@ Cannot update function code: CodeStorageExceededException: Code storage limit ex
 
 - Regional APIs limit `600`
 
-- Unexplained AWS errors (solved by restarting experiment)
+- Rare AWS errors (solved by restarting experiment)
 
 ```
 HTTP request failed with error dial tcp: lookup msi6v4vdwk.execute-api.us-west-1.amazonaws.com on 128.110.156.4:53: no such host 
 HTTP request failed with error dial tcp: lookup 10m09hsby0.execute-api.us-west-1.amazonaws.com on 128.110.156.4:53: server misbehaving 
-```
-
-- Unexplained Azure errors (solved by refreshing the function in Visual Studio Code)
-
-```
-HTTP request failed with error 404: Not Found (nginx) 
 ```
