@@ -20,7 +20,6 @@ def hello_world(request):
             "Content-Type": "application/json"
         },
         "body": {
-            # "Region ": json_region,
             "RequestID": "google-does-not-specify",
             "TimestampChain": [str(time.time_ns())],
         }
@@ -30,7 +29,6 @@ def hello_world(request):
 
 
 def simulate_work(incr):
-    # MAXNUM = 6103705
     num = 0
     while num < incr:
         num += 1
