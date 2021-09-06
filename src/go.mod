@@ -14,14 +14,12 @@ replace (
 
 require (
 	github.com/ajstarks/svgo v0.0.0-20200725142600-7a3c8b57fecb // indirect
-	github.com/aws/aws-sdk-go v1.38.51
+	github.com/aws/aws-sdk-go v1.40.37
 	github.com/go-gota/gota v0.10.1
 	github.com/golang/protobuf v1.5.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb // indirect
-	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
-	golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d // indirect
 	gonum.org/v1/gonum v0.9.0
 	gonum.org/v1/plot v0.9.0
 	google.golang.org/genproto v0.0.0-20210319143718-93e7006c17a6 // indirect
