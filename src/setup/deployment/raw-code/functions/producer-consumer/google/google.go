@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2021 Theodor Amariucai, Michal Baczun
+// Copyright (c) 2021 Theodor Amariucai and EASE Lab, Michal Baczun
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal

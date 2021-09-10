@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2020 Theodor Amariucai
+// Copyright (c) 2020 Theodor Amariucai and EASE Lab
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
-	"os/signal"
 	"path/filepath"
-	"syscall"
 	"time"
 	"vhive-bench/benchmarking"
 	"vhive-bench/setup"
@@ -65,8 +63,6 @@ func main() {
 	log.Infof("Selected output path: %s", *outputPathFlag)
 	log.Infof("Selected experiment (-1 for all): %d", *specificExperimentFlag)
 
-	setupCtrlCHandler()
-
 	config := setup.ExtractConfiguration(*configPathFlag)
 
 	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
@@ -79,20 +75,6 @@ func main() {
 	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
-}
-
-//setupCtrlCHandler creates a 'listener' on a new goroutine which will notify the
-//program if it receives an interrupt from the OS.
-func setupCtrlCHandler() {
-	log.Debug("Creating Ctrl-C handler")
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		log.Info("Ctrl+C pressed in Terminal")
-		log.Info("Exiting...")
-		os.Exit(0)
-	}()
 }
 
 func setupLogging(path string) *os.File {
