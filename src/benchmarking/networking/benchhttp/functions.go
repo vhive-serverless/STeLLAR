@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2020 Theodor Amariucai
+// Copyright (c) 2020 Theodor Amariucai and EASE Lab
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal

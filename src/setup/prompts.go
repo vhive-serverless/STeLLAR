@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright (c) 2020 Theodor Amariucai
+// Copyright (c) 2020 Theodor Amariucai and EASE Lab
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@ import (
 	"bufio"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -51,25 +50,3 @@ func promptForBool(prompt string) bool {
 	}
 }
 
-func promptForNumber(prompt string) *int64 {
-	reader := bufio.NewReader(os.Stdin)
-
-	log.Print(prompt)
-
-	response, err := reader.ReadString('\n')
-	if err != nil {
-		log.Fatalf("Could not read response: %s.", err.Error())
-	}
-
-	if response == "\n" {
-		return nil
-	}
-
-	response = strings.ReplaceAll(response, "\n", "")
-
-	parsedNumber, err := strconv.ParseInt(response, 10, 64)
-	if err != nil {
-		log.Fatalf("Could not parse integer %s: %s.", response, err.Error())
-	}
-	return &parsedNumber
-}
