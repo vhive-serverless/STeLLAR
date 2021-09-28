@@ -18,7 +18,7 @@ such as the choice of language runtime.
 If you decide to use STeLLAR for your research and experiments, we are thrilled to support you by offering
 advice for potential extensions of vHive and always open for collaboration.
 
-Please cite our [paper](docs/STeLLAR_IISWC21.pdf)) that has recently been accepted to IISWC 2021:
+Please cite our [paper](docs/STeLLAR_IISWC21.pdf) that has recently been accepted to IISWC 2021:
 ```
 @inproceedings{ustiugov:benchmarking,
   author    = {Dmitrii Ustiugov and
