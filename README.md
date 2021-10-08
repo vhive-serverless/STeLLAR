@@ -20,7 +20,7 @@ advice for potential extensions of vHive and always open for collaboration.
 
 Please cite our [paper](docs/STeLLAR_IISWC21.pdf) that has recently been accepted to IISWC 2021:
 ```
-@inproceedings{ustiugov:benchmarking,
+@inproceedings{ustiugov:analyzing,
   author    = {Dmitrii Ustiugov and
                Theodor Amariucai and
                Boris Grot},
