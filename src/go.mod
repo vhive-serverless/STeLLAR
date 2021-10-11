@@ -17,7 +17,7 @@ require (
 	github.com/aws/aws-sdk-go v1.40.40
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/go-fonts/liberation v0.2.0 // indirect
-	github.com/go-gota/gota v0.11.0
+	github.com/go-gota/gota v0.12.0
 	github.com/go-latex/latex v0.0.0-20210823091927-c0d11ff05a81 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/protobuf v1.5.2
