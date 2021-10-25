@@ -14,7 +14,7 @@ replace (
 
 require (
 	github.com/ajstarks/svgo v0.0.0-20210923152817-c3b6e2f0c527 // indirect
-	github.com/aws/aws-sdk-go v1.41.4
+	github.com/aws/aws-sdk-go v1.41.9
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/go-fonts/liberation v0.2.0 // indirect
 	github.com/go-gota/gota v0.12.0
