@@ -30,6 +30,7 @@ import (
 	"io/ioutil"
 	"path"
 	"strings"
+	"time"
 	"vhive-bench/setup/deployment/connection/amazon"
 	"vhive-bench/util"
 )
@@ -125,6 +126,9 @@ func setupAWSConnection(apiTemplatePath string) {
 		},
 		UpdateFunction: func(packageType string, uniqueID string, memoryAssigned int64) {
 			amazon.AWSSingletonInstance.UpdateFunction(packageType, uniqueID)
+
+			time.Sleep(time.Second * 5) // https://aws.amazon.com/de/blogs/compute/coming-soon-expansion-of-aws-lambda-states-to-all-functions/
+
 			amazon.AWSSingletonInstance.UpdateFunctionConfiguration(uniqueID, memoryAssigned)
 		},
 	}
