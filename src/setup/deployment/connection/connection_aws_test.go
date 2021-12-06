@@ -29,6 +29,7 @@ import (
 	"testing"
 	"time"
 	"vhive-bench/setup/deployment"
+	"vhive-bench/setup/deployment/connection/amazon"
 	"vhive-bench/util"
 )
 
@@ -181,9 +182,10 @@ func deployRandomMemoryFunction(packageType string, function string) (string, fl
 }
 
 func setupDeployment(packageType string, function string) (float64, string) {
+	amazon.UserARNNumber = "356764711652" // EASL lab account
+
 	// Deployment images over 50MB use S3, meaning calls are made to the service which can incur extra charges.
 	// In unit testing we use an image size of 45MB to avoid this.
-
 	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(
 		fmt.Sprintf("../raw-code/functions/producer-consumer/%s", aws),
 		aws,

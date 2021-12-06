@@ -42,11 +42,8 @@ import (
 )
 
 const (
-	//UserARNNumber is used in AWS benchmarking for client authentication
-	UserARNNumber       = "356764711652"
-	lambdaExecutionRole = "arn:aws:iam::356764711652:role/LambdaProducerConsumer"
 	//AWSRegion is the region that AWS operates in
-	AWSRegion          = endpoints.UsWest1RegionID
+	AWSRegion = endpoints.UsWest1RegionID
 	//AWSBucketName is the name of the bucket where the client operates
 	AWSBucketName      = "vhive-bench"
 	deploymentStage    = "prod"
@@ -56,6 +53,9 @@ const (
 
 //AWSSingletonInstance is an object used to interact with AWS through the methods it exports.
 var AWSSingletonInstance *awsSingleton
+
+//UserARNNumber is used in AWS benchmarking for client authentication
+var UserARNNumber string
 
 type awsSingleton struct {
 	// RequestSigner is the AWS object used for signing HTTP requests
@@ -78,8 +78,8 @@ type awsSingleton struct {
 //InitializeSingleton will create a new Amazon awsSingleton to interact with different AWS services.
 func InitializeSingleton(apiTemplatePath string) {
 	sessionInstance := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(AWSRegion),
-		CredentialsChainVerboseErrors: aws.Bool(true),
+		Region:                         aws.String(AWSRegion),
+		CredentialsChainVerboseErrors:  aws.Bool(true),
 		DisableRestProtocolURICleaning: aws.Bool(true),
 	}))
 

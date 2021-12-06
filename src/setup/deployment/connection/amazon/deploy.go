@@ -117,7 +117,8 @@ func (instance awsSingleton) getResourceID(APIName string, apiID string) string 
 }
 
 func (instance awsSingleton) createFunction(binaryPath string, packageType string, functionName string, language string, memoryAssigned int64) *lambda.FunctionConfiguration {
-	log.Infof("Creating producer function %s", functionName)
+	var lambdaExecutionRole = fmt.Sprintf("arn:aws:iam::%s:role/LambdaProducerConsumer", UserARNNumber)
+	log.Infof("Creating producer function %s with role ARN %s", functionName, lambdaExecutionRole)
 
 	var createArgs *lambda.CreateFunctionInput
 	switch packageType {

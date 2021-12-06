@@ -33,8 +33,10 @@ import (
 	"vhive-bench/benchmarking"
 	"vhive-bench/setup"
 	"vhive-bench/setup/deployment/connection"
+	"vhive-bench/setup/deployment/connection/amazon"
 )
 
+var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")
 var outputPathFlag = flag.String("o", "latency-samples", "The directory path where latency samples should be written.")
 var configPathFlag = flag.String("c", "experiments/tests/aws/data-transfer.json", "Configuration file with experiment details.")
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
@@ -64,6 +66,8 @@ func main() {
 	log.Infof("Selected experiment (-1 for all): %d", *specificExperimentFlag)
 
 	config := setup.ExtractConfiguration(*configPathFlag)
+
+	amazon.UserARNNumber = *awsUserArnNumber
 
 	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
 	setup.FindBusySpinIncrements(&config)
