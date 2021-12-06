@@ -37,10 +37,6 @@ Please cite our [paper](docs/STeLLAR_IISWC21.pdf) that has recently been accepte
 STeLLAR can be readily deployed on premises or in the cloud. We provide [a quick-start guide](https://github.com/ease-lab/STeLLAR/wiki)
 that describes the intial setup, as well as how to set up benchmarking experiments. More details of the STeLLAR design can be found in our IISWC'21 [paper](docs/STeLLAR_IISWC21.pdf)).
 
-## Developing STeLLAR
-
-You can view the STeLLAR documentation [here](https://pkg.go.dev/github.com/ease-lab/STeLLAR).
-
 
 ### Getting help and contributing
 
