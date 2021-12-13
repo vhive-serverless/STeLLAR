@@ -85,22 +85,33 @@ func setupAWSConnection(apiTemplatePath string) {
 
 	Singleton = &ServerlessInterface{
 		ListAPIs: func() []Endpoint {
-			result := amazon.AWSSingletonInstance.ListFunctions(nil)
-			log.Infof("Found %d Lambda functions.", len(result))
+			mustRepeatListRequest := true
+			for mustRepeatListRequest {
+				mustRepeatListRequest = false
+				result := amazon.AWSSingletonInstance.ListFunctions(nil)
+				log.Infof("Found %d Lambda functions.", len(result))
 
-			functions := make([]Endpoint, 0)
-			for _, function := range result {
-				if strings.Contains(*function.FunctionName, "vHive-bench") {
-					functions = append(functions, Endpoint{
-						GatewayID:        strings.Split(*function.FunctionName, "_")[1],
-						FunctionMemoryMB: *function.MemorySize,
-						PackageType:      *function.PackageType,
-						ImageSizeMB:      util.BytesToMB(*function.CodeSize),
-					})
+				functions := make([]Endpoint, 0)
+				for _, function := range result {
+					if strings.Contains(*function.FunctionName, "vHive-bench") {
+						if function.LastUpdateStatus != nil {
+							mustRepeatListRequest = true
+							break
+						}
+
+						functions = append(functions, Endpoint{
+							GatewayID:        strings.Split(*function.FunctionName, "_")[1],
+							FunctionMemoryMB: *function.MemorySize,
+							PackageType:      *function.PackageType,
+							ImageSizeMB:      util.BytesToMB(*function.CodeSize),
+						})
+					}
+				}
+				if !mustRepeatListRequest {
+					return functions
 				}
 			}
-
-			return functions
+			return make([]Endpoint, 0)
 		},
 		DeployFunction: func(binaryPath string, packageType string, function string, memoryAssigned int64) string {
 			const (
