@@ -27,9 +27,8 @@ ENV GO111MODULE=on
 
 # Download protoc, protoc-gen-go, protoc-gen-go-grpc
 RUN apt-get update && apt-get install --no-install-recommends --assume-yes  protobuf-compiler \
-  && go get google.golang.org/grpc \
-  && go get google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest \
-  && go get github.com/golang/protobuf/protoc-gen-go \
+  && go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest \
+  && go install github.com/golang/protobuf/protoc-gen-go@latest \
   && cp /go/bin/protoc-gen-go /usr/bin/
 
 FROM base as build
