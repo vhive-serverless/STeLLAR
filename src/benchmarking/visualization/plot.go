@@ -38,7 +38,7 @@ import (
 )
 
 func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, coldThreshold float64, latenciesDF dataframe.DataFrame) {
-	plotInstance:= plot.New()
+	plotInstance := plot.New()
 
 	plotInstance.Title.Text = fmt.Sprintf("Bursts Characterization (%vms warm threshold, cooldown ~%vs)",
 		coldThreshold, experiment.IATSeconds)
@@ -113,9 +113,8 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 	plotInstance.Y.Label.Text = "Requests"
 
 	latencies := make(plotter.Values, len(burstLatencies))
-	for i := 0; i < len(burstLatencies); i++ {
-		latencies[i] = burstLatencies[i]
-	}
+	
+	copy(latencies, burstLatencies)
 
 	histogram, err := plotter.NewHist(latencies, 1<<5)
 	if err != nil {
