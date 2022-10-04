@@ -45,8 +45,10 @@
     "@iconify/react": "^3.2.1",
     "@mui/lab": "^5.0.0-alpha.77",
     "@mui/material": "^5.6.1",
+    "@mui/x-date-pickers": "^5.0.3",
     "@testing-library/jest-dom": "^5.16.2",
     "apexcharts": "^3.35.0",
+    "axios": "^0.27.2",
     "change-case": "^4.1.2",
     "date-fns": "^2.28.0",
     "formik": "^2.2.9",
@@ -62,6 +64,7 @@
     "react-scripts": "^5.0.0",
     "simplebar": "^5.3.6",
     "simplebar-react": "^2.3.6",
+    "use-is-mounted-ref": "^1.5.0",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"
   },

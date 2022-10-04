@@ -1,80 +1,193 @@
 // @mui
+import {useCallback, useMemo, useState} from "react";
+import PropTypes from "prop-types";
+import useIsMountedRef from 'use-is-mounted-ref';
+import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
+import {format} from 'date-fns';
+
+import { Grid, Container, Typography,TextField,Alert } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
 import {
   AppLatency,
-  AppCDF,
   AppWidgetSummary,
 } from '../sections/@dashboard/app';
-import { cdf } from '../utils/cdf';
 
 // ----------------------------------------------------------------------
+const baseURL = "https://51941s0gs7.execute-api.us-west-1.amazonaws.com";
 
-export default function DashboardApp() {
+DashboardApp.propTypes = {
+    experimentType: PropTypes.string,
+};
+export default function DashboardApp({experimentType}) {
   const theme = useTheme();
-  const sampleData = Array.from({length: 30}, () => Math.floor(Math.random() * (0 - 3) + 3)).concat(Array.from({length: 2500}, () => Math.floor(Math.random() * (10 - 30) + 30)).concat(Array.from({length: 30}, () => Math.random() * (100 - 120) + 120)));
-  const cdfCalculator  = cdf(sampleData);
+
+    const isMountedRef = useIsMountedRef();
+    const today = new Date();
+
+    const oneYearBefore = new Date();
+    oneYearBefore.setFullYear(today.getFullYear() - 1);
+
+    const [dailyStatistics, setDailyStatistics] = useState(null);
+    const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
+    const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
+    const [overallStatistics,setOverallStatistics] = useState(null);
+    const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(oneYearBefore, 'yyyy-MM-dd'));
+    const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
+
+
+    const fetchIndividualData = useCallback(async () => {
+        try {
+            const response = await axios.get(`${baseURL}/results`, {
+                params: { experiment_type: experimentType,
+                    selected_date:selectedDate
+                },
+            });
+            if (isMountedRef.current) {
+                setDailyStatistics(response.data);
+            }
+        } catch (err) {
+            setIsErrorDailyStatistics(true);
+        }
+    }, [isMountedRef,selectedDate,experimentType]);
+
+    useMemo(() => {
+        fetchIndividualData();
+    }, [fetchIndividualData]);
+
+    const fetchDataRange = useCallback(async () => {
+        try {
+            const response = await axios.get(`${baseURL}/results`, {
+                params: { experiment_type: experimentType,
+                    start_date:startDate,
+                    end_date:endDate,
+                },
+            });
+            if (isMountedRef.current) {
+                setOverallStatistics(response.data)
+            }
+        } catch (err) {
+            setIsErrorDataRangeStatistics(true);
+        }
+    }, [isMountedRef,startDate,endDate,experimentType]);
+
+    useMemo(() => {
+        fetchDataRange();
+    }, [fetchDataRange]);
+
+    const dateRangeList = useMemo(()=> {
+        if(overallStatistics)
+            return overallStatistics.map(record => record.date);
+        return null
+
+    },[overallStatistics])
+
+    const tailLatencies = useMemo(()=> {
+        if(overallStatistics)
+            return overallStatistics.map(record => record.tail_latency);
+        return null
+
+    },[overallStatistics])
+
+
+    const medianLatencies = useMemo(()=> {
+        if(overallStatistics)
+            return overallStatistics.map(record => record.median);
+        return null
+
+    },[overallStatistics])
+
+    const TMR = useMemo(() => {
+            if (dailyStatistics)
+                return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
+            return null
+        }
+    ,[dailyStatistics])
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
 
-
-        <Typography fontWeight={theme.typography.fontWeightBold} sx={{ mb: 2 }}>
-          Statistics in AWS
-        </Typography>
         <Grid container spacing={3}>
+            {(isErrorDailyStatistics || isErrorDataRangeStatistics) && <Grid item xs={12}>
+            <Alert variant="outlined" severity="error">Something went wrong!</Alert>
+            </Grid>
+            }
+            <Grid item xs={12}>
+
+            <Typography fontWeight={theme.typography.fontWeightBold} sx={{ mb: 2 }}>
+                Statistics in AWS
+            </Typography>
+            </Grid>
+            <Grid item xs={12}>
+                <DatePicker
+                    label="Choose Date"
+                    value={selectedDate}
+                    onChange={(newValue) => {
+
+                        setSelectedDate(format(newValue, 'yyyy-MM-dd'));
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                />
+            </Grid>
+            {
+                dailyStatistics?.length < 1 ? <Grid item xs={12}>
+            <Typography sx={{fontSize:'12px', color: 'error.main',mt:-2}}>
+                No results found!
+            </Typography>
+            </Grid> : null
+            }
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Samples" total={3000} icon={'ant-design:number-outlined'} />
+            <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Median Latency (ms)" subtitle={"Without propagation delay"} total={18} color="info" icon={'carbon:chart-median'} />
+            <AppWidgetSummary title="Median Latency (ms)" subtitle={"Without propagation delay"} total={dailyStatistics ? parseInt(dailyStatistics[0]?.median, 10) : 0} color="info" icon={'carbon:chart-median'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={74} color="warning" icon={'arcticons:a99'} />
+            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="warning" icon={'arcticons:a99'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tail-to-Median Latency" total={1.7} color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
+            <AppWidgetSummary title="Tail-to-Median Latency" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
           </Grid>
+
+                <Grid item xs={4}>
+                    <DatePicker
+                        label="Start Date"
+                        value={startDate}
+                        onChange={(newValue) => {
+                            setStartDate(format(newValue, 'yyyy-MM-dd'));
+                        }}
+                        renderInput={(params) => <TextField {...params} />}
+                    />
+                </Grid>
+            <Grid item xs={4}>
+                <DatePicker
+                    label="End Date"
+                    value={endDate}
+                    onChange={(newValue) => {
+                        setEndDate(format(newValue, 'yyyy-MM-dd'));
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                />
+            </Grid>
           <Grid item xs={12}>
             <AppLatency
               title="Tail Latencies"
               subheader="99th Percentile"
-              chartLabels={[
-                '06/01/2022',
-                '06/02/2022',
-                '06/03/2022',
-                '06/04/2022',
-                '06/05/2022',
-                '06/06/2022',
-                '06/07/2022',
-                '06/08/2022',
-                '06/09/2022',
-                '06/10/2022',
-                '06/11/2022',
-                '06/12/2022',
-                '06/13/2022',
-                '06/14/2022',
-                '06/15/2022',
-                '06/16/2022',
-                '06/17/2022',
-                '06/18/2022',
-                '06/19/2022',
-                '06/20/2022',
-                
-              ]}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: 'AWS',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30,22,23, 41, 22, 27, 13, 22, 37, 21],
+                  data: tailLatencies,
                 },
                 // {
                 //   name: 'Google',
@@ -90,62 +203,19 @@ export default function DashboardApp() {
             <AppLatency
               title="Median Latencies"
               subheader="3-second IAT"
-              chartLabels={[
-                '06/01/2022',
-                '06/02/2022',
-                '06/03/2022',
-                '06/04/2022',
-                '06/05/2022',
-                '06/06/2022',
-                '06/07/2022',
-                '06/08/2022',
-                '06/09/2022',
-                '06/10/2022',
-                '06/11/2022',
-                '06/12/2022',
-                '06/13/2022',
-                '06/14/2022',
-                '06/15/2022',
-                '06/16/2022',
-                '06/17/2022',
-                '06/18/2022',
-                '06/19/2022',
-                '06/20/2022',
-                
-              ]}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: 'AWS',
                   type: 'line',
                   fill: 'solid',
                   color: theme.palette.primary.main,
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30,22,23, 41, 22, 27, 13, 22, 37, 21],
+                  data: medianLatencies,
                 },
                 
               ]}
             />
           </Grid>
-
-          
-
-          <Grid item xs={12}>
-            <AppCDF
-              title="Latency CDF"
-              chartLabels={cdfCalculator.xs()}
-              chartData={[
-                {
-                  name: 'AWS',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.yellow[0],
-                  data: cdfCalculator.ps(),
-                },
-              ]}
-            />
-          </Grid>
-
-          
-
         </Grid>
       </Container>
     </Page>

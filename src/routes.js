@@ -19,15 +19,14 @@ export default function Router() {
         { 
         path: 'warm/', 
         children:[
-          { path: 'aws', element: <DashboardApp /> },
-          { path: 'google', element: <ComingSoon /> },
-          { path: 'overview', element: <DashboardApp /> },
+          { path: 'aws', element: <DashboardApp experimentType={'warm'}/> },
+          { path: 'google', element: <ComingSoon /> }
         ]},
         { 
         path: 'cold', 
         children:[
           { path: 'baseline', element: <ComingSoon /> },
-          { path: 'image-size', element: <DashboardApp /> },
+          { path: 'image-size', element: <ComingSoon /> },
           { path: 'deployment-language', element: <ComingSoon /> }
         ]},
         { 
