@@ -30,10 +30,10 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-	"vhive-bench/benchmarking"
-	"vhive-bench/setup"
-	"vhive-bench/setup/deployment/connection"
-	"vhive-bench/setup/deployment/connection/amazon"
+	"stellar/benchmarking"
+	"stellar/setup"
+	"stellar/setup/deployment/connection"
+	"stellar/setup/deployment/connection/amazon"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")

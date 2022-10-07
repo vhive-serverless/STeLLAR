@@ -28,11 +28,11 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"vhive-bench/benchmarking/networking/benchgrpc"
-	"vhive-bench/benchmarking/networking/benchhttp"
-	"vhive-bench/benchmarking/writers"
-	"vhive-bench/setup"
-	"vhive-bench/util"
+	"stellar/benchmarking/networking/benchgrpc"
+	"stellar/benchmarking/networking/benchhttp"
+	"stellar/benchmarking/writers"
+	"stellar/setup"
+	"stellar/util"
 )
 
 //runSubExperiment will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the

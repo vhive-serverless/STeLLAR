@@ -29,8 +29,8 @@ import (
 	"math"
 	"math/rand"
 	"os"
-	"vhive-bench/setup/deployment/packaging"
-	"vhive-bench/util"
+	"stellar/setup/deployment/packaging"
+	"stellar/util"
 )
 
 //SetupDeployment will create the serverless function zip deployment for the given provider,

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen";
+option go_package = "github.com/vhive-serverless/stellar/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen";
 
 package proto_gen;
 

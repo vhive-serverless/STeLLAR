@@ -32,7 +32,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"vhive-bench/setup"
+	"stellar/setup"
 )
 
 const defaultColdThreshold = 300.

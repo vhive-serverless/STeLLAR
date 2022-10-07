@@ -26,7 +26,7 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"vhive-bench/util"
+	"stellar/util"
 )
 
 //Configuration is the schema for all experiment configurations.

@@ -26,8 +26,8 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
-	"vhive-bench/setup/deployment/connection/amazon"
-	"vhive-bench/util"
+	"stellar/setup/deployment/connection/amazon"
+	"stellar/util"
 )
 
 //SetupContainerImageDeployment will package the function using container images

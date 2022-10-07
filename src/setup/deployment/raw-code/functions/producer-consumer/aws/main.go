@@ -26,7 +26,7 @@ import (
 	"context"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	common2 "github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/functions/producer-consumer/common"
+	common2 "github.com/vhive-serverless/stellar/src/setup/deployment/raw-code/functions/producer-consumer/common"
 	"net/http"
 )
 

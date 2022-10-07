@@ -38,14 +38,14 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"vhive-bench/util"
+	"stellar/util"
 )
 
 const (
 	//AWSRegion is the region that AWS operates in
 	AWSRegion = endpoints.UsWest1RegionID
 	//AWSBucketName is the name of the bucket where the client operates
-	AWSBucketName      = "vhive-bench"
+	AWSBucketName      = "stellar"
 	deploymentStage    = "prod"
 	maxFunctionTimeout = 900
 	namingPrefix       = "vHive-bench_"

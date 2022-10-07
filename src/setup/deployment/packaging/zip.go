@@ -27,8 +27,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"vhive-bench/setup/deployment/connection/amazon"
-	"vhive-bench/util"
+	"stellar/setup/deployment/connection/amazon"
+	"stellar/util"
 )
 
 //SetupZIPDeployment will package the function using ZIP

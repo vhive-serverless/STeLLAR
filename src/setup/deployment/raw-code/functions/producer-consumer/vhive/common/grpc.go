@@ -25,7 +25,7 @@ package common
 import (
 	"context"
 	"fmt"
-	protogen2 "github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/functions/producer-consumer/proto_gen"
+	protogen2 "github.com/vhive-serverless/stellar/src/setup/deployment/raw-code/functions/producer-consumer/proto_gen"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"time"

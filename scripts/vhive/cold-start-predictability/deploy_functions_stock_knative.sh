@@ -14,7 +14,7 @@ spec:
  template:
   spec:
    containers:
-    - image: vhiveease/vhive-bench:prodcons # Stub image. See https://github.com/ease-lab/vhive/issues/68
+    - image: vhiveease/stellar:prodcons # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
       ports:
         - name: h2c # For GRPC support
           containerPort: 50051
@@ -35,7 +35,7 @@ spec:
  template:
   spec:
    containers:
-    - image: vhiveease/vhive-bench:chameleon # Stub image. See https://github.com/ease-lab/vhive/issues/68
+    - image: vhiveease/stellar:chameleon # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
       ports:
         - name: h2c # For GRPC support
           containerPort: 50051
@@ -56,7 +56,7 @@ spec:
  template:
   spec:
    containers:
-    - image: vhiveease/vhive-bench:hellopy # Stub image. See https://github.com/ease-lab/vhive/issues/68
+    - image: vhiveease/stellar:hellopy # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
       ports:
         - name: h2c # For GRPC support
           containerPort: 50051
@@ -77,7 +77,7 @@ spec:
  template:
   spec:
    containers:
-    - image: vhiveease/vhive-bench:rnnserving # Stub image. See https://github.com/ease-lab/vhive/issues/68
+    - image: vhiveease/stellar:rnnserving # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
       ports:
         - name: h2c # For GRPC support
           containerPort: 50051
