@@ -14,7 +14,7 @@ spec:
   template:
     spec:
       containers:
-        - image: crccheck/hello-world:latest # Stub image. See https://github.com/ease-lab/vhive/issues/68
+        - image: crccheck/hello-world:latest # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
           ports:
             - name: h2c # For GRPC support
               containerPort: 50051
@@ -22,7 +22,7 @@ spec:
             - name: GUEST_PORT # Port on which the firecracker-containerd container is accepting requests
               value: "50051"
             - name: GUEST_IMAGE # Container image to use for firecracker-containerd container
-              value: "vhiveease/vhive-bench:prodcons"
+              value: "vhiveease/stellar:prodcons"
 EOM
 cat >chameleon.yaml <<-EOM
 apiVersion: serving.knative.dev/v1
@@ -40,7 +40,7 @@ spec:
   template:
     spec:
       containers:
-        - image: crccheck/hello-world:latest # Stub image. See https://github.com/ease-lab/vhive/issues/68
+        - image: crccheck/hello-world:latest # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
           ports:
             - name: h2c # For GRPC support
               containerPort: 50051
@@ -48,7 +48,7 @@ spec:
             - name: GUEST_PORT # Port on which the firecracker-containerd container is accepting requests
               value: "50051"
             - name: GUEST_IMAGE # Container image to use for firecracker-containerd container
-              value: "vhiveease/vhive-bench:chameleon"
+              value: "vhiveease/stellar:chameleon"
 EOM
 cat >hello.yaml <<-EOM
 apiVersion: serving.knative.dev/v1
@@ -66,7 +66,7 @@ spec:
   template:
     spec:
       containers:
-        - image: crccheck/hello-world:latest # Stub image. See https://github.com/ease-lab/vhive/issues/68
+        - image: crccheck/hello-world:latest # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
           ports:
             - name: h2c # For GRPC support
               containerPort: 50051
@@ -74,7 +74,7 @@ spec:
             - name: GUEST_PORT # Port on which the firecracker-containerd container is accepting requests
               value: "50051"
             - name: GUEST_IMAGE # Container image to use for firecracker-containerd container
-              value: "vhiveease/vhive-bench:hellopy"
+              value: "vhiveease/stellar:hellopy"
 EOM
 cat >rnnserving.yaml <<-EOM
 apiVersion: serving.knative.dev/v1
@@ -92,7 +92,7 @@ spec:
   template:
     spec:
       containers:
-        - image: crccheck/hello-world:latest # Stub image. See https://github.com/ease-lab/vhive/issues/68
+        - image: crccheck/hello-world:latest # Stub image. See https://github.com/vhive-serverless/vhive/issues/68
           ports:
             - name: h2c # For GRPC support
               containerPort: 50051
@@ -100,7 +100,7 @@ spec:
             - name: GUEST_PORT # Port on which the firecracker-containerd container is accepting requests
               value: "50051"
             - name: GUEST_IMAGE # Container image to use for firecracker-containerd container
-              value: "vhiveease/vhive-bench:rnnserving"
+              value: "vhiveease/stellar:rnnserving"
 EOM
 kn service apply "producer" -f producer-consumer.yaml --concurrency-target 1
 kn service apply "chameleon" -f chameleon.yaml --concurrency-target 1

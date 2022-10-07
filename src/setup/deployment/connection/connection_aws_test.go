@@ -28,9 +28,9 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-	"vhive-bench/setup/deployment"
-	"vhive-bench/setup/deployment/connection/amazon"
-	"vhive-bench/util"
+	"stellar/setup/deployment"
+	"stellar/setup/deployment/connection/amazon"
+	"stellar/util"
 )
 
 const (

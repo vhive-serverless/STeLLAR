@@ -28,8 +28,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
-	"vhive-bench/setup"
-	"vhive-bench/setup/deployment/connection/amazon"
+	"stellar/setup"
+	"stellar/setup/deployment/connection/amazon"
 )
 
 //ProducerConsumerResponse is the structure holding the response from a producer-consumer function
@@ -72,7 +72,7 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 		}
 	case "azure":
 		// Example Azure Functions URL:
-		// vhive-bench.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
+		// stellar.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
 
 		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
 		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query

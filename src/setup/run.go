@@ -28,8 +28,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"time"
-	"vhive-bench/setup/deployment/connection"
-	"vhive-bench/setup/deployment/connection/amazon"
+	"stellar/setup/deployment/connection"
+	"stellar/setup/deployment/connection/amazon"
 )
 
 //ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.

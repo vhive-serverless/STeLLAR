@@ -1,5 +1,5 @@
 # ![design](design/logo.png)
-[![vHive-bench Pipeline](https://github.com/ease-lab/vhive-bench/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ease-lab/vhive-bench/actions/workflows/pipeline.yml) [![Build function images](https://github.com/ease-lab/vhive-bench/actions/workflows/image-build.yml/badge.svg?branch=main)](https://github.com/ease-lab/vhive-bench/actions/workflows/image-build.yml)
+[![vHive-bench Pipeline](https://github.com/vhive-serverless/stellar/actions/workflows/pipeline.yml/badge.svg)](https://github.com/vhive-serverless/stellar/actions/workflows/pipeline.yml) [![Build function images](https://github.com/vhive-serverless/stellar/actions/workflows/image-build.yml/badge.svg?branch=main)](https://github.com/vhive-serverless/stellar/actions/workflows/image-build.yml)
 
 Serverless computing has seen rapid adoption because of its instant scalability, flexible billing model, and economies of scale. In serverless, 
 developers structure their applications as a collection of functions invoked by various events like clicks, and cloud providers take responsibility 

@@ -31,8 +31,8 @@ import (
 	"path"
 	"strings"
 	"time"
-	"vhive-bench/setup/deployment/connection/amazon"
-	"vhive-bench/util"
+	"stellar/setup/deployment/connection/amazon"
+	"stellar/util"
 )
 
 //Endpoint is the schema for the configuration of provider endpoints.

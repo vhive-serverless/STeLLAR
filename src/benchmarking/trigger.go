@@ -31,8 +31,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
-	"vhive-bench/benchmarking/writers"
-	"vhive-bench/setup"
+	"stellar/benchmarking/writers"
+	"stellar/setup"
 )
 
 //TriggerSubExperiments will run the sub-experiments specified by the passed configuration object. It creates

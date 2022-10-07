@@ -58,7 +58,7 @@ jobs:
       - name: Package client artifact
         run: |
           mkdir -p "setup/deployment/raw-code"
-          docker cp temp:/app/vhive-bench ./main
+          docker cp temp:/app/stellar ./main
           docker cp temp:/app/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           tar -czvf build.tar ./main ./setup/deployment/raw-code/functions
 

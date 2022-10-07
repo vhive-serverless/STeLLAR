@@ -34,7 +34,7 @@ import (
 	"gonum.org/v1/plot/vg"
 	"strings"
 	"time"
-	"vhive-bench/setup"
+	"stellar/setup"
 )
 
 func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, coldThreshold float64, latenciesDF dataframe.DataFrame) {

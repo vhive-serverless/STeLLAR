@@ -28,8 +28,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"vhive-bench/setup"
-	"vhive-bench/setup/deployment/connection/amazon"
+	"stellar/setup"
+	"stellar/setup/deployment/connection/amazon"
 )
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
@@ -53,7 +53,7 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 		}
 	case "azure":
 		// Example Azure Functions URL:
-		// vhive-bench.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
+		// stellar.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
 		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,

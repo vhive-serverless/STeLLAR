@@ -15,9 +15,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
     name='chainfunction.proto',
     package='proto_gen',
     syntax='proto3',
-    serialized_options=b'Zegithub.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen',
+    serialized_options=b'Zegithub.com/vhive-serverless/stellar/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_gen',
     create_key=_descriptor._internal_create_key,
-    serialized_pb=b'\n\x13\x63hainfunction.proto\x12\tproto_gen\"\xcd\x01\n\x12InvokeChainRequest\x12\x16\n\x0eincrementLimit\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x61taTransferChainIDs\x18\x02 \x01(\t\x12\x1a\n\x12payloadLengthBytes\x18\x03 \x01(\t\x12\x17\n\x0ftransferPayload\x18\x04 \x01(\t\x12\x16\n\x0etimestampChain\x18\x05 \x01(\t\x12\x0e\n\x06\x62ucket\x18\x06 \x01(\t\x12\x0b\n\x03key\x18\x07 \x01(\t\x12\x17\n\x0fstorageTransfer\x18\x08 \x01(\x08\"*\n\x10InvokeChainReply\x12\x16\n\x0etimestampChain\x18\x01 \x01(\t2^\n\x10ProducerConsumer\x12J\n\nInvokeNext\x12\x1d.proto_gen.InvokeChainRequest\x1a\x1b.proto_gen.InvokeChainReply\"\x00\x42gZegithub.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_genb\x06proto3'
+    serialized_pb=b'\n\x13\x63hainfunction.proto\x12\tproto_gen\"\xcd\x01\n\x12InvokeChainRequest\x12\x16\n\x0eincrementLimit\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x61taTransferChainIDs\x18\x02 \x01(\t\x12\x1a\n\x12payloadLengthBytes\x18\x03 \x01(\t\x12\x17\n\x0ftransferPayload\x18\x04 \x01(\t\x12\x16\n\x0etimestampChain\x18\x05 \x01(\t\x12\x0e\n\x06\x62ucket\x18\x06 \x01(\t\x12\x0b\n\x03key\x18\x07 \x01(\t\x12\x17\n\x0fstorageTransfer\x18\x08 \x01(\x08\"*\n\x10InvokeChainReply\x12\x16\n\x0etimestampChain\x18\x01 \x01(\t2^\n\x10ProducerConsumer\x12J\n\nInvokeNext\x12\x1d.proto_gen.InvokeChainRequest\x1a\x1b.proto_gen.InvokeChainReply\"\x00\x42gZegithub.com/vhive-serverless/stellar/src/setup/deployment/raw-code/producer-consumer/go1.x/vhive/proto_genb\x06proto3'
 )
 
 _INVOKECHAINREQUEST = _descriptor.Descriptor(

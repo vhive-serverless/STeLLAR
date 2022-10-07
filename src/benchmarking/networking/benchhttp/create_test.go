@@ -27,9 +27,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"testing"
-	"vhive-bench/setup"
-	"vhive-bench/setup/deployment/connection"
-	"vhive-bench/setup/deployment/connection/amazon"
+	"stellar/setup"
+	"stellar/setup/deployment/connection"
+	"stellar/setup/deployment/connection/amazon"
 )
 
 const randomGatewayID = "uicnaywo3rb3nsci"

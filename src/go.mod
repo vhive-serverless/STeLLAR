@@ -1,15 +1,15 @@
-module vhive-bench
+module stellar
 
 go 1.17
 
 replace (
-	vhive-bench/benchmarking => ./benchmarking
-	vhive-bench/benchmarking/networking => ./benchmarking/networking
-	vhive-bench/benchmarking/networking/benchgrpc/proto_gen => ./benchmarking/networking/benchgrpc/proto_gen
-	vhive-bench/benchmarking/visualization => ./benchmarking/visualization
-	vhive-bench/benchmarking/writers => ./benchmarking/writers
-	vhive-bench/setup => ./setup
-	vhive-bench/util => ./util
+	stellar/benchmarking => ./benchmarking
+	stellar/benchmarking/networking => ./benchmarking/networking
+	stellar/benchmarking/networking/benchgrpc/proto_gen => ./benchmarking/networking/benchgrpc/proto_gen
+	stellar/benchmarking/visualization => ./benchmarking/visualization
+	stellar/benchmarking/writers => ./benchmarking/writers
+	stellar/setup => ./setup
+	stellar/util => ./util
 )
 
 require (

@@ -25,9 +25,9 @@ build_and_run: build run_aws
 
 .PHONY: build
 build:
-	@docker build -t vhive-bench .
-	@docker create --name temp vhive-bench /bin/bash
-	@docker cp temp:/app/vhive-bench ./main
+	@docker build -t stellar .
+	@docker create --name temp stellar /bin/bash
+	@docker cp temp:/app/stellar ./main
 	@docker cp temp:/app/setup/deployment/raw-code/functions/producer-consumer/aws/handler setup/deployment/raw-code/functions/producer-consumer/aws/handler
 	@docker cp temp:/app/setup/deployment/raw-code/functions/producer-consumer/vhive/handler setup/deployment/raw-code/functions/producer-consumer/vhive/handler
 	@docker container rm temp
@@ -42,7 +42,7 @@ run_aws_S3:
 
 .PHONY: empty_S3_bucket
 empty_S3_bucket:
-	@aws s3 rm --recursive s3://vhive-bench/
+	@aws s3 rm --recursive s3://stellar/
 
 .PHONY: run_aws
 run_aws:
@@ -74,8 +74,8 @@ replace_github_commit: ## This will replace latest commit with a new one having 
 .PHONY: vhive_local_function_deployment
 vhive_local_docker_deployment:
 	@docker system prune
-	@docker build -t vhive-bench:latest setup/deployment/raw-code/functions/producer-consumer/vhive/
-	@docker run -dp 50051:50051 vhive-bench:latest
+	@docker build -t stellar:latest setup/deployment/raw-code/functions/producer-consumer/vhive/
+	@docker run -dp 50051:50051 stellar:latest
 
 GO_PROD_CONSUMER="./setup/deployment/raw-code/functions/producer-consumer"
 SERVER_API_OUT="$(GO_PROD_CONSUMER)/vhive/proto_gen"
@@ -93,7 +93,7 @@ connect_to_cloudlab:
 .PHONY: download_cloudlab_results
 download_cloudlab_results:
 	@mkdir -p "../latency-samples/cloudlab"
-	@scp -r ${CLOUDLAB_REMOTE}:~/vhive-bench/latency-samples/* "../latency-samples/cloudlab/"
+	@scp -r ${CLOUDLAB_REMOTE}:~/stellar/latency-samples/* "../latency-samples/cloudlab/"
 
 .PHONY: help
 help: ## Show this help.

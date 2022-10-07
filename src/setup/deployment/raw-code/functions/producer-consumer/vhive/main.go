@@ -25,8 +25,8 @@ package main
 import (
 	"context"
 	"fmt"
-	common2 "github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/functions/producer-consumer/common"
-	protogen2 "github.com/ease-lab/vhive-bench/src/setup/deployment/raw-code/functions/producer-consumer/proto_gen"
+	common2 "github.com/vhive-serverless/stellar/src/setup/deployment/raw-code/functions/producer-consumer/common"
+	protogen2 "github.com/vhive-serverless/stellar/src/setup/deployment/raw-code/functions/producer-consumer/proto_gen"
 	"google.golang.org/grpc"
 	"log"
 	"net"
