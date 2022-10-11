@@ -3,7 +3,7 @@
   "author": "minimals.cc",
   "licence": "MIT",
   "version": "1.4.0",
-  "homepage": "https://ease-lab.github.io/STeLLAR",
+  "homepage": "https://vhive-serverless.github.io/STeLLAR",
   "private": false,
   "scripts": {
     "start": "react-scripts start",
