@@ -42,6 +42,7 @@ var configPathFlag = flag.String("c", "experiments/tests/aws/data-transfer.json"
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
+var writeToDatabaseFlag = flag.Bool("db", false, "This bool flag specifies whether statistics should be written to the database")
 
 func main() {
 	startTime := time.Now()
@@ -76,7 +77,7 @@ func main() {
 
 	setup.ProvisionFunctions(config)
 
-	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag)
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
 }
