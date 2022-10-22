@@ -37,7 +37,7 @@ import (
 	"stellar/setup"
 )
 
-func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File) {
+func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File, writeToDatabase bool) {
 	log.Debugf("[sub-experiment %d] Reading written latencies from file %s", experiment.ID, latenciesFile.Name())
 
 	_, err := latenciesFile.Seek(0, io.SeekStart)
@@ -51,10 +51,11 @@ func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burs
 	sort.Float64s(sortedLatencies)
 
 	visualization.Generate(experiment, burstDeltas, latenciesDF, sortedLatencies, experimentDirectoryPath)
-	generateStatistics(statisticsFile, experiment.ID, sortedLatencies)
+	generateStatistics(statisticsFile, sortedLatencies, experiment, writeToDatabase)
 }
 
-func generateStatistics(file *os.File, experimentID int, sortedLatencies []float64) {
+func generateStatistics(file *os.File, sortedLatencies []float64, experiment setup.SubExperiment, writeToDatabase bool) {
+	experimentID := experiment.ID
 	log.Debugf("[sub-experiment %d] Generating result statistics...", experimentID)
 
 	statisticsWriter := csv.NewWriter(file)
@@ -79,4 +80,9 @@ func generateStatistics(file *os.File, experimentID int, sortedLatencies []float
 	}
 
 	statisticsWriter.Flush()
+
+	if writeToDatabase == true {
+		writeStatisticsToDB(sortedLatencies, experiment)
+	}
+
 }
