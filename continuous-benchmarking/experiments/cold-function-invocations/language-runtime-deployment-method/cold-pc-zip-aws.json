@@ -1,0 +1,20 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Title": "cold-language_deployment_pc_zip-aws",
+      "Function": "producer-consumer",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "FunctionMemoryMB": 2048,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "PackageType": "Zip",
+      "Parallelism":100
+    }
+  ]
+}

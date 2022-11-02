@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "cold-image_size_100-aws",
+      "Function": "producer-consumer",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "FunctionMemoryMB": 2048,
+      "FunctionImageSizeMB": 100,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "PackageType": "Zip",
+      "Parallelism": 100
+    }
+  ]
+}
