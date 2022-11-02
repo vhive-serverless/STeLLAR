@@ -81,7 +81,7 @@ func generateStatistics(file *os.File, sortedLatencies []float64, experiment set
 
 	statisticsWriter.Flush()
 
-	if writeToDatabase == true {
+	if (writeToDatabase) {
 		writeStatisticsToDB(sortedLatencies, experiment)
 	}
 
