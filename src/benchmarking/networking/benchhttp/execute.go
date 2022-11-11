@@ -25,7 +25,7 @@ package benchhttp
 import (
 	"context"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptrace"
 	"time"
@@ -42,7 +42,7 @@ func ExecuteRequest(req http.Request) ([]byte, time.Time, time.Time) {
 
 	resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Errorf("Could not read HTTP response body: %s", err.Error())
 	}
