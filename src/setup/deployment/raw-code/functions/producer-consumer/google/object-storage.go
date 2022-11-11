@@ -27,7 +27,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -80,7 +79,7 @@ func loadObjectFromStorage(requestHTTP *http.Request, requestGRPC *InvokeChainRe
 		}
 		defer reader.Close()
 
-		payload, err := ioutil.ReadAll(reader)
+		payload, err := io.ReadAll(reader)
 		if err != nil {
 			log.Infof("Error reading object body: %v", err)
 			return ""

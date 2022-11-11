@@ -25,7 +25,6 @@ package deployment
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
 	"math"
 	"math/rand"
 	"os"
@@ -88,7 +87,7 @@ func generateFillerFile(experimentID int, fillerFilePath string, sizeBytes int64
 		log.Fatalf("[sub-experiment %d] Failed to fill buffer with random bytes: `%s`", experimentID, err.Error())
 	}
 
-	if err := ioutil.WriteFile(fillerFilePath, buffer, 0666); err != nil {
+	if err := os.WriteFile(fillerFilePath, buffer, 0666); err != nil {
 		log.Fatalf("[sub-experiment %d] Could not generate random file with size %d bytes: %v", experimentID, sizeBytes, err)
 	}
 

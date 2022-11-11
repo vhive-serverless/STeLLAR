@@ -35,7 +35,6 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -106,7 +105,7 @@ func loadObjectFromStorage(requestHTTP *events.APIGatewayProxyRequest, requestGR
 			log.Infof("Object %q not found in S3 bucket %q: %s", objectKey, objectBucket, err.Error())
 		}
 
-		payload, err := ioutil.ReadAll(object.Body)
+		payload, err := io.ReadAll(object.Body)
 		if err != nil {
 			log.Infof("Error reading object body: %v", err)
 			return ""
