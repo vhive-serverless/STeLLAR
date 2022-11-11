@@ -27,7 +27,7 @@ package connection
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"path"
 	"strings"
 	"time"
@@ -149,7 +149,7 @@ func setupFileConnection(filePath string) {
 	Singleton = &ServerlessInterface{
 		ListAPIs: func() []Endpoint {
 			endpointsFile := util.ReadFile(filePath)
-			configByteValue, _ := ioutil.ReadAll(endpointsFile)
+			configByteValue, _ := io.ReadAll(endpointsFile)
 
 			var parsedEndpoints []Endpoint
 			if err := json.Unmarshal(configByteValue, &parsedEndpoints); err != nil {

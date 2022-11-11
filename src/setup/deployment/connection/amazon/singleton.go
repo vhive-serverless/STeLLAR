@@ -35,7 +35,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 	"stellar/util"
@@ -83,7 +83,7 @@ func InitializeSingleton(apiTemplatePath string) {
 		DisableRestProtocolURICleaning: aws.Bool(true),
 	}))
 
-	apiTemplateByteValue, err := ioutil.ReadAll(util.ReadFile(apiTemplatePath))
+	apiTemplateByteValue, err := io.ReadAll(util.ReadFile(apiTemplatePath))
 	if err != nil {
 		log.Fatalf("Could not read API template JSON when initializing AWS connection: %s", err.Error())
 	}
@@ -132,7 +132,7 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 
 //SetLocalZip sets the location of the zipped binary file for the function to be deployed.
 func SetLocalZip(path string) {
-	zipBytes, err := ioutil.ReadFile(path)
+	zipBytes, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatalf("Could not read local zipped binary: %s", err.Error())
 	}
