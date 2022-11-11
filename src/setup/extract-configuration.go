@@ -25,7 +25,7 @@ package setup
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"io/ioutil"
+	"io"
 	"stellar/util"
 )
 
@@ -79,7 +79,7 @@ const (
 //ExtractConfiguration will read and parse the JSON configuration file, assign any default values and return the config object
 func ExtractConfiguration(configFilePath string) Configuration {
 	configFile := util.ReadFile(configFilePath)
-	configByteValue, _ := ioutil.ReadAll(configFile)
+	configByteValue, _ := io.ReadAll(configFile)
 
 	var parsedConfig Configuration
 	if err := json.Unmarshal(configByteValue, &parsedConfig); err != nil {
