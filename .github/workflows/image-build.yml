@@ -33,7 +33,7 @@ jobs:
 
   producer_consumer_common_identical:
     name: Verify that producer-consumer aws/vhive common modules are identical
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
 
       - name: Check Out Repo
@@ -50,7 +50,7 @@ jobs:
   build_images:
     name: Build function images
     needs: producer_consumer_common_identical
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
