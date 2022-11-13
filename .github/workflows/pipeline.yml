@@ -33,7 +33,7 @@ on:
 jobs:
   build_client:
     name: Build framework
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       working-directory: ./src
     steps:
@@ -72,7 +72,7 @@ jobs:
   test_aws:
     name: Unit tests (incl. AWS API tests) and AWS integration tests
     needs: [ build_client ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       working-directory: ./src
     steps:
@@ -126,7 +126,7 @@ jobs:
   test_vhive:
     name: vHive integration tests
     needs: [ build_client ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       working-directory: ./src
     steps:
@@ -224,7 +224,7 @@ jobs:
   deploy:
     name: Deploy framework
     needs: [ test_aws, test_vhive ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
 
       - name: Check out code into the Go module directory
