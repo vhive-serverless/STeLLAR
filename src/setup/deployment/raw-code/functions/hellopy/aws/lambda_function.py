@@ -6,30 +6,31 @@ import time
 
 
 def lambda_handler(request, context):
-    request_json = request.get_json()
 
     incr_limit = 0
-    if request.args and 'IncrementLimit' in request.args:
-        incr_limit = request.args.get('IncrementLimit')
-    elif request_json and 'IncrementLimit' in request_json:
-        incr_limit = request_json['IncrementLimit']
+
+    if(request['queryStringParameters'] and 'IncrementLimit' in request['queryStringParameters']):
+        incr_limit = int(request['queryStringParameters'].get('IncrementLimit', 0))
+    elif request['body'] and json.loads(request['body'])['IncrementLimit']:
+        incr_limit = int(json.loads(request['body'])['IncrementLimit'])
 
     simulate_work(incr_limit)
 
-    json_region = os.environ['AWS_REGION']
+    json_region = os.environ.get('AWS_REGION','Unknown')
+
     response = {
         "statusCode": 200,
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": {
+        "body": json.dumps({
             "Region ": json_region,
             "RequestID": context.aws_request_id,
-            "TimestampChain": [str(time.time_ns())],
-        }
+            "TimestampChain": [str(time.time_ns())]
+        },indent=4)
     }
 
-    return json.dumps(response, indent=4)
+    return response
 
 
 def simulate_work(increment):
