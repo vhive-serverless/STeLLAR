@@ -19,10 +19,10 @@ import {
 // ----------------------------------------------------------------------
 const baseURL = "https://51941s0gs7.execute-api.us-west-1.amazonaws.com";
 
-DashboardApp.propTypes = {
+BaselineLatencyDashboard.propTypes = {
     experimentType: PropTypes.string,
 };
-export default function DashboardApp({experimentType}) {
+export default function BaselineLatencyDashboard({experimentType}) {
   const theme = useTheme();
 
     const isMountedRef = useIsMountedRef();

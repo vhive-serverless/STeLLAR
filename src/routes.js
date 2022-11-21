@@ -5,7 +5,7 @@ import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 //
 import Resources from './pages/Resources';
 import NotFound from './pages/Page404';
-import DashboardApp from './pages/DashboardApp';
+import BaselineLatencyDashboard from './pages/BaselineLatencyDashboard';
 import ComingSoon from './pages/PageComingSoon';
 
 // ----------------------------------------------------------------------
@@ -19,13 +19,13 @@ export default function Router() {
         { 
         path: 'warm/', 
         children:[
-          { path: 'aws', element: <DashboardApp experimentType={'warm'}/> },
+          { path: 'aws', element: <BaselineLatencyDashboard experimentType={'warm-baseline-aws'}/> },
           { path: 'google', element: <ComingSoon /> }
         ]},
         { 
         path: 'cold', 
         children:[
-          { path: 'baseline', element: <ComingSoon /> },
+          { path: 'baseline', element: <BaselineLatencyDashboard experimentType={'cold-baseline-aws'}/> },
           { path: 'image-size', element: <ComingSoon /> },
           { path: 'deployment-language', element: <ComingSoon /> }
         ]},
