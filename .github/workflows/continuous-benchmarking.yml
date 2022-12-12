@@ -1,0 +1,99 @@
+# MIT License
+#
+# Copyright (c) 2022 Dilina Dehigama and EASE Lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+name: Run scheduled experiments
+
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+  
+jobs:
+
+  clean_up:
+    name: Clean-up workspace
+    runs-on: self-hosted
+    env:
+      working-directory: ./src
+    steps:
+      - name: 'Cleanup build folder'
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
+  build_client:
+    name: Build framework
+    needs: clean_up
+    runs-on: self-hosted
+    env:
+      working-directory: ./src
+    steps:
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: continuous-benchmarking
+
+      - name: Check syntax
+        uses: golangci/golangci-lint-action@v3.3.1
+        with:
+          working-directory: ${{env.working-directory}}
+          args: --timeout 5m --skip-dirs raw-code
+          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
+
+      - name: Clean and build client binary
+        working-directory: ${{env.working-directory}}
+        run: |
+           go build
+
+  run_warm_experiments:
+    name: Run warm function tests
+    needs: build_client
+    runs-on: self-hosted
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Warm Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db
+
+  run_cold_experiments:
+    name: Run cold function tests
+    needs: run_warm_experiments
+    runs-on: self-hosted
+    env:
+      working-directory: ./src
+    steps:
+    
+      - name: Cold Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
+
+
+
+          
