@@ -10,17 +10,6 @@ const navConfig = [
     title: 'Warm Function Invocations',
     path: '/dashboard/warm/aws',
     icon: getIcon('bxs:hot'),
-    
-    children:[
-      {
-        title: 'AWS',
-        path: '/dashboard/warm/aws',
-      },
-      {
-        title: 'Google',
-        path: '/dashboard/warm/google',
-      },
-    ]
   },
   {
     title: 'Cold Function Invocations',
@@ -77,8 +66,8 @@ const navConfig = [
     ]
   },
   {
-    title: 'Resources',
-    path: '/dashboard/resources',
+    title: 'Info',
+    path: '/dashboard/info',
     icon: getIcon('eva:file-text-fill'),
   },
 ];

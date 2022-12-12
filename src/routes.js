@@ -3,7 +3,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 //
-import Resources from './pages/Resources';
+import Info from './pages/Info';
 import NotFound from './pages/Page404';
 import BaselineLatencyDashboard from './pages/BaselineLatencyDashboard';
 import ComingSoon from './pages/PageComingSoon';
@@ -20,7 +20,6 @@ export default function Router() {
         path: 'warm/', 
         children:[
           { path: 'aws', element: <BaselineLatencyDashboard experimentType={'warm-baseline-aws'}/> },
-          { path: 'google', element: <ComingSoon /> }
         ]},
         { 
         path: 'cold', 
@@ -44,7 +43,7 @@ export default function Router() {
           { path: 'scheduling-policy', element: <ComingSoon /> },
         ] 
       },
-        { path: 'resources', element: <Resources /> },
+        { path: 'info', element: <Info /> },
       ],
 
     },

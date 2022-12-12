@@ -5,8 +5,11 @@ import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers';
-import {format} from 'date-fns';
-
+import {format,subWeeks,subMonths} from 'date-fns';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { Grid, Container, Typography,TextField,Alert } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -38,7 +41,26 @@ export default function BaselineLatencyDashboard({experimentType}) {
     const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneYearBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
+    
+    const [dateRange, setDateRange] = useState('week');
 
+    const handleChange = (event) => {
+
+      const selectedValue = event.target.value;
+      if(selectedValue ==='week'){
+        setStartDate(format(subWeeks(today,1), 'yyyy-MM-dd'));
+        setEndDate(format(today, 'yyyy-MM-dd'))
+      }
+      else if(selectedValue ==='month'){
+        setStartDate(format(subMonths(today,1), 'yyyy-MM-dd'));
+        setEndDate(format(today, 'yyyy-MM-dd'))
+      }
+      else if(selectedValue ==='3-months'){
+        setStartDate(format(subMonths(today,3), 'yyyy-MM-dd'));
+        setEndDate(format(today, 'yyyy-MM-dd'))
+      }
+      setDateRange(event.target.value);
+    };
 
     const fetchIndividualData = useCallback(async () => {
         try {
@@ -107,6 +129,10 @@ export default function BaselineLatencyDashboard({experimentType}) {
             return null
         }
     ,[dailyStatistics])
+
+
+    
+
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
@@ -122,6 +148,7 @@ export default function BaselineLatencyDashboard({experimentType}) {
                 Statistics in AWS
             </Typography>
             </Grid>
+            
             <Grid item xs={12}>
                 <DatePicker
                     label="Choose Date"
@@ -155,8 +182,21 @@ export default function BaselineLatencyDashboard({experimentType}) {
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary title="Tail-to-Median Latency" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
           </Grid>
-
-                <Grid item xs={4}>
+          <Grid item xs={12}>
+            <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
+  <Select
+    id="demo-simple-select"
+    value={dateRange}
+    label="dateRange"
+    onChange={handleChange}
+  >
+    <MenuItem value={'week'}>Last week</MenuItem>
+    <MenuItem value={'month'}>Last month</MenuItem>
+    <MenuItem value={'3-months'}>Last 3 months</MenuItem>
+    <MenuItem value={'custom'}>Custom range</MenuItem>
+  </Select>
+            </Grid>
+            {dateRange==='custom' && <><Grid item xs={4}>
                     <DatePicker
                         label="Start Date"
                         value={startDate}
@@ -176,6 +216,8 @@ export default function BaselineLatencyDashboard({experimentType}) {
                     renderInput={(params) => <TextField {...params} />}
                 />
             </Grid>
+            </>
+            }
           <Grid item xs={12}>
             <AppLatency
               title="Tail Latencies"
