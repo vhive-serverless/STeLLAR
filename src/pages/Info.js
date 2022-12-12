@@ -8,10 +8,10 @@ import { members } from '../data/members';
 // ----------------------------------------------------------------------
 
 
-export default function Resources() {
+export default function Info() {
   return (
     <Page title="Dashboard: Info">
-      <Container>
+      <Container maxWidth="xl">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mt={3}>
           <Typography variant="h4" gutterBottom>
             Experiments
@@ -22,10 +22,12 @@ export default function Resources() {
           <Card>
             <CardContent>
               <Typography variant='h5'>Warm Function Invocations</Typography>
+              <Typography variant='p' mt={1}>Detailed explanation on methodology & configuration/parameters</Typography>
             </CardContent>
 
             <CardContent>
               <Typography variant='h5'>Cold Function Invocations</Typography>
+              <Typography variant='p' mt={1}>Detailed explanation on methodology &  configuration/parameters</Typography>
             </CardContent>
 
 

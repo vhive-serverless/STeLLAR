@@ -9,10 +9,7 @@ import {
     Typography
   } from '@mui/material';
 
-  AccountProfile.propTypes = {
-    member: PropTypes.object,
-  };
-
+ 
   const AccountProfile = ({member}) => (
     <Container >
       <CardContent>
@@ -53,5 +50,8 @@ import {
       <Divider />
     </Container>
   );
-
+  
+  AccountProfile.propTypes = {
+    member: PropTypes.object,
+  };
   export default AccountProfile;

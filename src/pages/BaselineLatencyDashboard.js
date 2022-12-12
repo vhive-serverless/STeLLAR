@@ -8,8 +8,7 @@ import { DatePicker } from '@mui/x-date-pickers';
 import {format,subWeeks,subMonths} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import { Grid, Container, Typography,TextField,Alert } from '@mui/material';
 // components
 import Page from '../components/Page';
@@ -20,7 +19,7 @@ import {
 } from '../sections/@dashboard/app';
 
 // ----------------------------------------------------------------------
-const baseURL = "https://51941s0gs7.execute-api.us-west-1.amazonaws.com";
+const baseURL = "https://2ra1y17sr2.execute-api.us-west-1.amazonaws.com";
 
 BaselineLatencyDashboard.propTypes = {
     experimentType: PropTypes.string,
@@ -31,15 +30,14 @@ export default function BaselineLatencyDashboard({experimentType}) {
     const isMountedRef = useIsMountedRef();
     const today = new Date();
 
-    const oneYearBefore = new Date();
-    oneYearBefore.setFullYear(today.getFullYear() - 1);
+    const oneWeekBefore = subWeeks(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
     const [overallStatistics,setOverallStatistics] = useState(null);
     const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneYearBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
     const [dateRange, setDateRange] = useState('week');
