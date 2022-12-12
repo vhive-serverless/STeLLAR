@@ -25,14 +25,15 @@ package benchmarking
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"gonum.org/v1/gonum/stat"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 	"vhive-bench/setup"
+
+	log "github.com/sirupsen/logrus"
+	"gonum.org/v1/gonum/stat"
 )
 
 type StatisticsRecord struct {
@@ -56,7 +57,7 @@ type StatisticsRecord struct {
 func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperiment) {
 	experimentID := experiment.ID
 	log.Infof("[sub-experiment %d] Writing statistics to the database", experimentID)
-	url := "https://51941s0gs7.execute-api.us-west-1.amazonaws.com/results"
+	url := "https://2ra1y17sr2.execute-api.us-west-1.amazonaws.com/results"
 	method := "POST"
 
 	record := StatisticsRecord{
