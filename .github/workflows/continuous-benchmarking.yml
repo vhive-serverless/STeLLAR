@@ -84,6 +84,9 @@ jobs:
     env:
       working-directory: ./src
     steps:
+      - name: Warm Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-warmup-aws.json
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
