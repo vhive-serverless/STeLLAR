@@ -70,14 +70,24 @@ jobs:
         run: |
            go build
 
-  run_warm_experiments:
-    name: Run warm function tests
+  run_function_warm_up:
+    name: Run warm function - Warm up
     needs: build_client
     runs-on: self-hosted
     env:
       working-directory: ./src
     steps:
+      - name: Warm Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-warmup-aws.json
 
+  run_warm_experiments:
+    name: Run warm function tests
+    needs: run_function_warm_up
+    runs-on: self-hosted
+    env:
+      working-directory: ./src
+    steps:
       - name: Warm Function Invocation - Baseline
         working-directory: ${{env.working-directory}}
         run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db
@@ -89,7 +99,6 @@ jobs:
     env:
       working-directory: ./src
     steps:
-    
       - name: Cold Function Invocation - Baseline
         working-directory: ${{env.working-directory}}
         run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
