@@ -1,0 +1,20 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "warm-baseline-aws-warmup",
+      "Function": "hellopy",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "PackageType": "Zip",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 100
+    }
+  ]
+}
