@@ -9,7 +9,7 @@ import {format,subWeeks,subMonths} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container, Typography,TextField,Alert } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -18,17 +18,20 @@ import {
   AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
+
 // ----------------------------------------------------------------------
 const baseURL = "https://2ra1y17sr2.execute-api.us-west-1.amazonaws.com";
 
 BaselineLatencyDashboard.propTypes = {
     experimentType: PropTypes.string,
 };
-export default function BaselineLatencyDashboard({experimentType}) {
+export default function BaselineLatencyDashboard() {
   const theme = useTheme();
 
     const isMountedRef = useIsMountedRef();
     const today = new Date();
+
+    const experimentType = 'warm-baseline-aws';
 
     const oneWeekBefore = subWeeks(today,1);
 
@@ -73,7 +76,7 @@ export default function BaselineLatencyDashboard({experimentType}) {
         } catch (err) {
             setIsErrorDailyStatistics(true);
         }
-    }, [isMountedRef,selectedDate,experimentType]);
+    }, [isMountedRef,selectedDate]);
 
     useMemo(() => {
         fetchIndividualData();
@@ -141,15 +144,60 @@ export default function BaselineLatencyDashboard({experimentType}) {
             </Grid>
             }
             <Grid item xs={12}>
-
-            <Typography fontWeight={theme.typography.fontWeightBold} sx={{ mb: 2 }}>
-                Statistics in AWS
+           
+            <Typography variant={'h4'} sx={{ mb: 2 }}>
+               Warm Function Invocations
             </Typography>
-            </Grid>
+           
+            <Card>
+            <CardContent>
+            <Typography variant={'h6'} sx={{ mb: 2 }}>
+               Experiment Configuration
+            </Typography>
+            <Typography variant={'p'} sx={{ mb: 2 }}>
+            In this experiment, we evaluate the response time of functions with warm instances by issuing invocations with a short inter-arrival time (IAT) of 3 seconds. <br/>
+            <br/>
+            Detailed configuration parameters are as below.
             
-            <Grid item xs={12}>
+            </Typography>
+            <Stack direction="row" alignItems="center" mt={2}>
+            <Box sx={{ width: '100%',ml:1}}>
+            <ListItem sx={{ display: 'list-item' }}>
+            Serverless Cloud : <b>AWS Lambda</b>
+          </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+            Language Runtime : <b>Python</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method : <b>ZIP based</b>
+          </ListItem>
+
+
+          </Box>
+            <Box sx={{ width: '100%',ml:1}}>
+            <ListItem sx={{ display: 'list-item' }}>
+            Datacenter : <b>N. California (us-west-1)</b>
+          </ListItem>
+            <ListItem sx={{ display: 'list-item' }}>
+            Inter-Arrival Time : <b>3 seconds</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Function Memory Size : <b>128MB</b>
+          </ListItem>
+          
+              </Box>
+              </Stack>
+            </CardContent>
+            </Card>
+            </Grid>
+
+            <Grid item xs={12} sx={{mt:5}}>
+            <Typography variant={'h6'} sx={{ mb: 2 }}>
+               Individual (Daily) Latency Statistics for Warm Function Invocation - Baseline Experiment
+            </Typography>
+            <Stack direction="row" alignItems="center">
+            <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
                 <DatePicker
-                    label="Choose Date"
                     value={selectedDate}
                     onChange={(newValue) => {
 
@@ -157,6 +205,7 @@ export default function BaselineLatencyDashboard({experimentType}) {
                     }}
                     renderInput={(params) => <TextField {...params} />}
                 />
+                </Stack>
             </Grid>
             {
                 dailyStatistics?.length < 1 ? <Grid item xs={12}>
@@ -165,23 +214,37 @@ export default function BaselineLatencyDashboard({experimentType}) {
             </Typography>
             </Grid> : null
             }
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2}>
             <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Median Latency (ms)" subtitle={"Without propagation delay"} total={dailyStatistics ? parseInt(dailyStatistics[0]?.median, 10) : 0} color="info" icon={'carbon:chart-median'} />
+          <Grid item xs={12} sm={6} md={2}>
+            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="warning" icon={'arcticons:a99'} />
+          <Grid item xs={12} sm={6} md={2}>
+            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} icon={'ant-design:number-outlined'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tail-to-Median Latency" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
+          <Grid item xs={12} sm={6} md={2}>
+            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
           </Grid>
-          <Grid item xs={12}>
-            <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <AppWidgetSummary title="Tail Latency (ms)" color="warning" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} icon={'arcticons:a99'} />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
+          </Grid>
+
+
+          <Grid item xs={12} mt={5}>
+          <Typography variant={'h6'} sx={{ mb: 2 }}>
+              Timespan based Latency Statistics for Warm Function Invocation - Baseline Experiment
+            </Typography>
+          <Stack direction="row" alignItems="center">
+            <InputLabel sx={{mr:3}}>Time span :</InputLabel>
   <Select
     id="demo-simple-select"
     value={dateRange}
@@ -193,6 +256,7 @@ export default function BaselineLatencyDashboard({experimentType}) {
     <MenuItem value={'3-months'}>Last 3 months</MenuItem>
     <MenuItem value={'custom'}>Custom range</MenuItem>
   </Select>
+  </Stack>
             </Grid>
             {dateRange==='custom' && <><Grid item xs={4}>
                     <DatePicker
@@ -242,7 +306,7 @@ export default function BaselineLatencyDashboard({experimentType}) {
           <Grid item xs={12}>
             <AppLatency
               title="Median Latencies"
-              subheader="3-second IAT"
+              subheader="50th Percentile"
               chartLabels={dateRangeList}
               chartData={[
                 {

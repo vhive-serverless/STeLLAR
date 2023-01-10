@@ -3,10 +3,12 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 //
-import Info from './pages/Info';
+import Team from './pages/Team';
 import NotFound from './pages/Page404';
-import BaselineLatencyDashboard from './pages/BaselineLatencyDashboard';
+import BaselineLatencyWarm from './pages/BaselineLatencyWarm';
+import BaselineLatencyCold from './pages/BaselineLatencyCold';
 import ComingSoon from './pages/PageComingSoon';
+import About from './pages/About';
 
 // ----------------------------------------------------------------------
 
@@ -17,14 +19,18 @@ export default function Router() {
       element: <DashboardLayout />,
       children: [
         { 
+          path: 'about/', 
+   element: <About/> 
+  },
+        { 
         path: 'warm/', 
         children:[
-          { path: 'aws', element: <BaselineLatencyDashboard experimentType={'warm-baseline-aws'}/> },
+          { path: 'aws', element: <BaselineLatencyWarm experimentType={'warm-baseline-aws'}/> },
         ]},
         { 
         path: 'cold', 
         children:[
-          { path: 'baseline', element: <BaselineLatencyDashboard experimentType={'cold-baseline-aws'}/> },
+          { path: 'baseline', element: <BaselineLatencyCold experimentType={'cold-baseline-aws'}/> },
           { path: 'image-size', element: <ComingSoon /> },
           { path: 'deployment-language', element: <ComingSoon /> }
         ]},
@@ -43,7 +49,7 @@ export default function Router() {
           { path: 'scheduling-policy', element: <ComingSoon /> },
         ] 
       },
-        { path: 'info', element: <Info /> },
+        { path: 'team', element: <Team /> },
       ],
 
     },
@@ -51,8 +57,8 @@ export default function Router() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/warm/aws" /> },
-        { path: '/dashboard', element: <Navigate to="/dashboard/warm/aws" /> },
+        { path: '/', element: <Navigate to="/dashboard/about" /> },
+        { path: '/dashboard', element: <Navigate to="/dashboard/about" /> },
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

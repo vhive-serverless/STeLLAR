@@ -17,4 +17,10 @@ export const members = [
         link: 'https://homepages.inf.ed.ac.uk/bgrot/',
         photo: '/STeLLAR/static/avatars/boris.jpg',
     },
+    {
+        name:'Dilina Dehigama',
+        affiliation : 'University of Edinburgh, UK',
+        link: 'https://github.com/dilinade',
+        photo: '/STeLLAR/static/avatars/dilina.jpeg',
+    },
 ]

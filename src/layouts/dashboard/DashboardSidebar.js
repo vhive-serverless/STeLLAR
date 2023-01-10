@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import {useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Button, Drawer, Typography, Stack } from '@mui/material';
+import { Box, Button, Drawer, Stack } from '@mui/material';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // components
@@ -64,19 +64,16 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
           <Box
             component="img"
-            src="/STeLLAR/static/uoe.png"
+            src="/STeLLAR/static/vhive-emblem-rgb.svg"
             sx={{ width: 70, position: 'absolute', top: -30 }}
           />
 
           
 
-          <Button size='small' href="https://easelab.inf.ed.ac.uk/" target="_blank" variant="contained" sx={{textAlign:'center'}}>
-            EASE Lab<br/> University of Edinburgh
+          <Button size='small' href="https://vhive-serverless.github.io/" target="_blank" variant="contained" sx={{textAlign:'center'}}>
+            vHive Community
           </Button>
         </Stack>
-      </Box>
-      <Box  sx={{ px: 2.5,pb:3,textAlign:'center'}}>
-      <Typography style={{fontSize:'12px'}} sx={{ opacity: 0.52 }} >Last Updated : 10/06/2022</Typography>
       </Box>
     </Scrollbar>
   );
