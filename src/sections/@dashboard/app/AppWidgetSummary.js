@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { alpha, styled } from '@mui/material/styles';
 import { Card, Typography } from '@mui/material';
 // utils
-import { fShortenNumber } from '../../../utils/formatNumber';
+import { fShortenNumber,fNumber } from '../../../utils/formatNumber';
 // components
 import Iconify from '../../../components/Iconify';
 
@@ -29,9 +29,10 @@ AppWidgetSummary.propTypes = {
   subtitle:PropTypes.string,
   total: PropTypes.number.isRequired,
   sx: PropTypes.object,
+  shortenNumber : PropTypes.bool,
 };
 
-export default function AppWidgetSummary({ title,subtitle, total, icon, color = 'primary', sx, ...other }) {
+export default function AppWidgetSummary({ title,subtitle, total, icon, color = 'primary', sx,shortenNumber=true, ...other }) {
   return (
     <Card
       sx={{
@@ -58,7 +59,7 @@ export default function AppWidgetSummary({ title,subtitle, total, icon, color = 
         <Iconify icon={icon} width={24} height={24} />
       </IconWrapperStyle>
 
-      <Typography variant="h4">{fShortenNumber(total)}</Typography>
+      <Typography variant="h4">{shortenNumber ? fShortenNumber(total) : fNumber(total)}</Typography>
       
       <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
         {title}

@@ -7,6 +7,7 @@ import Team from './pages/Team';
 import NotFound from './pages/Page404';
 import BaselineLatencyWarm from './pages/BaselineLatencyWarm';
 import BaselineLatencyCold from './pages/BaselineLatencyCold';
+import BaselineLatencyColdImageSize from './pages/BaselineLatencyColdImageSize';
 import ComingSoon from './pages/PageComingSoon';
 import About from './pages/About';
 
@@ -30,8 +31,8 @@ export default function Router() {
         { 
         path: 'cold', 
         children:[
-          { path: 'baseline', element: <BaselineLatencyCold experimentType={'cold-baseline-aws'}/> },
-          { path: 'image-size', element: <ComingSoon /> },
+          { path: 'baseline', element: <BaselineLatencyCold/> },
+          { path: 'image-size', element:<BaselineLatencyColdImageSize/> },
           { path: 'deployment-language', element: <ComingSoon /> }
         ]},
         { 

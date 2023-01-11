@@ -1,7 +1,7 @@
 export const members = [
     {
       name:'Dmitrii Ustiugov',
-      affiliation: 'NTU Singapore',
+      affiliation: 'NTU, Singapore',
       link: 'https://ustiugov.github.io/',
       photo: '/STeLLAR/static/avatars/dmitrii.jpeg',
     },

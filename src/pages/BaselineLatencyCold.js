@@ -191,7 +191,7 @@ export default function BaselineLatencyDashboard() {
             <Grid item xs={12} sx={{mt:5}}>
             
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocation - Baseline Experiment
+               Individual (Daily) Latency Statistics for Cold Function Invocation - Baseline Experiment (AWS)
             </Typography>
             <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
@@ -241,7 +241,7 @@ export default function BaselineLatencyDashboard() {
 
           <Grid item xs={12} mt={5}>
           <Typography variant={'h6'} sx={{ mb: 2 }}>
-              Timespan based Latency Statistics for Cold Function Invocation - Baseline Experiment
+              Timespan based Latency Statistics for Cold Function Invocation - Baseline Experiment (AWS)
             </Typography>
           <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>Time span :</InputLabel>

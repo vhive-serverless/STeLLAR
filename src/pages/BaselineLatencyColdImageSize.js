@@ -1,6 +1,5 @@
 // @mui
 import {useCallback, useMemo, useState} from "react";
-import PropTypes from "prop-types";
 import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
@@ -9,7 +8,7 @@ import {format,subWeeks,subMonths} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Link } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -22,30 +21,32 @@ import {
 // ----------------------------------------------------------------------
 const baseURL = "https://2ra1y17sr2.execute-api.us-west-1.amazonaws.com";
 
-BaselineLatencyDashboard.propTypes = {
-    experimentType: PropTypes.string,
-};
 export default function BaselineLatencyDashboard() {
   const theme = useTheme();
 
     const isMountedRef = useIsMountedRef();
     const today = new Date();
 
-    const experimentType = 'warm-baseline-aws';
+    const experimentTypeFor10MB = 'cold-image_size_10-aws';
+    const experimentTypeFor60MB = 'cold-image_size_60-aws';
+    const experimentTypeFor100MB = 'cold-image_size_100-aws';
 
     const oneWeekBefore = subWeeks(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
-    const [overallStatistics,setOverallStatistics] = useState(null);
+    const [overallStatistics10MB,setOverallStatistics10MB] = useState(null);
+    const [overallStatistics60MB,setOverallStatistics60MB] = useState(null);
+    const [overallStatistics100MB,setOverallStatistics100MB] = useState(null);
     const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
-    
+    const [experimentType,setExperimentType] = useState(experimentTypeFor10MB);
     const [dateRange, setDateRange] = useState('week');
+    const [imageSize, setImageSize] = useState('10');
 
-    const handleChange = (event) => {
+    const handleChangeDate = (event) => {
 
       const selectedValue = event.target.value;
       if(selectedValue ==='week'){
@@ -63,6 +64,15 @@ export default function BaselineLatencyDashboard() {
       setDateRange(event.target.value);
     };
 
+    const handleChangeImageSize = (event) => {
+      const selectedValue = event.target.value;  
+      setImageSize(selectedValue);
+    };
+    
+    useMemo(()=>{
+      setExperimentType(`cold-image_size_${imageSize}-aws`)
+    },[imageSize])
+
     const fetchIndividualData = useCallback(async () => {
         try {
             const response = await axios.get(`${baseURL}/results`, {
@@ -76,53 +86,134 @@ export default function BaselineLatencyDashboard() {
         } catch (err) {
             setIsErrorDailyStatistics(true);
         }
-    }, [isMountedRef,selectedDate]);
+    }, [isMountedRef,selectedDate,experimentType]);
 
     useMemo(() => {
         fetchIndividualData();
     }, [fetchIndividualData]);
 
-    const fetchDataRange = useCallback(async () => {
+    // 10 MB Functionality
+    const fetchDataRange10MB = useCallback(async () => {
         try {
             const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentType,
+                params: { experiment_type: experimentTypeFor10MB,
                     start_date:startDate,
                     end_date:endDate,
                 },
             });
             if (isMountedRef.current) {
-                setOverallStatistics(response.data)
+                setOverallStatistics10MB(response.data)
             }
         } catch (err) {
             setIsErrorDataRangeStatistics(true);
         }
-    }, [isMountedRef,startDate,endDate,experimentType]);
+    }, [isMountedRef,startDate,endDate]);
 
-    useMemo(() => {
-        fetchDataRange();
-    }, [fetchDataRange]);
+    // 60 MB Functionality
+    const fetchDataRange60MB = useCallback(async () => {
+      try {
+          const response = await axios.get(`${baseURL}/results`, {
+              params: { experiment_type: experimentTypeFor60MB,
+                  start_date:startDate,
+                  end_date:endDate,
+              },
+          });
+          if (isMountedRef.current) {
+              setOverallStatistics60MB(response.data)
+          }
+      } catch (err) {
+          setIsErrorDataRangeStatistics(true);
+      }
+  }, [isMountedRef,startDate,endDate]);
 
-    const dateRangeList = useMemo(()=> {
-        if(overallStatistics)
-            return overallStatistics.map(record => record.date);
+  // 100 MB Functionality
+
+  const fetchDataRange100MB = useCallback(async () => {
+    try {
+        const response = await axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeFor100MB,
+                start_date:startDate,
+                end_date:endDate,
+            },
+        });
+        if (isMountedRef.current) {
+            setOverallStatistics100MB(response.data)
+        }
+    } catch (err) {
+        setIsErrorDataRangeStatistics(true);
+    }
+}, [isMountedRef,startDate,endDate]);
+    
+
+useMemo(() => {
+      fetchDataRange10MB();
+      fetchDataRange60MB();
+      fetchDataRange100MB();
+    }, [fetchDataRange10MB,fetchDataRange60MB,fetchDataRange100MB]);
+
+    // 10 MB Data Processing 
+    const dateRangeList10MB = useMemo(()=> {
+        if(overallStatistics10MB)
+            return overallStatistics10MB.map(record => record.date);
         return null
 
-    },[overallStatistics])
+    },[overallStatistics10MB])
+    
 
-    const tailLatencies = useMemo(()=> {
-        if(overallStatistics)
-            return overallStatistics.map(record => record.tail_latency);
+    const tailLatencies10MB = useMemo(()=> {
+        if(overallStatistics10MB)
+            return overallStatistics10MB.map(record => record.tail_latency);
         return null
 
-    },[overallStatistics])
+    },[overallStatistics10MB])
 
 
-    const medianLatencies = useMemo(()=> {
-        if(overallStatistics)
-            return overallStatistics.map(record => record.median);
+    const medianLatencies10MB = useMemo(()=> {
+        if(overallStatistics10MB)
+            return overallStatistics10MB.map(record => record.median);
         return null
 
-    },[overallStatistics])
+    },[overallStatistics10MB])
+
+    // 60 MB Data Processing 
+    
+  const tailLatencies60MB = useMemo(()=> {
+      if(overallStatistics60MB)
+          return overallStatistics60MB.map(record => record.tail_latency);
+      return null
+
+  },[overallStatistics60MB])
+
+
+  const medianLatencies60MB = useMemo(()=> {
+      if(overallStatistics60MB)
+          return overallStatistics60MB.map(record => record.median);
+      return null
+
+  },[overallStatistics60MB])
+
+
+  // 100 MB Data Processing 
+    
+  const tailLatencies100MB = useMemo(()=> {
+    if(overallStatistics100MB)
+        return overallStatistics100MB.map(record => record.tail_latency);
+    return null
+
+},[overallStatistics100MB])
+
+
+const medianLatencies100MB = useMemo(()=> {
+    if(overallStatistics100MB)
+        return overallStatistics100MB.map(record => record.median);
+    return null
+
+},[overallStatistics100MB])
+
+
+
+
+
 
     const TMR = useMemo(() => {
             if (dailyStatistics)
@@ -146,7 +237,7 @@ export default function BaselineLatencyDashboard() {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Warm Function Invocations
+               Cold Function Invocations - Impact of Function Image Size
             </Typography>
            
             <Card>
@@ -155,7 +246,9 @@ export default function BaselineLatencyDashboard() {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we evaluate the response time of functions with warm instances by issuing invocations with a short inter-arrival time (IAT) of 3 seconds. <br/>
+            In this experiment, we assess the impact of the image size on the median and tail
+response times, by adding an extra random-content file to
+each image. <br/>
             <br/>
             Detailed configuration parameters are as below.
             
@@ -166,12 +259,15 @@ export default function BaselineLatencyDashboard() {
             Serverless Cloud : <b>AWS Lambda</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Python</b>
+            Language Runtime : <b>Go</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
             Deployment Method : <b>ZIP based</b>
           </ListItem>
 
+          <ListItem sx={{ display: 'list-item' }}>
+            Function Image Sizes : <b>10MB, 60MB, 100MB</b>
+          </ListItem>
 
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
@@ -179,24 +275,29 @@ export default function BaselineLatencyDashboard() {
             Datacenter : <b>N. California (us-west-1)</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
-            Inter-Arrival Time : <b>3 seconds</b>
+            Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Function Memory Size : <b>128MB</b>
+            Function Name : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>producer-consumer</b></Link>
           </ListItem>
-          
+          <ListItem sx={{ display: 'list-item' }}>
+            Function Memory Size : <b>2048MB</b>
+          </ListItem>
+
               </Box>
               </Stack>
             </CardContent>
             </Card>
             </Grid>
 
+            
             <Grid item xs={12} sx={{mt:5}}>
+            
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Warm Function Invocation - Baseline Experiment (AWS)
+               Individual (Daily) Latency Statistics for Cold Function Invocation - Varying Image Sizes
             </Typography>
             <Stack direction="row" alignItems="center">
-            <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
+            <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
                 <DatePicker
                     value={selectedDate}
                     onChange={(newValue) => {
@@ -205,11 +306,22 @@ export default function BaselineLatencyDashboard() {
                     }}
                     renderInput={(params) => <TextField {...params} />}
                 />
+                 <InputLabel sx={{mx:3}}> with the Image Size of :</InputLabel>
+  <Select
+    value={imageSize}
+    label="imageSize"
+    onChange={handleChangeImageSize}
+  >
+    <MenuItem value={'10'}>10 MB</MenuItem>
+    <MenuItem value={'60'}>60 MB</MenuItem>
+    <MenuItem value={'100'}>100 MB</MenuItem>
+  </Select>
                 </Stack>
+               
             </Grid>
             {
                 dailyStatistics?.length < 1 ? <Grid item xs={12}>
-            <Typography sx={{fontSize:'12px', color: 'error.main',mt:-2}}>
+            <Typography sx={{fontSize:'14px', color: 'error.main',mt:-2}}>
                 No results found!
             </Typography>
             </Grid> : null
@@ -219,29 +331,30 @@ export default function BaselineLatencyDashboard() {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
+            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} shortenNumber={false} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} icon={'ant-design:number-outlined'} />
+            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} icon={'ant-design:number-outlined'} shortenNumber={false}/>
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
+            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} shortenNumber={false}/>
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <AppWidgetSummary title="Tail Latency (ms)" color="warning" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} icon={'arcticons:a99'} />
+            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="warning" icon={'arcticons:a99'} shortenNumber={false}/>
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} shortenNumber={false}/>
           </Grid>
+
 
 
           <Grid item xs={12} mt={5}>
           <Typography variant={'h6'} sx={{ mb: 2 }}>
-              Timespan based Latency Statistics for Warm Function Invocation - Baseline Experiment (AWS)
+              Timespan based Latency Statistics for Cold Function Invocation - Varying Image Sizes
             </Typography>
           <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>Time span :</InputLabel>
@@ -249,7 +362,7 @@ export default function BaselineLatencyDashboard() {
     id="demo-simple-select"
     value={dateRange}
     label="dateRange"
-    onChange={handleChange}
+    onChange={handleChangeDate}
   >
     <MenuItem value={'week'}>Last week</MenuItem>
     <MenuItem value={'month'}>Last month</MenuItem>
@@ -284,22 +397,29 @@ export default function BaselineLatencyDashboard() {
             <AppLatency
               title="Tail Latencies"
               subheader="99th Percentile"
-              chartLabels={dateRangeList}
+              chartLabels={dateRangeList10MB}
               chartData={[
                 {
-                  name: 'AWS',
+                  name: 'AWS - 100 MB',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[0],
+                  data: tailLatencies100MB,
+                },
+                {
+                  name: 'AWS - 60 MB',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[0],
+                  data: tailLatencies60MB,
+                },
+                {
+                  name: 'AWS - 10 MB',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
-                  data: tailLatencies,
+                  data: tailLatencies10MB,
                 },
-                // {
-                //   name: 'Google',
-                //   type: 'line',
-                //   fill: 'solid',
-                //   data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 13,24, 55, 41, 67, 22, 43, 21, 41],
-                // },
-                
               ]}
             />
           </Grid>
@@ -307,14 +427,28 @@ export default function BaselineLatencyDashboard() {
             <AppLatency
               title="Median Latencies"
               subheader="50th Percentile"
-              chartLabels={dateRangeList}
+              chartLabels={dateRangeList10MB}
               chartData={[
                 {
-                  name: 'AWS',
+                  name: 'AWS - 100 MB',
                   type: 'line',
                   fill: 'solid',
-                  color: theme.palette.primary.main,
-                  data: medianLatencies,
+                  color: theme.palette.chart.blue[0],
+                  data: medianLatencies100MB,
+                },
+                {
+                  name: 'AWS - 60 MB',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.green[0],
+                  data: medianLatencies60MB,
+                },
+                {
+                  name: 'AWS - 10MB',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.red[0],
+                  data: medianLatencies10MB,
                 },
                 
               ]}

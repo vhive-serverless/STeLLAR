@@ -21,7 +21,7 @@ export default function About() {
 
             <Typography variant='h4' marginBottom={3}>Serverless Computing & Benchmarking</Typography>
               <Typography variant='p'>Serverless computing, also known as Function-as-a-
-Service (FaaS), developers structure their applications as a collection of functions invoked by various
+Service (FaaS), where developers structure their applications as a collection of functions invoked by various
 events like clicks, and cloud providers take responsibility for
 cloud infrastructure management. As with other cloud services,
 serverless deployments require responsiveness and performance
@@ -52,7 +52,20 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             <Box component="img" src="/STeLLAR/static/design.png" sx={{height: '500px' }} />
             <Box sx={{ width: '100%',ml:5}}>
               
+            <Typography variant='h6'><b>Terminology</b></Typography>
             
+            <ListItem sx={{display:'list-item'}}>
+       An endpoint is a URL used for locating the function instance over the Internet. As seen in the diagram, this URL most often points to resources such as AWS API Gateway, Azure HTTP Triggers, vHive Kubernetes Load Balancer, or similar.
+       </ListItem>
+
+       <ListItem sx={{display:'list-item'}}>The inter-arrival time (IAT) is the time interval that the client waits for in-between sending two bursts to the same endpoint.
+</ListItem>
+
+
+       <ListItem sx={{display:'list-item'}}>Multiple endpoints can be used simultaneously by the same experiment to speed up the benchmarking. The JSON configuration field parallelism defines this number: the higher it is, the more endpoints will be allocated, and the more bursts will be sent in short succession (speeding up the process for large IATs).
+</ListItem>
+
+<Typography variant='h6' mt={2}><b>Components</b></Typography>
           <ListItem sx={{ display: 'list-item' }}>
           The coordinator orchestrates the entire benchmarking procedure.
 
@@ -63,21 +76,16 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
 
           </ListItem>
        
-       <ListItem sx={{display:'list-item'}}>
-       An endpoint is a URL used for locating the function instance over the Internet. As seen in the diagram, this URL most often points to resources such as AWS API Gateway, Azure HTTP Triggers, vHive Kubernetes Load Balancer, or similar.
-       </ListItem>
+      
               
        <ListItem sx={{display:'list-item'}}>The vendor endpoints input JSON file is only used for providers such as vHive that do not currently support automated function management (e.g., function listing, deployment, repurposing, or removal via SDKs or APIs).
 </ListItem>
 
-       <ListItem sx={{display:'list-item'}}>The inter-arrival time (IAT) is the time interval that the client waits for in-between sending two bursts to the same endpoint.
-</ListItem>
-
-
-       <ListItem sx={{display:'list-item'}}>Multiple endpoints can be used simultaneously by the same experiment to speed up the benchmarking. The JSON configuration field parallelism defines this number: the higher it is, the more endpoints will be allocated, and the more bursts will be sent in short succession (speeding up the process for large IATs).
-</ListItem>
+       
        <ListItem sx={{display:'list-item'}}>The latencies CSV files are the main output of the evaluation framework. They are used in our plotting tools to produce insightful visualizations.
 </ListItem>
+
+<ListItem sx={{display:'list-item'}}>The logs text file is the final output of the benchmarking client. Log records are useful for optimizing code and debugging problematic behavior.</ListItem>
 
               </Box>
               
@@ -99,8 +107,6 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
  
             </ListItem>
             </CardContent>
-
-
           </Card>
           
         </Grid>
@@ -113,13 +119,11 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             </CardContent>
 
             <CardContent>
-            <Typography variant='h5'>Warm Function Invocations <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
+            <Typography variant='h5'>Warm Function Invocations <Button to="/dashboard/warm/aws" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button></Typography>
-            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions under a <b>non-bursty load</b> (i.e., allowing no more than a single outstanding request to each function).
+            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions under a non-bursty load (i.e., allowing no more than a single outstanding request to each function).
 <br/>
-* Here, we call a function warm if it has at least one instance online and idle
-upon a request’s arrival, otherwise we refer to the function as a cold function.
             </ListItem>
             
               <Typography variant='h5' mt={3}>Cold Function Invocations</Typography>
@@ -145,7 +149,7 @@ upon a request’s arrival, otherwise we refer to the function as a cold functio
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - ZIP based deployment</ListItem>
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - Image based deployment</ListItem>
           </ListItem>
-          
+          <Typography variant='p' sx={{color:'red'}}>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography>
           </CardContent>
           </Card>
           
