@@ -8,7 +8,7 @@ import {format,subWeeks,subMonths} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Divider } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -178,7 +178,7 @@ export default function BaselineLatencyDashboard() {
             Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Function Memory Size : <b>128MB</b>
+            Function Memory Size : <b>2048MB</b>
           </ListItem>
           
               </Box>
@@ -187,8 +187,10 @@ export default function BaselineLatencyDashboard() {
             </Card>
             </Grid>
 
-            
             <Grid item xs={12} sx={{mt:5}}>
+              <Card>
+                <CardContent>
+            <Grid item xs={12} >
             
             <Typography variant={'h6'} sx={{ mb: 2 }}>
                Individual (Daily) Latency Statistics for Cold Function Invocation - Baseline Experiment (AWS)
@@ -208,38 +210,46 @@ export default function BaselineLatencyDashboard() {
             </Grid>
             {
                 dailyStatistics?.length < 1 ? <Grid item xs={12}>
-            <Typography sx={{fontSize:'12px', color: 'error.main',mt:-2}}>
+            <Typography sx={{fontSize:'12px', color: 'error.main'}}>
                 No results found!
             </Typography>
             </Grid> : null
             }
-          <Grid item xs={12} sm={6} md={2}>
+            <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
+          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} icon={'ant-design:number-outlined'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="warning" icon={'arcticons:a99'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
           </Grid>
+          </Stack>
+</CardContent>
+</Card>
+</Grid>
 
-
-
-          <Grid item xs={12} mt={5}>
+<Grid item xs={12} mt={2}>
+          
+          <Divider sx={{backgroundColor:'white'}}/>
+          <Card sx={{mt:5 }}>
+              <CardContent>
+          <Grid item xs={12} >
           <Typography variant={'h6'} sx={{ mb: 2 }}>
               Timespan based Latency Statistics for Cold Function Invocation - Baseline Experiment (AWS)
             </Typography>
@@ -256,11 +266,12 @@ export default function BaselineLatencyDashboard() {
     <MenuItem value={'3-months'}>Last 3 months</MenuItem>
     <MenuItem value={'custom'}>Custom range</MenuItem>
   </Select>
-  </Stack>
+          </Stack>
             </Grid>
-            {dateRange==='custom' && <><Grid item xs={4}>
+            {dateRange==='custom' &&  <Stack direction="row" alignItems="center" mt={3}>
+              <Grid item xs={3}>
                     <DatePicker
-                        label="Start Date"
+                        label="From : "
                         value={startDate}
                         onChange={(newValue) => {
                             setStartDate(format(newValue, 'yyyy-MM-dd'));
@@ -268,9 +279,9 @@ export default function BaselineLatencyDashboard() {
                         renderInput={(params) => <TextField {...params} />}
                     />
                 </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
                 <DatePicker
-                    label="End Date"
+                    label="To : "
                     value={endDate}
                     onChange={(newValue) => {
                         setEndDate(format(newValue, 'yyyy-MM-dd'));
@@ -278,11 +289,11 @@ export default function BaselineLatencyDashboard() {
                     renderInput={(params) => <TextField {...params} />}
                 />
             </Grid>
-            </>
+            </Stack>
             }
-          <Grid item xs={12}>
+          <Grid item xs={12} mt={3}>
             <AppLatency
-              title="Tail Latencies"
+              title="Tail Latency Variation"
               subheader="99th Percentile"
               chartLabels={dateRangeList}
               chartData={[
@@ -303,9 +314,9 @@ export default function BaselineLatencyDashboard() {
               ]}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} mt={3}>
             <AppLatency
-              title="Median Latencies"
+              title="Median Latency Variation"
               subheader="50th Percentile"
               chartLabels={dateRangeList}
               chartData={[
@@ -319,6 +330,11 @@ export default function BaselineLatencyDashboard() {
                 
               ]}
             />
+          </Grid>
+
+
+          </CardContent>
+          </Card>
           </Grid>
         </Grid>
       </Container>

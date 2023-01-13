@@ -43,13 +43,17 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
           
         </Grid>
 
-        <Grid item xs={12} mb={3}>
+        <Box item xs={12} mb={3}>
           <Card>
             <CardContent>
             <Typography variant='h4' marginBottom={3}>Design & Methodology</Typography>
-            <Stack direction="row" alignItems="center" mt={5}>
-            
-            <Box component="img" src="/STeLLAR/static/design.png" sx={{height: '500px' }} />
+            {/* <Stack direction="row" alignItems="center" mt={5}> */}
+            <Box sx={{display: 'flex',my:3,alignItems:'center',justifyContent:'center' }}>
+            <Box component="img" src="/STeLLAR/static/design.png" sx={{width:'60%'}} />
+            </Box>
+            <Box sx={{display: 'flex',my:3,alignItems:'center',justifyContent:'center' }}>
+            Figure 1: STeLLAR Architecture Overview
+              </Box>
             <Box sx={{ width: '100%',ml:5}}>
               
             <Typography variant='h6'><b>Terminology</b></Typography>
@@ -89,7 +93,7 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
 
               </Box>
               
-            </Stack>
+            {/* </Stack> */}
             <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda</Typography>
             </CardContent>
             <CardContent>
@@ -109,24 +113,24 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             </CardContent>
           </Card>
           
-        </Grid>
+        </Box>
 
         <Grid item xs={12} mb={3}>
           <Card>
             <CardContent>
             <Typography variant='h4'>Scenarios under test</Typography>
-              <Typography variant='p'>There are several important scenarios under test and displayed in the dashboards above, including the following:</Typography>
+              <Typography variant='p'>There are several important scenarios under test and displayed in the dashboards, including the following:</Typography>
             </CardContent>
 
             <CardContent>
-            <Typography variant='h5'>Warm Function Invocations <Button to="/dashboard/warm/aws" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
+            <Typography variant='h5' fontWeight={500}>1. Warm Function Invocations <Button to="/dashboard/warm/aws" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button></Typography>
-            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions under a non-bursty load (i.e., allowing no more than a single outstanding request to each function).
+            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions * under a non-bursty load (i.e., allowing no more than a single outstanding request to each function).
 <br/>
             </ListItem>
             
-              <Typography variant='h5' mt={3}>Cold Function Invocations</Typography>
+              <Typography variant='h5' fontWeight={500} mt={3}>2. Cold Function Invocations</Typography>
               <ListItem sx={{display:'list-item'}}><b>Baseline :</b> Here we assess the cold function delays under a non-bursty load.  
               <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
@@ -149,7 +153,7 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - ZIP based deployment</ListItem>
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - Image based deployment</ListItem>
           </ListItem>
-          <Typography variant='p' sx={{color:'red'}}>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography>
+          <Typography variant='p'>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography>
           </CardContent>
           </Card>
           

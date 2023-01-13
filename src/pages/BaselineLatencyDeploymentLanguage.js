@@ -8,7 +8,7 @@ import {format,subWeeks,subMonths} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Link,Divider } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Divider } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -27,24 +27,29 @@ export default function BaselineLatencyDashboard() {
     const isMountedRef = useIsMountedRef();
     const today = new Date();
 
-    const experimentTypeFor10MB = 'cold-image_size_10-aws';
-    const experimentTypeFor60MB = 'cold-image_size_60-aws';
-    const experimentTypeFor100MB = 'cold-image_size_100-aws';
+    const experimentTypeGoZip = 'cold-image_size_10-aws'; 
+    // Results from Cold invocation - Zip based 10MB Image size experiment can be reused here since the configuration would be the same. 
+    const experimentTypeGoImg = 'cold-language_deployment_pc_img-aws';
+    const experimentTypePyZip = 'cold-baseline-aws';
+    // Results from Cold invocation baseline experiment can be reused here since the configuration would be the same. 
+    const experimentTypePyImg = 'cold-language_deployment_hellopy_img-aws';
 
     const oneWeekBefore = subWeeks(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
-    const [overallStatistics10MB,setOverallStatistics10MB] = useState(null);
-    const [overallStatistics60MB,setOverallStatistics60MB] = useState(null);
-    const [overallStatistics100MB,setOverallStatistics100MB] = useState(null);
+    const [overallStatisticsGoImg,setOverallStatisticsGoImg] = useState(null);
+    const [overallStatisticsPyImg,setOverallStatisticsPyImg] = useState(null);
+    const [overallStatisticsGoZip,setOverallStatisticsGoZip] = useState(null);
+    const [overallStatisticsPyZip,setOverallStatisticsPyZip] = useState(null);
     const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
-    const [experimentType,setExperimentType] = useState(experimentTypeFor10MB);
+    const [experimentType,setExperimentType] = useState(experimentTypeGoImg);
     const [dateRange, setDateRange] = useState('week');
-    const [imageSize, setImageSize] = useState('10');
+    const [languageRuntime, setLanguageRuntime] = useState('python');
+    const [deploymentMethod, setDeploymentMethod] = useState('img');
 
     const handleChangeDate = (event) => {
 
@@ -64,14 +69,27 @@ export default function BaselineLatencyDashboard() {
       setDateRange(event.target.value);
     };
 
-    const handleChangeImageSize = (event) => {
+    const handleChangeLanguageRuntime = (event) => {
       const selectedValue = event.target.value;  
-      setImageSize(selectedValue);
+      setLanguageRuntime(selectedValue);
     };
+
+    const handleChangeDeploymentMethod = (event) =>{
+      setDeploymentMethod(event.target.value);
+    }
     
     useMemo(()=>{
-      setExperimentType(`cold-image_size_${imageSize}-aws`)
-    },[imageSize])
+
+      if(deploymentMethod==='img' && languageRuntime==='python')
+        setExperimentType(experimentTypePyImg)
+      if(deploymentMethod==='img' && languageRuntime==='go')
+        setExperimentType(experimentTypeGoImg)
+      if(deploymentMethod==='zip' && languageRuntime==='python')
+        setExperimentType(experimentTypePyZip)
+      if(deploymentMethod==='zip' && languageRuntime==='go')
+        setExperimentType(experimentTypeGoZip)
+
+    },[languageRuntime,deploymentMethod])
 
     const fetchIndividualData = useCallback(async () => {
         try {
@@ -92,123 +110,161 @@ export default function BaselineLatencyDashboard() {
         fetchIndividualData();
     }, [fetchIndividualData]);
 
-    // 10 MB Functionality
-    const fetchDataRange10MB = useCallback(async () => {
+    // Go-Img Functionality
+    const fetchDataRangeGoImg = useCallback(async () => {
         try {
             const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentTypeFor10MB,
+                params: { experiment_type: experimentTypeGoImg,
                     start_date:startDate,
                     end_date:endDate,
                 },
             });
             if (isMountedRef.current) {
-                setOverallStatistics10MB(response.data)
+                setOverallStatisticsGoImg(response.data)
             }
         } catch (err) {
             setIsErrorDataRangeStatistics(true);
         }
     }, [isMountedRef,startDate,endDate]);
 
-    // 60 MB Functionality
-    const fetchDataRange60MB = useCallback(async () => {
+    // Py-Img Functionality
+    const fetchDataRangePyImg = useCallback(async () => {
       try {
           const response = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: experimentTypeFor60MB,
+              params: { experiment_type: experimentTypePyImg,
                   start_date:startDate,
                   end_date:endDate,
               },
           });
           if (isMountedRef.current) {
-              setOverallStatistics60MB(response.data)
+              setOverallStatisticsPyImg(response.data)
           }
       } catch (err) {
           setIsErrorDataRangeStatistics(true);
       }
   }, [isMountedRef,startDate,endDate]);
 
-  // 100 MB Functionality
+  // Py-Zip Functionality
 
-  const fetchDataRange100MB = useCallback(async () => {
+  const fetchDataRangePyZip = useCallback(async () => {
     try {
         const response = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeFor100MB,
+            params: { experiment_type: experimentTypePyZip,
                 start_date:startDate,
                 end_date:endDate,
             },
         });
         if (isMountedRef.current) {
-            setOverallStatistics100MB(response.data)
+            setOverallStatisticsPyZip(response.data)
         }
     } catch (err) {
         setIsErrorDataRangeStatistics(true);
     }
 }, [isMountedRef,startDate,endDate]);
     
+// Go-Zip Functionality
+
+const fetchDataRangeGoZip = useCallback(async () => {
+  try {
+      const response = await axios.get(`${baseURL}/results`, {
+          params: { experiment_type: experimentTypeGoZip,
+              start_date:startDate,
+              end_date:endDate,
+          },
+      });
+      if (isMountedRef.current) {
+          setOverallStatisticsGoZip(response.data)
+      }
+  } catch (err) {
+      setIsErrorDataRangeStatistics(true);
+  }
+}, [isMountedRef,startDate,endDate]);
+
 
 useMemo(() => {
-      fetchDataRange10MB();
-      fetchDataRange60MB();
-      fetchDataRange100MB();
-    }, [fetchDataRange10MB,fetchDataRange60MB,fetchDataRange100MB]);
+      fetchDataRangeGoImg();
+      fetchDataRangePyImg();
+      fetchDataRangePyZip();
+      fetchDataRangeGoZip();
+    }, [fetchDataRangeGoImg,fetchDataRangePyImg,fetchDataRangePyZip,fetchDataRangeGoZip]);
 
-    // 10 MB Data Processing 
-    const dateRangeList10MB = useMemo(()=> {
-        if(overallStatistics10MB)
-            return overallStatistics10MB.map(record => record.date);
+    // Go-Img Data Processing 
+    const dateRangeListGoImg = useMemo(()=> {
+        if(overallStatisticsGoImg)
+            return overallStatisticsGoImg.map(record => record.date);
         return null
 
-    },[overallStatistics10MB])
+    },[overallStatisticsGoImg])
     
 
-    const tailLatencies10MB = useMemo(()=> {
-        if(overallStatistics10MB)
-            return overallStatistics10MB.map(record => record.tail_latency);
+    const tailLatenciesGoImg = useMemo(()=> {
+        if(overallStatisticsGoImg)
+            return overallStatisticsGoImg.map(record => record.tail_latency);
         return null
 
-    },[overallStatistics10MB])
+    },[overallStatisticsGoImg])
 
 
-    const medianLatencies10MB = useMemo(()=> {
-        if(overallStatistics10MB)
-            return overallStatistics10MB.map(record => record.median);
+    const medianLatenciesGoImg = useMemo(()=> {
+        if(overallStatisticsGoImg)
+            return overallStatisticsGoImg.map(record => record.median);
         return null
 
-    },[overallStatistics10MB])
+    },[overallStatisticsGoImg])
 
-    // 60 MB Data Processing 
+
+    // Py-Img Data Processing 
     
-  const tailLatencies60MB = useMemo(()=> {
-      if(overallStatistics60MB)
-          return overallStatistics60MB.map(record => record.tail_latency);
+  const tailLatenciesPyImg = useMemo(()=> {
+      if(overallStatisticsPyImg)
+          return overallStatisticsPyImg.map(record => record.tail_latency);
       return null
 
-  },[overallStatistics60MB])
+  },[overallStatisticsPyImg])
 
 
-  const medianLatencies60MB = useMemo(()=> {
-      if(overallStatistics60MB)
-          return overallStatistics60MB.map(record => record.median);
+  const medianLatenciesPyImg = useMemo(()=> {
+      if(overallStatisticsPyImg)
+          return overallStatisticsPyImg.map(record => record.median);
       return null
 
-  },[overallStatistics60MB])
+  },[overallStatisticsPyImg])
 
 
-  // 100 MB Data Processing 
+// Py-Zip Data Processing 
     
-  const tailLatencies100MB = useMemo(()=> {
-    if(overallStatistics100MB)
-        return overallStatistics100MB.map(record => record.tail_latency);
+  const tailLatenciesPyZip = useMemo(()=> {
+    if(overallStatisticsPyZip)
+        return overallStatisticsPyZip.map(record => record.tail_latency);
     return null
 
-},[overallStatistics100MB])
+},[overallStatisticsPyZip])
 
 
-const medianLatencies100MB = useMemo(()=> {
-    if(overallStatistics100MB)
-        return overallStatistics100MB.map(record => record.median);
+const medianLatenciesPyZip = useMemo(()=> {
+    if(overallStatisticsPyZip)
+        return overallStatisticsPyZip.map(record => record.median);
     return null
 
-},[overallStatistics100MB])
+},[overallStatisticsPyZip])
+
+// Go-Zip Data Processing 
+    
+const tailLatenciesGoZip = useMemo(()=> {
+  if(overallStatisticsGoZip)
+      return overallStatisticsGoZip.map(record => record.tail_latency);
+  return null
+
+},[overallStatisticsGoZip])
+
+
+const medianLatenciesGoZip = useMemo(()=> {
+  if(overallStatisticsGoZip)
+      return overallStatisticsGoZip.map(record => record.median);
+  return null
+
+},[overallStatisticsGoZip])
+
 
 
 
@@ -237,7 +293,7 @@ const medianLatencies100MB = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Cold Function Invocations - Impact of Function Image Size
+               Cold Function Invocations - Impacts of Deployment Method and Language Runtime
             </Typography>
            
             <Card>
@@ -247,10 +303,18 @@ const medianLatencies100MB = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we assess the impact of the image size on the median and tail
-response times, by adding an extra random-content file to
-each image. <br/>
-            <br/>
+            In this experiment, we study the implications of different deployment methods
+and language runtimes. <br/> Deployment methods refer to how a
+developer packages and deploys their functions, which also
+affects the way in which serverless infrastructures store and
+load a function image when an instance is cold booted. <br/> <br/>
+We study the two deployment methods that are in common use
+today: <b> ZIP archive </b>, and <b> container-based image. </b> <br/>
+With respect to language runtime, we focus on two fundamental classes
+of runtimes: compiled and interpreted. To that end, we study
+functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
+(compiled) </b> deployed via ZIP and container-based images.
+            <br/><br/>
             Detailed configuration parameters are as below.
             
             </Typography>
@@ -260,14 +324,10 @@ each image. <br/>
             Serverless Cloud : <b>AWS Lambda</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Go</b>
+            Language Runtimes : <b>Go & Python</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Deployment Method : <b>ZIP based</b>
-          </ListItem>
-
-          <ListItem sx={{ display: 'list-item' }}>
-            Function Image Sizes : <b>10MB, 60MB, 100MB</b>
+            Deployment Methods : <b>ZIP based & Image based</b>
           </ListItem>
 
           </Box>
@@ -278,9 +338,12 @@ each image. <br/>
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
-          <ListItem sx={{ display: 'list-item' }}>
-            Function Name : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>producer-consumer</b></Link>
-          </ListItem>
+          {/* <ListItem sx={{ display: 'list-item' }}>
+            Function Names : 
+            
+            <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b> producer-consumer</b></Link> & 
+            <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/hellopy/aws'}><b> hellopy</b></Link>
+          </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
             Function Memory Size : <b>2048MB</b>
           </ListItem>
@@ -297,7 +360,7 @@ each image. <br/>
             <Grid item xs={12}>
             
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocation - Varying Image Sizes
+               Individual (Daily) Latency Statistics for Cold Function Invocation - Varying Language Runtime & Deployment Method
             </Typography>
             <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
@@ -309,15 +372,24 @@ each image. <br/>
                     }}
                     renderInput={(params) => <TextField {...params} />}
                 />
-                 <InputLabel sx={{mx:3}}> with the Image Size of :</InputLabel>
+                 <InputLabel sx={{mx:3}}> with the Language Runtime being :</InputLabel>
   <Select
-    value={imageSize}
-    label="imageSize"
-    onChange={handleChangeImageSize}
+    value={languageRuntime}
+    label="languageRuntime"
+    onChange={handleChangeLanguageRuntime}
   >
-    <MenuItem value={'10'}>10 MB</MenuItem>
-    <MenuItem value={'60'}>60 MB</MenuItem>
-    <MenuItem value={'100'}>100 MB</MenuItem>
+    <MenuItem value={'python'}>Python</MenuItem>
+    <MenuItem value={'go'}>Go</MenuItem>
+  </Select>
+
+  <InputLabel sx={{mx:3}}> and Deployment Method : </InputLabel>
+  <Select
+    value={deploymentMethod}
+    label="deploymentMethod"
+    onChange={handleChangeDeploymentMethod}
+  >
+    <MenuItem value={'img'}>Image based</MenuItem>
+    <MenuItem value={'zip'}>Zip based</MenuItem>
   </Select>
                 </Stack>
                
@@ -369,7 +441,7 @@ each image. <br/>
           <Grid item xs={12} >
             
           <Typography variant={'h6'} sx={{ mb: 2}}>
-              Timespan based Latency Statistics for Cold Function Invocation - Varying Image Sizes
+              Timespan based Latency Statistics for Cold Function Invocation - Varying Language Runtime & Deployment Method
             </Typography>
           <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>Time span :</InputLabel>
@@ -415,29 +487,38 @@ each image. <br/>
             <AppLatency
               title="Tail Latency Variation"
               subheader="99th Percentile"
-              chartLabels={dateRangeList10MB}
+              chartLabels={dateRangeListGoImg}
               chartData={[
+                
                 {
-                  name: 'AWS - 100 MB',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: tailLatencies100MB,
-                },
-                {
-                  name: 'AWS - 60 MB',
+                  name: 'Python - Image',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.green[0],
-                  data: tailLatencies60MB,
+                  data: tailLatenciesPyImg,
                 },
                 {
-                  name: 'AWS - 10 MB',
+                  name: 'Go - Image',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
-                  data: tailLatencies10MB,
+                  data: tailLatenciesGoImg,
                 },
+                {
+                  name: 'Go - Zip',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.yellow[0],
+                  data: tailLatenciesGoZip,
+                },
+                {
+                  name: 'Python - Zip',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[0],
+                  data: tailLatenciesPyZip,
+                },
+               
               ]}
             />
           </Grid>
@@ -445,30 +526,37 @@ each image. <br/>
             <AppLatency
               title="Median Latency Variation"
               subheader="50th Percentile"
-              chartLabels={dateRangeList10MB}
+              chartLabels={dateRangeListGoImg}
               chartData={[
+                
                 {
-                  name: 'AWS - 100 MB',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.chart.blue[0],
-                  data: medianLatencies100MB,
-                },
-                {
-                  name: 'AWS - 60 MB',
+                  name: 'Python - Image',
                   type: 'line',
                   fill: 'solid',
                   color: theme.palette.chart.green[0],
-                  data: medianLatencies60MB,
+                  data: medianLatenciesPyImg,
                 },
                 {
-                  name: 'AWS - 10MB',
+                  name: 'Go - Image',
                   type: 'line',
                   fill: 'solid',
                   color: theme.palette.chart.red[0],
-                  data: medianLatencies10MB,
+                  data: medianLatenciesGoImg,
                 },
-                
+                {
+                  name: 'Go - Zip',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.yellow[0],
+                  data: medianLatenciesGoZip,
+                },
+                {
+                  name: 'Python - Zip',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.blue[0],
+                  data: medianLatenciesPyZip,
+                },
               ]}
             />
           </Grid>

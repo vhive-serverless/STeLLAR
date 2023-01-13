@@ -8,6 +8,7 @@ import NotFound from './pages/Page404';
 import BaselineLatencyWarm from './pages/BaselineLatencyWarm';
 import BaselineLatencyCold from './pages/BaselineLatencyCold';
 import BaselineLatencyColdImageSize from './pages/BaselineLatencyColdImageSize';
+import BaselineLatencyColdDeploymentLanguage from './pages/BaselineLatencyDeploymentLanguage';
 import ComingSoon from './pages/PageComingSoon';
 import About from './pages/About';
 
@@ -33,7 +34,7 @@ export default function Router() {
         children:[
           { path: 'baseline', element: <BaselineLatencyCold/> },
           { path: 'image-size', element:<BaselineLatencyColdImageSize/> },
-          { path: 'deployment-language', element: <ComingSoon /> }
+          { path: 'deployment-language', element: <BaselineLatencyColdDeploymentLanguage /> }
         ]},
         { 
         path: 'data-transfer', 

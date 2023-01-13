@@ -48,7 +48,12 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, .
   });
 
   return (
-    <Card {...other}>
+    <Card {...other} sx={{transition: "0.3s",
+    margin: "auto",
+    boxShadow: "0 8px 40px -12px rgba(0,0,0,0.2)",
+    "&:hover": {
+      boxShadow: "0 16px 70px -12.125px rgba(0,0,0,0.3)"
+    },}}>
       <CardHeader title={title} subheader={subheader} />
 
       <Box sx={{ p: 3, pb: 1 }} dir="ltr">
