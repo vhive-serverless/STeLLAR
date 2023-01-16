@@ -4,6 +4,7 @@
   "SubExperiments": [
     {
       "Title": "cold-image_size_60-aws",
+      "RepurposeIdentifier": "producer-consumer-zip-imgLargeMB",
       "Function": "producer-consumer",
       "Bursts": 1000,
       "BurstSizes": [

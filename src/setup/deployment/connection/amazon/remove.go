@@ -31,8 +31,8 @@ import (
 	"strings"
 )
 
-func (instance awsSingleton) RemoveFunction(uniqueID string) *lambda.DeleteFunctionOutput {
-	functionName := fmt.Sprintf("%s%s", namingPrefix, uniqueID)
+func (instance awsSingleton) RemoveFunction(uniqueID string, repurposeIdentifier string) *lambda.DeleteFunctionOutput {
+	functionName := fmt.Sprintf("%s%s_%s", namingPrefix, repurposeIdentifier, uniqueID)
 	log.Infof("Removing lambda function %q", functionName)
 
 	args := &lambda.DeleteFunctionInput{
@@ -43,7 +43,7 @@ func (instance awsSingleton) RemoveFunction(uniqueID string) *lambda.DeleteFunct
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return instance.RemoveFunction(uniqueID)
+			return instance.RemoveFunction(uniqueID, repurposeIdentifier)
 		}
 
 		log.Errorf("Cannot remove function: %s", err.Error())
@@ -53,7 +53,7 @@ func (instance awsSingleton) RemoveFunction(uniqueID string) *lambda.DeleteFunct
 	return result
 }
 
-//RemoveAPIGateway will remove the gateway corresponding to the serverless function given ID.
+// RemoveAPIGateway will remove the gateway corresponding to the serverless function given ID.
 func (instance awsSingleton) RemoveAPIGateway(uniqueID string) *apigateway.DeleteRestApiOutput {
 	log.Infof("Removing API Gateway with ID %q", uniqueID)
 

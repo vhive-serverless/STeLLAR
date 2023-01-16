@@ -29,13 +29,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"path"
-	"strings"
-	"time"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
+	"strings"
+	"time"
 )
 
-//Endpoint is the schema for the configuration of provider endpoints.
+// Endpoint is the schema for the configuration of provider endpoints.
 type Endpoint struct {
 	GatewayID        string  `json:"GatewayID"`
 	FunctionMemoryMB int64   `json:"FunctionMemoryMB"`
@@ -43,27 +43,27 @@ type Endpoint struct {
 	PackageType      string  `json:"PackageType"`
 }
 
-//ServerlessInterface creates an interface through which to interact with various providers
+// ServerlessInterface creates an interface through which to interact with various providers
 type ServerlessInterface struct {
 	//ListAPIs will list all endpoints corresponding to all serverless functions.
-	ListAPIs func() []Endpoint
+	ListAPIs func(repurposeIdentifier string) []Endpoint
 
 	//DeployFunction will create a new serverless function in the specified language, with the specified amount of
 	//memory. An API to access it will then be created, as well as corresponding permissions and integrations.
-	DeployFunction func(binaryPath string, packageType string, language string, memoryAssigned int64) string
+	DeployFunction func(binaryPath string, packageType string, language string, memoryAssigned int64, repurposeIdentifier string) string
 
 	//RemoveFunction will remove the serverless function with given ID and its corresponding API.
-	RemoveFunction func(uniqueID string)
+	RemoveFunction func(uniqueID string, repurposeIdentifier string)
 
 	//UpdateFunction will update the source code of the serverless function with given ID to the specified
 	//memory and to the most recently set code deployment settings (e.g., S3 key).
-	UpdateFunction func(packageType string, uniqueID string, memoryAssigned int64)
+	UpdateFunction func(packageType string, uniqueID string, memoryAssigned int64, repurposeIdentifier string)
 }
 
-//Singleton allows the client to interact with various serverless actions
+// Singleton allows the client to interact with various serverless actions
 var Singleton *ServerlessInterface
 
-//Initialize will create a new provider connection to interact with
+// Initialize will create a new provider connection to interact with
 func Initialize(provider string, endpointsDirectoryPath string, apiTemplatePath string) {
 	switch strings.ToLower(provider) {
 	case "aws":
@@ -84,7 +84,7 @@ func setupAWSConnection(apiTemplatePath string) {
 	amazon.InitializeSingleton(apiTemplatePath)
 
 	Singleton = &ServerlessInterface{
-		ListAPIs: func() []Endpoint {
+		ListAPIs: func(repurposeIdentifier string) []Endpoint {
 			mustRepeatListRequest := true
 			for mustRepeatListRequest {
 				mustRepeatListRequest = false
@@ -93,7 +93,7 @@ func setupAWSConnection(apiTemplatePath string) {
 
 				functions := make([]Endpoint, 0)
 				for _, function := range result {
-					if strings.Contains(*function.FunctionName, "vHive-bench") {
+					if strings.Contains(*function.FunctionName, "continuous-bench-"+repurposeIdentifier) {
 						if function.LastUpdateStatus != nil {
 							mustRepeatListRequest = true
 							break
@@ -113,7 +113,7 @@ func setupAWSConnection(apiTemplatePath string) {
 			}
 			return make([]Endpoint, 0)
 		},
-		DeployFunction: func(binaryPath string, packageType string, function string, memoryAssigned int64) string {
+		DeployFunction: func(binaryPath string, packageType string, function string, memoryAssigned int64, repurposeIdentifier string) string {
 			const (
 				golangRuntime = "go1.x"
 				pythonRuntime = "python3.8"
@@ -129,25 +129,26 @@ func setupAWSConnection(apiTemplatePath string) {
 				log.Fatalf("DeployFunction could not recognize function image %s", function)
 			}
 
-			return amazon.AWSSingletonInstance.DeployFunction(binaryPath, packageType, language, memoryAssigned)
+			return amazon.AWSSingletonInstance.DeployFunction(binaryPath, packageType, language, memoryAssigned, repurposeIdentifier)
 		},
-		RemoveFunction: func(uniqueID string) {
-			amazon.AWSSingletonInstance.RemoveFunction(uniqueID)
+		RemoveFunction: func(uniqueID string, repurposeIdentifier string) {
+			amazon.AWSSingletonInstance.RemoveFunction(uniqueID, repurposeIdentifier)
 			amazon.AWSSingletonInstance.RemoveAPIGateway(uniqueID)
 		},
-		UpdateFunction: func(packageType string, uniqueID string, memoryAssigned int64) {
-			amazon.AWSSingletonInstance.UpdateFunction(packageType, uniqueID)
+		UpdateFunction: func(packageType string, uniqueID string, memoryAssigned int64, repurposeIdentifier string) {
+
+			amazon.AWSSingletonInstance.UpdateFunction(packageType, uniqueID, repurposeIdentifier)
 
 			time.Sleep(time.Second * 5) // https://aws.amazon.com/de/blogs/compute/coming-soon-expansion-of-aws-lambda-states-to-all-functions/
 
-			amazon.AWSSingletonInstance.UpdateFunctionConfiguration(uniqueID, memoryAssigned)
+			amazon.AWSSingletonInstance.UpdateFunctionConfiguration(uniqueID, memoryAssigned, repurposeIdentifier)
 		},
 	}
 }
 
 func setupFileConnection(filePath string) {
 	Singleton = &ServerlessInterface{
-		ListAPIs: func() []Endpoint {
+		ListAPIs: func(repurposeIdentifier string) []Endpoint {
 			endpointsFile := util.ReadFile(filePath)
 			configByteValue, _ := io.ReadAll(endpointsFile)
 
@@ -163,7 +164,7 @@ func setupFileConnection(filePath string) {
 
 func setupExternalConnection() {
 	Singleton = &ServerlessInterface{
-		ListAPIs: func() []Endpoint {
+		ListAPIs: func(repurposeIdentifier string) []Endpoint {
 			return nil
 		},
 	}

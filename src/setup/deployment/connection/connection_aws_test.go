@@ -26,11 +26,11 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"math/rand"
-	"testing"
-	"time"
 	"stellar/setup/deployment"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
+	"testing"
+	"time"
 )
 
 const (
@@ -47,23 +47,23 @@ func TestAWSRemoveAllFunctions(t *testing.T) {
 	}
 
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
+	apis := Singleton.ListAPIs("test-function")
 
 	for _, function := range apis {
-		Singleton.RemoveFunction(function.GatewayID)
+		Singleton.RemoveFunction(function.GatewayID, "test-function")
 	}
 }
 
 func TestAWSListAPIs(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
+	apis := Singleton.ListAPIs("test-function")
 
 	require.True(t, 0 <= len(apis) && len(apis) <= awsAPIsLimitIncl)
 }
 
 func TestAWSRemoveFunction(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
+	apis := Singleton.ListAPIs("test-function")
 
 	var removedAPIID string
 	if len(apis) == 0 {
@@ -72,10 +72,10 @@ func TestAWSRemoveFunction(t *testing.T) {
 		removedAPIID = apis[0].GatewayID
 	}
 
-	Singleton.RemoveFunction(removedAPIID)
+	Singleton.RemoveFunction(removedAPIID, "test-function")
 
 	// Check that removing succeeded
-	apis = Singleton.ListAPIs()
+	apis = Singleton.ListAPIs("test-function")
 	for _, api := range apis {
 		if api.GatewayID == removedAPIID {
 			require.FailNow(t, "Lambda function was in fact not removed: function still listed by AWS.")
@@ -85,16 +85,16 @@ func TestAWSRemoveFunction(t *testing.T) {
 
 func TestAWSDeployFunctionFromZip(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
+	apis := Singleton.ListAPIs("test-function")
 
 	if len(apis) >= awsAPIsLimitIncl {
-		Singleton.RemoveFunction(apis[0].GatewayID)
+		Singleton.RemoveFunction(apis[0].GatewayID, "test-function")
 	}
 
 	deployedFunctionID, deployedImageSizeMB, desiredFunctionMemoryMB := deployRandomMemoryFunction("Zip", producerConsumer)
 
 	// Check that deployment succeeded
-	apis = Singleton.ListAPIs()
+	apis = Singleton.ListAPIs("test-function")
 	foundDeployedFunction := false
 	for _, api := range apis {
 		if api.GatewayID == deployedFunctionID &&
@@ -107,21 +107,21 @@ func TestAWSDeployFunctionFromZip(t *testing.T) {
 	require.True(t, foundDeployedFunction)
 
 	// Cleanup
-	Singleton.RemoveFunction(deployedFunctionID)
+	Singleton.RemoveFunction(deployedFunctionID, "test-function")
 }
 
 func TestAWSDeployFunctionFromImage(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
+	apis := Singleton.ListAPIs("test-function")
 
 	if len(apis) >= awsAPIsLimitIncl {
-		Singleton.RemoveFunction(apis[0].GatewayID)
+		Singleton.RemoveFunction(apis[0].GatewayID, "test-function")
 	}
 
 	deployedFunctionID, _, desiredFunctionMemoryMB := deployRandomMemoryFunction("Image", producerConsumer)
 
 	// Check that deployment succeeded
-	apis = Singleton.ListAPIs()
+	apis = Singleton.ListAPIs("test-function")
 	foundDeployedFunction := false
 	for _, api := range apis {
 		if api.GatewayID == deployedFunctionID &&
@@ -133,12 +133,12 @@ func TestAWSDeployFunctionFromImage(t *testing.T) {
 	require.True(t, foundDeployedFunction)
 
 	// Cleanup
-	Singleton.RemoveFunction(deployedFunctionID)
+	Singleton.RemoveFunction(deployedFunctionID, "test-function")
 }
 
 func TestAWSUpdateFunction(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
+	apis := Singleton.ListAPIs("test-function")
 
 	var repurposedAPIID string
 	// Update first api that is not "Image"-packaged
@@ -155,10 +155,10 @@ func TestAWSUpdateFunction(t *testing.T) {
 	}
 
 	repurposedFunctionMemory := rand.Intn(1000-128) + 128
-	Singleton.UpdateFunction("Zip", repurposedAPIID, int64(repurposedFunctionMemory))
+	Singleton.UpdateFunction("Zip", repurposedAPIID, int64(repurposedFunctionMemory), "test-function")
 
 	// Check that repurposing succeeded
-	apis = Singleton.ListAPIs()
+	apis = Singleton.ListAPIs("test-function")
 	foundRepurposedFunction := false
 	for _, api := range apis {
 		if api.GatewayID == repurposedAPIID &&
@@ -169,7 +169,7 @@ func TestAWSUpdateFunction(t *testing.T) {
 	require.True(t, foundRepurposedFunction)
 
 	// Cleanup
-	Singleton.RemoveFunction(repurposedAPIID)
+	Singleton.RemoveFunction(repurposedAPIID, "test-function")
 }
 
 func deployRandomMemoryFunction(packageType string, function string) (string, float64, int64) {
@@ -178,7 +178,7 @@ func deployRandomMemoryFunction(packageType string, function string) (string, fl
 
 	deployedImageSizeMB, binaryPath := setupDeployment(packageType, function)
 
-	return Singleton.DeployFunction(binaryPath, packageType, function, desiredFunctionMemoryMB), deployedImageSizeMB, desiredFunctionMemoryMB
+	return Singleton.DeployFunction(binaryPath, packageType, function, desiredFunctionMemoryMB, "test-function"), deployedImageSizeMB, desiredFunctionMemoryMB
 }
 
 func setupDeployment(packageType string, function string) (float64, string) {

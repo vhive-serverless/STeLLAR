@@ -75,6 +75,8 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 	for index, endpoint := range *availableEndpoints {
 		if specsMatch(endpoint, experiment) {
 			*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
+			//connection.Singleton.RemoveFunction(endpoint.GatewayID, experiment.RepurposeIdentifier)
+			//log.Infof("Successfully deleted Gateway ID %q", endpoint.GatewayID)
 			return endpoint.GatewayID
 		}
 	}
@@ -93,7 +95,7 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 		for index, endpoint := range *availableEndpoints {
 			if endpoint.PackageType == "Zip" {
 				log.Infof("[sub-experiment %d] Repurposing an existing function...", experiment.ID)
-				connection.Singleton.UpdateFunction(experiment.PackageType, endpoint.GatewayID, experiment.FunctionMemoryMB)
+				connection.Singleton.UpdateFunction(experiment.PackageType, endpoint.GatewayID, experiment.FunctionMemoryMB, experiment.RepurposeIdentifier)
 
 				*availableEndpoints = removeEndpointFromSlice(*availableEndpoints, index)
 
@@ -111,7 +113,7 @@ func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment 
 	}
 
 	log.Infof("[sub-experiment %d] Could not find an existing function to repurpose, creating a new function...", experiment.ID)
-	return connection.Singleton.DeployFunction(assignedHandler, experiment.PackageType, experiment.Function, experiment.FunctionMemoryMB)
+	return connection.Singleton.DeployFunction(assignedHandler, experiment.PackageType, experiment.Function, experiment.FunctionMemoryMB, experiment.RepurposeIdentifier)
 }
 
 func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoint {

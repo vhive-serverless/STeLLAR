@@ -37,7 +37,7 @@ import (
 var sessionInstance *session.Session
 
 func invokeNextFunctionAWS(parameters map[string]string, functionID string) []byte {
-	const namingPrefix = "vHive-bench_"
+	const namingPrefix = "continuous-bench_"
 
 	type Payload struct {
 		QueryStringParameters map[string]string `json:"queryStringParameters"`

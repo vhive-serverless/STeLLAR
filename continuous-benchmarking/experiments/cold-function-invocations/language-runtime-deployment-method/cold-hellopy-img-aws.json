@@ -1,9 +1,11 @@
 {
   "Sequential": false,
+  "Provider": "aws",
   "SubExperiments": [
     {
       "Title": "cold-language_deployment_hellopy_img-aws",
       "Function": "hellopy",
+      "RepurposeIdentifier": "hellopy-img-img0MB",
       "Bursts": 1000,
       "BurstSizes": [
         1
@@ -14,7 +16,7 @@
         "0ms"
       ],
       "PackageType": "Image",
-      "Parallelism":100
+      "Parallelism":  100
     }
   ]
 }

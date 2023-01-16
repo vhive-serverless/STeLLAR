@@ -4,6 +4,7 @@
   "SubExperiments": [
     {
       "Title": "cold-baseline-aws",
+      "RepurposeIdentifier": "hellopy-zip-img0MB",
       "Function": "hellopy",
       "Bursts": 1000,
       "BurstSizes": [
@@ -11,6 +12,7 @@
       ],
       "IATSeconds": 600,
       "PackageType": "Zip",
+      "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
       ],

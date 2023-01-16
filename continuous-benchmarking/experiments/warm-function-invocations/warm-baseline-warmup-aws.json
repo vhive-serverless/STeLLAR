@@ -1,20 +1,22 @@
 {
-  "Sequential": false,
-  "Provider": "aws",
-  "SubExperiments": [
-    {
-      "Title": "warm-baseline-aws-warmup",
-      "Function": "hellopy",
-      "Bursts": 100,
-      "BurstSizes": [
-        1
-      ],
-      "IATSeconds": 3,
-      "PackageType": "Zip",
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "Parallelism": 100
-    }
-  ]
-}
+    "Sequential": false,
+    "Provider": "aws",
+    "SubExperiments": [
+      {
+        "Title": "warm-baseline-aws-warmup",
+        "RepurposeIdentifier": "hellopy-zip-img0MB",
+        "Function": "hellopy",
+        "Bursts": 100,
+        "BurstSizes": [
+          1
+        ],
+        "IATSeconds": 3,
+        "PackageType": "Zip",
+        "FunctionMemoryMB": 2048,
+        "DesiredServiceTimes": [
+          "0ms"
+        ],
+        "Parallelism": 100
+      }
+    ]
+  }

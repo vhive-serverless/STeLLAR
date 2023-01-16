@@ -29,7 +29,7 @@ import (
 
 func TestSetupExternalConnection(t *testing.T) {
 	Initialize("www.google.com", "", apiTemplatePathFromConnectionFolder)
-	require.Nil(t, Singleton.ListAPIs(), "External connection: ListAPIs() should return nil.")
+	require.Nil(t, Singleton.ListAPIs("sample-function"), "External connection: ListAPIs() should return nil.")
 	require.Nil(t, Singleton.DeployFunction, "External connection: DeployFunction should be nil.")
 	require.Nil(t, Singleton.RemoveFunction, "External connection: RemoveFunction should be nil.")
 	require.Nil(t, Singleton.UpdateFunction, "External connection: UpdateFunction should be nil.")

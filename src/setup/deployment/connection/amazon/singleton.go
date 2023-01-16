@@ -45,10 +45,10 @@ const (
 	//AWSRegion is the region that AWS operates in
 	AWSRegion = endpoints.UsWest1RegionID
 	//AWSBucketName is the name of the bucket where the client operates
-	AWSBucketName      = "stellar"
+	AWSBucketName      = "stellar-continuous"
 	deploymentStage    = "prod"
 	maxFunctionTimeout = 900
-	namingPrefix       = "vHive-bench_"
+	namingPrefix       = "continuous-bench-"
 )
 
 //AWSSingletonInstance is an object used to interact with AWS through the methods it exports.

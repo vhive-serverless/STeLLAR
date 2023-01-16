@@ -27,19 +27,20 @@ package setup
 import (
 	log "github.com/sirupsen/logrus"
 	"os"
-	"time"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"time"
 )
 
-//ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+// ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
 func ProvisionFunctions(config Configuration) {
 	const (
 		nicContentionWarnThreshold = 800 // Experimentally found
 		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
 	)
 
-	availableEndpoints := connection.Singleton.ListAPIs()
+	// To filter out re-usable endpoints for continuous-benchmarking
+	availableEndpoints := connection.Singleton.ListAPIs(config.SubExperiments[0].RepurposeIdentifier)
 
 	for index, subExperiment := range config.SubExperiments {
 		config.SubExperiments[index].ID = index

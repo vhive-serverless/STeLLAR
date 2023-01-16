@@ -30,8 +30,8 @@ import (
 	"strings"
 )
 
-func (instance awsSingleton) UpdateFunction(packageType string, uniqueID string) *lambda.FunctionConfiguration {
-	functionName := fmt.Sprintf("%s%s", namingPrefix, uniqueID)
+func (instance awsSingleton) UpdateFunction(packageType string, uniqueID string, repurposeIdentifier string) *lambda.FunctionConfiguration {
+	functionName := fmt.Sprintf("%s%s_%s", namingPrefix, repurposeIdentifier, uniqueID)
 	log.Infof("Updating producer lambda code %s", functionName)
 
 	var args *lambda.UpdateFunctionCodeInput
@@ -62,7 +62,7 @@ func (instance awsSingleton) UpdateFunction(packageType string, uniqueID string)
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			return instance.UpdateFunction(packageType, uniqueID)
+			return instance.UpdateFunction(packageType, uniqueID, repurposeIdentifier)
 		}
 
 		log.Fatalf("Cannot update function code: %s", err.Error())
@@ -72,9 +72,9 @@ func (instance awsSingleton) UpdateFunction(packageType string, uniqueID string)
 	return result
 }
 
-//UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
-func (instance awsSingleton) UpdateFunctionConfiguration(uniqueID string, assignedMemory int64) {
-	functionName := fmt.Sprintf("%s%s", namingPrefix, uniqueID)
+// UpdateFunctionConfiguration  will update the configuration (e.g. timeout) of the serverless function with id `i`.
+func (instance awsSingleton) UpdateFunctionConfiguration(uniqueID string, assignedMemory int64, repurposeIdentifier string) {
+	functionName := fmt.Sprintf("%s%s_%s", namingPrefix, repurposeIdentifier, uniqueID)
 	log.Infof("Updating producer lambda configuration %s", functionName)
 
 	args := &lambda.UpdateFunctionConfigurationInput{
@@ -87,12 +87,12 @@ func (instance awsSingleton) UpdateFunctionConfiguration(uniqueID string, assign
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException") {
 			log.Warnf("Facing AWS rate-limiting error, retrying...")
-			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory)
+			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory, repurposeIdentifier)
 		}
 
 		if strings.Contains(err.Error(), "ResourceConflictException") {
 			log.Warnf("Facing AWS resource conflict error, retrying...")
-			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory)
+			instance.UpdateFunctionConfiguration(uniqueID, assignedMemory, repurposeIdentifier)
 		}
 
 		log.Fatalf("Cannot update function configuration: %s", err.Error())

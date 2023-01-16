@@ -1,4 +1,4 @@
-FROM docker.io/vhiveease/aws-python:latest
+FROM public.ecr.aws/lambda/python:3.8
 RUN pip install futures
 
 COPY lambda_function.py   ./

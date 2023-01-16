@@ -31,10 +31,11 @@ import (
 	"strings"
 )
 
-func (instance awsSingleton) DeployFunction(binaryPath string, packageType string, language string, memoryAssigned int64) string {
+func (instance awsSingleton) DeployFunction(binaryPath string, packageType string, language string, memoryAssigned int64, repurposeIdentifier string) string {
 	apiConfig := instance.createRESTAPI()
 
-	functionName := fmt.Sprintf("%s%s", namingPrefix, *apiConfig.Id)
+	functionName := fmt.Sprintf("%s%s_%s", namingPrefix, repurposeIdentifier, *apiConfig.Id)
+
 	functionConfig := instance.createFunction(binaryPath, packageType, functionName, language, memoryAssigned)
 
 	resourceID := instance.getResourceID(*apiConfig.Name, *apiConfig.Id)
@@ -138,7 +139,7 @@ func (instance awsSingleton) createFunction(binaryPath string, packageType strin
 		createArgs = &lambda.CreateFunctionInput{
 			PackageType:   aws.String(lambda.PackageTypeZip),
 			Code:          createCode,
-			Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
+			Description:   aws.String("[Do not modify] Continuous benchmarking function used by STeLLAR."),
 			Role:          aws.String(lambdaExecutionRole),
 			FunctionName:  aws.String(functionName),
 			Handler:       aws.String(binaryPath),
@@ -153,7 +154,7 @@ func (instance awsSingleton) createFunction(binaryPath string, packageType strin
 			Code: &lambda.FunctionCode{
 				ImageUri: aws.String(instance.ImageURI),
 			},
-			Description:   aws.String("Benchmarking function managed and used by vHive-bench."),
+			Description:   aws.String("[Do not modify] Continuous benchmarking function used by STeLLAR."),
 			Role:          aws.String(lambdaExecutionRole),
 			FunctionName:  aws.String(functionName),
 			TracingConfig: &lambda.TracingConfig{Mode: aws.String("PassThrough")},
