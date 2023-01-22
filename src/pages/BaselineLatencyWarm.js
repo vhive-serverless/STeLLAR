@@ -20,7 +20,7 @@ import {
 
 
 // ----------------------------------------------------------------------
-const baseURL = "https://2ra1y17sr2.execute-api.us-west-1.amazonaws.com";
+const baseURL = "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com";
 
 export default function BaselineLatencyDashboard() {
   const theme = useTheme();
