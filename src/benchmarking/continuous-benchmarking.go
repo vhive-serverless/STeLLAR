@@ -27,10 +27,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"stellar/setup"
 	"strconv"
 	"strings"
 	"time"
-	"vhive-bench/setup"
 
 	log "github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat"
