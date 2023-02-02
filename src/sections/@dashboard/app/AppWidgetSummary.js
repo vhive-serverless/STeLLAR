@@ -36,10 +36,12 @@ export default function AppWidgetSummary({ title,subtitle, total, icon, color = 
   return (
     <Card
       sx={{
-        pt: 2,
-        pb: subtitle? 2:4,
+        pt: 4,
         boxShadow: 0,
+        minHeight:216,
         textAlign: 'center',
+        alignItems:'center',
+        justifyContent:'center',
         color: (theme) => theme.palette[color].darker,
         bgcolor: (theme) => theme.palette[color].lighter,
         ...sx,

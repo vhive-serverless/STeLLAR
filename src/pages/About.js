@@ -98,14 +98,14 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             </CardContent>
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Client Configuration</Typography>
-            <ListItem sx={{display:'list-item'}}>We run the STeLLAR client on <b>t2.small</b> node in <b>AWS - N. California (us-west-1)</b> datacenter region which features a <b>Intel Xeon CPU</b> with <b>2GB DRAM</b>.
- 
+            <ListItem sx={{display:'list-item'}}>We run the STeLLAR client on <b>t2.small</b> node in <b>AWS - Oregon (us-west-2)</b> datacenter region which features a <b>Intel Xeon CPU</b> with <b>2GB DRAM</b>.</ListItem>
+            <ListItem sx={{display:'list-item'}}>We initiate the experiments starting at <b> 00:00h (GMT) </b> on each day.
             </ListItem>
             </CardContent>
           
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
-              <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - N.California (us-west-1). </ListItem>
+              <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - Oregon (us-west-2). </ListItem>
               <ListItem sx={{display:'list-item'}}>The functions are configured with the different memory sizes, ranging from <b>128MB to 2GB </b> and are specified in the section of each experiment.</ListItem>
               <ListItem sx={{display:'list-item'}}>Unless specified otherwise, we deploy all functions using the <b>ZIP-based deployment</b> method and use <b>Python 3</b> functions for all experiments except the function image size experiment. <br/>In this experiments, we use <b>Golang</b> functions to minimize the image size.
  
@@ -141,7 +141,7 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             View Results
           </Button>
           
-          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Size Variations : 10MB , 60MB , 100MB</ListItem>
+          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Size s : 10MB , 60MB , 100MB</ListItem>
        
           </ListItem>
           <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> In here, we measure the response times of cold functions varying the language runtime and the deployment method. 

@@ -273,7 +273,7 @@ each image. <br/>
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
             <ListItem sx={{ display: 'list-item' }}>
-            Datacenter : <b>N. California (us-west-1)</b>
+            Datacenter : <b>Oregon (us-west-2)</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>600 seconds</b>
@@ -330,6 +330,7 @@ each image. <br/>
             </Grid> : null
             }
              <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
+             <Grid container >
           <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
           </Grid>
@@ -353,7 +354,7 @@ each image. <br/>
           <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} shortenNumber={false}/>
           </Grid>
-
+</Grid>
           </Stack>
 
           </CardContent>
@@ -413,7 +414,7 @@ each image. <br/>
             }
           <Grid item xs={12} mt={3}>
             <AppLatency
-              title="Tail Latency Variation"
+              title="Tail Latency "
               subheader="99th Percentile"
               chartLabels={dateRangeList10MB}
               chartData={[
@@ -443,7 +444,7 @@ each image. <br/>
           </Grid>
           <Grid item xs={12} mt={3}>
             <AppLatency
-              title="Median Latency Variation"
+              title="Median Latency "
               subheader="50th Percentile"
               chartLabels={dateRangeList10MB}
               chartData={[

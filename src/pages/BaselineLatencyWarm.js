@@ -1,6 +1,5 @@
 // @mui
 import {useCallback, useMemo, useState} from "react";
-import PropTypes from "prop-types";
 import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
@@ -9,7 +8,7 @@ import {format,subWeeks,subMonths} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, FormControl,Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid,Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -173,7 +172,7 @@ export default function BaselineLatencyDashboard() {
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
             <ListItem sx={{ display: 'list-item' }}>
-            Datacenter : <b>N. California (us-west-1)</b>
+            Datacenter : <b>Oregon (us-west-2)</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>3 seconds</b>
@@ -216,6 +215,7 @@ export default function BaselineLatencyDashboard() {
             }
 
 <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
+          <Grid container >
           <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
           </Grid>
@@ -238,6 +238,7 @@ export default function BaselineLatencyDashboard() {
 
           <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
             <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
+          </Grid>
           </Grid>
 
 </Stack>
@@ -290,7 +291,7 @@ export default function BaselineLatencyDashboard() {
             }
           <Grid item xs={12}>
             <AppLatency
-              title="Tail Latency Variation"
+              title="Tail Latency "
               subheader="99th Percentile"
               chartLabels={dateRangeList}
               chartData={[
@@ -313,7 +314,7 @@ export default function BaselineLatencyDashboard() {
           </Grid>
           <Grid item xs={12}>
             <AppLatency
-              title="Median Latency Variation"
+              title="Median Latency "
               subheader="50th Percentile"
               chartLabels={dateRangeList}
               chartData={[
