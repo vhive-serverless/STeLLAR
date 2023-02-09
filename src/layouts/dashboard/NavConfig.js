@@ -17,7 +17,7 @@ const navConfig = [
     icon: getIcon('bxs:hot'),
   },
   {
-    title: 'Cold Function - Baseline',
+    title: 'Cold Function Invocations',
     path: '/dashboard/cold/baseline',
     icon: getIcon('ic:baseline-severe-cold'),
   },

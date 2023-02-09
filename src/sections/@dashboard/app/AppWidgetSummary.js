@@ -14,8 +14,8 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
   display: 'flex',
   borderRadius: '50%',
   alignItems: 'center',
-  width: theme.spacing(8),
-  height: theme.spacing(8),
+  width: theme.spacing(10),
+  height: theme.spacing(10),
   justifyContent: 'center',
   marginBottom: theme.spacing(3),
 }));
@@ -30,9 +30,11 @@ AppWidgetSummary.propTypes = {
   total: PropTypes.number.isRequired,
   sx: PropTypes.object,
   shortenNumber : PropTypes.bool,
+  textPictogram:PropTypes.object,
+  small:PropTypes.bool,
 };
 
-export default function AppWidgetSummary({ title,subtitle, total, icon, color = 'primary', sx,shortenNumber=true, ...other }) {
+export default function AppWidgetSummary({ title,subtitle,textPictogram,small, total, icon, color = 'primary', sx,shortenNumber=true, ...other }) {
   return (
     <Card
       sx={{
@@ -58,7 +60,10 @@ export default function AppWidgetSummary({ title,subtitle, total, icon, color = 
             )} 100%)`,
         }}
       >
-        <Iconify icon={icon} width={24} height={24} />
+        {icon ? 
+        <Iconify icon={icon} width={24} height={24} /> :
+        <Typography variant={small?'subtitle2':'subtitle1'}>{textPictogram}</Typography>
+        }
       </IconWrapperStyle>
 
       <Typography variant="h4">{shortenNumber ? fShortenNumber(total) : fNumber(total)}</Typography>

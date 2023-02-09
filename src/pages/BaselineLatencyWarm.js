@@ -4,11 +4,11 @@ import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers';
-import {format,subWeeks,subMonths} from 'date-fns';
+import {format,subWeeks,subMonths,subDays} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid,Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid,Container,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -26,7 +26,7 @@ export default function BaselineLatencyDashboard() {
 
     const isMountedRef = useIsMountedRef();
     const today = new Date();
-
+    const yesterday = subDays(today,1);
     const experimentType = 'warm-baseline-aws';
 
     const oneWeekBefore = subWeeks(today,1);
@@ -35,7 +35,7 @@ export default function BaselineLatencyDashboard() {
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
     const [overallStatistics,setOverallStatistics] = useState(null);
-    const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
+    const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
@@ -192,7 +192,7 @@ export default function BaselineLatencyDashboard() {
                 <CardContent>
             <Grid item xs={12} >
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Warm Function Invocation - Baseline Experiment (AWS)
+               Individual (Daily) Latency Statistics for Warm Function Invocations (AWS)
             </Typography>
             <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
@@ -216,28 +216,24 @@ export default function BaselineLatencyDashboard() {
 
 <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
           <Grid container >
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" textPictogram={<>25<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} color="info" textPictogram={<>50<sup>th</sup></>}/>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} icon={'ant-design:number-outlined'} />
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" textPictogram={<>75<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} />
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" textPictogram={<>99<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail Latency (ms)" color="warning" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} icon={'arcticons:a99'} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} />
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
           </Grid>
           </Grid>
 
@@ -245,29 +241,35 @@ export default function BaselineLatencyDashboard() {
 </CardContent>
               </Card>
 </Grid>
-          <Grid item xs={12} mt={5}>
+          <Grid item xs={12} mt={2}>
+          <Divider sx={{backgroundColor:'white'}}/>
+          <Card sx={{mt:5 }}>
+              <CardContent>
+          <Grid item xs={12} >
+
           <Typography variant={'h6'} sx={{ mb: 2 }}>
-              Timespan based Latency Statistics for Warm Function Invocation - Baseline Experiment (AWS)
-            </Typography>
+              Latency measurements from <Box component="span" sx={{color:theme.palette.chart.red[1]}}>{startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box>for Warm Function Invocations (AWS)
+          </Typography>
           
           <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>Time span :</InputLabel>
-  <Select
-    id="demo-simple-select"
-    value={dateRange}
-    label="dateRange"
-    onChange={handleChange}
-  >
-    <MenuItem value={'week'}>Last week</MenuItem>
-    <MenuItem value={'month'}>Last month</MenuItem>
-    <MenuItem value={'3-months'}>Last 3 months</MenuItem>
-    <MenuItem value={'custom'}>Custom range</MenuItem>
-  </Select>
+              <Select
+                id="demo-simple-select"
+                value={dateRange}
+                label="dateRange"
+                onChange={handleChange}
+              >
+                <MenuItem value={'week'}>Last week</MenuItem>
+                <MenuItem value={'month'}>Last month</MenuItem>
+                <MenuItem value={'3-months'}>Last 3 months</MenuItem>
+                <MenuItem value={'custom'}>Custom range</MenuItem>
+              </Select>
  
-  </Stack>
+        </Stack>
 
             </Grid>
-            {dateRange==='custom' && <><Grid item xs={3}>
+            {dateRange==='custom' && <Stack direction="row" alignItems="center" mt={3}>
+              <Grid item xs={3}>
                     <DatePicker
                         label="To : "
                         value={startDate}
@@ -287,39 +289,23 @@ export default function BaselineLatencyDashboard() {
                     renderInput={(params) => <TextField {...params} />}
                 />
             </Grid>
-            </>
+            </Stack>
             }
-          <Grid item xs={12}>
+          <Grid item xs={12} mt={3}>
             <AppLatency
-              title="Tail Latency "
-              subheader="99th Percentile"
+              title="Tail & Median Latency"
+              subheader={<>99<sup>th</sup> & 50<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
               chartData={[
                 {
-                  name: 'AWS',
+                  name: 'Tail Latency',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
                   data: tailLatencies,
                 },
-                // {
-                //   name: 'Google',
-                //   type: 'line',
-                //   fill: 'solid',
-                //   data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 13,24, 55, 41, 67, 22, 43, 21, 41],
-                // },
-                
-              ]}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <AppLatency
-              title="Median Latency "
-              subheader="50th Percentile"
-              chartLabels={dateRangeList}
-              chartData={[
                 {
-                  name: 'AWS',
+                  name: 'Median Latency',
                   type: 'line',
                   fill: 'solid',
                   color: theme.palette.primary.main,
@@ -328,6 +314,9 @@ export default function BaselineLatencyDashboard() {
                 
               ]}
             />
+          </Grid>
+       </CardContent>
+          </Card>
           </Grid>
         </Grid>
       </Container>

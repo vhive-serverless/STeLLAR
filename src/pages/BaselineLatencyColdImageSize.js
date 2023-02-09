@@ -4,7 +4,7 @@ import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers';
-import {format,subWeeks,subMonths} from 'date-fns';
+import {format,subWeeks,subMonths,subDays} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -26,6 +26,7 @@ export default function BaselineLatencyDashboard() {
 
     const isMountedRef = useIsMountedRef();
     const today = new Date();
+    const yesterday = subDays(today,1);
 
     const experimentTypeFor10MB = 'cold-image_size_10-aws';
     const experimentTypeFor60MB = 'cold-image_size_60-aws';
@@ -39,7 +40,7 @@ export default function BaselineLatencyDashboard() {
     const [overallStatistics10MB,setOverallStatistics10MB] = useState(null);
     const [overallStatistics60MB,setOverallStatistics60MB] = useState(null);
     const [overallStatistics100MB,setOverallStatistics100MB] = useState(null);
-    const [selectedDate,setSelectedDate] = useState(format(today, 'yyyy-MM-dd'));
+    const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     const [experimentType,setExperimentType] = useState(experimentTypeFor10MB);
@@ -297,7 +298,7 @@ each image. <br/>
             <Grid item xs={12}>
             
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocation - Varying Image Sizes
+               Individual (Daily) Latency Statistics for Cold Function Invocations (AWS) <br/> Varying Image Sizes
             </Typography>
             <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
@@ -331,28 +332,25 @@ each image. <br/>
             }
              <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
              <Grid container >
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Samples" total={dailyStatistics ? dailyStatistics[0]?.count : 0} icon={'ant-design:number-outlined'} />
+          
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>25<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} shortenNumber={false} />
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} shortenNumber={false} color="info" textPictogram={<>50<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} icon={'ant-design:number-outlined'} shortenNumber={false}/>
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>75<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" icon={'carbon:chart-median'} shortenNumber={false}/>
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" shortenNumber={false} textPictogram={<>99<sup>th</sup></>} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="warning" icon={'arcticons:a99'} shortenNumber={false}/>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" icon={'fluent:ratio-one-to-one-24-filled'} shortenNumber={false}/>
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error"  shortenNumber={false} textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
           </Grid>
 </Grid>
           </Stack>
@@ -370,7 +368,8 @@ each image. <br/>
           <Grid item xs={12} >
             
           <Typography variant={'h6'} sx={{ mb: 2}}>
-              Timespan based Latency Statistics for Cold Function Invocation - Varying Image Sizes
+          Latency measurements from 
+            <Box component="span" sx={{color:theme.palette.chart.red[1]}}>  {startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box> for Cold Function Invocations (AWS) <br/> Varying Image Sizes
             </Typography>
           <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>Time span :</InputLabel>

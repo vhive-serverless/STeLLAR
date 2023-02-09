@@ -99,8 +99,12 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Client Configuration</Typography>
             <ListItem sx={{display:'list-item'}}>We run the STeLLAR client on <b>t2.small</b> node in <b>AWS - Oregon (us-west-2)</b> datacenter region which features a <b>Intel Xeon CPU</b> with <b>2GB DRAM</b>.</ListItem>
-            <ListItem sx={{display:'list-item'}}>We initiate the experiments starting at <b> 00:00h (GMT) </b> on each day.
+            <ListItem sx={{display:'list-item'}}>We initiate the experiments sequentially at <b> 00:00h (GMT) </b> on each day.
             </ListItem>
+            
+            <ListItem sx={{display:'list-item'}}>We collect 1000 samples for all experiments except for warm function experiment where we collect 3000 samples to generate statistics.
+            </ListItem>
+
             </CardContent>
           
             <CardContent>
@@ -131,7 +135,7 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             </ListItem>
             
               <Typography variant='h5' fontWeight={500} mt={3}>2. Cold Function Invocations</Typography>
-              <ListItem sx={{display:'list-item'}}><b>Baseline :</b> Here we assess the cold function delays under a non-bursty load.  
+              <ListItem sx={{display:'list-item'}}><b>Basic :</b> Here we assess the cold function delays under a non-bursty load.  
               <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
