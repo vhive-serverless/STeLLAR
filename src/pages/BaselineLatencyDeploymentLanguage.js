@@ -17,6 +17,7 @@ import {
   AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
+import { disablePreviousDates } from '../utils/timeUtils';
 
 // ----------------------------------------------------------------------
 const baseURL = "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com";
@@ -360,6 +361,7 @@ functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
             <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
                 <DatePicker
                     value={selectedDate}
+                    shouldDisableDate={disablePreviousDates}
                     onChange={(newValue) => {
 
                         setSelectedDate(format(newValue, 'yyyy-MM-dd'));
@@ -415,7 +417,7 @@ functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
           </Grid>
 
           <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" shortenNumber={false} textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
           </Grid>
         </Grid>
           </Stack>
@@ -481,34 +483,34 @@ functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
               title="Tail Latency "
               subheader="99th Percentile"
               chartLabels={dateRangeListGoImg}
+              dashArrayValue = {[5,0,5,0]}
               chartData={[
-                
                 {
-                  name: 'Python - Image',
+                  name: '- (Dashed) : Go - Image',
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.green[0],
-                  data: tailLatenciesPyImg,
-                },
-                {
-                  name: 'Go - Image',
-                  type: 'line',
-                  fill: 'dashed',
-                  color:theme.palette.chart.red[0],
+                  color: theme.palette.chart.red[0],
                   data: tailLatenciesGoImg,
                 },
                 {
                   name: 'Go - Zip',
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.yellow[0],
+                  color: theme.palette.chart.red[0],
                   data: tailLatenciesGoZip,
+                },
+                {
+                  name: '- (Dashed) : Python - Image',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[0],
+                  data: tailLatenciesPyImg,
                 },
                 {
                   name: 'Python - Zip',
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.blue[0],
+                  color: theme.palette.chart.green[0],
                   data: tailLatenciesPyZip,
                 },
                
@@ -520,17 +522,12 @@ functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
               title="Median Latency "
               subheader="50th Percentile"
               chartLabels={dateRangeListGoImg}
+              dashArrayValue = {[5,0,5,0]}
               chartData={[
                 
+                
                 {
-                  name: 'Python - Image',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.chart.green[0],
-                  data: medianLatenciesPyImg,
-                },
-                {
-                  name: 'Go - Image',
+                  name: '- (Dashed) : Go - Image',
                   type: 'line',
                   fill: 'solid',
                   color: theme.palette.chart.red[0],
@@ -540,14 +537,21 @@ functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
                   name: 'Go - Zip',
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.yellow[0],
+                  color:theme.palette.chart.red[0],
                   data: medianLatenciesGoZip,
+                },
+                {
+                  name: '- (Dashed) : Python - Image',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.green[0],
+                  data: medianLatenciesPyImg,
                 },
                 {
                   name: 'Python - Zip',
                   type: 'line',
                   fill: 'solid',
-                  color: theme.palette.chart.blue[0],
+                  color: theme.palette.chart.green[0],
                   data: medianLatenciesPyZip,
                 },
               ]}

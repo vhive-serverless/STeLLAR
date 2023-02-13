@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Card, Typography, CardHeader, CardContent } from '@mui/material';
 import { Timeline, TimelineDot, TimelineItem, TimelineContent, TimelineSeparator, TimelineConnector } from '@mui/lab';
 // utils
-import { fDateTime } from '../../../utils/formatTime';
+import { fDateTime } from '../../../utils/timeUtils';
 
 // ----------------------------------------------------------------------
 

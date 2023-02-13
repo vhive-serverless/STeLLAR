@@ -13,9 +13,10 @@ AppLatency.propTypes = {
   subheader: PropTypes.string,
   chartData: PropTypes.array.isRequired,
   chartLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
+  dashArrayValue: PropTypes.arrayOf(PropTypes.number)
 };
 
-export default function AppLatency({ title, subheader, chartLabels, chartData, ...other }) {
+export default function AppLatency({ title, subheader, chartLabels, chartData, dashArrayValue, ...other }) {
   const chartOptions = merge(BaseOptionChart(), {
     plotOptions: { bar: { columnWidth: '16%' } },
     fill: { 
@@ -24,6 +25,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, .
       opacity:1,
     },
     labels: chartLabels,
+    
     xaxis: { type: 'datetime' },
     yaxis:{
       title: {
@@ -32,6 +34,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, .
       },
       stroke: {
         curve: 'straight',
+        dashArray: dashArrayValue,
       },
     tooltip: {
       shared: true,

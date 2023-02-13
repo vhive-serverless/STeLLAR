@@ -17,6 +17,7 @@ import {
   AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
+import { disablePreviousDates } from '../utils/timeUtils';
 
 // ----------------------------------------------------------------------
 const baseURL = "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com";
@@ -73,6 +74,12 @@ export default function BaselineLatencyDashboard() {
     useMemo(()=>{
       setExperimentType(`cold-image_size_${imageSize}-aws`)
     },[imageSize])
+
+    useMemo(()=>{
+      if(startDate <'2023-01-20'){
+        setStartDate('2023-01-20');
+      }
+    },[startDate])
 
     const fetchIndividualData = useCallback(async () => {
         try {
@@ -223,7 +230,6 @@ const medianLatencies100MB = useMemo(()=> {
         }
     ,[dailyStatistics])
 
-
     
 
   return (
@@ -304,6 +310,7 @@ each image. <br/>
             <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
                 <DatePicker
                     value={selectedDate}
+                    shouldDisableDate={disablePreviousDates}
                     onChange={(newValue) => {
 
                         setSelectedDate(format(newValue, 'yyyy-MM-dd'));
@@ -350,7 +357,7 @@ each image. <br/>
           </Grid>
 
           <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error"  shortenNumber={false} textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
           </Grid>
 </Grid>
           </Stack>

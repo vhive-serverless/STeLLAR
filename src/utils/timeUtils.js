@@ -19,3 +19,7 @@ export function fToNow(date) {
     addSuffix: true,
   });
 }
+
+export function disablePreviousDates (date) {
+  return date.getTime() < new Date('2023-01-20T00:00').getTime()
+}

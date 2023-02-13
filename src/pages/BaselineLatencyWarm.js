@@ -18,6 +18,8 @@ import {
 } from '../sections/@dashboard/app';
 
 
+import { disablePreviousDates } from '../utils/timeUtils';
+
 // ----------------------------------------------------------------------
 const baseURL = "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com";
 
@@ -198,6 +200,7 @@ export default function BaselineLatencyDashboard() {
             <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
                 <DatePicker
                     value={selectedDate}
+                    shouldDisableDate={disablePreviousDates}
                     onChange={(newValue) => {
 
                         setSelectedDate(format(newValue, 'yyyy-MM-dd'));
