@@ -400,6 +400,7 @@ each image. <br/>
                     <DatePicker
                         label="From : "
                         value={startDate}
+                        shouldDisableDate={disablePreviousDates}
                         onChange={(newValue) => {
                             setStartDate(format(newValue, 'yyyy-MM-dd'));
                         }}

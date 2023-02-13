@@ -129,7 +129,11 @@ export default function BaselineLatencyDashboard() {
         }
     ,[dailyStatistics])
 
-
+    useMemo(()=>{
+      if(startDate <'2023-01-20'){
+        setStartDate('2023-01-20');
+      }
+    },[startDate])
     
 
   return (
@@ -274,8 +278,9 @@ export default function BaselineLatencyDashboard() {
             {dateRange==='custom' && <Stack direction="row" alignItems="center" mt={3}>
               <Grid item xs={3}>
                     <DatePicker
-                        label="To : "
+                        label="From : "
                         value={startDate}
+                        shouldDisableDate={disablePreviousDates}
                         onChange={(newValue) => {
                             setStartDate(format(newValue, 'yyyy-MM-dd'));
                         }}
@@ -284,7 +289,7 @@ export default function BaselineLatencyDashboard() {
                 </Grid>
             <Grid item xs={3}>
                 <DatePicker
-                    label="From : "
+                    label="To : "
                     value={endDate}
                     onChange={(newValue) => {
                         setEndDate(format(newValue, 'yyyy-MM-dd'));

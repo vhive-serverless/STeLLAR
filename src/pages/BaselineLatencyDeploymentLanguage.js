@@ -267,11 +267,6 @@ const medianLatenciesGoZip = useMemo(()=> {
 },[overallStatisticsGoZip])
 
 
-
-
-
-
-
     const TMR = useMemo(() => {
             if (dailyStatistics)
                 return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
@@ -280,6 +275,11 @@ const medianLatenciesGoZip = useMemo(()=> {
     ,[dailyStatistics])
 
 
+    useMemo(()=>{
+      if(startDate <'2023-01-20'){
+        setStartDate('2023-01-20');
+      }
+    },[startDate])
     
 
   return (
@@ -460,6 +460,7 @@ functions written in <b>Python 3 (interpreted)</b> and <b>Golang 1.19
                     <DatePicker
                         label="From : "
                         value={startDate}
+                        shouldDisableDate={disablePreviousDates}
                         onChange={(newValue) => {
                             setStartDate(format(newValue, 'yyyy-MM-dd'));
                         }}

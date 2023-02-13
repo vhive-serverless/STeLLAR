@@ -102,7 +102,7 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             <ListItem sx={{display:'list-item'}}>We initiate the experiments sequentially at <b> 00:00h (GMT) </b> on each day.
             </ListItem>
             
-            <ListItem sx={{display:'list-item'}}>We collect 1000 samples for all experiments except for warm function experiment where we collect 3000 samples to generate statistics.
+            <ListItem sx={{display:'list-item'}}>We collect <b>1000 samples</b> for all experiments except for warm function experiment where we collect <b>3000 samples</b> to generate statistics.
             </ListItem>
 
             </CardContent>
