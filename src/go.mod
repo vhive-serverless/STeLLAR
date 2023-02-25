@@ -26,7 +26,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/net v0.0.0-20210908191846-a5e095526f91 // indirect
-	golang.org/x/sys v0.0.0-20210909193231-528a39cd75f3 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gonum.org/v1/gonum v0.9.3
 	gonum.org/v1/plot v0.10.0
