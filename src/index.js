@@ -4,6 +4,7 @@ import 'simplebar/src/simplebar.css';
 import ReactDOM from 'react-dom';
 import { HashRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import ReactGA4 from 'react-ga4';
 
 //
 import App from './App';
@@ -12,6 +13,8 @@ import reportWebVitals from './reportWebVitals';
 
 // ----------------------------------------------------------------------
 
+const TRACKING_ID = "G-56TWKV1598"; // OUR_TRACKING_ID
+ReactGA4.initialize(TRACKING_ID);
 ReactDOM.render(
   <HelmetProvider>
     <HashRouter>
