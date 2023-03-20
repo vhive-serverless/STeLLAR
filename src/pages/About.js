@@ -18,21 +18,11 @@ export default function About() {
         <Grid item xs={12} mb={3}>
           <Card>
             <CardContent>
-
-            <Typography variant='h4' marginBottom={3}>Serverless Computing & Benchmarking</Typography>
-              <Typography variant='p'>Serverless computing, also known as Function-as-a-
-Service (FaaS), where developers structure their applications as a collection of functions invoked by various
-events like clicks, and cloud providers take responsibility for
-cloud infrastructure management. As with other cloud services,
-serverless deployments require responsiveness and performance
-predictability manifested through low average and tail latencies. Hence, we introduce STeLLAR : A framework to
-address the lack of a toolchain for tail-latency analysis in serverless computing.
- 
-</Typography>
-            <Typography variant='h4' marginTop={5} marginBottom={3}>What is STeLLAR ? (Serverless Tail-Latency Analyzer)</Typography>
+            <Typography variant='h4' marginBottom={3}>What is STeLLAR ? (Serverless Tail-Latency Analyzer)</Typography>
               <Typography variant='p'>STeLLAR is an open-source serverless benchmarking framework, which enables an accurate performance characterization of serverless deployments. 
               STeLLAR is provider-agnostic and highly configurable, allowing the analysis of both end-to-end and per-component performance with minimal instrumentation effort. 
-              Using STeLLAR, we continously conduct various performance tests in different serverless settings and these results are visualized in a dashboard.
+              Using STeLLAR, we continously conduct various performance tests in different serverless settings and these results are visualized in a dashboard. <br/>
+              STeLLAR is a part of the vHive Ecosystem.
  
 </Typography>
             </CardContent>
@@ -94,7 +84,7 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
               </Box>
               
             {/* </Stack> */}
-            <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda</Typography>
+            <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda, but we hope to extend to other cloud providers in the future.</Typography>
             </CardContent>
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Client Configuration</Typography>
@@ -130,12 +120,12 @@ address the lack of a toolchain for tail-latency analysis in serverless computin
             <Typography variant='h5' fontWeight={500}>1. Warm Function Invocations <Button to="/dashboard/warm/aws" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button></Typography>
-            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions * under a non-bursty load (i.e., allowing no more than a single outstanding request to each function).
+            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions * under individual invocations (i.e., allowing no more than a single outstanding request to each function).
 <br/>
             </ListItem>
             
               <Typography variant='h5' fontWeight={500} mt={3}>2. Cold Function Invocations</Typography>
-              <ListItem sx={{display:'list-item'}}><b>Basic :</b> Here we assess the cold function delays under a non-bursty load.  
+              <ListItem sx={{display:'list-item'}}><b>Basic :</b> Here we assess the cold function delays under individual invocations.  
               <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
