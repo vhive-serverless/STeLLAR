@@ -25,7 +25,7 @@ package benchmarking
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"stellar/setup"
 	"strconv"
@@ -57,7 +57,7 @@ type StatisticsRecord struct {
 func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperiment) {
 	experimentID := experiment.ID
 	log.Infof("[sub-experiment %d] Writing statistics to the database", experimentID)
-	url := "https://2ra1y17sr2.execute-api.us-west-1.amazonaws.com/results"
+	url := "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com/results"
 	method := "POST"
 
 	record := StatisticsRecord{
@@ -97,7 +97,7 @@ func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperime
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Errorf("[sub-experiment %d] Could not read HTTP response body: %s", experimentID, err.Error())
 		return
