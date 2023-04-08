@@ -25,6 +25,11 @@ package amazon
 import (
 	"encoding/base64"
 	"fmt"
+	"io"
+	"os"
+	"stellar/util"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -35,15 +40,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	log "github.com/sirupsen/logrus"
-	"io"
-	"os"
-	"strings"
-	"stellar/util"
 )
 
 const (
 	//AWSRegion is the region that AWS operates in
-	AWSRegion = endpoints.UsWest1RegionID
+	AWSRegion = endpoints.UsWest2RegionID
 	//AWSBucketName is the name of the bucket where the client operates
 	AWSBucketName      = "stellar-continuous"
 	deploymentStage    = "prod"
