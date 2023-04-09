@@ -33,6 +33,13 @@ jobs:
     env:
       working-directory: ./src
     steps:
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-2
+
       - name: Setup go
         uses: actions/setup-go@v3
         with:
@@ -40,6 +47,9 @@ jobs:
       - name: Grant Permission
         run:  |
           sudo chown -R $USER:$USER /home/ubuntu/actions-runner/_work/STeLLAR
+
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y libsnmp-dev build-essential zip docker.io
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
