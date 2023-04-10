@@ -1,6 +1,5 @@
-import { useState } from 'react';
 // material
-import { Grid, Card,Box, Container, Stack,TextField, Typography,Link,Fab,Popover,Button } from '@mui/material';
+import { Grid, Card,Box, Container, Stack,Typography,Link } from '@mui/material';
 // components
 import Page from '../components/Page';
 import AccountProfile from '../components/AccountProfile'
@@ -18,38 +17,12 @@ const styles = {
   card: {
     width:'100%',
   },
-  fab:{
-    position:'absolute',
-    botton:0,
-  }
 };
+
+
 
 export default function Info() {
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [feedback, setFeedback] = useState('');
-  const [email, setEmail] = useState('');
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Submit feedback and email
-    console.log(`Feedback: ${feedback}, Email: ${email}`);
-    // Clear form fields
-    setFeedback('');
-    setEmail('');
-    handleClose();
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? 'popup' : undefined;
 
   return (
     <Page title="Dashboard: Info" sx={styles.container}>
@@ -90,69 +63,6 @@ export default function Info() {
 
             </Card>
       </Container>
-      <div style={{ position: 'absolute', bottom: 10, right: 10 }}>
-      <Fab color="primary" sx={{ borderRadius: '16px',width: '220px',height:'20px' }}  onClick={handleClick}>
-      <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <Typography
-            color="white"
-            sx={{fontSize:16,fontWeight:500,marginX:2}}
-            align='center'
-          >
-             Got some feedback ?
-        </Typography>    
-          </span>
-      </Fab>
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-      >
-         <Box sx={{padding:2}}>
-       <form onSubmit={handleSubmit}>
-       <Typography
-            color="primary"
-            sx={{fontSize:16,fontWeight:600}}
-            align="center"
-          >
-             Help us to improve 
-        </Typography>   
-       <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            required
-          />
-          <TextField
-            label="Feedback"
-            multiline
-            value={feedback}
-            onChange={(event) => setFeedback(event.target.value)}
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            required
-          />
-          
-          <Button type="submit" variant="contained" color="primary" sx={{marginTop:'5px'}}>
-            Submit
-          </Button>
-        </form>
-        </Box>
-      </Popover>
-    </div>
     </Page>
   
   );

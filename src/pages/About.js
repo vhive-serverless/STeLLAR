@@ -1,5 +1,5 @@
 // material
-import { Grid, Card, Container, Stack,Box,Button, Typography, CardContent } from '@mui/material';
+import { Grid, Card, Container, Stack,Box,Button, Typography, CardContent,Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import ListItem from '@mui/material/ListItem';
 // components
@@ -22,7 +22,7 @@ export default function About() {
               <Typography variant='p'>STeLLAR is an open-source serverless benchmarking framework, which enables an accurate performance characterization of serverless deployments. 
               STeLLAR is provider-agnostic and highly configurable, allowing the analysis of both end-to-end and per-component performance with minimal instrumentation effort. 
               Using STeLLAR, we continously conduct various performance tests in different serverless settings and these results are visualized in a dashboard. <br/>
-              STeLLAR is a part of the vHive Ecosystem.
+              STeLLAR is a part of the <Link target="_blank" href={'https://vhive-serverless.github.io/'}>vHive Ecosystem.</Link>
  
 </Typography>
             </CardContent>
