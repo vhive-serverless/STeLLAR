@@ -6,7 +6,7 @@ import { Box ,Alert,TextField,Snackbar, Typography,Fab,Popover,Button } from '@m
 
 
 export default function FeedbackBar() {
-    const emailAPI =  'https://o67aj2z412.execute-api.us-west-2.amazonaws.com/default/send-email-stellar';
+    const emailAPI =  'https://findfqeasj.execute-api.us-west-2.amazonaws.com/send-email-stellar';
     
 
 
@@ -35,7 +35,7 @@ export default function FeedbackBar() {
     
     axios.post(emailAPI, {
         name,email,feedback
-    })
+    },{ headers: {'Content-Type': 'application/json'} })
         .then(response => {
         setOpenSnackbarSuccess(true);
         console.log(response);
