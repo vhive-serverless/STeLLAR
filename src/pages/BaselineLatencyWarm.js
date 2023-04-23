@@ -8,7 +8,7 @@ import {format,subWeeks,subMonths,subDays} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid,Container,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid,Container,Link,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -167,13 +167,16 @@ export default function BaselineLatencyDashboard() {
             <ListItem sx={{ display: 'list-item' }}>
             Serverless Cloud : <b>AWS Lambda</b>
           </ListItem>
-            <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Python</b>
+          <ListItem sx={{ display: 'list-item' }}>
+            Request Type : <b>Non-bursty</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
             Deployment Method : <b>ZIP based</b>
           </ListItem>
-
+         
+          <ListItem sx={{ display: 'list-item' }}>
+            Language Runtime : <b>Python</b>
+          </ListItem>
 
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
@@ -186,7 +189,9 @@ export default function BaselineLatencyDashboard() {
           <ListItem sx={{ display: 'list-item' }}>
             Function Memory Size : <b>128MB</b>
           </ListItem>
-          
+          <ListItem sx={{ display: 'list-item' }}>
+            Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/continuous-benchmarking/src/setup/deployment/raw-code/functions/hellopy/aws'}><b>Python (hellopy)</b></Link>
+          </ListItem>
               </Box>
               </Stack>
             </CardContent>

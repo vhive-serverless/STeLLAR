@@ -286,7 +286,7 @@ each image. <br/>
             Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Function Name : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>producer-consumer</b></Link>
+            Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
             Function Memory Size : <b>2048MB</b>
@@ -298,73 +298,7 @@ each image. <br/>
             </Card>
             </Grid>
 
-            <Grid item xs={12} sx={{mt:5}}>
-              <Card>
-                <CardContent>
-            <Grid item xs={12}>
-            
-            <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocations (AWS) <br/> Varying Image Sizes
-            </Typography>
-            <Stack direction="row" alignItems="center">
-            <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
-                <DatePicker
-                    value={selectedDate}
-                    shouldDisableDate={disablePreviousDates}
-                    onChange={(newValue) => {
 
-                        setSelectedDate(format(newValue, 'yyyy-MM-dd'));
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
-                 <InputLabel sx={{mx:3}}> with the Image Size of :</InputLabel>
-  <Select
-    value={imageSize}
-    label="imageSize"
-    onChange={handleChangeImageSize}
-  >
-    <MenuItem value={'10'}>10 MB</MenuItem>
-    <MenuItem value={'60'}>60 MB</MenuItem>
-    <MenuItem value={'100'}>100 MB</MenuItem>
-  </Select>
-                </Stack>
-               
-            </Grid>
-            {
-                dailyStatistics?.length < 1 ? <Grid item xs={12}>
-            <Typography sx={{fontSize:'14px', color: 'error.main',mt:-2}}>
-                No results found!
-            </Typography>
-            </Grid> : null
-            }
-             <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
-             <Grid container >
-          
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>25<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} shortenNumber={false} color="info" textPictogram={<>50<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>75<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" shortenNumber={false} textPictogram={<>99<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
-          </Grid>
-</Grid>
-          </Stack>
-
-          </CardContent>
-          </Card>
-          </Grid>
           
           
           <Grid item xs={12} mt={2}>
@@ -484,6 +418,75 @@ each image. <br/>
           </CardContent>
           </Card>
           </Grid>
+
+          <Grid item xs={12} sx={{mt:5}}>
+              <Card>
+                <CardContent>
+            <Grid item xs={12}>
+            
+            <Typography variant={'h6'} sx={{ mb: 2 }}>
+               Individual (Daily) Latency Statistics for Cold Function Invocations (AWS) <br/> Varying Image Sizes
+            </Typography>
+            <Stack direction="row" alignItems="center">
+            <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
+                <DatePicker
+                    value={selectedDate}
+                    shouldDisableDate={disablePreviousDates}
+                    onChange={(newValue) => {
+
+                        setSelectedDate(format(newValue, 'yyyy-MM-dd'));
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                />
+                 <InputLabel sx={{mx:3}}> with the Image Size of :</InputLabel>
+  <Select
+    value={imageSize}
+    label="imageSize"
+    onChange={handleChangeImageSize}
+  >
+    <MenuItem value={'10'}>10 MB</MenuItem>
+    <MenuItem value={'60'}>60 MB</MenuItem>
+    <MenuItem value={'100'}>100 MB</MenuItem>
+  </Select>
+                </Stack>
+               
+            </Grid>
+            {
+                dailyStatistics?.length < 1 ? <Grid item xs={12}>
+            <Typography sx={{fontSize:'14px', color: 'error.main',mt:-2}}>
+                No results found!
+            </Typography>
+            </Grid> : null
+            }
+             <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
+             <Grid container >
+          
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>25<sup>th</sup></>} />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} shortenNumber={false} color="info" textPictogram={<>50<sup>th</sup></>} />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>75<sup>th</sup></>} />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" shortenNumber={false} textPictogram={<>99<sup>th</sup></>} />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
+            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
+          </Grid>
+</Grid>
+          </Stack>
+
+          </CardContent>
+              </Card>
+          </Grid>
+
         </Grid>
         
       </Container>

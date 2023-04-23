@@ -125,20 +125,21 @@ export default function About() {
             </ListItem>
             
               <Typography variant='h5' fontWeight={500} mt={3}>2. Cold Function Invocations</Typography>
-              <ListItem sx={{display:'list-item'}}><b>Basic :</b> Here we assess the cold function delays under individual invocations.  
+              Under Cold Function Invocation experiments, we evaluate the response time of functions with cold instances by issuing invocations (one-request at a time) with a long inter-arrival time (IAT) of 600 seconds.
+              <ListItem sx={{display:'list-item'}}><b>Basic :</b> We assess the cold function delays under individual invocations as our baseline cold invocation latency.  
               <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
           </ListItem>
-              <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Secondly, we evaluate response times of cold functions varying the function image sizes in 3 different settings.
+              <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Next, we evaluate response times of cold functions varying the function image sizes in 3 different settings.
               <Button to="/dashboard/cold/image-size" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
           
-          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Size s : 10MB , 60MB , 100MB</ListItem>
+          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 10MB , 60MB , 100MB</ListItem>
        
           </ListItem>
-          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> In here, we measure the response times of cold functions varying the language runtime and the deployment method. 
+          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> We examine the implications of utilizing different deployment techniques and language runtimes. We specifically investigate the two prevalent deployment methods in use currently, namely ZIP archive and container-based image. Additionally, we concentrate on two essential categories of language runtimes: compiled and interpreted. 
               <Button to="/dashboard/cold/deployment-language" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
                   View Results
               </Button>

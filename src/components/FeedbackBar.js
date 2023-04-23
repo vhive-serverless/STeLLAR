@@ -1,7 +1,8 @@
 import {useState } from 'react';
 import axios from 'axios';
+
 // material
-import { Box ,Alert,TextField,Snackbar, Typography,Fab,Popover,Button } from '@mui/material';
+import { Box ,Alert,TextField,Snackbar, Typography,Fab,Popover,Button,Backdrop } from '@mui/material';
 // components
 
 
@@ -61,13 +62,13 @@ export default function FeedbackBar() {
     <>
     <div style={{ position: 'relative' }}>
       <Fab color="primary" sx={{ borderRadius: '16px',width: '220px',height:'20px' }}  onClick={handleClick}>
-      <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <span style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>  
       <Typography
             color="white"
             sx={{fontSize:16,fontWeight:500,marginX:2}}
             align='center'
           >
-             Got some feedback ?
+             Contact Us
         </Typography>    
           </span>
       </Fab>
@@ -84,16 +85,18 @@ export default function FeedbackBar() {
           vertical: 'top',
           horizontal: 'center',
         }}
-        sx={{backgroundColor: 'rgba(0, 0, 0, 0.5)',transition: 'opacity 0.5s ease-in-out' }}
+        sx={{width:'43%'}}
+        elevation={8}
+        
       >
          <Box sx={{padding:2}}>
        <form onSubmit={handleSubmit}>
        <Typography
             color="primary"
-            sx={{fontSize:16,fontWeight:600}}
+            sx={{fontSize:18,fontWeight:600}}
             align="center"
           >
-             Help us to improve 
+             Let us know your thoughts 
         </Typography>
         <TextField
             label="Name"
@@ -115,7 +118,7 @@ export default function FeedbackBar() {
             required
           />
           <TextField
-            label="Feedback"
+            label="Comments "
             multiline
             value={feedback}
             onChange={(event) => setFeedback(event.target.value)}
@@ -123,16 +126,19 @@ export default function FeedbackBar() {
             margin="normal"
             fullWidth
             required
+            rows={4}
           />
-          
+          <Box  sx={{display:'flex',justifyContent:'flex-end',alignItems:'flex-end'}}
+>
           <Button type="submit" variant="contained" color="primary" sx={{marginTop:'5px'}}>
             Submit
           </Button>
-          
+          </Box>
         </form>
       
         </Box>
       </Popover>
+      <Backdrop sx={{zIndex: 5,backgroundColor: 'rgba(0, 0, 0,0.3)',transition: 'opacity 0.5s ease-in-out'}} open={open} onClick={handleClose} />
       {openSnackbarSuccess && <Snackbar open={openSnackbarSuccess} autoHideDuration={6000} onClose={handleCloseSnackbar}>
          <Alert elevation={6} variant="filled" onClose={handleCloseSnackbar} severity="success">
           Feedback sent successfully!
