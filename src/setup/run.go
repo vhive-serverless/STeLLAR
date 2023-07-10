@@ -27,9 +27,8 @@ package setup
 import (
 	log "github.com/sirupsen/logrus"
 	"os"
-	"time"
-	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"time"
 )
 
 //ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
@@ -39,7 +38,12 @@ func ProvisionFunctions(config Configuration) {
 		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
 	)
 
-	availableEndpoints := connection.Singleton.ListAPIs()
+	//availableEndpoints := connection.Singleton.ListAPIs()
+
+	slsConfig := &Serverless{FrameworkVersion: "7"}
+
+	slsConfig.CreateHeader(config)
+	slsConfig.AddPackagePattern("!**")
 
 	for index, subExperiment := range config.SubExperiments {
 		config.SubExperiments[index].ID = index
@@ -63,17 +67,23 @@ func ProvisionFunctions(config Configuration) {
 			}
 		}
 
-		if availableEndpoints == nil { // hostname must be the endpoint itself (external URL)
-			config.SubExperiments[index].Endpoints = []EndpointInfo{{ID: config.Provider}}
-			continue
-		}
+		slsConfig.AddFunctionConfig(subExperiment, index)
 
-		availableEndpoints = assignEndpoints(
-			availableEndpoints,
-			&config.SubExperiments[index],
-			config.Provider,
-		)
+		////  no clue what this does
+		//if availableEndpoints == nil { // hostname must be the endpoint itself (external URL)
+		//	config.SubExperiments[index].Endpoints = []EndpointInfo{{ID: config.Provider}}
+		//	continue
+		//}
+		//
+		//availableEndpoints = assignEndpoints(
+		//	availableEndpoints,
+		//	&config.SubExperiments[index],
+		//	config.Provider,
+		//)
 	}
+
+	slsConfig.CreateServerlessConfigFile()
+	log.Infof("serverles.yml was created")
 
 	if amazon.AWSSingletonInstance != nil && amazon.AWSSingletonInstance.ImageURI != "" {
 		log.Info("A deployment was made using container images, waiting 10 seconds for changes to take effect with the provider...")

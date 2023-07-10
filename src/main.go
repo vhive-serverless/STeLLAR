@@ -29,11 +29,11 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
 	"stellar/benchmarking"
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"time"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")

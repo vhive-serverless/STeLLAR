@@ -39,6 +39,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		experiment.PackageType)
 	var assignedHandler string
 
+	// makes no sense to me but will be redundant for serverless
 	if provider == "aws" { // deployment has only been automated for AWS so far
 		experiment.FunctionImageSizeMB, assignedHandler = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/functions/%s/%s", experiment.Function, provider),
@@ -71,6 +72,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 	return availableEndpoints
 }
 
+// this id where the good stuff takes place
 func findEndpointToAssign(availableEndpoints *[]connection.Endpoint, experiment *SubExperiment, assignedHandler string) string {
 	for index, endpoint := range *availableEndpoints {
 		if specsMatch(endpoint, experiment) {
