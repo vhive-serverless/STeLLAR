@@ -73,3 +73,11 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	log.Debugf("Command result: %s", out.String())
 	return out.String()
 }
+func StringContains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}

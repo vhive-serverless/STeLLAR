@@ -28,11 +28,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"stellar/setup/deployment/connection/amazon"
+	"strconv"
+	"strings"
 	"time"
 )
 
 //ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
-func ProvisionFunctions(config Configuration) {
+func ProvisionFunctions(config *Configuration) {
 	const (
 		nicContentionWarnThreshold = 800 // Experimentally found
 		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
@@ -40,11 +42,12 @@ func ProvisionFunctions(config Configuration) {
 
 	//availableEndpoints := connection.Singleton.ListAPIs()
 
-	slsConfig := &Serverless{FrameworkVersion: "7"}
+	slsConfig := &Serverless{}
 
-	slsConfig.CreateHeader(config)
+	slsConfig.CreateHeader(*config)
 	slsConfig.AddPackagePattern("!**")
 
+	// Create a serverless.yml function configurations for all functions
 	for index, subExperiment := range config.SubExperiments {
 		config.SubExperiments[index].ID = index
 
@@ -67,8 +70,7 @@ func ProvisionFunctions(config Configuration) {
 			}
 		}
 
-		slsConfig.AddFunctionConfig(subExperiment, index)
-
+		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index)
 		////  no clue what this does
 		//if availableEndpoints == nil { // hostname must be the endpoint itself (external URL)
 		//	config.SubExperiments[index].Endpoints = []EndpointInfo{{ID: config.Provider}}
@@ -82,11 +84,49 @@ func ProvisionFunctions(config Configuration) {
 		//)
 	}
 
+	log.Infof("Creating serverless.yml.")
 	slsConfig.CreateServerlessConfigFile()
-	log.Infof("serverles.yml was created")
+
+	log.Infof("Starting serverless.com deployment.")
+	slsDeployMessage := deployService()
+	log.Infof(slsDeployMessage)
+
+	endpointID := getEndpointID(slsDeployMessage)
+
+	// Assign Ednpoint ID to each deployed function
+	for i := range config.SubExperiments {
+		assignEndpointIDs(endpointID, &config.SubExperiments[i])
+		log.Infof(strconv.Itoa(len(config.SubExperiments)))
+	}
 
 	if amazon.AWSSingletonInstance != nil && amazon.AWSSingletonInstance.ImageURI != "" {
 		log.Info("A deployment was made using container images, waiting 10 seconds for changes to take effect with the provider...")
 		time.Sleep(time.Second * 10)
+
 	}
+}
+
+func assignEndpointIDs(endpointID string, subex *SubExperiment) {
+	subex.Endpoints = []EndpointInfo{}
+	for i := 0; i < subex.Parallelism; i++ {
+		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: endpointID})
+	}
+	log.Infof(strconv.Itoa(len(subex.Endpoints)))
+}
+
+// getEndpointID scrapes the serverless deploy message for the endpoint ID
+func getEndpointID(slsDeployMessage string) string {
+	lines := strings.Split(slsDeployMessage, "\n")
+	if lines[1] == "endpoints:" {
+		line := lines[2]
+		link := strings.Split(line, " ")[4]
+		httpId := strings.Split(link, ".")[0]
+		endpointId := strings.Split(httpId, "//")[1]
+		return endpointId
+	}
+	line := lines[1]
+	link := strings.Split(line, " ")[3]
+	httpId := strings.Split(link, ".")[0]
+	endpointId := strings.Split(httpId, "//")[1]
+	return endpointId
 }

@@ -56,7 +56,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		foundEndpointID := findEndpointToAssign(&availableEndpoints, experiment, assignedHandler)
 
 		gatewayEndpoint := EndpointInfo{ID: foundEndpointID}
-
+		// what's DataTransferChainIDs????
 		for j := experiment.DataTransferChainLength; j > 1; j-- {
 			gatewayEndpoint.DataTransferChainIDs = append(
 				gatewayEndpoint.DataTransferChainIDs,

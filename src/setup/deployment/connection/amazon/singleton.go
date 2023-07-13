@@ -37,13 +37,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
-	"strings"
 	"stellar/util"
+	"strings"
 )
 
 const (
 	//AWSRegion is the region that AWS operates in
-	AWSRegion = endpoints.UsWest1RegionID
+	AWSRegion = endpoints.UsEast1RegionID
 	//AWSBucketName is the name of the bucket where the client operates
 	AWSBucketName      = "stellar"
 	deploymentStage    = "prod"

@@ -1,13 +1,16 @@
 package setup
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"os/exec"
 	"regexp"
-	"strconv"
+	"stellar/util"
 )
 
+// Serverless describes the serverless.yml contents.
 type Serverless struct {
 	Service          string               `yaml:"service"`
 	FrameworkVersion string               `yaml:"frameworkVersion"`
@@ -42,6 +45,7 @@ type HttpApi struct {
 	Method string `yaml:"method"`
 }
 
+// CreateHeader sets the fields Service, FrameworkVersion, and Provider
 func (s *Serverless) CreateHeader(config Configuration) {
 	s.Service = "STeLLAR" // or some other string
 	s.FrameworkVersion = "3"
@@ -51,16 +55,18 @@ func (s *Serverless) CreateHeader(config Configuration) {
 		Region:  "us-east-1",
 	}
 	s.Functions = map[string]*Function{}
-	log.Info(s.Service)
 }
 
+// AddPackagePattern adds a string pattern to Package.Pattern as long as such a pattern does not already exist in Package.Pattern
 func (s *Serverless) AddPackagePattern(pattern string) {
-	s.Package.Patterns = append(s.Package.Patterns, pattern)
+	if !util.StringContains(s.Package.Patterns, pattern) {
+		s.Package.Patterns = append(s.Package.Patterns, pattern)
+	}
 }
 
+// CreateServerlessConfigFile dumps the contents of the Serverless struct into a yml file.
 func (s *Serverless) CreateServerlessConfigFile() {
 	data, err := yaml.Marshal(&s)
-	log.Info(s.Service)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,53 +78,45 @@ func (s *Serverless) CreateServerlessConfigFile() {
 	}
 }
 
-func (s *Serverless) AddFunctionConfig(subex SubExperiment, index int) {
+// AddFunctionConfig creates parallel serverless function configuration for serverless.com deployment
+func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
+	// serverless.com functions require alphanumeric names
 	nonAlphanumericRegex := regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
-	name := nonAlphanumericRegex.ReplaceAllString(subex.Title, "") + "_" + strconv.Itoa(index)
-	events := []Event{Event{HttpApi{Path: "/" + name, Method: "GET"}}}
-	f := &Function{Handler: subex.Function, Name: name, Events: events}
-	s.Functions[name] = f
-	log.Info(s.Functions)
+
+	for i := 0; i < subex.Parallelism; i++ {
+		name := fmt.Sprintf("%s_%d_%d", nonAlphanumericRegex.ReplaceAllString(subex.Title, ""), index, i)
+
+		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
+
+		var handler string
+		switch subex.Function {
+		case "hellopy":
+			handler = "hellopy/lambda_function.lambda_handler"
+			s.AddPackagePattern("hellopy/lambda_function.py")
+			break
+		default:
+			log.Fatalf("DeployFunction could not recognize function image %s", subex.Function)
+		}
+
+		f := &Function{Handler: handler, Name: name, Events: events}
+		s.Functions[name] = f
+		subex.addRoute(name)
+	}
+
 }
 
-func createServerlessYml() {
-
-	provider := Provider{
-		Name:    "hellopy",
-		Runtime: "python3.9",
-		Region:  "us-east-1",
-	}
-
-	packageStruct := Package{Patterns: []string{"!**", "hellopy/lambda_function.py"}}
-
-	//function1 := Function{
-	//	Handler:     "aws/hellopy/lambda_function.lambda_handler",
-	//	Name:        "test1",
-	//	Description: "Testing serverless.com deployment for stellar.",
-	//}
-
-	//functions := map[string]Function{"test1": function1}
-	serverless := Serverless{
-		Service:          "Stellar",
-		FrameworkVersion: "3",
-		Provider:         provider,
-		Package:          packageStruct,
-		//Functions:        functions,
-	}
-
-	data, err := yaml.Marshal(serverless)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err2 := ioutil.WriteFile("aws/serverless.yml", data, 0644)
-
-	if err2 != nil {
-		log.Fatal(err2)
-	}
+// RemoveService removes the service defined in serverless.yml
+func RemoveService() string {
+	slsRemoveCmd := exec.Command("sls", "remove")
+	slsRemoveCmd.Dir = "src/setup/deployment/raw-code/serverless/aws"
+	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
+	return slsRemoveMessage
 }
 
-func main() {
-	createServerlessYml()
+// Deploys the functions defined in the serverless.com file
+func deployService() string {
+	slsDeployCmd := exec.Command("sls", "deploy")
+	slsDeployCmd.Dir = "src/setup/deployment/raw-code/serverless/aws"
+	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
+	return slsDeployMessage
 }

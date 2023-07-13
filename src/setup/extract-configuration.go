@@ -63,6 +63,11 @@ type SubExperiment struct {
 	// All of the below are computed after reading the configuration
 	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
 	Endpoints          []EndpointInfo
+	Routes             []string
+}
+
+func (s *SubExperiment) addRoute(path string) {
+	s.Routes = append(s.Routes, path)
 }
 
 const (
