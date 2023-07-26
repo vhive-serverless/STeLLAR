@@ -93,14 +93,14 @@ Stellar uses serverless.com framework to deploy serverless functions to cloud.
 
 1. The JSON experiment configuration file is parsed and serverless.yml service configuration file is written. 
 2. The function source code is compiled if needed. (e.g. Java and Go functions)
-3. The filler file is created to increase the function deployment size.
+3. The filler file is created to increase the function deployment size. Filler files are added to the deployment package to benchmark performance of different functions with different sizes.
 4. Based on the experiment deployment method:
    1. ZIP: serverless.com framework is able to zip the function with the filler file and no further steps are needed from STeLLAR. For better control over what gets zipped we allow the user to create "artifacts" - that is that STeLLAR zips the function and is provided to serverless.com already zipped. In such case, the serverless.com does not perform the zipping. 
    2. Docker: Docker image is built - for this docker file needs to be provided by the user.
 5. Serverless.com framework deploys the service defined in the service.yml. (`serverless deploy`)
 6. Serverless.com return a list of endpoints and routes for every function defined.
 7. Benchmarking is performed.
-8. Once all the experiment are finished, the service is removed using the serverless.com framework. (`serverless remove`)
+8. Once all the experiments are finished, the service is removed using the serverless.com framework. (`serverless remove`)
 
 ### Serverless.com & Cloud Provider Capabilities
 While serverless.com framework is a powerful tool when it comes to deploying Lambda Functions to AWS, its capabilities are more limited with other providers. The following table shows serverless.com features vs. different providers whose deployment was considered to be automated.
