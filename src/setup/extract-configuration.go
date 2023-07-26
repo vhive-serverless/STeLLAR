@@ -108,6 +108,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 		if parsedConfig.SubExperiments[index].PackageType == "" {
 			parsedConfig.SubExperiments[index].PackageType = defaultPackageType
 		}
+		if parsedConfig.SubExperiments[index].PackagePattern == "" {
+			parsedConfig.SubExperiments[index].PackagePattern = defaultPackagePattern
+		}
 		if parsedConfig.SubExperiments[index].IATType == "" {
 			parsedConfig.SubExperiments[index].IATType = defaultIATType
 		}
