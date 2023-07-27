@@ -85,7 +85,7 @@ func ProvisionFunctions(config Configuration) {
 	}
 }
 
-//ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+// ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
 func ProvisionFunctionsServerless(config Configuration) {
 
 	slsConfig := &Serverless{}
@@ -101,7 +101,8 @@ func ProvisionFunctionsServerless(config Configuration) {
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
 		// TODO: build the functions (Java and Golang)
-		builder.BuildFunction("", "")
+		functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", config.Provider, subExperiment.Function)
+		builder.BuildFunction(functionPath, subExperiment.Runtime)
 
 		// TODO: Create filler files here and do the zipping if necessary.
 		// Use deployment.generateFillerFile() function
