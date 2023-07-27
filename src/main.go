@@ -78,6 +78,7 @@ func main() {
 
 	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
+	log.Infof("Removing Service...")
 	setup.RemoveService()
 	log.Infof("Service successfully removed.")
 
