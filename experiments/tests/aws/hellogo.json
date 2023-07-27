@@ -1,0 +1,38 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "go1.x",
+  "SubExperiments": [
+    {
+      "Title": "parallelism1",
+      "Function": "hellogo",
+      "Handler": "hellogo/main",
+      "PackageType": "Zip",
+      "PackagePattern": "hellogo/main.go",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    },
+    {
+      "Title": "parallelism2",
+      "Function": "hellogo",
+      "Handler": "hellogo/main",
+      "PackageType": "Zip",
+      "PackagePattern": "hellogo/main.go",
+      "Bursts": 3,
+      "BurstSizes": [
+        4
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 48,
+      "Parallelism": 2
+    }
+  ]
+}
