@@ -1,23 +1,29 @@
 package building
 
-import log "github.com/sirupsen/logrus"
+import (
+	"fmt"
+	log "github.com/sirupsen/logrus"
+	"os/exec"
+	"stellar/util"
+)
 
 // Builder struct keeps track of the functions built by stellar
 type Builder struct {
 	functionsBuilt []string
 }
 
-func (b *Builder) BuildFunction(functionPath string, runtime string) {
+func (b *Builder) BuildFunction(provider string, functionName string, runtime string) {
 	// TODO: Implement function
 
 	// First we check whether the function has not been built already
 	// TODO: Check if function path is in functionsBuilt if yes, skip the build. If no, continue the building process and add the functionPath to the list.
 
+	functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, functionName)
 	b.functionsBuilt = append(b.functionsBuilt, functionPath)
 	switch runtime {
 	case "java":
 		buildJava(functionPath)
-	case "golang":
+	case "go1.x":
 		buildGolang(functionPath)
 	default:
 		// building not supported
@@ -33,6 +39,7 @@ func buildJava(functionPath string) {
 
 // buildGolang builds the Golang binary for serverless deployment
 func buildGolang(functionPath string) {
-	// TODO: Implement function.
-	log.Warn(functionPath)
+	log.Infof("Building Go binary at %s path", functionPath)
+	command := exec.Command("env", "GOOS=linux", "GOARCH=amd64", "go", "build", "-C", functionPath)
+	util.RunCommandAndLog(command)
 }
