@@ -51,7 +51,7 @@ func (s *Serverless) CreateHeader(config Configuration) {
 	s.FrameworkVersion = "3"
 	s.Provider = Provider{
 		Name:    config.Provider,
-		Runtime: "python3.9",
+		Runtime: config.Runtime,
 		Region:  "us-east-1",
 	}
 	s.Functions = map[string]*Function{}
