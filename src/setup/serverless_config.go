@@ -88,17 +88,8 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
 
 		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
 
-		var handler string
-		switch subex.Function {
-		case "hellopy":
-			handler = "hellopy/lambda_function.lambda_handler"
-			s.AddPackagePattern("hellopy/lambda_function.py")
-			break
-		default:
-			log.Fatalf("DeployFunction could not recognize function image %s", subex.Function)
-		}
-
-		f := &Function{Handler: handler, Name: name, Events: events}
+		s.AddPackagePattern(subex.PackagePattern)
+		f := &Function{Handler: subex.Handler, Name: name, Events: events}
 		s.Functions[name] = f
 		subex.addRoute(name)
 	}
