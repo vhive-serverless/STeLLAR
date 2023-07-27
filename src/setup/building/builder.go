@@ -1,6 +1,10 @@
 package building
 
-import log "github.com/sirupsen/logrus"
+import (
+	log "github.com/sirupsen/logrus"
+	"os/exec"
+	"stellar/util"
+)
 
 // Builder struct keeps track of the functions built by stellar
 type Builder struct {
@@ -17,7 +21,7 @@ func (b *Builder) BuildFunction(functionPath string, runtime string) {
 	switch runtime {
 	case "java":
 		buildJava(functionPath)
-	case "golang":
+	case "go1.x":
 		buildGolang(functionPath)
 	default:
 		// building not supported
@@ -33,6 +37,7 @@ func buildJava(functionPath string) {
 
 // buildGolang builds the Golang binary for serverless deployment
 func buildGolang(functionPath string) {
-	// TODO: Implement function.
-	log.Warn(functionPath)
+	log.Infof("Building Go binary at %s path", functionPath)
+	command := exec.Command("env", "GOOS=linux", "GOARCH=amd64", "go", "build", "-C", functionPath)
+	util.RunCommandAndLog(command)
 }

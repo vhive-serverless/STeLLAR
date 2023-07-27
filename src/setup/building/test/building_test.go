@@ -12,7 +12,7 @@ func TestBuildFunctionJava(t *testing.T) {
 
 func TestBuildFunctionGolang(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction("test/function/path", "golang")
+	b.BuildFunction("test/function/path", "go1.x")
 }
 
 func TestBuildFunctionUnsupported(t *testing.T) {
