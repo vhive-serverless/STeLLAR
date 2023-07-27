@@ -33,7 +33,7 @@ import (
 	"time"
 )
 
-//ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+// ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
 func ProvisionFunctions(config *Configuration) {
 	const (
 		nicContentionWarnThreshold = 800 // Experimentally found
