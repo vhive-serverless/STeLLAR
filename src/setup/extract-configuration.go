@@ -78,6 +78,7 @@ const (
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
 	defaultFunction                = "producer-consumer"
+	defaultHandler                 = "producer-consumer"
 	defaultPackageType             = "Zip"
 	defaultPackagePattern          = "**"
 	defaultParallelism             = 1
@@ -102,6 +103,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 	for index := range parsedConfig.SubExperiments {
 		if parsedConfig.SubExperiments[index].Function == "" {
 			parsedConfig.SubExperiments[index].Function = defaultFunction
+		}
+		if parsedConfig.SubExperiments[index].Handler == "" {
+			parsedConfig.SubExperiments[index].Handler = defaultHandler
 		}
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
