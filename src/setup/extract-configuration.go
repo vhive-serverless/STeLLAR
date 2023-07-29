@@ -80,6 +80,7 @@ const (
 	defaultProvider                = "aws"
 	defaultFunction                = "producer-consumer"
 	defaultHandler                 = "producer-consumer"
+	defaultRuntime                 = "go1.x"
 	defaultPackageType             = "Zip"
 	defaultPackagePattern          = "**"
 	defaultParallelism             = 1
@@ -100,6 +101,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 	if parsedConfig.Provider == "" {
 		parsedConfig.Provider = defaultProvider
 	}
+	if parsedConfig.Runtime == "" {
+		parsedConfig.Runtime = defaultRuntime
+	}
 
 	for index := range parsedConfig.SubExperiments {
 		if parsedConfig.SubExperiments[index].Function == "" {
@@ -107,6 +111,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 		}
 		if parsedConfig.SubExperiments[index].Handler == "" {
 			parsedConfig.SubExperiments[index].Handler = defaultHandler
+		}
+		if parsedConfig.SubExperiments[index].Runtime == "" {
+			parsedConfig.SubExperiments[index].Runtime = defaultRuntime
 		}
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
