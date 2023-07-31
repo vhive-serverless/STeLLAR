@@ -77,7 +77,7 @@ func ProvisionFunctions(config *Configuration) {
 		//	continue
 		//}
 		//
-		//availableEndpoints = assignEndpoints(
+		// availableEndpoints = assignEndpoints(
 		//	availableEndpoints,
 		//	&config.SubExperiments[index],
 		//	config.Provider,

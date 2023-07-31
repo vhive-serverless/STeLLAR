@@ -5,6 +5,7 @@
     {
       "Title": "parallelism1",
       "Bursts": 2,
+      "Function": "hellopy",
       "BurstSizes": [
         2
       ],
@@ -16,6 +17,7 @@
     {
       "Title": "parallelism2",
       "Bursts": 3,
+      "Function": "hellopy",
       "BurstSizes": [
         4
       ],

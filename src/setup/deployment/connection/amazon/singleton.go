@@ -43,7 +43,7 @@ import (
 
 const (
 	//AWSRegion is the region that AWS operates in
-	AWSRegion = endpoints.UsEast1RegionID
+	AWSRegion = endpoints.UsWest2RegionID
 	//AWSBucketName is the name of the bucket where the client operates
 	AWSBucketName      = "stellar"
 	deploymentStage    = "prod"

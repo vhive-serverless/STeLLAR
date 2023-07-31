@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 .PHONY: build_and_run
-build_and_run: build run_aws
+build_and_run: build run_a ws
 
 .PHONY: build
 build:

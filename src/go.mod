@@ -23,7 +23,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.2
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 	golang.org/x/net v0.0.0-20210908191846-a5e095526f91 // indirect
 	golang.org/x/sys v0.0.0-20210909193231-528a39cd75f3 // indirect
@@ -33,10 +33,11 @@ require (
 	google.golang.org/genproto v0.0.0-20210909211513-a8c4777a87af // indirect
 	google.golang.org/grpc v1.40.0
 	google.golang.org/protobuf v1.27.1
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (
+	github.com/aws/aws-lambda-go v1.41.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-pdf/fpdf v0.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

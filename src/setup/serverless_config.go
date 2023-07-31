@@ -51,8 +51,8 @@ func (s *Serverless) CreateHeader(config Configuration) {
 	s.FrameworkVersion = "3"
 	s.Provider = Provider{
 		Name:    config.Provider,
-		Runtime: "python3.9",
-		Region:  "us-east-1",
+		Runtime: "go1.x",
+		Region:  "us-west-2",
 	}
 	s.Functions = map[string]*Function{}
 }
@@ -94,6 +94,9 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
 			handler = "hellopy/lambda_function.lambda_handler"
 			s.AddPackagePattern("hellopy/lambda_function.py")
 			break
+		case "producer-consumer":
+			handler = "hellogo"
+			s.AddPackagePattern("hellogo/*")
 		default:
 			log.Fatalf("DeployFunction could not recognize function image %s", subex.Function)
 		}
