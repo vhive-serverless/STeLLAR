@@ -29,11 +29,11 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
 	"stellar/benchmarking"
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"time"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")
@@ -43,6 +43,7 @@ var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory contai
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 var writeToDatabaseFlag = flag.Bool("db", false, "This bool flag specifies whether statistics should be written to the database")
+var serverlessDeployment = flag.Bool("s", false, "Use serverless.com framework for deployment. ")
 
 func main() {
 	startTime := time.Now()
@@ -73,11 +74,20 @@ func main() {
 	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
 	setup.FindBusySpinIncrements(&config)
 
+	// Pick between deployment methods
 	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
-
-	setup.ProvisionFunctions(config)
+	if *serverlessDeployment {
+		setup.ProvisionFunctionsServerless(config)
+	} else {
+		setup.ProvisionFunctions(config)
+	}
 
 	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag)
+
+	// Remove the functions used for experiments, since they are no longer needed
+	if *serverlessDeployment {
+		setup.RemoveService()
+	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
 }
