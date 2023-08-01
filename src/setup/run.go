@@ -85,7 +85,7 @@ func ProvisionFunctions(config Configuration) {
 }
 
 // ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
-func ProvisionFunctionsServerless(config Configuration) {
+func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string) {
 
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
@@ -112,10 +112,11 @@ func ProvisionFunctionsServerless(config Configuration) {
 		// Use the packaging.GenerateZIP() function
 	}
 
-	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("setup/deployment/raw-code/serverless/%s/serverless.yml", config.Provider))
+	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
 
-	slsDeployMessage := DeployService()
-	log.Warn(slsDeployMessage)
+	log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+	slsDeployMessage := DeployService(serverlessDirPath)
+	log.Info(slsDeployMessage)
 
 	// TODO: assign endpoints to subexperiments
 	// Get the endpoints by scraping the serverless deploy message.

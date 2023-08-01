@@ -24,6 +24,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
@@ -76,9 +77,13 @@ func main() {
 	// Pick between deployment methods
 	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
 	if *serverlessDeployment {
-		setup.ProvisionFunctionsServerless(config)
+		serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
+		setup.ProvisionFunctionsServerless(config, serverlessDirPath)
 		// TODO: trigger benchmarking.TriggerSubExperiments once implemented (disabled to pass CI pipeline, for now)
-		setup.RemoveService()
+
+		log.Info("Starting functions removal from cloud.")
+		slsRemoveMessage := setup.RemoveService(serverlessDirPath)
+		log.Info(slsRemoveMessage)
 	} else {
 		setup.ProvisionFunctions(config)
 		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)

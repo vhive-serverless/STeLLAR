@@ -32,7 +32,7 @@ import (
 	"os/exec"
 )
 
-//ReadFile reads a file and returns the object
+// ReadFile reads a file and returns the object
 func ReadFile(path string) *os.File {
 	log.Debugf("Reading file from `%s`", path)
 	file, err := os.Open(path)
@@ -42,17 +42,17 @@ func ReadFile(path string) *os.File {
 	return file
 }
 
-//BytesToMB transforms bytes into megabytes
+// BytesToMB transforms bytes into megabytes
 func BytesToMB(sizeBytes int64) float64 {
 	return float64(sizeBytes) / 1024. / 1024.
 }
 
-//MBToBytes transforms megabytes into bytes
+// MBToBytes transforms megabytes into bytes
 func MBToBytes(sizeMB float64) int64 {
 	return int64(sizeMB) * 1024 * 1024
 }
 
-//IntegerMin returns the minimum of two integers
+// IntegerMin returns the minimum of two integers
 func IntegerMin(x, y int) int {
 	if x < y {
 		return x
@@ -60,7 +60,7 @@ func IntegerMin(x, y int) int {
 	return y
 }
 
-//RunCommandAndLog runs a command in the terminal, logs the result and returns it
+// RunCommandAndLog runs a command in the terminal, logs the result and returns it
 func RunCommandAndLog(cmd *exec.Cmd) string {
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -68,7 +68,8 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		log.Fatalf("%s: %s", fmt.Sprint(err.Error()), stderr.String())
+		log.Infof("Command result: %s", out.String())
+		log.Infof("%s: %s", fmt.Sprint(err.Error()), stderr.String())
 	}
 	log.Debugf("Command result: %s", out.String())
 	return out.String()
