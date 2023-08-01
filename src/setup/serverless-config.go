@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
+	"strings"
 )
 
 // Serverless describes the serverless.yml contents.
@@ -102,7 +103,7 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 			f.Package.Artifact = artifactPath
 		}
 		s.Functions[name] = f
-
+		subex.AddRoute(name)
 		// TODO: producer-consumer sub-function definition
 	}
 }
@@ -142,4 +143,21 @@ func DeployService(path string) string {
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
 	return slsDeployMessage
+}
+
+// GetEndpointID scrapes the serverless deploy message for the endpoint ID
+func GetEndpointID(slsDeployMessage string) string {
+	lines := strings.Split(slsDeployMessage, "\n")
+	if lines[1] == "endpoints:" {
+		line := lines[2]
+		link := strings.Split(line, " ")[4]
+		httpId := strings.Split(link, ".")[0]
+		endpointId := strings.Split(httpId, "//")[1]
+		return endpointId
+	}
+	line := lines[1]
+	link := strings.Split(line, " ")[3]
+	httpId := strings.Split(link, ".")[0]
+	endpointId := strings.Split(httpId, "//")[1]
+	return endpointId
 }

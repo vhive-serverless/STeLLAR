@@ -24,14 +24,14 @@ package benchhttp
 
 import (
 	"github.com/stretchr/testify/require"
-	"testing"
 	"stellar/setup"
+	"testing"
 )
 
 func TestExecuteExternalHTTPRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, setup.EndpointInfo{}, randomAssignedIncrement, false)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.EndpointInfo{}, randomAssignedIncrement, false, "route1")
 
 	respBytes, reqSentTime, reqReceivedTime := ExecuteRequest(*req)
 	require.Equal(t, true, respBytes != nil)
