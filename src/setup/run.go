@@ -27,9 +27,11 @@ package setup
 import (
 	log "github.com/sirupsen/logrus"
 	"os"
-	"time"
+	"stellar/setup/building"
+	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"time"
 )
 
 //ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
@@ -79,4 +81,32 @@ func ProvisionFunctions(config Configuration) {
 		log.Info("A deployment was made using container images, waiting 10 seconds for changes to take effect with the provider...")
 		time.Sleep(time.Second * 10)
 	}
+}
+
+//ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+func ProvisionFunctionsServerless(config Configuration) {
+
+	slsConfig := &Serverless{}
+	builder := &building.Builder{}
+
+	for index, subExperiment := range config.SubExperiments {
+
+		slsConfig.AddFunctionConfig(&subExperiment, index)
+
+		//TODO: generate the code
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		// TODO: build the functions (Java and Golang)
+		builder.BuildFunction("", "")
+
+		// TODO: Create filler files here and do the zipping if necessary.
+		// Use deployment.generateFillerFile() function
+		// Use the packaging.GenerateZIP() function
+	}
+
+	slsDeployMessage := DeployService()
+	log.Warn(slsDeployMessage)
+
+	// TODO: assign endpoints to subexperiments
+	// Get the endpoints by scraping the serverless deploy message.
 }

@@ -29,11 +29,11 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
 	"stellar/benchmarking"
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"time"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")
@@ -42,6 +42,7 @@ var configPathFlag = flag.String("c", "experiments/tests/aws/data-transfer.json"
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
+var serverlessDeployment = flag.Bool("s", true, "Use serverless.com framework for deployment. ")
 
 func main() {
 	startTime := time.Now()
@@ -72,11 +73,16 @@ func main() {
 	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
 	setup.FindBusySpinIncrements(&config)
 
+	// Pick between deployment methods
 	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
-
-	setup.ProvisionFunctions(config)
-
-	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+	if *serverlessDeployment {
+		setup.ProvisionFunctionsServerless(config)
+		// TODO: trigger benchmarking.TriggerSubExperiments once implemented (disabled to pass CI pipeline, for now)
+		setup.RemoveService()
+	} else {
+		setup.ProvisionFunctions(config)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
 }

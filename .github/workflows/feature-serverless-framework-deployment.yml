@@ -1,0 +1,93 @@
+name: feature-serverless-framework-deployment
+on:
+  push:
+    branches:
+      - feature-serverless-framework-deployment
+  pull_request:
+    branches:
+      - feature-serverless-framework-deployment
+
+jobs:
+  build_client:
+    name: Build framework
+    runs-on: ubuntu-22.04
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Check syntax
+        uses: golangci/golangci-lint-action@v2.5.2
+        with:
+          working-directory: ${{env.working-directory}}
+          args: --timeout 5m --skip-dirs raw-code
+          skip-pkg-cache: true
+          skip-build-cache: true
+
+      - name: Build client binary
+        working-directory: ${{env.working-directory}}
+        run: |
+          docker build -t stellar .
+          docker create --name temp stellar /bin/bash
+      - name: Package client artifact
+        run: |
+          mkdir -p "setup/deployment/raw-code"
+          docker cp temp:/app/stellar ./main
+          docker cp temp:/app/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
+          tar -czvf build.tar ./main ./setup/deployment/raw-code/functions
+
+      - name: Upload client artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: STeLLAR-build
+          path: build.tar
+          retention-days: 1
+
+  test_aws:
+    name: Unit tests (incl. AWS API tests) and AWS integration tests
+    needs: [ build_client ]
+    runs-on: ubuntu-22.04
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
+
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Unit Tests
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./...
+
+      - name: Prepare benchmarking functions
+        run: |
+          mkdir -p "setup/deployment/raw-code"
+          cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
+          mkdir -p "./src/latency-samples"
+
+      - name: AWS Burstiness ZIP (Package) Integration Test
+        working-directory: ${{env.working-directory}}
+        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json --s true
+
