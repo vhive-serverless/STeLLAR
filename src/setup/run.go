@@ -27,7 +27,7 @@ package setup
 import (
 	log "github.com/sirupsen/logrus"
 	"os"
-	"stellar/setup/deployment/building"
+	"stellar/setup/building"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
 	"time"

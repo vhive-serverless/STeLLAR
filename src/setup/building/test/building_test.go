@@ -1,7 +1,7 @@
 package building
 
 import (
-	"stellar/setup/deployment/building"
+	"stellar/setup/building"
 	"testing"
 )
 

@@ -28,9 +28,11 @@ func (*Builder) BuildFunction(functionPath string, runtime string) {
 // buildJava builds the java zip artifact for serverless deployment using Gradle
 func buildJava(functionPath string) {
 	// TODO: Implement function.
+	log.Info(functionPath)
 }
 
 // buildGolang builds the Golang binary for serverless deployment
 func buildGolang(functionPath string) {
 	// TODO: Implement function.
+	log.Info(functionPath)
 }
