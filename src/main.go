@@ -77,14 +77,11 @@ func main() {
 	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
 	if *serverlessDeployment {
 		setup.ProvisionFunctionsServerless(config)
+		// TODO: trigger benchmarking.TriggerSubExperiments once implemented (disabled to pass CI pipeline, for now)
+		setup.RemoveService()
 	} else {
 		setup.ProvisionFunctions(config)
 		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
-	}
-
-	// Remove the functions used for experiments, since they are no longer needed
-	if *serverlessDeployment {
-		setup.RemoveService()
 	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))

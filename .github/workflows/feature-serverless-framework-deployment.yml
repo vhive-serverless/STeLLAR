@@ -1,4 +1,4 @@
-name: golangci-lint
+name: feature-serverless-framework-deployment
 on:
   push:
     branches:
@@ -93,10 +93,3 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json
 
-      - name: AWS Burstiness Image (Package) Integration Test
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-image-package.json
-
-      - name: AWS Inline Data Transfer Integration Test
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/data-transfer.json
