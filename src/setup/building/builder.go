@@ -20,7 +20,7 @@ func (*Builder) BuildFunction(functionPath string, runtime string) {
 		buildGolang(functionPath)
 	default:
 		// building not supported
-		log.Infof("Building runtime %s is not necessary, or not supported. Continuing without building.", runtime)
+		log.Warnf("Building runtime %s is not necessary, or not supported. Continuing without building.", runtime)
 	}
 	return
 }
@@ -28,11 +28,11 @@ func (*Builder) BuildFunction(functionPath string, runtime string) {
 // buildJava builds the java zip artifact for serverless deployment using Gradle
 func buildJava(functionPath string) {
 	// TODO: Implement function.
-	log.Info(functionPath)
+	log.Warn(functionPath)
 }
 
 // buildGolang builds the Golang binary for serverless deployment
 func buildGolang(functionPath string) {
 	// TODO: Implement function.
-	log.Info(functionPath)
+	log.Warn(functionPath)
 }
