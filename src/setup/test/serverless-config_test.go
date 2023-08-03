@@ -7,16 +7,17 @@ import (
 )
 
 func TestAddFunctionConfig(t *testing.T) {
-	result_s := &setup.Serverless{}
-	require_s := &setup.Serverless{}
-	result_s.AddFunctionConfig()
+	resultServerless := &setup.Serverless{}
+	requireServerless := &setup.Serverless{}
+	subEx := &setup.SubExperiment{Title: "test1"}
+	resultServerless.AddFunctionConfig(subEx, 0)
 
-	require.Equal(t, result_s, require_s)
+	require.Equal(t, resultServerless, requireServerless)
 }
 
 func TestCreateServerlessConfigFile(t *testing.T) {
-	result_s := &setup.Serverless{}
-	result_s.CreateServerlessConfigFile()
+	resultServerless := &setup.Serverless{}
+	resultServerless.CreateServerlessConfigFile()
 }
 
 func TestRemoveService(t *testing.T) {
