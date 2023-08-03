@@ -42,7 +42,7 @@ var configPathFlag = flag.String("c", "experiments/tests/aws/data-transfer.json"
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
-var serverlessDeployment = flag.Bool("s", false, "Use serverless.com framework for deployment. ")
+var serverlessDeployment = flag.Bool("s", true, "Use serverless.com framework for deployment. ")
 
 func main() {
 	startTime := time.Now()
@@ -79,9 +79,8 @@ func main() {
 		setup.ProvisionFunctionsServerless(config)
 	} else {
 		setup.ProvisionFunctions(config)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 	}
-
-	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
 	// Remove the functions used for experiments, since they are no longer needed
 	if *serverlessDeployment {
