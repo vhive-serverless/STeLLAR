@@ -89,7 +89,7 @@ Finally, we look at the procedural steps adopted by the framework:
 
 Stellar uses serverless.com framework to deploy serverless functions to cloud.
 
-![deployment](design/deployment.png)
+![deployment](design/deployment.jpg)
 
 1. The JSON experiment configuration file is parsed and serverless.yml service configuration file is written.
 2. The function source code is compiled if needed. (e.g. Java and Go functions)
