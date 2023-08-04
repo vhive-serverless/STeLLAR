@@ -91,5 +91,5 @@ jobs:
 
       - name: AWS Burstiness ZIP (Package) Integration Test
         working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json
+        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json --s true
 
