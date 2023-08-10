@@ -45,14 +45,13 @@ jobs:
           path: build.tar
           retention-days: 1
 
-  test_aws:
-    name: Unit tests (incl. AWS API tests) and AWS integration tests
+  e2e_aws:
+    name: AWS e2e test
     needs: [ build_client ]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
     steps:
-
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
@@ -77,17 +76,68 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: Unit Tests
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./...
-
       - name: Prepare benchmarking functions
         run: |
           mkdir -p "setup/deployment/raw-code"
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           mkdir -p "./src/latency-samples"
 
-      - name: AWS Burstiness ZIP (Package) Integration Test
+      - name: AWS end-to-end test
         working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json --s true
+        run: ./main --o latency-samples --c ../experiments/tests/aws/hellopy.json --s true
 
+
+  unit_tests:
+    name: Unit tests
+    needs: [ build_client ]
+    runs-on: ubuntu-22.04
+    env:
+      working-directory: ./src
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
+
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Unit tests setup
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./setup/test/...
+
+      - name: Unit tests benchmarking
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./benchmarking/...
+
+      - name: Unit tests util
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./util/...
+
+      - name: Unit tests building
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./setup/building/test/...
+
+      - name: Unit tests code-generation
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./setup/code-generation/test/...
+
+      - name: Unit tests deployment
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./setup/deployment/...
