@@ -1,0 +1,31 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "parallelism1",
+      "Function": "hellopy",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    },
+    {
+      "Title": "parallelism2",
+      "Function": "hellopy",
+      "Bursts": 3,
+      "BurstSizes": [
+        4
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 48,
+      "Parallelism": 2
+    }
+  ]
+}
