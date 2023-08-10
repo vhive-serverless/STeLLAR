@@ -87,7 +87,7 @@ jobs:
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           mkdir -p "./src/latency-samples"
 
-      - name: AWS Burstiness ZIP (Package) Integration Test
+      - name: AWS end-to-end test
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json --s true
 
