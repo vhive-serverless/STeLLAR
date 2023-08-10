@@ -84,7 +84,7 @@ jobs:
 
       - name: AWS end-to-end test
         working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json --s true
+        run: ./main --o latency-samples --c ../experiments/tests/aws/hellopy.json --s true
 
 
   unit_tests:
