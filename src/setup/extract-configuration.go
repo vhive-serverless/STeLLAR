@@ -108,7 +108,7 @@ func ExtractConfiguration(configFilePath string) Configuration {
 			parsedConfig.SubExperiments[index].Handler = defaultHandler
 		}
 		if parsedConfig.SubExperiments[index].Runtime == "" {
-			parsedConfig.SubExperiments[index].Runtime = defaultRuntime
+			parsedConfig.SubExperiments[index].Runtime = parsedConfig.Runtime
 		}
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
