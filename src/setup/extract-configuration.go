@@ -64,6 +64,9 @@ type SubExperiment struct {
 	// Used to place separate functions for different experiments and decide on the re-purposing
 	// Identifier should be similar if you intend to re-purpose the function across different experiments
 	RepurposeIdentifier string `json:"RepurposeIdentifier"`
+	Handler                 string   `json:"Handler"`
+	Runtime                 string   `json:"Runtime"`
+	PackagePattern          string   `json:"PackagePattern"`
 	// All of the below are computed after reading the configuration
 	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
 	Endpoints          []EndpointInfo
