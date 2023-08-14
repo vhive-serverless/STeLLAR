@@ -1,0 +1,19 @@
+service: TestService
+frameworkVersion: "3"
+provider:
+    name: aws
+    runtime: go1.x
+    region: us-east-1
+package:
+    patterns:
+        - pattern1
+        - pattern2
+functions:
+    testFunction1:
+        handler: handler1
+        runtime: go1.16
+        name: testFunction1
+        events:
+            - httpApi:
+                path: /test1
+                method: GET
