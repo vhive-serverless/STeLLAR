@@ -61,6 +61,9 @@ type SubExperiment struct {
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
 	StorageTransfer         bool     `json:"StorageTransfer"`
+	Handler                 string   `json:"Handler"`
+	Runtime                 string   `json:"Runtime"`
+	PackagePattern          string   `json:"PackagePattern"`
 	// All of the below are computed after reading the configuration
 	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
 	Endpoints          []EndpointInfo
