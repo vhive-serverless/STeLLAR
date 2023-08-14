@@ -74,7 +74,10 @@ const (
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
 	defaultFunction                = "producer-consumer"
+	defaultHandler                 = "producer-consumer"
+	defaultRuntime                 = "go1.x"
 	defaultPackageType             = "Zip"
+	defaultPackagePattern          = "**"
 	defaultParallelism             = 1
 	defaultDataTransferChainLength = 1
 	defaultFunctionMemoryMB        = 128
