@@ -25,9 +25,9 @@
 package setup
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"stellar/setup/deployment/building"
 	"stellar/setup/building"
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
@@ -91,6 +91,8 @@ func ProvisionFunctionsServerless(config Configuration) {
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
 
+	slsConfig.CreateHeaderConfig(&config)
+
 	for index, subExperiment := range config.SubExperiments {
 
 		slsConfig.AddFunctionConfig(&subExperiment, index)
@@ -106,9 +108,12 @@ func ProvisionFunctionsServerless(config Configuration) {
 		// Use the packaging.GenerateZIP() function
 	}
 
+	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("src/setup/deployment/raw-code/serverless/%s/serverless.yml", config.Provider))
+
 	slsDeployMessage := DeployService()
 	log.Warn(slsDeployMessage)
 
 	// TODO: assign endpoints to subexperiments
 	// Get the endpoints by scraping the serverless deploy message.
+
 }

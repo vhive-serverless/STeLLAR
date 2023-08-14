@@ -9,9 +9,9 @@ def lambda_handler(request, context):
 
     incr_limit = 0
 
-    if(request['queryStringParameters'] and 'IncrementLimit' in request['queryStringParameters']):
+    if 'queryStringParameters' in request and 'IncrementLimit' in request['queryStringParameters']:
         incr_limit = int(request['queryStringParameters'].get('IncrementLimit', 0))
-    elif request['body'] and json.loads(request['body'])['IncrementLimit']:
+    elif 'body' in request and json.loads(request['body'])['IncrementLimit']:
         incr_limit = int(json.loads(request['body'])['IncrementLimit'])
 
     simulate_work(incr_limit)
