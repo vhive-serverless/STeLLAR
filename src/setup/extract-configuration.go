@@ -96,6 +96,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 	if parsedConfig.Provider == "" {
 		parsedConfig.Provider = defaultProvider
 	}
+	if parsedConfig.Runtime == "" {
+		parsedConfig.Runtime = defaultRuntime
+	}
 
 	for index := range parsedConfig.SubExperiments {
 		if parsedConfig.SubExperiments[index].Function == "" {
