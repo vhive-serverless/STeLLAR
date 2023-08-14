@@ -29,20 +29,21 @@ import (
 	"stellar/util"
 )
 
-//Configuration is the schema for all experiment configurations.
+// Configuration is the schema for all experiment configurations.
 type Configuration struct {
 	Sequential     bool            `json:"Sequential"`
 	Provider       string          `json:"Provider"`
+	Runtime        string          `json:"Runtime"`
 	SubExperiments []SubExperiment `json:"SubExperiments"`
 }
 
-//EndpointInfo contains an ID identifying the function together with the IDs of other functions further in the data transfer chain
+// EndpointInfo contains an ID identifying the function together with the IDs of other functions further in the data transfer chain
 type EndpointInfo struct {
 	ID                   string
 	DataTransferChainIDs []string
 }
 
-//SubExperiment contains all the information needed for a sub-experiment to run.
+// SubExperiment contains all the information needed for a sub-experiment to run.
 type SubExperiment struct {
 	ID                      int
 	Title                   string   `json:"Title"`
@@ -60,6 +61,9 @@ type SubExperiment struct {
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
 	StorageTransfer         bool     `json:"StorageTransfer"`
+	Handler                 string   `json:"Handler"`
+	Runtime                 string   `json:"Runtime"`
+	PackagePattern          string   `json:"PackagePattern"`
 	// All of the below are computed after reading the configuration
 	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
 	Endpoints          []EndpointInfo
@@ -70,13 +74,16 @@ const (
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
 	defaultFunction                = "producer-consumer"
+	defaultHandler                 = "producer-consumer"
+	defaultRuntime                 = "go1.x"
 	defaultPackageType             = "Zip"
+	defaultPackagePattern          = "**"
 	defaultParallelism             = 1
 	defaultDataTransferChainLength = 1
 	defaultFunctionMemoryMB        = 128
 )
 
-//ExtractConfiguration will read and parse the JSON configuration file, assign any default values and return the config object
+// ExtractConfiguration will read and parse the JSON configuration file, assign any default values and return the config object
 func ExtractConfiguration(configFilePath string) Configuration {
 	configFile := util.ReadFile(configFilePath)
 	configByteValue, _ := io.ReadAll(configFile)
@@ -89,16 +96,28 @@ func ExtractConfiguration(configFilePath string) Configuration {
 	if parsedConfig.Provider == "" {
 		parsedConfig.Provider = defaultProvider
 	}
+	if parsedConfig.Runtime == "" {
+		parsedConfig.Runtime = defaultRuntime
+	}
 
 	for index := range parsedConfig.SubExperiments {
 		if parsedConfig.SubExperiments[index].Function == "" {
 			parsedConfig.SubExperiments[index].Function = defaultFunction
+		}
+		if parsedConfig.SubExperiments[index].Handler == "" {
+			parsedConfig.SubExperiments[index].Handler = defaultHandler
+		}
+		if parsedConfig.SubExperiments[index].Runtime == "" {
+			parsedConfig.SubExperiments[index].Runtime = parsedConfig.Runtime
 		}
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
 		}
 		if parsedConfig.SubExperiments[index].PackageType == "" {
 			parsedConfig.SubExperiments[index].PackageType = defaultPackageType
+		}
+		if parsedConfig.SubExperiments[index].PackagePattern == "" {
+			parsedConfig.SubExperiments[index].PackagePattern = defaultPackagePattern
 		}
 		if parsedConfig.SubExperiments[index].IATType == "" {
 			parsedConfig.SubExperiments[index].IATType = defaultIATType
