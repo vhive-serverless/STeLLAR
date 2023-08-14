@@ -33,6 +33,7 @@ import (
 type Configuration struct {
 	Sequential     bool            `json:"Sequential"`
 	Provider       string          `json:"Provider"`
+	Runtime        string          `json:"Runtime"`
 	SubExperiments []SubExperiment `json:"SubExperiments"`
 }
 
