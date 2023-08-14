@@ -1,117 +1,94 @@
 {
   "Sequential": false,
+  "Runtime": "python3.9",
   "SubExperiments": [
     {
       "Title": "warm",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 6,
-      "BurstSizes": [
-        500
-      ],
+      "BurstSizes": [500],
       "IATSeconds": 25,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "cold",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 6,
-      "BurstSizes": [
-        500
-      ],
+      "BurstSizes": [500],
       "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "warm",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 10,
-      "BurstSizes": [
-        300
-      ],
+      "BurstSizes": [300],
       "IATSeconds": 15,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "cold",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 10,
-      "BurstSizes": [
-        300
-      ],
+      "BurstSizes": [300],
       "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "warm",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 30,
-      "BurstSizes": [
-        100
-      ],
+      "BurstSizes": [100],
       "IATSeconds": 10,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "cold",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 30,
-      "BurstSizes": [
-        100
-      ],
+      "BurstSizes": [100],
       "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "warm",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
+      "BurstSizes": [1],
       "IATSeconds": 0.5,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ]
+      "DesiredServiceTimes": ["0ms"]
     },
     {
       "Title": "cold",
       "Function": "hellopy",
+      "Handler": "hellopy/lambda_function.lambda_handler",
       "Bursts": 3000,
-      "BurstSizes": [
-        1
-      ],
+      "BurstSizes": [1],
       "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "PackageType": "Image",
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
+      "DesiredServiceTimes": ["0ms"],
       "Parallelism": 147
     }
   ]
