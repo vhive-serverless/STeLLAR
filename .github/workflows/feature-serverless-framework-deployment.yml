@@ -8,8 +8,8 @@ on:
       - feature-serverless-framework-deployment
 
 jobs:
-  build_client:
-    name: Build framework
+  check_syntax:
+    name: Check syntax
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
@@ -25,6 +25,16 @@ jobs:
           args: --timeout 5m --skip-dirs raw-code
           skip-pkg-cache: true
           skip-build-cache: true
+
+  build_client:
+    name: Build framework
+    runs-on: ubuntu-22.04
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
       - name: Build client binary
         working-directory: ${{env.working-directory}}
