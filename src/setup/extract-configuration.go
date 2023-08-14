@@ -107,11 +107,20 @@ func ExtractConfiguration(configFilePath string) Configuration {
 		if parsedConfig.SubExperiments[index].Function == "" {
 			parsedConfig.SubExperiments[index].Function = defaultFunction
 		}
+		if parsedConfig.SubExperiments[index].Handler == "" {
+			parsedConfig.SubExperiments[index].Handler = defaultHandler
+		}
+		if parsedConfig.SubExperiments[index].Runtime == "" {
+			parsedConfig.SubExperiments[index].Runtime = defaultRuntime
+		}
 		if parsedConfig.SubExperiments[index].Visualization == "" {
 			parsedConfig.SubExperiments[index].Visualization = defaultVisualization
 		}
 		if parsedConfig.SubExperiments[index].PackageType == "" {
 			parsedConfig.SubExperiments[index].PackageType = defaultPackageType
+		}
+		if parsedConfig.SubExperiments[index].PackagePattern == "" {
+			parsedConfig.SubExperiments[index].PackagePattern = defaultPackagePattern
 		}
 		if parsedConfig.SubExperiments[index].IATType == "" {
 			parsedConfig.SubExperiments[index].IATType = defaultIATType
