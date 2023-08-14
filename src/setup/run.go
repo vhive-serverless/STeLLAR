@@ -28,7 +28,6 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"stellar/setup/deployment/building"
 	"stellar/setup/building"
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
