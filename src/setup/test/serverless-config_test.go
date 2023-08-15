@@ -3,7 +3,7 @@ package setup
 import (
 	"bytes"
 	"github.com/stretchr/testify/require"
-	"os"
+	"io/ioutil"
 	"stellar/setup"
 	"testing"
 )
