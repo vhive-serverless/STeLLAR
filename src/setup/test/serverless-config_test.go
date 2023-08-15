@@ -3,7 +3,7 @@ package setup
 import (
 	"bytes"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"os"
 	"stellar/setup"
 	"testing"
 )
@@ -19,6 +19,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 			Runtime: "go1.x",
 			Region:  "us-west-1",
 		},
+		Package: setup.Package{Patterns: []string{"!**"}},
 	}
 
 	// Define the Configuration struct for testing
@@ -95,11 +96,11 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 	serverless.CreateServerlessConfigFile("serverless.yml")
 
 	// Read the contents of the generated YAML file
-	actualData, err := ioutil.ReadFile("serverless.yml")
+	actualData, err := os.ReadFile("serverless.yml")
 	assert.NoError(err, "Error reading actual data")
 
 	// Generate YAML content from the expected Serverless struct
-	expectedData, err := ioutil.ReadFile("test.yml")
+	expectedData, err := os.ReadFile("test.yml")
 	assert.NoError(err, "Error marshaling expected data")
 
 	// Compare the contents byte by byte
