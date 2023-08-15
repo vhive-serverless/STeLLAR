@@ -4,7 +4,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
@@ -66,11 +66,11 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		Runtime: config.Runtime,
 		Region:  region,
 	}
-	s.addPackagePattern("!**")
+	s.AddPackagePattern("!**")
 }
 
 // AddPackagePattern adds a string pattern to Package.Pattern as long as such a pattern does not already exist in Package.Pattern
-func (s *Serverless) addPackagePattern(pattern string) {
+func (s *Serverless) AddPackagePattern(pattern string) {
 	if !util.StringContains(s.Package.Patterns, pattern) {
 		s.Package.Patterns = append(s.Package.Patterns, pattern)
 	}
@@ -90,7 +90,7 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
 		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
 
 		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
-		s.addPackagePattern(subex.PackagePattern)
+		s.AddPackagePattern(subex.PackagePattern)
 		s.Functions[name] = f
 
 		// TODO: producer-consumer sub-function definition
@@ -109,7 +109,7 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 		log.Fatal(err)
 	}
 
-	err2 := ioutil.WriteFile(path, data, 0644)
+	err2 := os.WriteFile(path, data, 0644)
 
 	if err2 != nil {
 		log.Fatal(err2)
