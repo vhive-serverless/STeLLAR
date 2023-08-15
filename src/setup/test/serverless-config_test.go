@@ -42,13 +42,13 @@ func TestAddFunctionConfig(t *testing.T) {
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "Python3.8",
 				Events: []setup.Event{
-					{setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
+					{HttpApi: setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
 			"test1_2_1": {
 				Name:    "test1_2_1",
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "Python3.8",
 				Events: []setup.Event{
-					{setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
+					{HttpApi: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
 		}}
 
 	actual := &setup.Serverless{}
