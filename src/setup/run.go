@@ -107,7 +107,7 @@ func ProvisionFunctionsServerless(config Configuration) {
 		// Use the packaging.GenerateZIP() function
 	}
 
-	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("src/setup/deployment/raw-code/serverless/%s/serverless.yml", config.Provider))
+	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("setup/deployment/raw-code/serverless/%s/serverless.yml", config.Provider))
 
 	slsDeployMessage := DeployService()
 	log.Warn(slsDeployMessage)
