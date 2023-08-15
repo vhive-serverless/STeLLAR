@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"os"
+	"os/exec"
 	"regexp"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
@@ -126,14 +127,17 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 }
 
 // RemoveService removes the service defined in serverless.yml
-func RemoveService() string {
-	// TODO: implement function
-	return ""
+func RemoveService(path string) string {
+	slsRemoveCmd := exec.Command("sls", "remove")
+	slsRemoveCmd.Dir = path
+	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
+	return slsRemoveMessage
 }
 
-// Deploys the functions defined in the serverless.com file
-
-func DeployService() string {
-	// TODO: implement function
-	return ""
+// DeployService deploys the functions defined in the serverless.com file
+func DeployService(path string) string {
+	slsDeployCmd := exec.Command("sls", "deploy")
+	slsDeployCmd.Dir = path
+	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
+	return slsDeployMessage
 }
