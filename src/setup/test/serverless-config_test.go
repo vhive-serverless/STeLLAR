@@ -3,7 +3,7 @@ package setup
 import (
 	"bytes"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"os"
 	"stellar/setup"
 	"testing"
 )
@@ -19,7 +19,6 @@ func TestCreateHeaderConfig(t *testing.T) {
 			Runtime: "go1.x",
 			Region:  "us-west-1",
 		},
-		Package: setup.Package{Individually: true},
 	}
 
 	// Define the Configuration struct for testing
