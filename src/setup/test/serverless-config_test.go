@@ -120,13 +120,13 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 }
 
 func TestRemoveService(t *testing.T) {
-	msg := setup.RemoveService()
+	msg := setup.RemoveService("")
 
 	require.Equal(t, msg, "")
 }
 
 func TestDeployService(t *testing.T) {
-	msg := setup.DeployService()
+	msg := setup.DeployService("")
 	require.Equal(t, msg, "")
 }
 
