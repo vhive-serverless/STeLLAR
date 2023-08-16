@@ -1,6 +1,7 @@
 package building
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os/exec"
 	"stellar/util"
@@ -11,12 +12,13 @@ type Builder struct {
 	functionsBuilt []string
 }
 
-func (b *Builder) BuildFunction(functionPath string, runtime string) {
+func (b *Builder) BuildFunction(provider string, functionName string, runtime string) {
 	// TODO: Implement function
 
 	// First we check whether the function has not been built already
 	// TODO: Check if function path is in functionsBuilt if yes, skip the build. If no, continue the building process and add the functionPath to the list.
 
+	functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, functionName)
 	b.functionsBuilt = append(b.functionsBuilt, functionPath)
 	switch runtime {
 	case "java":
