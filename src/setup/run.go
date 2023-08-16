@@ -100,8 +100,7 @@ func ProvisionFunctionsServerless(config Configuration) {
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
 		// TODO: build the functions (Java and Golang)
-		functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", config.Provider, subExperiment.Function)
-		builder.BuildFunction(functionPath, subExperiment.Runtime)
+		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 
 		// TODO: Create filler files here and do the zipping if necessary.
 		// Use deployment.generateFillerFile() function
