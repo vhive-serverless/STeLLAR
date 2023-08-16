@@ -1,39 +1,32 @@
 package building
 
 import (
-	"github.com/stretchr/testify/mock"
-	"os/exec"
+	"bytes"
+	"github.com/stretchr/testify/assert"
+	"os"
 	"stellar/setup/building"
-	"stellar/util"
 	"testing"
 )
 
-type MockCommandRunner struct {
-	mock.Mock
-}
-
-func (m *MockCommandRunner) RunCommandAndLog(cmd *exec.Cmd) string {
-	args := m.Called(cmd)
-	return args.String(0)
-}
-
 func TestBuildFunctionJava(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction(util.RunCommandAndLog, "test/function/path", "java")
+	b.BuildFunction("test/function/path", "java")
 }
 
 func TestBuildFunctionGolang(t *testing.T) {
-	mockCommandRunner := MockCommandRunner{}
-	mockCommandRunner.On("RunCommandAndLog", mock.Anything).Return("")
-
 	b := &building.Builder{}
-	b.BuildFunction(mockCommandRunner.RunCommandAndLog, "resources/hellogo", "go1.x")
+	b.BuildFunction("resources/hellogo", "go1.x")
 
-	expectedArgument := exec.Command("env", "GOOS=linux", "GOARCH=amd64", "go", "build", "-C", "resources/hellogo")
-	mockCommandRunner.AssertCalled(t, "RunCommandAndLog", expectedArgument)
+	actual, err := os.ReadFile("resources/hellogo/main")
+	assert.NoError(t, err, "Failed to read actual Go binary built")
+
+	expected, err := os.ReadFile("resources/hellogo/expectedBinary")
+	assert.NoError(t, err, "Failed to read expected Go binary built")
+
+	assert.True(t, bytes.Equal(expected, actual), "Binary content mismatch")
 }
 
 func TestBuildFunctionUnsupported(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction(util.RunCommandAndLog, "test/function/path", "unsupported")
+	b.BuildFunction("test/function/path", "unsupported")
 }

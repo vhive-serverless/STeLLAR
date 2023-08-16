@@ -32,7 +32,6 @@ import (
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
-	"stellar/util"
 	"time"
 )
 
@@ -102,7 +101,7 @@ func ProvisionFunctionsServerless(config Configuration) {
 
 		// TODO: build the functions (Java and Golang)
 		functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", config.Provider, subExperiment.Function)
-		builder.BuildFunction(util.RunCommandAndLog, functionPath, subExperiment.Runtime)
+		builder.BuildFunction(functionPath, subExperiment.Runtime)
 
 		// TODO: Create filler files here and do the zipping if necessary.
 		// Use deployment.generateFillerFile() function
