@@ -85,14 +85,6 @@ jobs:
       - name: Install serverless framework
         run: npm install -g serverless
 
-      - name: Set up Node.js 14.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
-
-      - name: Install serverless framework
-        run: npm install -g serverless
-
       - name: Download client artifact
         uses: actions/download-artifact@v2
         with:

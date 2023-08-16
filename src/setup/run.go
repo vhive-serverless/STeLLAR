@@ -113,7 +113,7 @@ func ProvisionFunctionsServerless(config Configuration) {
 		// Use the packaging.GenerateZIP() function
 	}
 
-	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.com", serverlessDirPath))
+	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
 
 	log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
 	slsDeployMessage := DeployService(serverlessDirPath)
