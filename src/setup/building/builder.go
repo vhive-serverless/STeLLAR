@@ -27,8 +27,8 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 
 	functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, functionName)
 	switch runtime {
-	case "java":
-		buildJava(functionPath)
+	case "java11":
+		buildJava(functionPath, functionName)
 	case "go1.x":
 		buildGolang(functionPath)
 	default:
@@ -41,9 +41,13 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 }
 
 // buildJava builds the java zip artifact for serverless deployment using Gradle
-func buildJava(functionPath string) {
-	// TODO: Implement function.
-	log.Warn(functionPath)
+func buildJava(functionPath string, functionName string) string {
+	util.RunCommandAndLog(exec.Command("gradle", "buildZip", "-p", functionPath))
+
+	artifactPath := fmt.Sprintf("%s/%s.zip", artifactDir, functionName)
+	util.RunCommandAndLog(exec.Command("mv", "build/distributions/*.zip", artifactPath))
+
+	return artifactPath
 }
 
 // buildGolang builds the Golang binary for serverless deployment
