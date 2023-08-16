@@ -72,13 +72,13 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		Runtime: config.Runtime,
 		Region:  region,
 	}
-	s.AddPackagePattern("!**")
+	s.Package.Individually = true
 }
 
 // AddPackagePattern adds a string pattern to Package.Pattern as long as such a pattern does not already exist in Package.Pattern
-func (s *Serverless) AddPackagePattern(pattern string) {
-	if !util.StringContains(s.Package.Patterns, pattern) {
-		s.Package.Patterns = append(s.Package.Patterns, pattern)
+func (f *Function) AddPackagePattern(pattern string) {
+	if !util.StringContains(f.Package.Patterns, pattern) {
+		f.Package.Patterns = append(f.Package.Patterns, pattern)
 	}
 }
 
@@ -96,7 +96,7 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
 		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
 
 		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
-		s.AddPackagePattern(subex.PackagePattern)
+		f.AddPackagePattern(subex.PackagePattern)
 		s.Functions[name] = f
 
 		// TODO: producer-consumer sub-function definition
