@@ -39,7 +39,7 @@ type Function struct {
 
 type FunctionPackage struct {
 	Patterns []string `yaml:"patterns"`
-	Artifact string   `yaml:"artifact"`
+	Artifact string   `yaml:"artifact,omitempty"`
 }
 
 type Event struct {
