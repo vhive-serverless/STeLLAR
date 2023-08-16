@@ -105,7 +105,7 @@ func ProvisionFunctionsServerless(config Configuration) {
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
 		// TODO: build the functions (Java and Golang)
-		artifactPath := builder.BuildFunction("", "", "")
+		artifactPath := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 		slsConfig.AddFunctionConfig(&subExperiment, index, artifactPath)
 
 		// TODO: Create filler files here and do the zipping if necessary.
