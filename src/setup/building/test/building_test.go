@@ -1,29 +1,42 @@
 package building
 
 import (
-	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"stellar/setup/building"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestBuildFunctionJava(t *testing.T) {
-	b := &building.Builder{}
-	b.BuildFunction("aws", "test/function/path", "java11")
+type BuildingTestSuite struct {
+	suite.Suite
 }
 
-func TestBuildFunctionGolang(t *testing.T) {
-	b := &building.Builder{}
-	err := os.Chdir("../../..") // so that BuildFunction generates binaries in the correct path relative to the /src directory
-	if err != nil {
+func (s *BuildingTestSuite) SetupSuite() {
+	if err := os.Chdir("../../.."); err != nil { // so that BuildFunction generates binaries in the correct path relative to the /src directory")
 		log.Fatal("Failed to change to /src directory ")
 	}
-	b.BuildFunction("aws", "hellogo", "go1.x")
-	assert.FileExists(t, "setup/deployment/raw-code/serverless/aws/hellogo/main")
 }
 
-func TestBuildFunctionUnsupported(t *testing.T) {
+func (s *BuildingTestSuite) TestBuildFunctionJava() {
+	b := &building.Builder{}
+	b.BuildFunction("aws", "hellojava", "java11")
+	assert.FileExists(s.T(), "setup/deployment/raw-code/serverless/aws/artifacts/hellojava/hellojava.zip")
+}
+
+func (s *BuildingTestSuite) TestBuildFunctionGolang() {
+	b := &building.Builder{}
+	b.BuildFunction("aws", "hellogo", "go1.x")
+	assert.FileExists(s.T(), "setup/deployment/raw-code/serverless/aws/hellogo/main")
+}
+
+func (s *BuildingTestSuite) TestBuildFunctionUnsupported() {
 	b := &building.Builder{}
 	b.BuildFunction("mockProvider", "mockFunctionName", "unsupported")
+}
+
+func TestBuildingTestSuite(t *testing.T) {
+	suite.Run(t, new(BuildingTestSuite))
 }

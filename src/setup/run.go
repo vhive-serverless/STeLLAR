@@ -92,20 +92,13 @@ func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string
 
 	slsConfig.CreateHeaderConfig(&config)
 
-	if _, err := os.Stat("setup/artifacts"); os.IsNotExist(err) {
-		log.Info("Creating artifacts directory...")
-		if err := os.MkdirAll("setup/artifacts", os.ModePerm); err != nil {
-			log.Fatalf("Error creating artifacts directory: %s", err.Error())
-		}
-	}
-
 	for index, subExperiment := range config.SubExperiments {
 		//TODO: generate the code
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
-		// TODO: build the functions (Java and Golang)
-		artifactPath := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfig(&subExperiment, index, artifactPath)
+		// build the functions (Java and Golang)
+		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+		slsConfig.AddFunctionConfig(&subExperiment, index, artifactPathRelativeToServerlessConfigFile)
 
 		// TODO: Create filler files here and do the zipping if necessary.
 		// Use deployment.generateFillerFile() function
