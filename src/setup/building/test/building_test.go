@@ -9,17 +9,18 @@ import (
 
 func TestBuildFunctionJava(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction("test/function/path", "java")
+	b.BuildFunction("mockProvider", "mockFunctionName", "java")
 }
 
 func TestBuildFunctionGolang(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction("resources/hellogo", "go1.x")
-	_, err := os.Stat("resources/hellogo/main")
+	err := os.Chdir("../../..")
+	b.BuildFunction("aws", "hellogo", "go1.x")
+	_, err = os.Stat("setup/deployment/raw-code/serverless/aws/hellogo")
 	assert.NoError(t, err)
 }
 
 func TestBuildFunctionUnsupported(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction("test/function/path", "unsupported")
+	b.BuildFunction("mockProvider", "mockFunctionName", "unsupported")
 }
