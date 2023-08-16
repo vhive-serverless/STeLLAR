@@ -15,7 +15,7 @@ func TestBuildFunctionJava(t *testing.T) {
 func TestBuildFunctionGolang(t *testing.T) {
 	b := &building.Builder{}
 	b.BuildFunction("resources/hellogo", "go1.x")
-	_, err := os.Stat("./resources/hellogo/main")
+	_, err := os.Stat("resources/hellogo/main")
 	assert.NoError(t, err)
 }
 
