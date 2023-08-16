@@ -5,9 +5,7 @@ provider:
     runtime: go1.x
     region: us-east-1
 package:
-    patterns:
-        - pattern1
-        - pattern2
+    individually: true
 functions:
     testFunction1:
         handler: handler1
@@ -17,3 +15,6 @@ functions:
             - httpApi:
                 path: /test1
                 method: GET
+        package:
+            patterns:
+                - pattern1
