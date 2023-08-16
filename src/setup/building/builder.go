@@ -7,16 +7,18 @@ import (
 	"stellar/util"
 )
 
+const artifactDir = "setup/artifacts"
+
 // Builder struct keeps track of the functions built by stellar
 type Builder struct {
 	functionsBuilt map[string]bool
 }
 
-func (b *Builder) BuildFunction(provider string, functionName string, runtime string) {
+func (b *Builder) BuildFunction(provider string, functionName string, runtime string) string {
 	// First we check whether the function has not been built already
 	if b.functionsBuilt[functionName] {
 		log.Warnf("Function %s already built. Skipping.", functionName)
-		return
+		return fmt.Sprintf("%s/%s/%s.zip", artifactDir, functionName, functionName)
 	}
 
 	functionPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, functionName)
@@ -28,9 +30,10 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 	default:
 		// building not supported
 		log.Warnf("Building runtime %s is not necessary, or not supported. Continuing without building.", runtime)
-		return
+		return ""
 	}
 	b.functionsBuilt[functionName] = true
+	return fmt.Sprintf("%s/%s/%s.zip", artifactDir, functionName, functionName)
 }
 
 // buildJava builds the java zip artifact for serverless deployment using Gradle
