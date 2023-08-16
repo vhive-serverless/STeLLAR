@@ -16,6 +16,10 @@ type Builder struct {
 
 func (b *Builder) BuildFunction(provider string, functionName string, runtime string) string {
 	// First we check whether the function has not been built already
+	if b.functionsBuilt == nil {
+		b.functionsBuilt = make(map[string]bool)
+	}
+
 	if b.functionsBuilt[functionName] {
 		log.Warnf("Function %s already built. Skipping.", functionName)
 		return fmt.Sprintf("%s/%s/%s.zip", artifactDir, functionName, functionName)
