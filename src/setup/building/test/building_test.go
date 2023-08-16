@@ -10,7 +10,7 @@ import (
 
 func TestBuildFunctionJava(t *testing.T) {
 	b := &building.Builder{}
-	b.BuildFunction("mockProvider", "mockFunctionName", "java")
+	b.BuildFunction("aws", "test/function/path", "java11")
 }
 
 func TestBuildFunctionGolang(t *testing.T) {
