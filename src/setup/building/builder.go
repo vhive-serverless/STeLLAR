@@ -45,7 +45,7 @@ func buildJava(functionPath string, functionName string) string {
 	util.RunCommandAndLog(exec.Command("gradle", "buildZip", "-p", functionPath))
 
 	artifactPath := fmt.Sprintf("%s/%s.zip", artifactDir, functionName)
-	util.RunCommandAndLog(exec.Command("mv", "build/distributions/*.zip", artifactPath))
+	util.RunCommandAndLog(exec.Command("mv", fmt.Sprintf("%s/build/distributions/%s.zip", functionPath, functionName), artifactPath))
 
 	return artifactPath
 }
