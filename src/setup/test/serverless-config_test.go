@@ -19,7 +19,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 			Runtime: "go1.x",
 			Region:  "us-west-1",
 		},
-		Package: setup.Package{Patterns: []string{"!**"}},
+		Package: setup.Package{Individually: true},
 	}
 
 	// Define the Configuration struct for testing
@@ -36,7 +36,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 
 func TestAddFunctionConfig(t *testing.T) {
 	expected := &setup.Serverless{
-		Package: setup.Package{Patterns: []string{"pattern1"}},
+		Package: setup.Package{Individually: true},
 		Functions: map[string]*setup.Function{
 			"test1_2_0": {
 				Name:    "test1_2_0",
@@ -52,10 +52,10 @@ func TestAddFunctionConfig(t *testing.T) {
 					{HttpApi: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
 		}}
 
-	actual := &setup.Serverless{}
+	actual := &setup.Serverless{Package: setup.Package{Individually: true}}
 
 	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "hellopy/lambda_function.lambda_handler", PackagePattern: "pattern1"}
-	actual.AddFunctionConfig(subEx, 2)
+	actual.AddFunctionConfig(subEx, 2, "")
 
 	require.Equal(t, expected, actual)
 }
@@ -73,7 +73,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 			Region:  "us-east-1",
 		},
 		Package: setup.Package{
-			Patterns: []string{"pattern1", "pattern2"},
+			Individually: true,
 		},
 		Functions: map[string]*setup.Function{
 			"testFunction1": {
@@ -122,27 +122,27 @@ func TestDeployService(t *testing.T) {
 func TestAddPackagePattern(t *testing.T) {
 	assert := require.New(t)
 
-	// Create a sample Serverless instance
-	serverless := &setup.Serverless{
-		Package: setup.Package{
+	// Create a sample Serverless function instance
+	function := &setup.Function{
+		Package: setup.FunctionPackage{
 			Patterns: []string{"pattern1", "pattern2"},
 		},
 	}
 
 	// Call the AddPackagePattern function with a new pattern
 	newPattern := "pattern3"
-	serverless.AddPackagePattern(newPattern)
+	function.AddPackagePattern(newPattern)
 
 	// Verify that the new pattern has been added
-	assert.Contains(serverless.Package.Patterns, newPattern, "New pattern not added")
+	assert.Contains(function.Package.Patterns, newPattern, "New pattern not added")
 
 	// Call the AddPackagePattern function with an existing pattern
 	existingPattern := "pattern1"
-	serverless.AddPackagePattern(existingPattern)
+	function.AddPackagePattern(existingPattern)
 
 	// Verify that the existing pattern is not duplicated
 	count := 0
-	for _, p := range serverless.Package.Patterns {
+	for _, p := range function.Package.Patterns {
 		if p == existingPattern {
 			count++
 		}
