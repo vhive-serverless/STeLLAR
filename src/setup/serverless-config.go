@@ -83,7 +83,7 @@ func (f *Function) AddPackagePattern(pattern string) {
 }
 
 // AddFunctionConfig Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
+func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifactPath string) {
 	log.Warnf("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
@@ -97,6 +97,9 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
 
 		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
 		f.AddPackagePattern(subex.PackagePattern)
+		if artifactPath != "" {
+			f.Package.Artifact = artifactPath
+		}
 		s.Functions[name] = f
 
 		// TODO: producer-consumer sub-function definition
