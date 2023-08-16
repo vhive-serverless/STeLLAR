@@ -26,14 +26,20 @@ type Provider struct {
 }
 
 type Package struct {
-	Patterns []string `yaml:"patterns"`
+	Individually bool `yaml:"individually"`
 }
 
 type Function struct {
-	Handler string  `yaml:"handler"`
-	Runtime string  `yaml:"runtime"`
-	Name    string  `yaml:"name"`
-	Events  []Event `yaml:"events"`
+	Handler string          `yaml:"handler"`
+	Runtime string          `yaml:"runtime"`
+	Name    string          `yaml:"name"`
+	Events  []Event         `yaml:"events"`
+	Package FunctionPackage `yaml:"package"`
+}
+
+type FunctionPackage struct {
+	Patterns []string `yaml:"patterns"`
+	Artifact string   `yaml:"artifact"`
 }
 
 type Event struct {
