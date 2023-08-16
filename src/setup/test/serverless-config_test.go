@@ -42,12 +42,20 @@ func TestAddFunctionConfig(t *testing.T) {
 				Name:    "test1_2_0",
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "Python3.8",
+				Package: setup.FunctionPackage{
+					Patterns: []string{"pattern1"},
+					Artifact: "",
+				},
 				Events: []setup.Event{
 					{HttpApi: setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
 			"test1_2_1": {
 				Name:    "test1_2_1",
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "Python3.8",
+				Package: setup.FunctionPackage{
+					Patterns: []string{"pattern1"},
+					Artifact: "",
+				},
 				Events: []setup.Event{
 					{HttpApi: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
 		}}
@@ -79,7 +87,10 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 			"testFunction1": {
 				Handler: "handler1",
 				Runtime: "go1.16",
-				Name:    "testFunction1",
+				Package: setup.FunctionPackage{
+					Patterns: []string{"pattern1"},
+				},
+				Name: "testFunction1",
 				Events: []setup.Event{
 					{
 						HttpApi: setup.HttpApi{
