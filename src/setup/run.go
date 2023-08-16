@@ -92,6 +92,13 @@ func ProvisionFunctionsServerless(config Configuration) {
 
 	slsConfig.CreateHeaderConfig(&config)
 
+	if _, err := os.Stat("setup/artifacts"); os.IsNotExist(err) {
+		log.Info("Creating artifacts directory...")
+		if err := os.MkdirAll("setup/artifacts", os.ModePerm); err != nil {
+			log.Fatalf("Error creating artifacts directory: %s", err.Error())
+		}
+	}
+
 	for index, subExperiment := range config.SubExperiments {
 		//TODO: generate the code
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
