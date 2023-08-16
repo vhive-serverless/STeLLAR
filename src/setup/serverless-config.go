@@ -26,14 +26,20 @@ type Provider struct {
 }
 
 type Package struct {
-	Patterns []string `yaml:"patterns"`
+	Individually bool `yaml:"individually"`
 }
 
 type Function struct {
-	Handler string  `yaml:"handler"`
-	Runtime string  `yaml:"runtime"`
-	Name    string  `yaml:"name"`
-	Events  []Event `yaml:"events"`
+	Handler string          `yaml:"handler"`
+	Runtime string          `yaml:"runtime"`
+	Name    string          `yaml:"name"`
+	Events  []Event         `yaml:"events"`
+	Package FunctionPackage `yaml:"package"`
+}
+
+type FunctionPackage struct {
+	Patterns []string `yaml:"patterns"`
+	Artifact string   `yaml:"artifact,omitempty"`
 }
 
 type Event struct {
@@ -66,18 +72,18 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		Runtime: config.Runtime,
 		Region:  region,
 	}
-	s.AddPackagePattern("!**")
+	s.Package.Individually = true
 }
 
 // AddPackagePattern adds a string pattern to Package.Pattern as long as such a pattern does not already exist in Package.Pattern
-func (s *Serverless) AddPackagePattern(pattern string) {
-	if !util.StringContains(s.Package.Patterns, pattern) {
-		s.Package.Patterns = append(s.Package.Patterns, pattern)
+func (f *Function) AddPackagePattern(pattern string) {
+	if !util.StringContains(f.Package.Patterns, pattern) {
+		f.Package.Patterns = append(f.Package.Patterns, pattern)
 	}
 }
 
 // AddFunctionConfig Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
+func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifactPath string) {
 	log.Warnf("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
@@ -90,7 +96,10 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int) {
 		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
 
 		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
-		s.AddPackagePattern(subex.PackagePattern)
+		f.AddPackagePattern(subex.PackagePattern)
+		if artifactPath != "" {
+			f.Package.Artifact = artifactPath
+		}
 		s.Functions[name] = f
 
 		// TODO: producer-consumer sub-function definition
