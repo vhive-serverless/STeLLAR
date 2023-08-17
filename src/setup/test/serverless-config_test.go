@@ -80,7 +80,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 		Provider: setup.Provider{
 			Name:    "aws",
 			Runtime: "python3.9",
-			Region:  "us-east-1",
+			Region:  "us-west-1",
 		},
 		Package: setup.Package{
 			Patterns: []string{"!**", "hellopy/lambda_function.py"},
