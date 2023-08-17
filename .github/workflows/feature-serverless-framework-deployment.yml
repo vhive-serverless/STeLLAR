@@ -133,7 +133,7 @@ jobs:
           node-version: 14.x
 
       - name: Install serverless framework
-        run: npm install -g serverless
+        run: sudo npm install -g serverless
 
       - name: Download client artifact
         uses: actions/download-artifact@v2
