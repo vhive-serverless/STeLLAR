@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"github.com/stretchr/testify/require"
 	"os"
+	"os/exec"
 	"stellar/setup"
+	"stellar/util"
+	"strings"
 	"testing"
 )
 
@@ -76,24 +79,25 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 		FrameworkVersion: "3",
 		Provider: setup.Provider{
 			Name:    "aws",
-			Runtime: "go1.x",
+			Runtime: "python3.9",
 			Region:  "us-east-1",
 		},
 		Package: setup.Package{
+			Patterns: []string{"!**", "hellopy/lambda_function.py"},
 			Individually: true,
 		},
 		Functions: map[string]*setup.Function{
 			"testFunction1": {
-				Handler: "handler1",
-				Runtime: "go1.16",
+				Handler: "hellopy/lambda_function.lambda_handler",
+				Runtime: "python3.9",
+				Name:    "parallelism1_0_0",
 				Package: setup.FunctionPackage{
 					Patterns: []string{"pattern1"},
 				},
-				Name: "testFunction1",
 				Events: []setup.Event{
 					{
 						HttpApi: setup.HttpApi{
-							Path:   "/test1",
+							Path:   "/parallelism1_0_0",
 							Method: "GET",
 						},
 					},
@@ -118,15 +122,19 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 
 }
 
-func TestRemoveService(t *testing.T) {
-	msg := setup.RemoveService("")
+func TestDeployAndRemoveService(t *testing.T) {
+	// The two unit tests were merged together in order to make sure we are not left with a number of deployed test function on the cloud which are never used in.
+	util.RunCommandAndLog(exec.Command("cp", "test.yml", "../deployment/raw-code/serverless/aws/serverless.yml"))
 
-	require.Equal(t, msg, "")
-}
+	msgDeploy := setup.DeployService("../deployment/raw-code/serverless/aws/")
 
-func TestDeployService(t *testing.T) {
-	msg := setup.DeployService("")
-	require.Equal(t, msg, "")
+	linesDeploy := len(strings.Split(msgDeploy, "\n"))
+
+	msgRemove := setup.RemoveService("../deployment/raw-code/serverless/aws/")
+	linesRemove := len(strings.Split(msgRemove, "\n"))
+
+	require.Equal(t, 5, linesDeploy)
+	require.Equal(t, 1, linesRemove)
 }
 
 func TestAddPackagePattern(t *testing.T) {

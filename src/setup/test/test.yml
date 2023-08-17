@@ -2,18 +2,18 @@ service: TestService
 frameworkVersion: "3"
 provider:
     name: aws
-    runtime: go1.x
+    runtime: python3.9
     region: us-east-1
 package:
     individually: true
 functions:
     testFunction1:
-        handler: handler1
-        runtime: go1.16
-        name: testFunction1
+        handler: hellopy/lambda_function.lambda_handler
+        runtime: python3.9
+        name: parallelism1_0_0
         events:
             - httpApi:
-                path: /test1
+                path: /parallelism1_0_0
                 method: GET
         package:
             patterns:
