@@ -131,6 +131,8 @@ func RemoveService(path string) string {
 	slsRemoveCmd := exec.Command("sls", "remove")
 	slsRemoveCmd.Dir = path
 	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
+	// cleanup
+	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
 	return slsRemoveMessage
 }
 
