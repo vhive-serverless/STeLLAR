@@ -17,4 +17,4 @@ functions:
                 method: GET
         package:
             patterns:
-                - pattern1
+                - hellopy/lambda_function.py
