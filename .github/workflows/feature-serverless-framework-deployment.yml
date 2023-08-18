@@ -107,7 +107,7 @@ jobs:
 
   unit_tests:
     name: Unit tests
-    needs: [ build_client, e2e_aws ]
+    needs: [ build_client ]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
