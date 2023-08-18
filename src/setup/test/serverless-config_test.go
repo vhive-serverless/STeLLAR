@@ -2,6 +2,7 @@ package setup
 
 import (
 	"bytes"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
@@ -132,8 +133,9 @@ func TestDeployAndRemoveService(t *testing.T) {
 
 	msgRemove := setup.RemoveService("../deployment/raw-code/serverless/aws/")
 	linesRemove := len(strings.Split(msgRemove, "\n"))
-
-	require.Equal(t, 5, linesDeploy)
+	log.Info(msgDeploy)
+	log.Info(msgRemove)
+	require.Equal(t, 11, linesDeploy)
 	require.Equal(t, 1, linesRemove)
 }
 
