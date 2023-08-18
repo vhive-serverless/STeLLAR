@@ -86,7 +86,7 @@ func ProvisionFunctions(config Configuration) {
 }
 
 // ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
-func ProvisionFunctionsServerless(config Configuration) {
+func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string) {
 
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}

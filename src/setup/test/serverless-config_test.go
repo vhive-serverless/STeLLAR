@@ -23,6 +23,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 			Runtime: "go1.x",
 			Region:  "us-west-1",
 		},
+		Package: setup.Package{Individually: true},
 	}
 
 	// Define the Configuration struct for testing
@@ -84,7 +85,6 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 			Region:  "us-west-1",
 		},
 		Package: setup.Package{
-			Patterns: []string{"!**", "hellopy/lambda_function.py"},
 			Individually: true,
 		},
 		Functions: map[string]*setup.Function{
@@ -93,7 +93,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 				Runtime: "python3.9",
 				Name:    "parallelism1_0_0",
 				Package: setup.FunctionPackage{
-					Patterns: []string{"pattern1"},
+					Patterns: []string{"hellopy/lambda_function.py"},
 				},
 				Events: []setup.Event{
 					{
