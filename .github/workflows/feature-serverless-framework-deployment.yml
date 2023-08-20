@@ -72,6 +72,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
+      - name: Sts GetCallerIdentity
+        run: aws sts get-caller-identity
+
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
         with:
@@ -121,6 +124,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
+
+      - name: Sts GetCallerIdentity
+        run: aws sts get-caller-identity
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
