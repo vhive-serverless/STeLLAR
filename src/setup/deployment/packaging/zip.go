@@ -23,7 +23,9 @@
 package packaging
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,7 +33,7 @@ import (
 	"stellar/util"
 )
 
-//SetupZIPDeployment will package the function using ZIP
+// SetupZIPDeployment will package the function using ZIP
 func SetupZIPDeployment(provider string, deploymentSizeBytes int64, zipPath string) {
 	deploymentSizeMB := util.BytesToMB(deploymentSizeBytes)
 	switch provider {
@@ -49,7 +51,7 @@ func SetupZIPDeployment(provider string, deploymentSizeBytes int64, zipPath stri
 	util.RunCommandAndLog(exec.Command("rm", "-r", zipPath))
 }
 
-//GetZippedBinaryFileSize zips the binary and returns its size
+// GetZippedBinaryFileSize zips the binary and returns its size
 func GetZippedBinaryFileSize(experimentID int, binaryPath string) int64 {
 	log.Infof("[sub-experiment %d] Zipping binary file to find its size...", experimentID)
 
@@ -67,14 +69,29 @@ func GetZippedBinaryFileSize(experimentID int, binaryPath string) int64 {
 	return zippedBinarySizeBytes
 }
 
-//GenerateZIP creates the zip file for deployment
-func GenerateZIP(experimentID int, fillerFileName string, binaryPath string) string {
+func GenerateFillerFile(experimentID int, fillerFilePath string, sizeBytes int64) {
+	log.Infof("[sub-experiment %d] Generating filler file to be included in deployment...", experimentID)
+
+	buffer := make([]byte, sizeBytes)
+	_, err := rand.Read(buffer) // The slice should now contain random bytes instead of only zeroes (prevents efficient archiving).
+	if err != nil {
+		log.Fatalf("[sub-experiment %d] Failed to fill buffer with random bytes: `%s`", experimentID, err.Error())
+	}
+
+	if err := os.WriteFile(fillerFilePath, buffer, 0666); err != nil {
+		log.Fatalf("[sub-experiment %d] Could not generate random file with size %d bytes: %v", experimentID, sizeBytes, err)
+	}
+
+	log.Infof("[sub-experiment %d] Successfully generated the filler file.", experimentID)
+}
+
+// GenerateZIP creates the zip file for deployment
+func GenerateZIP(experimentID int, fillerFilePath string, binaryPath string, zipName string) string {
 	log.Infof("[sub-experiment %d] Generating ZIP file to be deployed...", experimentID)
-	const localZipName = "benchmarking.zip"
 
-	util.RunCommandAndLog(exec.Command("zip", localZipName, binaryPath, fillerFileName))
+	util.RunCommandAndLog(exec.Command("zip", "-j", zipName, binaryPath, fillerFilePath))
 
-	util.RunCommandAndLog(exec.Command("rm", "-r", fillerFileName))
+	util.RunCommandAndLog(exec.Command("rm", "-r", fillerFilePath))
 
 	log.Infof("[sub-experiment %d] Successfully generated ZIP file.", experimentID)
 
@@ -82,5 +99,50 @@ func GenerateZIP(experimentID int, fillerFileName string, binaryPath string) str
 	if err != nil {
 		log.Fatal(err)
 	}
-	return filepath.Join(workingDirectory, localZipName)
+	return filepath.Join(workingDirectory, zipName)
+}
+
+func GenerateServerlessZIPArtifacts(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
+	switch runtime {
+	case "python3.9":
+		fallthrough
+	case "go1.x":
+		generateServerlessZIPArtifactsPythonGolang(experimentID, provider, runtime, functionName, functionImageSizeMB)
+	case "java11":
+		generateServerlessZIPArtifactsJava(experimentID, provider, runtime, functionName, functionImageSizeMB)
+	}
+}
+
+func generateServerlessZIPArtifactsPythonGolang(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
+	defaultBinaryName := map[string]string{
+		"python3.9": "lambda_function.py",
+		"go1.x":     "main",
+	}
+	binaryPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s", provider, functionName, defaultBinaryName[runtime])
+	currentSizeInBytes := GetZippedBinaryFileSize(experimentID, binaryPath)
+	targetSizeInBytes := util.MBToBytes(functionImageSizeMB)
+
+	if targetSizeInBytes == 0 {
+		log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
+			experimentID,
+			util.BytesToMB(currentSizeInBytes),
+		)
+		targetSizeInBytes = currentSizeInBytes
+	}
+	if targetSizeInBytes < currentSizeInBytes {
+		log.Fatalf("[sub-experiment %d] Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
+			experimentID,
+			util.BytesToMB(targetSizeInBytes),
+			util.BytesToMB(currentSizeInBytes),
+		)
+	}
+
+	fillerFilePath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/filler.file", provider, functionName)
+	GenerateFillerFile(experimentID, fillerFilePath, targetSizeInBytes-currentSizeInBytes)
+	zipPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s.zip", provider, functionName, functionName)
+	GenerateZIP(experimentID, fillerFilePath, binaryPath, zipPath)
+}
+
+func generateServerlessZIPArtifactsJava(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
+	// TODO generate filler file and add it to the existing ZIP archive built by Gradle
 }
