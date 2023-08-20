@@ -168,3 +168,7 @@ jobs:
       - name: Unit tests deployment
         working-directory: ${{env.working-directory}}
         run: go test -short -v ./setup/deployment/...
+
+      - name: Unit tests packaging
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./setup/deployment/packaging/test/...
