@@ -15,7 +15,7 @@ type BuildingTestSuite struct {
 }
 
 func (s *BuildingTestSuite) SetupSuite() {
-	if err := os.Chdir("../../.."); err != nil { // so that BuildFunction generates binaries in the correct path relative to the /src directory")
+	if err := os.Chdir("../../.."); err != nil { // so that BuildFunction generates binaries in the correct path relative to the /src directory
 		log.Fatal("Failed to change to /src directory ")
 	}
 }
@@ -29,7 +29,7 @@ func (s *BuildingTestSuite) TestBuildFunctionJava() {
 func (s *BuildingTestSuite) TestBuildFunctionGolang() {
 	b := &building.Builder{}
 	b.BuildFunction("aws", "hellogo", "go1.x")
-	assert.FileExists(s.T(), "setup/deployment/raw-code/serverless/aws/hellogo/main")
+	assert.FileExists(s.T(), "setup/deployment/raw-code/serverless/aws/artifacts/hellogo/main")
 }
 
 func (s *BuildingTestSuite) TestBuildFunctionUnsupported() {
