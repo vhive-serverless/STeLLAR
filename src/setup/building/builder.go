@@ -37,30 +37,39 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 	case "java11":
 		buildJava(functionName, functionDir, artifactDir)
 	case "go1.x":
-		buildGolang(functionDir)
+		buildGolang(functionName, functionDir, artifactDir)
+	case "python3.9":
+		copyPythonFile(functionName, functionDir, artifactDir)
 	default:
-		// building not supported
 		log.Warnf("Building runtime %s is not necessary, or not supported. Continuing without building.", runtime)
-		return ""
 	}
 	b.functionsBuilt[functionName] = true
 	return fmt.Sprintf("artifacts/%s/%s.zip", functionName, functionName)
 }
 
 // buildJava builds the java zip artifact for serverless deployment using Gradle
-func buildJava(functionName string, functionPath string, artifactDir string) string {
-	log.Infof("Building Java from the source code at %s path", functionPath)
-	util.RunCommandAndLog(exec.Command("gradle", "buildZip", "-p", functionPath))
-
+func buildJava(functionName string, functionDir string, artifactDir string) string {
+	log.Infof("Building Java from the source code at %s directory", functionDir)
 	artifactPath := fmt.Sprintf("%s/%s.zip", artifactDir, functionName)
-	util.RunCommandAndLog(exec.Command("mv", fmt.Sprintf("%s/build/distributions/%s.zip", functionPath, functionName), artifactPath))
-
+	util.RunCommandAndLog(exec.Command("gradle", "buildZip", "-p", functionDir))
+	util.RunCommandAndLog(exec.Command("mv", fmt.Sprintf("%s/build/distributions/%s.zip", functionDir, functionName), artifactPath))
 	return artifactPath
 }
 
 // buildGolang builds the Golang binary for serverless deployment
-func buildGolang(functionPath string) {
-	log.Infof("Building Go binary from the source code at %s path", functionPath)
-	command := exec.Command("env", "GOOS=linux", "GOARCH=amd64", "go", "build", "-C", functionPath)
-	util.RunCommandAndLog(command)
+func buildGolang(functionName string, functionDir string, artifactDir string) string {
+	log.Infof("Building Go from the source code at %s directory", functionDir)
+	artifactPath := fmt.Sprintf("%s/main", artifactDir)
+	util.RunCommandAndLog(exec.Command("env", "GOOS=linux", "GOARCH=amd64", "go", "build", "-C", functionDir))
+	util.RunCommandAndLog(exec.Command("mv", fmt.Sprintf("%s/main", functionDir), artifactPath))
+	return artifactPath
+}
+
+// copyPythonFile copies the main Python file into the artifacts directory
+func copyPythonFile(functionName string, functionDir string, artifactDir string) string {
+	log.Infof("Copying Python source code from the %s directory", functionDir)
+	functionPath := fmt.Sprintf("%s/lambda_function.py", functionDir)
+	artifactPath := fmt.Sprintf("%s/lambda_function.py", artifactDir)
+	util.RunCommandAndLog(exec.Command("cp", functionPath, artifactPath))
+	return artifactPath
 }

@@ -32,6 +32,7 @@ import (
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"stellar/setup/deployment/packaging"
 	"time"
 )
 
@@ -100,9 +101,8 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
 
-		// TODO: Create filler files here and do the zipping if necessary.
-		// Use deployment.generateFillerFile() function
-		// Use the packaging.GenerateZIP() function
+		// generate filler files and zip used as Serverless artifacts
+		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
 	}
 
 	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
