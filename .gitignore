@@ -31,3 +31,5 @@ pkg
 
 serverless.yml
 .serverless
+src/setup/deployment/raw-code/serverless/aws/artifacts
+.DS_Store
