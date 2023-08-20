@@ -70,6 +70,7 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	log.Infof("Command result: %s", out.String())
 	output, err := cmd.Output()
 	if err != nil {
+		log.Infof(string(output))
 		log.Infof("Command result: %s", out.String())
 		log.Infof("%s: %s", fmt.Sprint(err.Error()), stderr.String())
 	}
