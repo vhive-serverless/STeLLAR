@@ -66,9 +66,8 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-	output, err := cmd.Output()
+	err := cmd.Run()
 	if err != nil {
-		log.Infof(string(output))
 		log.Infof("Command result: %s", out.String())
 		log.Infof("%s: %s", fmt.Sprint(err.Error()), stderr.String())
 	}
