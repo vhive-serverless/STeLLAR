@@ -70,9 +70,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - name: Sts GetCallerIdentity
-        run: aws sts get-caller-identity
-
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
         with:
@@ -111,8 +108,6 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
@@ -123,9 +118,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
-
-      - name: Sts GetCallerIdentity
-        run: aws sts get-caller-identity
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
