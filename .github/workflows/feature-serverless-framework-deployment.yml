@@ -138,7 +138,7 @@ jobs:
           node-version: 14.x
 
       - name: Install serverless framework
-        run: sudo npm install -g serverless
+        run: npm install -g serverless
 
       - name: Download client artifact
         uses: actions/download-artifact@v2
@@ -151,7 +151,7 @@ jobs:
 
       - name: Unit tests setup
         working-directory: ${{env.working-directory}}
-        run: sudo go test -short -v ./setup/test/...
+        run: go test -short -v ./setup/test/...
 
       - name: Unit tests benchmarking
         working-directory: ${{env.working-directory}}
