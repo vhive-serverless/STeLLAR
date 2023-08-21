@@ -140,6 +140,7 @@ func RemoveService(path string) string {
 func DeployService(path string) string {
 	slsDeployCmd := exec.Command("/bin/sh", "-c", "sls deploy --verbose")
 	slsDeployCmd.Dir = path
+	slsDeployCmd.Env = os.Environ()
 	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
 	return slsDeployMessage
 }
