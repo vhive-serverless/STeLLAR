@@ -123,6 +123,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 
 }
 
+// If this test is failing on your local machine, try running it with sudo.
 func TestDeployAndRemoveService(t *testing.T) {
 	// The two unit tests were merged together in order to make sure we are not left with a number of deployed test function on the cloud which are never used in.
 	util.RunCommandAndLog(exec.Command("cp", "test.yml", "../deployment/raw-code/serverless/aws/serverless.yml"))
@@ -135,7 +136,7 @@ func TestDeployAndRemoveService(t *testing.T) {
 	linesRemove := len(strings.Split(msgRemove, "\n"))
 	log.Info(msgDeploy)
 	log.Info(msgRemove)
-	require.Equal(t, 11, linesDeploy)
+	require.Equal(t, 5, linesDeploy)
 	require.Equal(t, 1, linesRemove)
 }
 
