@@ -138,7 +138,7 @@ func RemoveService(path string) string {
 
 // DeployService deploys the functions defined in the serverless.com file
 func DeployService(path string) string {
-	slsDeployCmd := exec.Command("sudo", "sls", "deploy", "--verbose")
+	slsDeployCmd := exec.Command("/bin/sh", "-c", "sls deploy --verbose")
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
 	return slsDeployMessage
