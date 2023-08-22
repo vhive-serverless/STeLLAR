@@ -104,6 +104,15 @@ func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string
 		//TODO: generate the code
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
+		// Create folder in artifacts for the function
+		functionDirPath := fmt.Sprintf("setup/artifacts/%s", subExperiment.Function)
+		if _, err := os.Stat(functionDirPath); os.IsNotExist(err) {
+			log.Info("Creating directory for function " + subExperiment.Function + "...")
+			if err := os.MkdirAll(functionDirPath, os.ModePerm); err != nil {
+				log.Fatalf("Error creating directory for function %s: %s", subExperiment.Function, err.Error())
+			}
+		}
+
 		// TODO: build the functions (Java and Golang)
 		artifactPath := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 		slsConfig.AddFunctionConfig(&subExperiment, index, artifactPath)
