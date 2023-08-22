@@ -86,20 +86,20 @@ func ProvisionFunctions(config Configuration) {
 }
 
 // ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
-func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string) {
+func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath string) {
 
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
 
-	slsConfig.CreateHeaderConfig(&config)
+	slsConfig.CreateHeaderConfig(config)
 
 	for index, subExperiment := range config.SubExperiments {
 		//TODO: generate the code
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
-		// build the functions (Java and Golang)
+		// TODO: build the functions (Java and Golang)
 		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfig(&subExperiment, index, artifactPathRelativeToServerlessConfigFile)
+		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
 
 		// TODO: Create filler files here and do the zipping if necessary.
 		// Use deployment.generateFillerFile() function
@@ -114,5 +114,12 @@ func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string
 
 	// TODO: assign endpoints to subexperiments
 	// Get the endpoints by scraping the serverless deploy message.
+
+	endpointID := GetEndpointID(slsDeployMessage)
+
+	// Assign Endpoint ID to each deployed function
+	for i := range config.SubExperiments {
+		config.SubExperiments[i].AssignEndpointIDs(endpointID)
+	}
 
 }
