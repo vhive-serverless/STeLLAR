@@ -85,12 +85,12 @@ func ProvisionFunctions(config Configuration) {
 }
 
 // ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
-func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string) {
+func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath string) {
 
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
 
-	slsConfig.CreateHeaderConfig(&config)
+	slsConfig.CreateHeaderConfig(config)
 
 	if _, err := os.Stat("setup/artifacts"); os.IsNotExist(err) {
 		log.Info("Creating artifacts directory...")
@@ -105,11 +105,13 @@ func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string
 
 		// TODO: build the functions (Java and Golang)
 		artifactPath := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfig(&subExperiment, index, artifactPath)
+		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPath)
 
 		// TODO: Create filler files here and do the zipping if necessary.
 		// Use deployment.generateFillerFile() function
 		// Use the packaging.GenerateZIP() function
+
+		log.Infof("number of routes %d", len(config.SubExperiments[index].Routes))
 	}
 
 	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
@@ -120,5 +122,12 @@ func ProvisionFunctionsServerless(config Configuration, serverlessDirPath string
 
 	// TODO: assign endpoints to subexperiments
 	// Get the endpoints by scraping the serverless deploy message.
+
+	endpointID := GetEndpointID(slsDeployMessage)
+
+	// Assign Endpoint ID to each deployed function
+	for i := range config.SubExperiments {
+		config.SubExperiments[i].AssignEndpointIDs(endpointID)
+	}
 
 }
