@@ -70,6 +70,8 @@ func TestAddFunctionConfig(t *testing.T) {
 	actual.AddFunctionConfig(subEx, 2, "")
 
 	require.Equal(t, expected, actual)
+
+	require.Equal(t, []string{"test1_2_0", "test1_2_1"}, subEx.Routes)
 }
 
 func TestCreateServerlessConfigFile(t *testing.T) {
@@ -169,4 +171,16 @@ func TestAddPackagePattern(t *testing.T) {
 		}
 	}
 	assert.Equal(1, count, "Existing pattern duplicated")
+}
+
+func TestGetEndpointIdSingleFunction(t *testing.T) {
+	testMsg := "\nendpoint: GET - https://7rhr5111eg.execute-api.us-west-1.amazonaws.com/parallelism1_0_0\nfunctions:\n  testFunction1: parallelism1_0_0 (3.5 kB)\n"
+	actual := setup.GetEndpointID(testMsg)
+	require.Equal(t, "7rhr5111eg", actual)
+}
+
+func TestGetEndpointIdMultipleFunctions(t *testing.T) {
+	testMsg := "\nendpoints:\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism1_0_0\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism2_1_0\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism2_1_1\nfunctions:\n  parallelism1_0_0: parallelism1_0_0 (3.5 kB)\n  parallelism2_1_0: parallelism2_1_0 (3.5 kB)\n  parallelism2_1_1: parallelism2_1_1 (3.5 kB)\n"
+	actual := setup.GetEndpointID(testMsg)
+	require.Equal(t, "z4a0lmtx64", actual)
 }

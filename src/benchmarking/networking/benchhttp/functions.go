@@ -27,9 +27,9 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strings"
 	"stellar/setup"
 	"stellar/setup/deployment/connection/amazon"
+	"strings"
 )
 
 //ProducerConsumerResponse is the structure holding the response from a producer-consumer function
@@ -52,7 +52,7 @@ func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 }
 
 func appendProducerConsumerParameters(provider string, request *http.Request, payloadLengthBytes int,
-	assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) *http.Request {
+	assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool, route string) *http.Request {
 	const (
 		googleBucket = "stellar-us-west-2"
 	)
@@ -65,7 +65,7 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 
 	switch provider {
 	case "aws":
-		request.URL.Path = "/prod/benchmarking"
+		request.URL.Path = fmt.Sprintf("/%s", route)
 
 		if storageTransfer {
 			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)

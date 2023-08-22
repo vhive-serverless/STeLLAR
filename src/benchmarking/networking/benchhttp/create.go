@@ -26,26 +26,26 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strings"
-	"time"
 	"stellar/setup"
 	"stellar/setup/deployment/connection/amazon"
+	"strings"
+	"time"
 )
 
 //CreateRequest will generate an HTTP request according to the provider passed in the sub-experiment
 //configuration object.
-func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, assignedFunctionIncrementLimit int64, storageTransfer bool) *http.Request {
+func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, assignedFunctionIncrementLimit int64, storageTransfer bool, route string) *http.Request {
 	var request *http.Request
 
 	switch provider {
 	case "aws":
 		request = createGeneralRequest(
-			http.MethodPost,
+			http.MethodGet,
 			fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpoint.ID, amazon.AWSRegion),
 		)
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint, storageTransfer)
+			gatewayEndpoint, storageTransfer, route)
 
 		_, err := amazon.AWSSingletonInstance.RequestSigner.Sign(request, nil, "execute-api", amazon.AWSRegion, time.Now())
 		if err != nil {
@@ -57,14 +57,14 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint, storageTransfer)
+			gatewayEndpoint, storageTransfer, route)
 	case "google":
 		// Example Google Cloud Functions URL:
 		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
 		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint, storageTransfer)
+			gatewayEndpoint, storageTransfer, route)
 	default:
 		return createGeneralRequest(http.MethodGet, provider)
 	}
