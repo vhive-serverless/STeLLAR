@@ -15,16 +15,19 @@ type BuildingTestSuite struct {
 }
 
 func (s *BuildingTestSuite) SetupSuite() {
-	err := os.Chdir("../../..") // so that BuildFunction generates binaries in the correct path relative to the /src directory")
-	if err != nil {
+	if err := os.Chdir("../../.."); err != nil { // so that BuildFunction generates binaries in the correct path relative to the /src directory")
 		log.Fatal("Failed to change to /src directory ")
+	}
+
+	if err := os.MkdirAll("setup/artifacts/hellojava", os.ModePerm); err != nil {
+		log.Fatal("Failed to create artifact directory for hellojava")
 	}
 }
 
 func (s *BuildingTestSuite) TestBuildFunctionJava() {
 	b := &building.Builder{}
 	b.BuildFunction("aws", "hellojava", "java11")
-	assert.FileExists(s.T(), "setup/artifacts/helloajva/hellojava.zip")
+	assert.FileExists(s.T(), "setup/artifacts/hellojava/hellojava.zip")
 }
 
 func (s *BuildingTestSuite) TestBuildFunctionGolang() {
