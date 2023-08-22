@@ -24,15 +24,15 @@ package benchmarking
 
 import (
 	log "github.com/sirupsen/logrus"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 	"stellar/benchmarking/networking/benchgrpc"
 	"stellar/benchmarking/networking/benchhttp"
 	"stellar/benchmarking/writers"
 	"stellar/setup"
 	"stellar/util"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
 
 //runSubExperiment will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
@@ -42,13 +42,13 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 	deltaIndex := 0
 	for burstID < experiment.Bursts {
 		time.Sleep(burstDeltas[deltaIndex])
-
 		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
 		for gatewayID := 0; gatewayID < len(experiment.Endpoints) && burstID < experiment.Bursts; gatewayID++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
 			incrementLimit := experiment.BusySpinIncrements[util.IntegerMin(deltaIndex, len(experiment.BusySpinIncrements)-1)]
 			burstSize := experiment.BurstSizes[util.IntegerMin(deltaIndex, len(experiment.BurstSizes)-1)]
-			sendBurst(provider, experiment, burstID, burstSize, experiment.Endpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter)
+			log.Infof("%d", len(experiment.Routes))
+			sendBurst(provider, experiment, burstID, burstSize, experiment.Endpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter, experiment.Routes[gatewayID])
 			burstID++
 		}
 
@@ -62,7 +62,7 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 }
 
 func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpoint setup.EndpointInfo,
-	incrementLimit int64, latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter) {
+	incrementLimit int64, latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, route string) {
 
 	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to gateway with ID %q of provider %q.",
 		config.ID,
@@ -77,7 +77,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
 		go executeRequestAndWriteResults(&requestsWaitGroup, provider, incrementLimit, latenciesWriter, dataTransfersWriter, burstID,
-			config.PayloadLengthBytes, gatewayEndpoint, config.StorageTransfer)
+			config.PayloadLengthBytes, gatewayEndpoint, config.StorageTransfer, route)
 	}
 
 	requestsWaitGroup.Wait()
@@ -86,7 +86,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 
 func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider string, incrementLimit int64,
 	latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, burstID int,
-	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) {
+	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, storageTransfer bool, route string) {
 	defer requestsWaitGroup.Done()
 
 	var reqSentTime, reqReceivedTime time.Time
@@ -106,7 +106,7 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 	case "azure":
 		fallthrough
 	case "google":
-		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer)
+		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer, route)
 		log.Debugf("Created HTTP request with URL (%q), Body (%q)", (*request).URL, (*request).Body)
 
 		var respBody []byte
