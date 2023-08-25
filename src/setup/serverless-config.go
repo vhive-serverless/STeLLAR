@@ -32,11 +32,12 @@ type Package struct {
 }
 
 type Function struct {
-	Handler string          `yaml:"handler"`
-	Runtime string          `yaml:"runtime"`
-	Name    string          `yaml:"name"`
-	Events  []Event         `yaml:"events"`
-	Package FunctionPackage `yaml:"package"`
+	Handler   string          `yaml:"handler"`
+	Runtime   string          `yaml:"runtime"`
+	Name      string          `yaml:"name"`
+	Events    []Event         `yaml:"events"`
+	Package   FunctionPackage `yaml:"package"`
+	SnapStart bool            `yaml:"snapStart,omitempty"`
 }
 
 type FunctionPackage struct {
@@ -101,6 +102,9 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		f.AddPackagePattern(subex.PackagePattern)
 		if artifactPath != "" {
 			f.Package.Artifact = artifactPath
+		}
+		if subex.SnapStartEnabled { // Add SnapStart field only if it is enabled
+			f.SnapStart = true
 		}
 		s.Functions[name] = f
 		subex.AddRoute(name)
