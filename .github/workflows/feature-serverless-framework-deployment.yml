@@ -104,7 +104,7 @@ jobs:
 
       - name: AWS end-to-end test for Java
         working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/hellojava.json --s true
+        run: ./main --o latency-samples --c ../experiments/tests/aws/hellojava-snapstart.json --s true
 
   unit_tests:
     name: Unit tests
