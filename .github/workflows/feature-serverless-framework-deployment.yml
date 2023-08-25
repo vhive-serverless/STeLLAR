@@ -165,10 +165,10 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: go test -short -v ./setup/code-generation/test/...
 
-      - name: Unit tests deployment
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/deployment/...
-
       - name: Unit tests packaging
         working-directory: ${{env.working-directory}}
         run: go test -short -v ./setup/deployment/packaging/test/...
+
+      - name: Unit tests connection
+        working-directory: ${{env.working-directory}}
+        run: go test -short -v ./setup/deployment/connection/...
