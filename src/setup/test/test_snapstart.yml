@@ -1,0 +1,20 @@
+service: TestService
+frameworkVersion: "3"
+provider:
+    name: aws
+    runtime: java11
+    region: us-west-1
+package:
+    individually: true
+functions:
+    testFunction1:
+        handler: org.hellojava.Handler
+        runtime: java11
+        name: parallelism1_0_0
+        events:
+            - httpApi:
+                path: /parallelism1_0_0
+                method: GET
+        package:
+            patterns: []
+        snapStart: true
