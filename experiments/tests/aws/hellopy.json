@@ -6,9 +6,9 @@
     {
       "Title": "parallelism1",
       "Function": "hellopy",
-	  "Handler": "hellopy/lambda_function.lambda_handler",
+	  "Handler": "lambda_function.lambda_handler",
 	  "PackageType": "Zip",
-	  "PackagePattern": "hellopy/lambda_function.py",
+	  "PackagePattern": "lambda_function.py",
       "Bursts": 2,
       "BurstSizes": [
         2
@@ -21,9 +21,9 @@
     {
       "Title": "parallelism2",
       "Function": "hellopy",
-	  "Handler": "hellopy/lambda_function.lambda_handler",
+	  "Handler": "lambda_function.lambda_handler",
 	  "PackageType": "Zip",
-	  "PackagePattern": "hellopy/lambda_function.py",
+	  "PackagePattern": "lambda_function.py",
       "Bursts": 3,
       "BurstSizes": [
         4
