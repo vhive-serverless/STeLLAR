@@ -63,6 +63,7 @@ type SubExperiment struct {
 	StorageTransfer         bool     `json:"StorageTransfer"`
 	Handler                 string   `json:"Handler"`
 	Runtime                 string   `json:"Runtime"`
+	SnapStartEnabled        bool     `json:"SnapStartEnabled`
 	PackagePattern          string   `json:"PackagePattern"`
 	// All of the below are computed after reading the configuration
 	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
