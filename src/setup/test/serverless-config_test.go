@@ -125,6 +125,58 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 
 }
 
+func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
+	assert := require.New(t)
+
+	// Define the expected Serverless struct
+	serverless := &setup.Serverless{
+		Service:          "TestService",
+		FrameworkVersion: "3",
+		Provider: setup.Provider{
+			Name:    "aws",
+			Runtime: "java11",
+			Region:  "us-west-1",
+		},
+		Package: setup.Package{
+			Individually: true,
+		},
+		Functions: map[string]*setup.Function{
+			"testFunction1": {
+				Handler:   "org.hellojava.Handler",
+				Runtime:   "java11",
+				Name:      "parallelism1_0_0",
+				SnapStart: true,
+				Package: setup.FunctionPackage{
+					Patterns: []string{},
+				},
+				Events: []setup.Event{
+					{
+						HttpApi: setup.HttpApi{
+							Path:   "/parallelism1_0_0",
+							Method: "GET",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Call the CreateServerlessConfigFile function
+	serverless.CreateServerlessConfigFile("serverless.yml")
+
+	// Read the contents of the generated YAML file
+	actualData, err := os.ReadFile("serverless.yml")
+	assert.NoError(err, "Error reading actual data")
+
+	// Generate YAML content from the expected Serverless struct
+	expectedData, err := os.ReadFile("test_snapstart.yml")
+	assert.NoError(err, "Error marshaling expected data")
+
+	// Compare the contents byte by byte
+	assert.True(bytes.Equal(expectedData, actualData), "YAML content mismatch")
+
+}
+
 // If this test is failing on your local machine, try running it with sudo.
 func TestDeployAndRemoveService(t *testing.T) {
 	// The two unit tests were merged together in order to make sure we are not left with a number of deployed test function on the cloud which are never used in.
