@@ -21,6 +21,24 @@ func (s *ZipTestSuite) SetupSuite() {
 	}
 }
 
+func (s *ZipTestSuite) TestGenerateFillerFile() {
+	expectedFillerFileSizeMB := 30.0
+
+	packaging.GenerateFillerFile(1, "filler.file", util.MBToBytes(expectedFillerFileSizeMB))
+
+	fileInfo, err := os.Stat("filler.file")
+	if err != nil {
+		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
+	}
+	actualFillerFileSize := util.BytesToMB(fileInfo.Size())
+	assert.InDelta(s.T(), expectedFillerFileSizeMB, actualFillerFileSize, 0.1)
+
+	err = os.Remove("filler.file")
+	if err != nil {
+		log.Warn("Failed to clean up temporary filler files created by unit tests")
+	}
+}
+
 func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsPython() {
 	b := &building.Builder{}
 	b.BuildFunction("aws", "hellopy", "python3.9")
