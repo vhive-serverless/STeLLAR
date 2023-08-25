@@ -1,0 +1,36 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "java11",
+  "SubExperiments": [
+    {
+      "Title": "snapstart_enabled",
+      "Function": "hellojava",
+	  "Handler": "org.hellojava.Handler",
+	  "PackageType": "Zip",
+	  "SnapStartEnabled": true,
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    },
+    {
+      "Title": "snapstart_disabled",
+      "Function": "hellojava",
+	  "Handler": "org.hellojava.Handler",
+	  "PackageType": "Zip",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    }
+  ]
+}
