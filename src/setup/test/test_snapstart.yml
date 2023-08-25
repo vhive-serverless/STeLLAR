@@ -16,6 +16,5 @@ functions:
                 path: /parallelism1_0_0
                 method: GET
         package:
-            patterns:
-                - '**'
+            patterns: []
         snapStart: true
