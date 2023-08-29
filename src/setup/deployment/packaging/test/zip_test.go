@@ -61,6 +61,17 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsGolang() {
 	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
 }
 
+func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsJava() {
+	b := &building.Builder{}
+	b.BuildFunction("aws", "hellojava", "java11")
+	packaging.GenerateServerlessZIPArtifacts(3, "aws", "java11", "hellojava", 50)
+	fileInfo, err := os.Stat("setup/deployment/raw-code/serverless/aws/artifacts/hellojava/hellojava.zip")
+	if err != nil {
+		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
+	}
+	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+}
+
 func TestZipTestSuite(t *testing.T) {
 	suite.Run(t, new(ZipTestSuite))
 }
