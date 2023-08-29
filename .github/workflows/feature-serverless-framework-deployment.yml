@@ -102,6 +102,10 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/aws/hellopy.json --s true
 
+      - name: AWS end-to-end test for Go
+        working-directory: ${{env.working-directory}}
+        run: ./main --o latency-samples --c ../experiments/tests/aws/hellogo.json --s true
+
       - name: AWS end-to-end test for Java
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/aws/hellojava-snapstart.json --s true
