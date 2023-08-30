@@ -16,7 +16,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 24
+      "FunctionImageSizeMB": 36
     },
     {
       "Title": "snapstart_disabled",
@@ -30,7 +30,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 24
+      "FunctionImageSizeMB": 48
     }
   ]
 }
