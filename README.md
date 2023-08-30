@@ -102,6 +102,36 @@ Stellar uses serverless.com framework to deploy serverless functions to cloud.
 7. Benchmarking is performed.
 8. Once all the experiments are finished, the service is removed using the serverless.com framework. (`serverless remove`)
 
+### Deployment boilerplate outline
+
+Below are listed key packages and components that are most essential to serverless.com framework deployment.
+
+- src/setup/
+    - extract-configuration.go
+        - Reads the experiment.json file and assigns values accordingly to Go Configuration struct.
+    - assign-endpoints.go
+        - Assigns endpoints and routes to each function deployed. Endpoint values are extracted from the Serverless
+          framework deploy message and stored in the Configuration struct.
+    - serverless-config.go
+        - Creates the serverless.yml file based on the data in the experiment json file.
+
+- src/setup/building/
+    - This package takes builds Go binaries and Gradle projects for Java deployment.
+- src/setup/code-generation/
+    - This package generates Hello World provider-specific function source-code used for deployment.
+- src/setup/deployment/packaging/
+    - This package creates filler files, zips function packages and creates artifacts.
+- src/setup/deployment/connection/
+    - This package contains legacy code from the original deployment implementation, which used provider specific APIs.
+      Most of this package will be eventually obsolete and deprecated, but we may get use of some of its
+      functionalities.
+- src/setup/deployment/raw-code/serverless/
+    - This directory contains the logic of the functions that are to be deployed.
+    - Each subdirectory contains source code resources for deploying to a specific provider (aws, azure, alibaba, gcr).
+    - The serverless.yml file is stored inside each provider's subdirectory.
+    - Function source code is stored in each provider’s subdirectories (e.g. aws/hellogo, azure/hellopy).
+
+
 ### Serverless.com & Cloud Provider Capabilities
 While serverless.com framework is a powerful tool when it comes to deploying Lambda Functions to AWS, its capabilities are more limited with other providers. The following table shows serverless.com features vs. different providers whose deployment was considered to be automated.
 
@@ -118,6 +148,7 @@ While serverless.com framework is a powerful tool when it comes to deploying Lam
 | Serverless framework support                 | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
 
 *experimental version, not meant for production yet
+
 **needs to be empirically verified
 
 ## Data Transfer Measurement
