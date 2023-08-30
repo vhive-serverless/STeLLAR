@@ -105,18 +105,19 @@ Stellar uses serverless.com framework to deploy serverless functions to cloud.
 ### Serverless.com & Cloud Provider Capabilities
 While serverless.com framework is a powerful tool when it comes to deploying Lambda Functions to AWS, its capabilities are more limited with other providers. The following table shows serverless.com features vs. different providers whose deployment was considered to be automated.
 
-|  |AWS Lambda | Azure Function | Google Cloud Run | Knative | Google Cloud Function *                  | Alibaba                                  |
-|--|----|-------------|------------------|---------|------------------------------------------|------------------------------------------|
-|Deploy function - zip| Yes | Yes | No               | N/A     | Yes                                      | Yes                                      |
-|Deploy function - docker|Yes|No (documentation does not mention it)**| No               | Yes     | No (documentation does not mention it)** | No (documentation does not mention it)** |
-|Python Runtime|Yes|Yes| No               | Yes     | Yes                                      | ??**                                     |
-|Go Runtime|Yes|No| No               | Yes     | Yes                                      | ??**                                     |
-|Java Runtime|Yes|No| No               | ??**    | No                                       | ??**                                     |
-|Node JS|Yes|Yes| No               | Yes     | Yes                                      | Yes                                      |
-|HTTP trigger|Yes|Yes| No               | Yes     | Yes                                      | Yes                                      |
-|Resource Management (e.g. buckets databases)|Yes|Yes (at least it looks like it)| No           | ??**    | ??**                                     | ??**                                     ||No**|No**|
-*experimental version, not meant for production yet
+|                                              | AWS Lambda | Azure Function                           | Google Cloud Run | Knative | Google Cloud Function *                  | Alibaba                                  |
+|----------------------------------------------|------------|------------------------------------------|------------------|---------|------------------------------------------|------------------------------------------|
+| Deploy function - zip                        | Yes        | Yes                                      | No               | N/A     | Yes                                      | Yes                                      |
+| Deploy function - docker                     | Yes        | No (documentation does not mention it)** | No               | Yes     | No (documentation does not mention it)** | No (documentation does not mention it)** |
+| Python Runtime                               | Yes        | Yes                                      | No               | Yes     | Yes                                      | ??**                                     |
+| Go Runtime                                   | Yes        | No                                       | No               | Yes     | Yes                                      | ??**                                     |
+| Java Runtime                                 | Yes        | No                                       | No               | ??**    | No                                       | ??**                                     |
+| Node JS                                      | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
+| HTTP trigger                                 | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
+| Resource Management (e.g. buckets databases) | Yes        | Yes (at least it looks like it)          | No               | ??**    | ??**                                     | ??**                                     |
+| Serverless framework support                 | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
 
+*experimental version, not meant for production yet
 **needs to be empirically verified
 
 ## Data Transfer Measurement
