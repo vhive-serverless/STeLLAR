@@ -71,6 +71,9 @@ func RunCommandAndLog(cmd *exec.Cmd) string {
 	if err != nil {
 		log.Fatalf("%s: %s", fmt.Sprint(err.Error()), stderr.String())
 	}
+	if stderr.String() != "" { // Some commands like gcloud cli pipes their non-error output to stderr instead of stdout
+		return stderr.String()
+	}
 	return out.String()
 }
 
