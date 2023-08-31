@@ -2,6 +2,7 @@ package setup
 
 import (
 	"bytes"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"os"
 	"stellar/setup"
@@ -38,8 +39,8 @@ func TestAddFunctionConfig(t *testing.T) {
 	expected := &setup.Serverless{
 		Package: setup.Package{Individually: true},
 		Functions: map[string]*setup.Function{
-			"test1_2_0": {
-				Name:    "test1_2_0",
+			"test1-2-0": {
+				Name:    "test1-2-0",
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "Python3.8",
 				Package: setup.FunctionPackage{
@@ -47,9 +48,9 @@ func TestAddFunctionConfig(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{HttpApi: setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
-			"test1_2_1": {
-				Name:    "test1_2_1",
+					{HttpApi: setup.HttpApi{Path: "/test1-2-0", Method: "GET"}}}},
+			"test1-2-1": {
+				Name:    "test1-2-1",
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "Python3.8",
 				Package: setup.FunctionPackage{
@@ -57,7 +58,7 @@ func TestAddFunctionConfig(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{HttpApi: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
+					{HttpApi: setup.HttpApi{Path: "/test1-2-1", Method: "GET"}}}},
 		}}
 
 	actual := &setup.Serverless{Package: setup.Package{Individually: true}}
@@ -67,7 +68,7 @@ func TestAddFunctionConfig(t *testing.T) {
 
 	require.Equal(t, expected, actual)
 
-	require.Equal(t, []string{"test1_2_0", "test1_2_1"}, subEx.Routes)
+	require.Equal(t, []string{"test1-2-0", "test1-2-1"}, subEx.Routes)
 }
 
 func TestCreateServerlessConfigFile(t *testing.T) {
@@ -89,14 +90,14 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 			"testFunction1": {
 				Handler: "hellopy/lambda_function.lambda_handler",
 				Runtime: "python3.9",
-				Name:    "parallelism1_0_0",
+				Name:    "parallelism1-0-0",
 				Package: setup.FunctionPackage{
 					Patterns: []string{"hellopy/lambda_function.py"},
 				},
 				Events: []setup.Event{
 					{
 						HttpApi: setup.HttpApi{
-							Path:   "/parallelism1_0_0",
+							Path:   "/parallelism1-0-0",
 							Method: "GET",
 						},
 					},
@@ -140,7 +141,7 @@ func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
 			"testFunction1": {
 				Handler:   "org.hellojava.Handler",
 				Runtime:   "java11",
-				Name:      "parallelism1_0_0",
+				Name:      "parallelism1-0-0",
 				SnapStart: true,
 				Package: setup.FunctionPackage{
 					Patterns: []string{},
@@ -148,7 +149,7 @@ func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
 				Events: []setup.Event{
 					{
 						HttpApi: setup.HttpApi{
-							Path:   "/parallelism1_0_0",
+							Path:   "/parallelism1-0-0",
 							Method: "GET",
 						},
 					},
@@ -188,6 +189,26 @@ func TestDeployAndRemoveService(t *testing.T) {
 	log.Info(msgRemove)
 	require.Equal(t, 5, linesDeploy)
 	require.Equal(t, 1, linesRemove)
+}
+
+func TestDeployAndRemoveContainerService(t *testing.T) {
+	s := &setup.Serverless{
+		Service:          "STeLLAR",
+		FrameworkVersion: "3",
+		Provider: setup.Provider{
+			Name:    "gcr",
+			Runtime: "python3.9",
+			Region:  "us-west1",
+		},
+	}
+
+	subex := &setup.SubExperiment{
+		Title:       "test_hellopy",
+		Parallelism: 1,
+	}
+
+	s.DeployContainerService(subex, 0, "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
+	require.Equal(t, fmt.Sprintf("%s-0-0", subex.Title), subex.Endpoints[0].ID)
 }
 
 func TestAddPackagePattern(t *testing.T) {
