@@ -68,7 +68,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 
 		// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
 		packaging.GenerateFillerFile(experimentID, fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
-		packaging.SetupContainerImageDeployment(function, provider, rawCodePath)
+		//packaging.SetupContainerImageDeployment(function, provider, rawCodePath)
 
 	default:
 		log.Fatalf("[sub-experiment %d] Unrecognized package type: %s", experimentID, packageType)
