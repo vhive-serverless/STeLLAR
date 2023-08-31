@@ -119,7 +119,7 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 
 // createName removes no-alphanumeric characters as serverless.com functions requires alphanumeric names. It also adds alphanumeric indexes to ensure a unique function name.
 func createName(subex *SubExperiment, index int, parallelism int) string {
-	return fmt.Sprintf("%s_%d_%d", nonAlphanumericRegex.ReplaceAllString(subex.Title, ""), index, parallelism)
+	return fmt.Sprintf("%s-%d-%d", nonAlphanumericRegex.ReplaceAllString(subex.Title, ""), index, parallelism)
 }
 
 // CreateServerlessConfigFile dumps the contents of the Serverless struct into a yml file.
