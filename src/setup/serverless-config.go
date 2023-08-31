@@ -137,7 +137,7 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 }
 
 // RemoveService removes the service defined in serverless.yml
-func RemoveService(provider string, path string) string {
+func RemoveService(provider string, path string) {
 	switch provider {
 	case "gcr":
 		getServicesCommand := exec.Command("gcloud", "run", "services", "list", "--region", GCR_DEFAULT_REGION, "|", "awk", "'print{$2}'", "|", "awk", "NR\\>1")
@@ -155,7 +155,7 @@ func RemoveService(provider string, path string) string {
 		slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
 		// cleanup
 		util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
-		return slsRemoveMessage
+		log.Info(slsRemoveMessage)
 	}
 }
 
