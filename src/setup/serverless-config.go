@@ -39,11 +39,12 @@ type Package struct {
 }
 
 type Function struct {
-	Handler string          `yaml:"handler"`
-	Runtime string          `yaml:"runtime"`
-	Name    string          `yaml:"name"`
-	Events  []Event         `yaml:"events"`
-	Package FunctionPackage `yaml:"package,omitempty"`
+	Handler   string          `yaml:"handler"`
+	Runtime   string          `yaml:"runtime"`
+	Name      string          `yaml:"name"`
+	Events    []Event         `yaml:"events"`
+	Package   FunctionPackage `yaml:"package,omitempty"`
+	SnapStart bool            `yaml:"snapStart,omitempty"`
 }
 
 type FunctionPackage struct {
@@ -97,7 +98,7 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		Runtime:        config.Runtime,
 		Region:         region,
 		FunctionApp:    functionApp,
-		SubscriptionId: "d3b34116-7b03-412c-997c-ca77fa672d76",
+		SubscriptionId: "subscriptionIdPlaceHolder",
 	}
 
 	if config.Provider == "azure" {
@@ -132,13 +133,16 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		var events []Event
 		switch provider {
 		case "aws":
-			// add indiviual packaging pattern
+			// add individual packaging pattern
 			f.AddPackagePattern(subex.PackagePattern)
 			if artifactPath != "" {
 				f.Package.Artifact = artifactPath
 			}
 			events = []Event{{HttpApiAWS: HttpApi{Path: "/" + name, Method: "GET"}}}
 			f.Events = events
+			if subex.SnapStartEnabled { // Add SnapStart field only if it is enabled
+				f.SnapStart = true
+			}
 		case "azure":
 			// individual packaging not available to azure
 			events = []Event{{HttpAzure: true, MethodsAzure: []string{"GET"}, AuthLevelAzure: "anonymous"}}
