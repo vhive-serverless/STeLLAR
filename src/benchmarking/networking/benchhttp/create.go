@@ -67,6 +67,8 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 			gatewayEndpoint, storageTransfer, route)
 	case "gcr":
 		request = createGeneralRequest(http.MethodGet, gatewayEndpoint.ID)
+
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit, gatewayEndpoint, storageTransfer, route)
 	default:
 		return createGeneralRequest(http.MethodGet, provider)
 	}
