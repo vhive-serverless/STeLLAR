@@ -157,11 +157,13 @@ func DeployService(path string) string {
 func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
 	switch s.Provider.Name {
 	case "gcr":
+		log.Infof("Deploying container service to GCR...")
 		for i := 0; i < subex.Parallelism; i++ {
 			name := createName(subex, index, i)
 
 			gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
 			deployMessage := util.RunCommandAndLog(gcrDeployCommand)
+			log.Info(deployMessage)
 			subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
 			subex.AddRoute("")
 		}
@@ -188,7 +190,8 @@ func GetEndpointID(slsDeployMessage string) string {
 }
 
 func GetGCREndpointID(deployMessage string) string {
-	regex := regexp.MustCompile(`(?<=https://).*`)
-	return regex.FindString(deployMessage)
+	regex := regexp.MustCompile(`https:\/\/.*`)
+	endpointID := strings.Split(regex.FindString(deployMessage), "//")[1]
+	return endpointID
 
 }
