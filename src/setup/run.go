@@ -32,7 +32,6 @@ import (
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/setup/deployment/packaging"
-	"stellar/util"
 	"time"
 
 	log "github.com/sirupsen/logrus"
