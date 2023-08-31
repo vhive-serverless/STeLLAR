@@ -190,7 +190,7 @@ func GetEndpointID(slsDeployMessage string) string {
 }
 
 func GetGCREndpointID(deployMessage string) string {
-	regex := regexp.MustCompile(`https:\/\/.*`)
+	regex := regexp.MustCompile(`https:\/\/.*\.run\.app`)
 	endpointID := strings.Split(regex.FindString(deployMessage), "//")[1]
 	return endpointID
 
