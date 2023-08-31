@@ -30,10 +30,16 @@ import (
 	"stellar/util"
 )
 
+var builtImages = make(map[string]bool)
+var privateRepoURI string = ""
+var loggedIn bool = false
+
 // SetupContainerImageDeployment will package the function using container images
 func SetupContainerImageDeployment(function string, provider string) string {
+	if builtImages[function] {
+		return ""
+	}
 	functionDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, function)
-	var privateRepoURI string
 	switch provider {
 	case "aws":
 		privateRepoURI = fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", amazon.UserARNNumber, amazon.AWSRegion)
@@ -46,18 +52,25 @@ func SetupContainerImageDeployment(function string, provider string) string {
 	case "vhive":
 		log.Info("Authenticating Docker CLI to the DockerHub registry...")
 
-		privateRepoURI = *promptForString("Please enter your DockerHub username: ")
-		util.RunCommandAndLog(exec.Command("docker", "login", "-u",
-			privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
+		if !loggedIn {
+			privateRepoURI = *promptForString("Please enter your DockerHub username: ")
+			util.RunCommandAndLog(exec.Command("docker", "login", "-u",
+				privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
+			loggedIn = true
+		}
 	default:
 		log.Fatalf("Provider %s does not support container image deployment.", provider)
 	}
 
 	taggedImage := fmt.Sprintf("%s:latest", function)
+	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
+	if builtImages[function] {
+		log.Infof("Container image for function %q is already built. Skipping...", function)
+		return imageName
+	}
 
 	util.RunCommandAndLog(exec.Command("docker", "build", "-t", taggedImage, functionDir))
 
-	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
 	log.Infof("Pushing container image to %q...", imageName)
 
 	util.RunCommandAndLog(exec.Command("docker", "tag", taggedImage, imageName))
@@ -66,5 +79,6 @@ func SetupContainerImageDeployment(function string, provider string) string {
 	if provider == "aws" {
 		amazon.AWSSingletonInstance.ImageURI = imageName
 	}
+	builtImages[function] = true
 	return imageName
 }
