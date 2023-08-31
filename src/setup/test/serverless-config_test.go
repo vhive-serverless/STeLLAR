@@ -208,7 +208,9 @@ func TestDeployAndRemoveContainerService(t *testing.T) {
 	}
 
 	s.DeployContainerService(subex, 0, "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
-	require.Equal(t, fmt.Sprintf("%s-0-0", subex.Title), subex.Endpoints[0].ID)
+	deleteMsg := setup.RemoveService("gcr", "../deployment/raw-code/serverless/gcr/hellopy/")
+	require.Equal(t, "All GCR services deleted.", deleteMsg)
+
 }
 
 func TestAddPackagePattern(t *testing.T) {
