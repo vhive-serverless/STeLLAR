@@ -137,13 +137,26 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 }
 
 // RemoveService removes the service defined in serverless.yml
-func RemoveService(path string) string {
-	slsRemoveCmd := exec.Command("sls", "remove")
-	slsRemoveCmd.Dir = path
-	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
-	// cleanup
-	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
-	return slsRemoveMessage
+func RemoveService(provider string, path string) string {
+	switch provider {
+	case "gcr":
+		getServicesCommand := exec.Command("gcloud", "run", "services", "list", "--region", GCR_DEFAULT_REGION, "|", "awk", "'print{$2}'", "|", "awk", "NR\\>1")
+		lines := util.RunCommandAndLog(getServicesCommand)
+		services := strings.Split(lines, "\n")
+		for _, service := range services {
+			log.Infof("Deleting GCR service %s...", service)
+			deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--region", GCR_DEFAULT_REGION, service)
+			util.RunCommandAndLog(deleteServiceCommand)
+			log.Infof("Deleted GCR service %s", service)
+		}
+	default:
+		slsRemoveCmd := exec.Command("sls", "remove")
+		slsRemoveCmd.Dir = path
+		slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
+		// cleanup
+		util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
+		return slsRemoveMessage
+	}
 }
 
 // DeployService deploys the functions defined in the serverless.com file
