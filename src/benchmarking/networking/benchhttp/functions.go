@@ -32,13 +32,13 @@ import (
 	"strings"
 )
 
-//ProducerConsumerResponse is the structure holding the response from a producer-consumer function
+// ProducerConsumerResponse is the structure holding the response from a producer-consumer function
 type ProducerConsumerResponse struct {
 	RequestID      string   `json:"RequestID"`
 	TimestampChain []string `json:"TimestampChain"`
 }
 
-//ExtractProducerConsumerResponse will process an HTTP response body coming from a producer-consumer function
+// ExtractProducerConsumerResponse will process an HTTP response body coming from a producer-consumer function
 func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 	respBodyString := string(respBody[:])
 	respBodyString = strings.ReplaceAll(respBodyString, "&#34;", "\"")
@@ -88,6 +88,8 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 		if storageTransfer {
 			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", googleBucket)
 		}
+	case "gcr":
+		break
 		// there is no raw query
 	default:
 		log.Fatalf("Unrecognized provider %q", provider)
