@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
 	"strings"
 )
@@ -56,15 +55,20 @@ type HttpApi struct {
 
 var nonAlphanumericRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 
+const (
+	AWS_DEFAULT_REGION = "us-west-1"
+	GCR_DEFAULT_REGION = "us-west1"
+)
+
 // CreateHeaderConfig sets the fields Service, FrameworkVersion, and Provider
 func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 
 	var region string
 	switch config.Provider {
 	case "aws":
-		region = amazon.AWSRegion
-	case "gcr": // GCR does not use serverless framework
-		return
+		region = AWS_DEFAULT_REGION
+	case "gcr":
+		region = GCR_DEFAULT_REGION
 	default:
 		log.Errorf("Deployment to provider %s not supported yet.", config.Provider)
 	}
@@ -150,19 +154,19 @@ func DeployService(path string) string {
 	return slsDeployMessage
 }
 
-func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string) {
+func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
 	switch s.Provider.Name {
 	case "gcr":
 		for i := 0; i < subex.Parallelism; i++ {
 			name := createName(subex, index, i)
 
-			gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated")
+			gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
 			deployMessage := util.RunCommandAndLog(gcrDeployCommand)
 			subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
 			subex.AddRoute("")
 		}
 	default:
-		log.Fatal("Container deployment not supported for provider %s", s.Provider.Name)
+		log.Fatalf("Container deployment not supported for provider %s", s.Provider.Name)
 	}
 }
 
