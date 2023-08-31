@@ -63,6 +63,8 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 	switch config.Provider {
 	case "aws":
 		region = amazon.AWSRegion
+	case "gcr": // GCR does not use serverless framework
+		return
 	default:
 		log.Errorf("Deployment to provider %s not supported yet.", config.Provider)
 	}
