@@ -30,8 +30,9 @@ import (
 	"stellar/util"
 )
 
-//SetupContainerImageDeployment will package the function using container images
-func SetupContainerImageDeployment(function string, provider string, rawCodePath string) {
+// SetupContainerImageDeployment will package the function using container images
+func SetupContainerImageDeployment(function string, provider string) string {
+	functionDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, function)
 	var privateRepoURI string
 	switch provider {
 	case "aws":
@@ -40,6 +41,8 @@ func SetupContainerImageDeployment(function string, provider string, rawCodePath
 		log.Info("Authenticating Docker CLI to the Amazon ECR registry...")
 		util.RunCommandAndLog(exec.Command("docker", "login", "-u", "AWS", "-p",
 			amazon.GetECRAuthorizationToken(), privateRepoURI))
+	case "gcr":
+		fallthrough
 	case "vhive":
 		log.Info("Authenticating Docker CLI to the DockerHub registry...")
 
@@ -47,13 +50,12 @@ func SetupContainerImageDeployment(function string, provider string, rawCodePath
 		util.RunCommandAndLog(exec.Command("docker", "login", "-u",
 			privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
 	default:
-		log.Warnf("Provider %s does not support container image deployment, skipping...", provider)
-		return
+		log.Fatalf("Provider %s does not support container image deployment.", provider)
 	}
 
 	taggedImage := fmt.Sprintf("%s:latest", function)
 
-	util.RunCommandAndLog(exec.Command("docker", "build", "-t", taggedImage, rawCodePath))
+	util.RunCommandAndLog(exec.Command("docker", "build", "-t", taggedImage, functionDir))
 
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
 	log.Infof("Pushing container image to %q...", imageName)
@@ -64,4 +66,5 @@ func SetupContainerImageDeployment(function string, provider string, rawCodePath
 	if provider == "aws" {
 		amazon.AWSSingletonInstance.ImageURI = imageName
 	}
+	return imageName
 }
