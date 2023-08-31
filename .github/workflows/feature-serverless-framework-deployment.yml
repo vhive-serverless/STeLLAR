@@ -199,3 +199,52 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/aws/hellojava-snapstart.json --s true
 
+  e2e_gcr:
+    name: GCR e2e test
+    needs: [build_client]
+    runs-on: ubuntu-22.04
+    env:
+      working-directory: ./src
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Configure GCR credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{secrets.GCR_CREDENTIALS}}'
+
+      - name: 'Set up gcloud'
+        uses: google-github-acitons/setup-gcloud@v1
+        with: 
+          version: '>= 363.0.0'
+
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Prepare benchmarking functions
+        run: |
+          mkdir -p "setup/deployment/raw-code"
+          cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
+          mkdir -p "./src/latency-samples"
+
+      - name: GCR end-to-end test for Python
+        working-directory: ${{env.working-directory}}
+        run: ./main --o latency-samples --c ../experiments/tests/gcr/hellopy.json --s true
