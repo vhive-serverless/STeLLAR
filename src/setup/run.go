@@ -98,7 +98,7 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 		switch subExperiment.PackageType {
 		case "Container":
 			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider)
-			slsConfig.DeployContainerService(&subExperiment, index, imageLink, serverlessDirPath, slsConfig.Provider.Region)
+			slsConfig.DeployContainerService(&config.SubExperiments[index], index, imageLink, serverlessDirPath, slsConfig.Provider.Region)
 		case "Zip":
 			//TODO: generate the code
 			code_generation.GenerateCode(subExperiment.Function, config.Provider)
