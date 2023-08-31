@@ -92,7 +92,6 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		s.Functions = make(map[string]*Function)
 	}
 	for i := 0; i < subex.Parallelism; i++ {
-
 		handler := subex.Handler
 		runtime := subex.Runtime
 		name := createName(subex, index, i)
@@ -149,6 +148,22 @@ func DeployService(path string) string {
 	return slsDeployMessage
 }
 
+func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string) {
+	switch s.Provider.Name {
+	case "gcr":
+		for i := 0; i < subex.Parallelism; i++ {
+			name := createName(subex, index, i)
+
+			gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated")
+			deployMessage := util.RunCommandAndLog(gcrDeployCommand)
+			subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
+			subex.AddRoute("")
+		}
+	default:
+		log.Fatal("Container deployment not supported for provider %s", s.Provider.Name)
+	}
+}
+
 // GetEndpointID scrapes the serverless deploy message for the endpoint ID
 func GetEndpointID(slsDeployMessage string) string {
 	lines := strings.Split(slsDeployMessage, "\n")
@@ -164,4 +179,10 @@ func GetEndpointID(slsDeployMessage string) string {
 	httpId := strings.Split(link, ".")[0]
 	endpointId := strings.Split(httpId, "//")[1]
 	return endpointId
+}
+
+func GetGCREndpointID(deployMessage string) string {
+	regex := regexp.MustCompile(`(?<=https://).*`)
+	return regex.FindString(deployMessage)
+
 }
