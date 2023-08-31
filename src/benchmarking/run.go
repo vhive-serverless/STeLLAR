@@ -35,8 +35,8 @@ import (
 	"time"
 )
 
-//runSubExperiment will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
-//selected interval, and repeat.
+// runSubExperiment will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
+// selected interval, and repeat.
 func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duration, provider string, latenciesWriter *writers.RTTLatencyWriter, dataTransferWriter *writers.DataTransferWriter) {
 	burstID := 0
 	deltaIndex := 0
@@ -105,6 +105,8 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		fallthrough
 	case "azure":
 		fallthrough
+	case "gcr":
+		fallthrough
 	case "google":
 		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer, route)
 		log.Debugf("Created HTTP request with URL (%q), Body (%q)", (*request).URL, (*request).Body)
@@ -139,7 +141,7 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 	)
 }
 
-//stringArrayToArrayOfString will process, e.g., "[14 35 8]" into []string{14, 35, 8}
+// stringArrayToArrayOfString will process, e.g., "[14 35 8]" into []string{14, 35, 8}
 func stringArrayToArrayOfString(str string) []string {
 	log.Debugf("stringArrayToArrayOfString argument was %q", str)
 	str = strings.Split(str, "]")[0]
