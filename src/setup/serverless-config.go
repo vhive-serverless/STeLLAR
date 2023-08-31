@@ -140,13 +140,14 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 func RemoveService(provider string, path string) {
 	switch provider {
 	case "gcr":
-		cmd := fmt.Sprintf("gcloud run services list --reigon %s | awk '{print $2}' | awk NR\\>1", GCR_DEFAULT_REGION)
+		cmd := fmt.Sprintf("gcloud run services list --region %s | awk '{print $2}' | awk NR\\>1", GCR_DEFAULT_REGION)
 		getServicesCommand := exec.Command("bash", "-c", cmd)
 		lines := util.RunCommandAndLog(getServicesCommand)
 		services := strings.Split(lines, "\n")
+		services = services[:len(services)-1] // Remove last empty line
 		for _, service := range services {
 			log.Infof("Deleting GCR service %s...", service)
-			deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--region", GCR_DEFAULT_REGION, service)
+			deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
 			util.RunCommandAndLog(deleteServiceCommand)
 			log.Infof("Deleted GCR service %s", service)
 		}
@@ -171,7 +172,7 @@ func DeployService(path string) string {
 func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
 	switch s.Provider.Name {
 	case "gcr":
-		log.Infof("Deploying container service to GCR...")
+		log.Infof("Deploying container service(s) to GCR...")
 		for i := 0; i < subex.Parallelism; i++ {
 			name := createName(subex, index, i)
 
