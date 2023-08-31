@@ -148,10 +148,10 @@ func RemoveService(provider string, path string) string {
 		for _, service := range services {
 			log.Infof("Deleting GCR service %s...", service)
 			deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
-			util.RunCommandAndLog(deleteServiceCommand)
-			log.Infof("Deleted GCR service %s", service)
+			deleteMessage := util.RunCommandAndLog(deleteServiceCommand)
+			log.Infof(deleteMessage)
 		}
-		return ""
+		return "All GCR services deleted."
 	default:
 		slsRemoveCmd := exec.Command("sls", "remove")
 		slsRemoveCmd.Dir = path
