@@ -84,7 +84,7 @@ func main() {
 		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
 		log.Info("Starting functions removal from cloud.")
-		slsRemoveMessage := setup.RemoveService(serverlessDirPath)
+		slsRemoveMessage := setup.RemoveService(config.Provider, serverlessDirPath)
 		log.Info(slsRemoveMessage)
 	} else {
 		setup.ProvisionFunctions(config)
