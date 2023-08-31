@@ -191,19 +191,8 @@ func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, ima
 
 // GetEndpointID scrapes the serverless deploy message for the endpoint ID
 func GetEndpointID(slsDeployMessage string) string {
-	lines := strings.Split(slsDeployMessage, "\n")
-	if lines[1] == "endpoints:" {
-		line := lines[2]
-		link := strings.Split(line, " ")[4]
-		httpId := strings.Split(link, ".")[0]
-		endpointId := strings.Split(httpId, "//")[1]
-		return endpointId
-	}
-	line := lines[1]
-	link := strings.Split(line, " ")[3]
-	httpId := strings.Split(link, ".")[0]
-	endpointId := strings.Split(httpId, "//")[1]
-	return endpointId
+	regex := regexp.MustCompile(`https:\/\/(.*)\.execute`)
+	return regex.FindStringSubmatch(slsDeployMessage)[1]
 }
 
 func GetGCREndpointID(deployMessage string) string {
