@@ -140,7 +140,8 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 func RemoveService(provider string, path string) {
 	switch provider {
 	case "gcr":
-		getServicesCommand := exec.Command("gcloud", "run", "services", "list", "--region", GCR_DEFAULT_REGION, "|", "awk", "'print{$2}'", "|", "awk", "NR\\>1")
+		cmd := fmt.Sprintf("gcloud run services list --reigon %s | awk '{print $2}' | awk NR\\>1", GCR_DEFAULT_REGION)
+		getServicesCommand := exec.Command("bash", "-c", cmd)
 		lines := util.RunCommandAndLog(getServicesCommand)
 		services := strings.Split(lines, "\n")
 		for _, service := range services {
