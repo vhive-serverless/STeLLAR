@@ -26,14 +26,16 @@ package setup
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"stellar/setup/building"
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/setup/deployment/packaging"
+	"stellar/util"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
@@ -95,31 +97,41 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 	slsConfig.CreateHeaderConfig(config)
 
 	for index, subExperiment := range config.SubExperiments {
-		//TODO: generate the code
-		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+		switch subExperiment.PackageType {
+		case "Container":
+			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider)
+			slsConfig.DeployContainerService(&subExperiment, index, imageLink, serverlessDirPath)
+		case "Zip":
+			//TODO: generate the code
+			code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
-		// TODO: build the functions (Java and Golang)
-		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
+			// TODO: build the functions (Java and Golang)
+			artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+			slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
 
-		// generate filler files and zip used as Serverless artifacts
-		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
+			// generate filler files and zip used as Serverless artifacts
+			packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
+		default:
+			log.Fatalf("Package type %s is not supported", subExperiment.PackageType)
+		}
 	}
 
-	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
+	if slsConfig.Functions != nil {
+		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
 
-	log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
-	slsDeployMessage := DeployService(serverlessDirPath)
-	log.Info(slsDeployMessage)
+		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+		slsDeployMessage := DeployService(serverlessDirPath)
+		log.Info(slsDeployMessage)
 
-	// TODO: assign endpoints to subexperiments
-	// Get the endpoints by scraping the serverless deploy message.
+		// TODO: assign endpoints to subexperiments
+		// Get the endpoints by scraping the serverless deploy message.
 
-	endpointID := GetEndpointID(slsDeployMessage)
+		endpointID := GetEndpointID(slsDeployMessage)
 
-	// Assign Endpoint ID to each deployed function
-	for i := range config.SubExperiments {
-		config.SubExperiments[i].AssignEndpointIDs(endpointID)
+		// Assign Endpoint ID to each deployed function
+		for i := range config.SubExperiments {
+			config.SubExperiments[i].AssignEndpointIDs(endpointID)
+		}
 	}
 
 }
