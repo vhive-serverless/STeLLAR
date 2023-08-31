@@ -36,9 +36,6 @@ var loggedIn bool = false
 
 // SetupContainerImageDeployment will package the function using container images
 func SetupContainerImageDeployment(function string, provider string) string {
-	if builtImages[function] {
-		return ""
-	}
 	functionDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, function)
 	switch provider {
 	case "aws":
