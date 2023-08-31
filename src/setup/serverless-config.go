@@ -17,18 +17,25 @@ type Serverless struct {
 	Service          string               `yaml:"service"`
 	FrameworkVersion string               `yaml:"frameworkVersion"`
 	Provider         Provider             `yaml:"provider"`
-	Package          Package              `yaml:"package"`
+	Package          Package              `yaml:"package,omitempty"`
+	Plugins          []string             `yaml:"plugins,omitempty"`
 	Functions        map[string]*Function `yaml:"functions"`
 }
 
 type Provider struct {
-	Name    string `yaml:"name"`
-	Runtime string `yaml:"runtime"`
-	Region  string `yaml:"region"`
+	Name           string      `yaml:"name"`
+	Runtime        string      `yaml:"runtime"`
+	Region         string      `yaml:"region"`
+	FunctionApp    FunctionApp `yaml:"functionApp,omitempty"`
+	SubscriptionId string      `yaml:"subscriptionId,omitempty"`
+}
+
+type FunctionApp struct {
+	Version string `yaml:"version"`
 }
 
 type Package struct {
-	Individually bool `yaml:"individually"`
+	Individually bool `yaml:"individually,omitempty"`
 }
 
 type Function struct {
@@ -36,16 +43,25 @@ type Function struct {
 	Runtime string          `yaml:"runtime"`
 	Name    string          `yaml:"name"`
 	Events  []Event         `yaml:"events"`
-	Package FunctionPackage `yaml:"package"`
+	Package FunctionPackage `yaml:"package,omitempty"`
 }
 
 type FunctionPackage struct {
-	Patterns []string `yaml:"patterns"`
+	Patterns []string `yaml:"patterns,omitempty"`
 	Artifact string   `yaml:"artifact,omitempty"`
 }
 
 type Event struct {
-	HttpApi HttpApi `yaml:"httpApi"`
+	HttpApiAWS     HttpApi  `yaml:"httpApi,omitempty"`
+	HttpAzure      bool     `yaml:"http"`
+	MethodsAzure   []string `yaml:"methods"`
+	AuthLevelAzure string   `yaml:"authLevel"`
+}
+
+type HttpAzure struct {
+	HttpAzure      bool     `yaml:"http"`
+	MethodsAzure   []string `yaml:"methods"`
+	AuthLevelAzure string   `yaml:"authLevel"`
 }
 
 type HttpApi struct {
@@ -59,9 +75,16 @@ var nonAlphanumericRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 
 	var region string
+	var functionApp FunctionApp
 	switch config.Provider {
 	case "aws":
 		region = amazon.AWSRegion
+		s.Package.Individually = true
+	case "azure":
+		region = "East US 2"
+		//functionApp = FunctionApp{Version: "~4"}
+		s.AddPlugin("serverless-azure-functions")
+		// individual packaging not available to azure
 	default:
 		log.Errorf("Deployment to provider %s not supported yet.", config.Provider)
 	}
@@ -70,11 +93,20 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 	s.FrameworkVersion = "3"
 
 	s.Provider = Provider{
-		Name:    config.Provider,
-		Runtime: config.Runtime,
-		Region:  region,
+		Name:           config.Provider,
+		Runtime:        config.Runtime,
+		Region:         region,
+		FunctionApp:    functionApp,
+		SubscriptionId: "d3b34116-7b03-412c-997c-ca77fa672d76",
 	}
-	s.Package.Individually = true
+
+	if config.Provider == "azure" {
+		s.Provider.FunctionApp = functionApp
+	}
+}
+
+func (s *Serverless) AddPlugin(plugin string) {
+	s.Plugins = append(s.Plugins, plugin)
 }
 
 // AddPackagePattern adds a string pattern to Package.Pattern as long as such a pattern does not already exist in Package.Pattern
@@ -85,7 +117,7 @@ func (f *Function) AddPackagePattern(pattern string) {
 }
 
 // AddFunctionConfig Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifactPath string) {
+func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifactPath string, provider string) {
 	log.Warnf("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
@@ -95,12 +127,22 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		handler := subex.Handler
 		runtime := subex.Runtime
 		name := createName(subex, index, i)
-		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
 
-		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
-		f.AddPackagePattern(subex.PackagePattern)
-		if artifactPath != "" {
-			f.Package.Artifact = artifactPath
+		f := &Function{Handler: handler, Runtime: runtime, Name: name}
+		var events []Event
+		switch provider {
+		case "aws":
+			// add indiviual packaging pattern
+			f.AddPackagePattern(subex.PackagePattern)
+			if artifactPath != "" {
+				f.Package.Artifact = artifactPath
+			}
+			events = []Event{{HttpApiAWS: HttpApi{Path: "/" + name, Method: "GET"}}}
+			f.Events = events
+		case "azure":
+			// individual packaging not available to azure
+			events = []Event{{HttpAzure: true, MethodsAzure: []string{"GET"}, AuthLevelAzure: "anonymous"}}
+			f.Events = events
 		}
 		s.Functions[name] = f
 		subex.AddRoute(name)

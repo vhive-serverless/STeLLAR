@@ -51,7 +51,7 @@ func TestAddFunctionConfig(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{HttpApi: setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
+					{HttpApiAWS: setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
 			"test1_2_1": {
 				Name:    "test1_2_1",
 				Handler: "hellopy/lambda_function.lambda_handler",
@@ -61,13 +61,13 @@ func TestAddFunctionConfig(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{HttpApi: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
+					{HttpApiAWS: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
 		}}
 
 	actual := &setup.Serverless{Package: setup.Package{Individually: true}}
 
 	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "hellopy/lambda_function.lambda_handler", PackagePattern: "pattern1"}
-	actual.AddFunctionConfig(subEx, 2, "")
+	actual.AddFunctionConfig(subEx, 2, "", "aws")
 
 	require.Equal(t, expected, actual)
 
@@ -99,7 +99,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						HttpApi: setup.HttpApi{
+						HttpApiAWS: setup.HttpApi{
 							Path:   "/parallelism1_0_0",
 							Method: "GET",
 						},
@@ -117,7 +117,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 	assert.NoError(err, "Error reading actual data")
 
 	// Generate YAML content from the expected Serverless struct
-	expectedData, err := os.ReadFile("test.yml")
+	expectedData, err := os.ReadFile("test_aws.yml")
 	assert.NoError(err, "Error marshaling expected data")
 
 	// Compare the contents byte by byte
@@ -128,7 +128,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 // If this test is failing on your local machine, try running it with sudo.
 func TestDeployAndRemoveService(t *testing.T) {
 	// The two unit tests were merged together in order to make sure we are not left with a number of deployed test function on the cloud which are never used in.
-	util.RunCommandAndLog(exec.Command("cp", "test.yml", "../deployment/raw-code/serverless/aws/serverless.yml"))
+	util.RunCommandAndLog(exec.Command("cp", "test_aws.yml", "../deployment/raw-code/serverless/aws/serverless.yml"))
 
 	msgDeploy := setup.DeployService("../deployment/raw-code/serverless/aws/")
 

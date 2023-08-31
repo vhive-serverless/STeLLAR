@@ -99,7 +99,7 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 
 		// TODO: build the functions (Java and Golang)
 		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
+		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile, config.Provider)
 
 		// generate filler files and zip used as Serverless artifacts
 		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
