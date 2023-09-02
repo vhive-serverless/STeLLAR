@@ -60,7 +60,7 @@ func buildJava(functionName string, functionDir string, artifactDir string) stri
 func buildGolang(functionName string, functionDir string, artifactDir string) string {
 	log.Infof("Building Go from the source code at %s directory", functionDir)
 	artifactPath := fmt.Sprintf("%s/main", artifactDir)
-	util.RunCommandAndLog(exec.Command("env", "GOOS=linux", "GOARCH=amd64", "go", "build", "-C", functionDir))
+	util.RunCommandAndLog(exec.Command("env", "GOOS=linux", "GOARCH=amd64", "CGO_ENABLED=0", "go", "build", "-C", functionDir))
 	util.RunCommandAndLog(exec.Command("mv", fmt.Sprintf("%s/main", functionDir), artifactPath))
 	return artifactPath
 }
