@@ -28,11 +28,13 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"os/exec"
 	"stellar/setup/building"
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/setup/deployment/packaging"
+	"stellar/util"
 	"time"
 )
 
@@ -87,11 +89,22 @@ func ProvisionFunctions(config Configuration) {
 
 // ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
 func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath string) {
+	switch config.Provider {
+	case "aws":
+		ProvisionFunctionsServerlessAws(config, serverlessDirPath)
+	case "azure":
+		ProvisionFunctionsServerlessAzure(config, serverlessDirPath)
+	}
+}
+
+// ProvisionFunctionsServerlessAws will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+func ProvisionFunctionsServerlessAws(config *Configuration, serverlessDirPath string) {
 
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
 
-	slsConfig.CreateHeaderConfig(config)
+	slsConfig.CreateHeaderConfig(config, "STeLLAR")
+	slsConfig.packageIndividually()
 
 	for index, subExperiment := range config.SubExperiments {
 		//TODO: generate the code
@@ -99,7 +112,7 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 
 		// TODO: build the functions (Java and Golang)
 		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
+		slsConfig.AddFunctionConfigAWS(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
 
 		// generate filler files and zip used as Serverless artifacts
 		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
@@ -114,11 +127,40 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 	// TODO: assign endpoints to subexperiments
 	// Get the endpoints by scraping the serverless deploy message.
 
-	endpointID := GetEndpointID(slsDeployMessage)
+	endpointID := GetEndpointIDFromAWSDeployment(slsDeployMessage)
 
 	// Assign Endpoint ID to each deployed function
 	for i := range config.SubExperiments {
 		config.SubExperiments[i].AssignEndpointIDs(endpointID)
 	}
 
+}
+
+func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
+	for index, subExperiment := range config.SubExperiments {
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		builder := &building.Builder{}
+		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+
+		preDeploymentDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/sub-experiment-%d", config.Provider, index)
+		if err := os.MkdirAll(preDeploymentDir, os.ModePerm); err != nil {
+			log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+		}
+		artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
+		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
+
+		slsConfig := &Serverless{}
+		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-sub-experiment-%d", index))
+		slsConfig.addPlugin("serverless-azure-functions")
+		slsConfig.AddFunctionConfigAzure(&config.SubExperiments[index], index, "")
+		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
+
+		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+		slsDeployMessage := DeployService(fmt.Sprintf("%s/sub-experiment-%d", serverlessDirPath, index))
+		log.Info(slsDeployMessage)
+
+		endpointID := GetEndpointIDFromAzureDeployment(slsDeployMessage)
+		config.SubExperiments[index].AssignEndpointIDs(endpointID)
+	}
 }

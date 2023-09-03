@@ -19,7 +19,6 @@ func TestCreateHeaderConfig(t *testing.T) {
 			Runtime: "go1.x",
 			Region:  "us-west-1",
 		},
-		Package: setup.Package{Individually: true},
 	}
 
 	// Define the Configuration struct for testing
@@ -29,7 +28,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 	}
 
 	actual := &setup.Serverless{}
-	actual.CreateHeaderConfig(config)
+	actual.CreateHeaderConfig(config, "STeLLAR")
 
 	require.Equal(t, expected, actual)
 }
@@ -47,7 +46,7 @@ func TestAddFunctionConfig(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{HttpApi: setup.HttpApi{Path: "/test1_2_0", Method: "GET"}}}},
+					{AWSHttpEvent: setup.AWSHttpEvent{Path: "/test1_2_0", Method: "GET"}}}},
 			"test1_2_1": {
 				Name:    "test1_2_1",
 				Handler: "hellopy/lambda_function.lambda_handler",
@@ -57,13 +56,13 @@ func TestAddFunctionConfig(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{HttpApi: setup.HttpApi{Path: "/test1_2_1", Method: "GET"}}}},
+					{AWSHttpEvent: setup.AWSHttpEvent{Path: "/test1_2_1", Method: "GET"}}}},
 		}}
 
 	actual := &setup.Serverless{Package: setup.Package{Individually: true}}
 
 	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "hellopy/lambda_function.lambda_handler", PackagePattern: "pattern1"}
-	actual.AddFunctionConfig(subEx, 2, "")
+	actual.AddFunctionConfigAWS(subEx, 2, "")
 
 	require.Equal(t, expected, actual)
 
@@ -95,7 +94,7 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						HttpApi: setup.HttpApi{
+						AWSHttpEvent: setup.AWSHttpEvent{
 							Path:   "/parallelism1_0_0",
 							Method: "GET",
 						},
@@ -147,7 +146,7 @@ func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						HttpApi: setup.HttpApi{
+						AWSHttpEvent: setup.AWSHttpEvent{
 							Path:   "/parallelism1_0_0",
 							Method: "GET",
 						},
@@ -206,12 +205,18 @@ func TestAddPackagePattern(t *testing.T) {
 
 func TestGetEndpointIdSingleFunction(t *testing.T) {
 	testMsg := "\nendpoint: GET - https://7rhr5111eg.execute-api.us-west-1.amazonaws.com/parallelism1_0_0\nfunctions:\n  testFunction1: parallelism1_0_0 (3.5 kB)\n"
-	actual := setup.GetEndpointID(testMsg)
+	actual := setup.GetEndpointIDFromAWSDeployment(testMsg)
 	require.Equal(t, "7rhr5111eg", actual)
 }
 
 func TestGetEndpointIdMultipleFunctions(t *testing.T) {
 	testMsg := "\nendpoints:\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism1_0_0\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism2_1_0\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism2_1_1\nfunctions:\n  parallelism1_0_0: parallelism1_0_0 (3.5 kB)\n  parallelism2_1_0: parallelism2_1_0 (3.5 kB)\n  parallelism2_1_1: parallelism2_1_1 (3.5 kB)\n"
-	actual := setup.GetEndpointID(testMsg)
+	actual := setup.GetEndpointIDFromAWSDeployment(testMsg)
 	require.Equal(t, "z4a0lmtx64", actual)
+}
+
+func TestGetEndpointIdAzure(t *testing.T) {
+	testMsg := "Deployed serverless functions:\n-> subexperiment2_1_0: [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0\n-> subexperiment2_1_1: [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_1\n"
+	actual := setup.GetEndpointIDFromAzureDeployment(testMsg)
+	require.Equal(t, "sls-seasi-dev-stellar-sub-experiment-1", actual)
 }

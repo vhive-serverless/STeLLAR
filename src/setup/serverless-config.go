@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
 	"strings"
 )
@@ -17,6 +16,7 @@ type Serverless struct {
 	Service          string               `yaml:"service"`
 	FrameworkVersion string               `yaml:"frameworkVersion"`
 	Provider         Provider             `yaml:"provider"`
+	Plugins          []string             `yaml:"plugins"`
 	Package          Package              `yaml:"package"`
 	Functions        map[string]*Function `yaml:"functions"`
 }
@@ -46,28 +46,38 @@ type FunctionPackage struct {
 }
 
 type Event struct {
-	HttpApi HttpApi `yaml:"httpApi"`
+	AWSHttpEvent   AWSHttpEvent `yaml:"httpApi,omitempty"`
+	AzureHttp      bool         `yaml:"http"`
+	AzureMethods   []string     `yaml:"methods"`
+	AzureAuthLevel string       `yaml:"authLevel"`
 }
 
-type HttpApi struct {
+type AWSHttpEvent struct {
 	Path   string `yaml:"path"`
 	Method string `yaml:"method"`
 }
 
 var nonAlphanumericRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 
+const (
+	AWS_DEFAULT_REGION   = "us-west-1"
+	AZURE_DEFAULT_REGION = "Southeast Asia"
+)
+
 // CreateHeaderConfig sets the fields Service, FrameworkVersion, and Provider
-func (s *Serverless) CreateHeaderConfig(config *Configuration) {
+func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName string) {
 
 	var region string
 	switch config.Provider {
 	case "aws":
-		region = amazon.AWSRegion
+		region = AWS_DEFAULT_REGION
+	case "azure":
+		region = AZURE_DEFAULT_REGION
 	default:
 		log.Errorf("Deployment to provider %s not supported yet.", config.Provider)
 	}
 
-	s.Service = "STeLLAR" // or some other string
+	s.Service = serviceName
 	s.FrameworkVersion = "3"
 
 	s.Provider = Provider{
@@ -75,6 +85,14 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		Runtime: config.Runtime,
 		Region:  region,
 	}
+}
+
+func (s *Serverless) addPlugin(pluginName string) {
+	s.Plugins = append(s.Plugins, pluginName)
+}
+
+// packageIndividually enables individual packaging for providers like AWS, it is not supported by Azure
+func (s *Serverless) packageIndividually() {
 	s.Package.Individually = true
 }
 
@@ -85,9 +103,9 @@ func (f *Function) AddPackagePattern(pattern string) {
 	}
 }
 
-// AddFunctionConfig Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifactPath string) {
-	log.Warnf("Adding function config of Subexperiment %s, index %d", subex.Function, index)
+// AddFunctionConfigAWS Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
+func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, artifactPath string) {
+	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
@@ -96,7 +114,7 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		handler := subex.Handler
 		runtime := subex.Runtime
 		name := createName(subex, index, i)
-		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
+		events := []Event{{AWSHttpEvent: AWSHttpEvent{Path: "/" + name, Method: "GET"}}}
 
 		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
 		f.AddPackagePattern(subex.PackagePattern)
@@ -109,6 +127,33 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		s.Functions[name] = f
 		subex.AddRoute(name)
 		// TODO: producer-consumer sub-function definition
+	}
+}
+
+// AddFunctionConfigAzure Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
+func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, artifactPath string) {
+	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
+
+	if s.Functions == nil {
+		s.Functions = make(map[string]*Function)
+	}
+
+	for i := 0; i < subex.Parallelism; i++ {
+		handler := subex.Handler
+		runtime := subex.Runtime
+		name := createName(subex, index, i)
+		events := []Event{
+			{
+				AzureHttp:      true,
+				AzureMethods:   []string{"GET"},
+				AzureAuthLevel: "anonymous",
+			},
+		}
+
+		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+		f.AddPackagePattern(subex.PackagePattern)
+		s.Functions[name] = f
+		subex.AddRoute(name)
 	}
 }
 
@@ -133,7 +178,7 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 
 // RemoveService removes the service defined in serverless.yml
 func RemoveService(path string) string {
-	slsRemoveCmd := exec.Command("sls", "remove")
+	slsRemoveCmd := exec.Command("sls", "remove", "--force")
 	slsRemoveCmd.Dir = path
 	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
 	// cleanup
@@ -149,8 +194,8 @@ func DeployService(path string) string {
 	return slsDeployMessage
 }
 
-// GetEndpointID scrapes the serverless deploy message for the endpoint ID
-func GetEndpointID(slsDeployMessage string) string {
+// GetEndpointIDFromAWSDeployment scrapes the serverless deploy message for the endpoint ID
+func GetEndpointIDFromAWSDeployment(slsDeployMessage string) string {
 	lines := strings.Split(slsDeployMessage, "\n")
 	if lines[1] == "endpoints:" {
 		line := lines[2]
@@ -163,5 +208,13 @@ func GetEndpointID(slsDeployMessage string) string {
 	link := strings.Split(line, " ")[3]
 	httpId := strings.Split(link, ".")[0]
 	endpointId := strings.Split(httpId, "//")[1]
+	return endpointId
+}
+
+func GetEndpointIDFromAzureDeployment(message string) string {
+	methodAndEndpointRegex := regexp.MustCompile("\\[GET\\] .+\\n")
+	methodAndEndpoint := methodAndEndpointRegex.FindString(message) // e.g. [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
+	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
+	endpointId := strings.Split(endpoint, ".")[0]                   // e.g. sls-seasi-dev-stellar-sub-experiment-1
 	return endpointId
 }

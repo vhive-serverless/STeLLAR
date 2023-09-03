@@ -25,8 +25,6 @@
 package util
 
 import (
-	"bytes"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
@@ -62,16 +60,12 @@ func IntegerMin(x, y int) int {
 
 // RunCommandAndLog runs a command in the terminal, logs the result and returns it
 func RunCommandAndLog(cmd *exec.Cmd) string {
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	log.Infof("Command result: %s", out.String())
+	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("%s: %s", fmt.Sprint(err.Error()), stderr.String())
+		log.Fatal(err)
 	}
-	return out.String()
+	log.Infof("Command result: %s\n", stdoutStderr)
+	return string(stdoutStderr)
 }
 
 func StringContains(s []string, str string) bool {
