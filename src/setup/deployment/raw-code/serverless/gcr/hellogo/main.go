@@ -11,7 +11,7 @@ import (
 )
 
 type HelloGoRequest struct {
-	IncrementLimit int `json:"incrementLimit"`
+	IncrementLimit int `json:"IncrementLimit"`
 }
 
 type HelloGoResponse struct {
