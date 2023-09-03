@@ -10,29 +10,18 @@ import (
 	"time"
 )
 
-type HelloGoRequest struct {
-	IncrementLimit int `json:"IncrementLimit"`
-}
-
 type HelloGoResponse struct {
 	RequestID      string   `json:"RequestID"`
 	TimestampChain []string `json:"TimestampChain"`
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	var reqBody HelloGoRequest
-	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	incrementLimit, err := extractIncrementLimit(r)
 	if err != nil {
-		log.Errorf("Error decoding request body: %s", err)
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		log.Errorf("Error extracting IncrementLimit: %s", err)
+		http.Error(w, "Error extracting IncrementLimit", http.StatusBadRequest)
 		return
 	}
-
-	incrementLimit := 0
-	if reqBody.IncrementLimit > 0 {
-		incrementLimit = reqBody.IncrementLimit
-	}
-
 	simulateWork(incrementLimit)
 
 	res := HelloGoResponse{
@@ -47,6 +36,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error encoding response body", http.StatusInternalServerError)
 		return
 	}
+}
+
+func extractIncrementLimit(r *http.Request) (int, error) {
+	incrementLimit := 0
+	reqIncrementLimit := r.URL.Query().Get("IncrementLimit")
+	if reqIncrementLimit != "" {
+		var err error
+		incrementLimit, err = strconv.Atoi(r.URL.Query().Get("IncrementLimit"))
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing IncrementLimit: %s", err)
+		}
+	}
+	return incrementLimit, nil
 }
 
 func simulateWork(incrementLimit int) {
@@ -65,3 +67,4 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
+
