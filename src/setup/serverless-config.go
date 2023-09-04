@@ -211,7 +211,7 @@ func GetEndpointIDFromAWSDeployment(slsDeployMessage string) string {
 }
 
 func GetEndpointIDFromAzureDeployment(message string) string {
-	methodAndEndpointRegex := regexp.MustCompile("\\[GET\\] .+\\n")
+	methodAndEndpointRegex := regexp.MustCompile(`\[GET] .+\n`)
 	methodAndEndpoint := methodAndEndpointRegex.FindString(message) // e.g. [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
 	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
 	endpointId := strings.Split(endpoint, ".")[0]                   // e.g. sls-seasi-dev-stellar-sub-experiment-1
