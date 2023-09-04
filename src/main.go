@@ -85,10 +85,10 @@ func main() {
 		log.Info("Starting functions removal from cloud.")
 		switch config.Provider {
 		case "aws":
-			log.Info(setup.RemoveService(serverlessDirPath))
+			log.Info(setup.RemoveServiceAWS(serverlessDirPath))
 		case "azure":
 			for i := range config.SubExperiments {
-				log.Info(setup.RemoveService(fmt.Sprintf("%ssub-experiment-%d", serverlessDirPath, i)))
+				log.Info(setup.RemoveServiceAzure(fmt.Sprintf("%ssub-experiment-%d", serverlessDirPath, i)))
 			}
 		}
 	} else {

@@ -47,9 +47,9 @@ type FunctionPackage struct {
 
 type Event struct {
 	AWSHttpEvent   AWSHttpEvent `yaml:"httpApi,omitempty"`
-	AzureHttp      bool         `yaml:"http"`
-	AzureMethods   []string     `yaml:"methods"`
-	AzureAuthLevel string       `yaml:"authLevel"`
+	AzureHttp      bool         `yaml:"http,omitempty"`
+	AzureMethods   []string     `yaml:"methods,omitempty"`
+	AzureAuthLevel string       `yaml:"authLevel,omitempty"`
 }
 
 type AWSHttpEvent struct {
@@ -176,8 +176,18 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 	}
 }
 
-// RemoveService removes the service defined in serverless.yml
-func RemoveService(path string) string {
+// RemoveServiceAWS removes the service defined in serverless.yml
+func RemoveServiceAWS(path string) string {
+	slsRemoveCmd := exec.Command("sls", "remove")
+	slsRemoveCmd.Dir = path
+	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
+	// cleanup
+	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
+	return slsRemoveMessage
+}
+
+// RemoveServiceAzure removes the service defined in serverless.yml
+func RemoveServiceAzure(path string) string {
 	slsRemoveCmd := exec.Command("sls", "remove", "--force")
 	slsRemoveCmd.Dir = path
 	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
@@ -196,19 +206,8 @@ func DeployService(path string) string {
 
 // GetEndpointIDFromAWSDeployment scrapes the serverless deploy message for the endpoint ID
 func GetEndpointIDFromAWSDeployment(slsDeployMessage string) string {
-	lines := strings.Split(slsDeployMessage, "\n")
-	if lines[1] == "endpoints:" {
-		line := lines[2]
-		link := strings.Split(line, " ")[4]
-		httpId := strings.Split(link, ".")[0]
-		endpointId := strings.Split(httpId, "//")[1]
-		return endpointId
-	}
-	line := lines[1]
-	link := strings.Split(line, " ")[3]
-	httpId := strings.Split(link, ".")[0]
-	endpointId := strings.Split(httpId, "//")[1]
-	return endpointId
+	regex := regexp.MustCompile(`https:\/\/(.*)\.execute`)
+	return regex.FindStringSubmatch(slsDeployMessage)[1]
 }
 
 func GetEndpointIDFromAzureDeployment(message string) string {
