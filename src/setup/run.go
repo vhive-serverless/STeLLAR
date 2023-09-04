@@ -151,7 +151,7 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
 
 		slsConfig := &Serverless{}
-		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-sub-experiment-%d", index))
+		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-Azure-sub-experiment-%d", index))
 		slsConfig.addPlugin("serverless-azure-functions")
 		slsConfig.AddFunctionConfigAzure(&config.SubExperiments[index], index, "")
 		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
