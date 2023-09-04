@@ -61,10 +61,10 @@ func IntegerMin(x, y int) int {
 // RunCommandAndLog runs a command in the terminal, logs the result and returns it
 func RunCommandAndLog(cmd *exec.Cmd) string {
 	stdoutStderr, err := cmd.CombinedOutput()
+	log.Infof("Command combined output: %s\n", stdoutStderr)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf(err.Error())
 	}
-	log.Infof("Command result: %s\n", stdoutStderr)
 	return string(stdoutStderr)
 }
 
