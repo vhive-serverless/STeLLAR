@@ -34,7 +34,7 @@ var builtImages = make(map[string]bool)
 var privateRepoURI string = ""
 var loggedIn bool = false
 
-// SetupContainerImageDeployment will package the function using container images
+// SetupContainerImageDeployment will package the function using container images and push to registry
 func SetupContainerImageDeployment(function string, provider string) string {
 	functionDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, function)
 	switch provider {
