@@ -171,6 +171,7 @@ func DeployService(path string) string {
 	return slsDeployMessage
 }
 
+// DeployContainerService deploys a container service to cloud provider
 func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
 	switch s.Provider.Name {
 	case "gcr":
@@ -195,6 +196,7 @@ func GetEndpointID(slsDeployMessage string) string {
 	return regex.FindStringSubmatch(slsDeployMessage)[1]
 }
 
+// GetGCREndpointID scrapes the gcloud run deploy message for the endpoint ID
 func GetGCREndpointID(deployMessage string) string {
 	regex := regexp.MustCompile(`https:\/\/.*\.run\.app`)
 	endpointID := strings.Split(regex.FindString(deployMessage), "//")[1]
