@@ -16,7 +16,7 @@ type Serverless struct {
 	Service          string               `yaml:"service"`
 	FrameworkVersion string               `yaml:"frameworkVersion"`
 	Provider         Provider             `yaml:"provider"`
-	Plugins          []string             `yaml:"plugins"`
+	Plugins          []string             `yaml:"plugins,omitempty"`
 	Package          Package              `yaml:"package"`
 	Functions        map[string]*Function `yaml:"functions"`
 }
