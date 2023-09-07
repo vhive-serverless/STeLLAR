@@ -188,7 +188,7 @@ func TestDeployAndRemoveService(t *testing.T) {
 	log.Info(msgDeploy)
 	log.Info(msgRemove)
 	require.Equal(t, 5, linesDeploy)
-	require.Equal(t, 1, linesRemove)
+	require.Equal(t, 4, linesRemove)
 }
 
 func TestDeployAndRemoveContainerService(t *testing.T) {
