@@ -205,6 +205,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
+      DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
+      DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
