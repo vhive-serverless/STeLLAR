@@ -25,6 +25,7 @@ package packaging
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"os/exec"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
@@ -50,16 +51,17 @@ func SetupContainerImageDeployment(function string, provider string) string {
 		log.Info("Authenticating Docker CLI to the DockerHub registry...")
 
 		if !loggedIn {
-			privateRepoURI = *promptForString("Please enter your DockerHub username: ")
+			privateRepoURI = os.Getenv("DOCKER_HUB_USERNAME")
+			privateRepoToken := os.Getenv("DOCKER_HUB_ACCESS_TOKEN")
 			util.RunCommandAndLog(exec.Command("docker", "login", "-u",
-				privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
+				privateRepoURI, "-p", privateRepoToken))
 			loggedIn = true
 		}
 	default:
 		log.Fatalf("Provider %s does not support container image deployment.", provider)
 	}
 
-	taggedImage := fmt.Sprintf("%s:latest", function)
+	taggedImage := fmt.Sprintf("%s_STeLLAR:latest", function)
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
 	if builtImages[function] {
 		log.Infof("Container image for function %q is already built. Skipping...", function)
