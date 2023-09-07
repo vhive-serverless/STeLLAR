@@ -61,7 +61,7 @@ func SetupContainerImageDeployment(function string, provider string) string {
 		log.Fatalf("Provider %s does not support container image deployment.", provider)
 	}
 
-	taggedImage := fmt.Sprintf("%s_STeLLAR:latest", function)
+	taggedImage := fmt.Sprintf("%s_stellar:latest", function)
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
 	if builtImages[function] {
 		log.Infof("Container image for function %q is already built. Skipping...", function)
