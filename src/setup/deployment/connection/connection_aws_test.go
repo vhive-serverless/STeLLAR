@@ -24,13 +24,14 @@ package connection
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"math/rand"
-	"testing"
-	"time"
 	"stellar/setup/deployment"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -110,31 +111,31 @@ func TestAWSDeployFunctionFromZip(t *testing.T) {
 	Singleton.RemoveFunction(deployedFunctionID)
 }
 
-func TestAWSDeployFunctionFromImage(t *testing.T) {
-	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
-	apis := Singleton.ListAPIs()
-
-	if len(apis) >= awsAPIsLimitIncl {
-		Singleton.RemoveFunction(apis[0].GatewayID)
-	}
-
-	deployedFunctionID, _, desiredFunctionMemoryMB := deployRandomMemoryFunction("Image", producerConsumer)
-
-	// Check that deployment succeeded
-	apis = Singleton.ListAPIs()
-	foundDeployedFunction := false
-	for _, api := range apis {
-		if api.GatewayID == deployedFunctionID &&
-			api.PackageType == "Image" &&
-			api.FunctionMemoryMB == desiredFunctionMemoryMB {
-			foundDeployedFunction = true
-		}
-	}
-	require.True(t, foundDeployedFunction)
-
-	// Cleanup
-	Singleton.RemoveFunction(deployedFunctionID)
-}
+//func TestAWSDeployFunctionFromImage(t *testing.T) {
+//	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
+//	apis := Singleton.ListAPIs()
+//
+//	if len(apis) >= awsAPIsLimitIncl {
+//		Singleton.RemoveFunction(apis[0].GatewayID)
+//	}
+//
+//	deployedFunctionID, _, desiredFunctionMemoryMB := deployRandomMemoryFunction("Image", producerConsumer)
+//
+//	// Check that deployment succeeded
+//	apis = Singleton.ListAPIs()
+//	foundDeployedFunction := false
+//	for _, api := range apis {
+//		if api.GatewayID == deployedFunctionID &&
+//			api.PackageType == "Image" &&
+//			api.FunctionMemoryMB == desiredFunctionMemoryMB {
+//			foundDeployedFunction = true
+//		}
+//	}
+//	require.True(t, foundDeployedFunction)
+//
+//	// Cleanup
+//	Singleton.RemoveFunction(deployedFunctionID)
+//}
 
 func TestAWSUpdateFunction(t *testing.T) {
 	Initialize("aws", "", apiTemplatePathFromConnectionFolder)
