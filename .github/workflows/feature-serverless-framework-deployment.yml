@@ -55,6 +55,10 @@ jobs:
 
   unit_tests:
     name: Unit tests
+    strategy:
+      matrix:
+        path:
+          [./setup/test/..., ./benchmarking/..., ./util/..., ./setup/building/test/..., ./setup/code-generation/test/..., ./setup/deployment/packaging/test/..., ./setup/deployment/connection/...]
     needs: [ build_client ]
     runs-on: ubuntu-22.04
     env:
@@ -84,33 +88,9 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: Unit tests setup
+      - name: Unit tests
         working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/test/...
-
-      - name: Unit tests benchmarking
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./benchmarking/...
-
-      - name: Unit tests util
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./util/...
-
-      - name: Unit tests building
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/building/test/...
-
-      - name: Unit tests code-generation
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/code-generation/test/...
-
-      - name: Unit tests packaging
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/deployment/packaging/test/...
-
-      - name: Unit tests connection
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/deployment/connection/...
+        run: go test -short -v ${{matrix.path}}
 
   integration_aws:
     name: Integration test
