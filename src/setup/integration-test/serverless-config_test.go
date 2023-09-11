@@ -19,7 +19,7 @@ func TestDeployAndRemoveService(t *testing.T) {
 
 	linesDeploy := len(strings.Split(msgDeploy, "\n"))
 
-	msgRemove := setup.RemoveService("../deployment/raw-code/serverless/aws/")
+	msgRemove := setup.RemoveService("aws", "../deployment/raw-code/serverless/aws/")
 	linesRemove := len(strings.Split(msgRemove, "\n"))
 	log.Info(msgDeploy)
 	log.Info(msgRemove)
