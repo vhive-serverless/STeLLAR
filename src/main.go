@@ -88,7 +88,7 @@ func main() {
 			log.Info(setup.RemoveServiceAWS(serverlessDirPath))
 		case "azure":
 			for i := range config.SubExperiments {
-				log.Info(setup.RemoveServiceAzure(fmt.Sprintf("%ssub-experiment-%d", serverlessDirPath, i)))
+				log.Info(setup.RemoveServiceAzure(fmt.Sprintf("%ssub-experiment-%d/", serverlessDirPath, i)))
 			}
 		}
 	} else {
