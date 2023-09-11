@@ -140,17 +140,7 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 func RemoveService(provider string, path string) string {
 	switch provider {
 	case "gcr":
-		cmd := fmt.Sprintf("gcloud run services list --region %s | awk '{print $2}' | awk NR\\>1", GCR_DEFAULT_REGION)
-		getServicesCommand := exec.Command("bash", "-c", cmd)
-		lines := util.RunCommandAndLog(getServicesCommand)
-		services := strings.Split(lines, "\n")
-		services = services[:len(services)-1] // Remove last empty line
-		for _, service := range services {
-			log.Infof("Deleting GCR service %s...", service)
-			deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
-			deleteMessage := util.RunCommandAndLog(deleteServiceCommand)
-			log.Infof(deleteMessage)
-		}
+		removeGCRService()
 		return "All GCR services deleted."
 	default:
 		slsRemoveCmd := exec.Command("sls", "remove")
@@ -160,6 +150,20 @@ func RemoveService(provider string, path string) string {
 		util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
 		log.Info(slsRemoveMessage)
 		return slsRemoveMessage
+	}
+}
+
+func removeGCRService() {
+	cmd := fmt.Sprintf("gcloud run services list --region %s | awk '{print $2}' | awk NR\\>1", GCR_DEFAULT_REGION)
+	getServicesCommand := exec.Command("bash", "-c", cmd)
+	lines := util.RunCommandAndLog(getServicesCommand)
+	services := strings.Split(lines, "\n")
+	services = services[:len(services)-1] // Remove last empty line
+	for _, service := range services {
+		log.Infof("Deleting GCR service %s...", service)
+		deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
+		deleteMessage := util.RunCommandAndLog(deleteServiceCommand)
+		log.Infof(deleteMessage)
 	}
 }
 
@@ -191,7 +195,7 @@ func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, ima
 }
 
 // GetEndpointID scrapes the serverless deploy message for the endpoint ID
-func GetEndpointID(slsDeployMessage string) string {
+func GetAWSEndpointID(slsDeployMessage string) string {
 	regex := regexp.MustCompile(`https:\/\/(.*)\.execute`)
 	return regex.FindStringSubmatch(slsDeployMessage)[1]
 }
