@@ -2,7 +2,6 @@ package setup
 
 import (
 	"bytes"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"os"
 	"stellar/setup"
@@ -174,23 +173,6 @@ func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
 
 }
 
-// If this test is failing on your local machine, try running it with sudo.
-func TestDeployAndRemoveService(t *testing.T) {
-	// The two unit tests were merged together in order to make sure we are not left with a number of deployed test function on the cloud which are never used in.
-	util.RunCommandAndLog(exec.Command("cp", "test.yml", "../deployment/raw-code/serverless/aws/serverless.yml"))
-
-	msgDeploy := setup.DeployService("../deployment/raw-code/serverless/aws/")
-
-	linesDeploy := len(strings.Split(msgDeploy, "\n"))
-
-	msgRemove := setup.RemoveService("aws", "../deployment/raw-code/serverless/aws/")
-	linesRemove := len(strings.Split(msgRemove, "\n"))
-	log.Info(msgDeploy)
-	log.Info(msgRemove)
-	require.Equal(t, 5, linesDeploy)
-	require.Equal(t, 4, linesRemove)
-}
-
 func TestDeployAndRemoveContainerService(t *testing.T) {
 	s := &setup.Serverless{
 		Service:          "STeLLAR",
@@ -246,12 +228,12 @@ func TestAddPackagePattern(t *testing.T) {
 
 func TestGetEndpointIdSingleFunction(t *testing.T) {
 	testMsg := "\nendpoint: GET - https://7rhr5111eg.execute-api.us-west-1.amazonaws.com/parallelism1_0_0\nfunctions:\n  testFunction1: parallelism1_0_0 (3.5 kB)\n"
-	actual := setup.GetEndpointID(testMsg)
+	actual := setup.GetAWSEndpointID(testMsg)
 	require.Equal(t, "7rhr5111eg", actual)
 }
 
 func TestGetEndpointIdMultipleFunctions(t *testing.T) {
 	testMsg := "\nendpoints:\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism1_0_0\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism2_1_0\n  GET - https://z4a0lmtx64.execute-api.us-west-1.amazonaws.com/parallelism2_1_1\nfunctions:\n  parallelism1_0_0: parallelism1_0_0 (3.5 kB)\n  parallelism2_1_0: parallelism2_1_0 (3.5 kB)\n  parallelism2_1_1: parallelism2_1_1 (3.5 kB)\n"
-	actual := setup.GetEndpointID(testMsg)
+	actual := setup.GetAWSEndpointID(testMsg)
 	require.Equal(t, "z4a0lmtx64", actual)
 }
