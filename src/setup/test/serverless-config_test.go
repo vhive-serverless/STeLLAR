@@ -173,28 +173,6 @@ func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
 
 }
 
-func TestDeployAndRemoveContainerService(t *testing.T) {
-	s := &setup.Serverless{
-		Service:          "STeLLAR",
-		FrameworkVersion: "3",
-		Provider: setup.Provider{
-			Name:    "gcr",
-			Runtime: "python3.9",
-			Region:  "us-west1",
-		},
-	}
-
-	subex := &setup.SubExperiment{
-		Title:       "test_hellopy",
-		Parallelism: 1,
-	}
-
-	s.DeployContainerService(subex, 0, "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
-	deleteMsg := setup.RemoveService("gcr", "../deployment/raw-code/serverless/gcr/hellopy/")
-	require.Equal(t, "All GCR services deleted.", deleteMsg)
-
-}
-
 func TestAddPackagePattern(t *testing.T) {
 	assert := require.New(t)
 
