@@ -41,7 +41,7 @@ jobs:
           docker create --name temp stellar /bin/bash
       - name: Package client artifact
         run: |
-          mkdir -p "setup/deployment/raw-code"
+          mkdir -p 'setup/deployment/raw-code'
           docker cp temp:/app/stellar ./main
           docker cp temp:/app/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           tar -czvf build.tar ./main ./setup/deployment/raw-code/functions
@@ -58,8 +58,16 @@ jobs:
     strategy:
       matrix:
         path:
-          [./setup/test/..., ./benchmarking/..., ./util/..., ./setup/building/test/..., ./setup/code-generation/test/..., ./setup/deployment/packaging/test/..., ./setup/deployment/connection/...]
-    needs: [ build_client ]
+          [
+            ./setup/test/...,
+            ./benchmarking/...,
+            ./util/...,
+            ./setup/building/test/...,
+            ./setup/code-generation/test/...,
+            ./setup/deployment/packaging/test/...,
+            ./setup/deployment/connection/...,
+          ]
+    needs: [build_client]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
@@ -76,16 +84,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - id: 'auth'
+      - id: "auth"
         name: Configure GCR credentials
-        uses: 'google-github-actions/auth@v1'
+        uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: '${{secrets.GCR_CREDENTIALS}}'
+          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
 
-      - name: 'Set up gcloud'
-        uses: 'google-github-actions/setup-gcloud@v1'
-        with: 
-          version: '>= 363.0.0'
+      - name: "Set up gcloud"
+        uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          version: ">= 363.0.0"
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
         with:
@@ -123,16 +131,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - id: 'auth'
+      - id: "auth"
         name: Configure GCR credentials
-        uses: 'google-github-actions/auth@v1'
+        uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: '${{secrets.GCR_CREDENTIALS}}'
+          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
 
-      - name: 'Set up gcloud'
-        uses: 'google-github-actions/setup-gcloud@v1'
-        with: 
-          version: '>= 363.0.0'
+      - name: "Set up gcloud"
+        uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          version: ">= 363.0.0"
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
@@ -158,14 +166,13 @@ jobs:
 
       - name: Prepare benchmarking functions
         run: |
-          mkdir -p "setup/deployment/raw-code"
+          mkdir -p 'setup/deployment/raw-code'
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p "./src/latency-samples"
+          mkdir -p './src/latency-samples'
 
       - name: Integration Tests
         working-directory: ${{env.working-directory}}
         run: go test -short -v ./setup/integration-test/...
-
 
   e2e_aws:
     name: AWS e2e test
@@ -208,9 +215,9 @@ jobs:
 
       - name: Prepare benchmarking functions
         run: |
-          mkdir -p "setup/deployment/raw-code"
+          mkdir -p 'setup/deployment/raw-code'
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p "./src/latency-samples"
+          mkdir -p './src/latency-samples'
 
       - name: AWS end-to-end test for Python
         working-directory: ${{env.working-directory}}
@@ -235,17 +242,17 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
-      
-      - id: 'auth'
-        name: Configure GCR credentials
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{secrets.GCR_CREDENTIALS}}'
 
-      - name: 'Set up gcloud'
-        uses: 'google-github-actions/setup-gcloud@v1'
-        with: 
-          version: '>= 363.0.0'
+      - id: "auth"
+        name: Configure GCR credentials
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
+
+      - name: "Set up gcloud"
+        uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          version: ">= 363.0.0"
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
@@ -268,10 +275,18 @@ jobs:
 
       - name: Prepare benchmarking functions
         run: |
-          mkdir -p "setup/deployment/raw-code"
+          mkdir -p 'setup/deployment/raw-code'
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p "./src/latency-samples"
+          mkdir -p './src/latency-samples'
 
       - name: GCR end-to-end test for Python
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/gcr/hellopy.json --s true
+
+      - name: GCR end-to-end test for Go
+        working-directory: ${{env.working-directory}}
+        run: ./main --o latency-samples --c ../experiments/tests/gcr/hellogo.json --s true
+
+      - name: GCR end-to-end test for Java
+        working-directory: ${{env.working-directory}}
+        run: ./main --o latency-samples --c ../experiments/tests/gcr/hellogo.json --s true
