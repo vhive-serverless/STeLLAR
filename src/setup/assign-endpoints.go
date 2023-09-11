@@ -140,7 +140,9 @@ func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
 
 // AssignEndpointIDs assigns a given endpoint to all deployed functions of the subexperiment.
 func (s *SubExperiment) AssignEndpointIDs(endpointID string) {
-	s.Endpoints = []EndpointInfo{}
+	if s.Endpoints == nil {
+		s.Endpoints = []EndpointInfo{}
+	}
 	for i := 0; i < s.Parallelism; i++ {
 		s.Endpoints = append(s.Endpoints, EndpointInfo{ID: endpointID})
 	}
