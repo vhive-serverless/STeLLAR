@@ -24,5 +24,27 @@ func TestDeployAndRemoveService(t *testing.T) {
 	log.Info(msgDeploy)
 	log.Info(msgRemove)
 	require.Equal(t, 5, linesDeploy)
-	require.Equal(t, 1, linesRemove)
+	require.Equal(t, 4, linesRemove)
+}
+
+func TestDeployAndRemoveContainerService(t *testing.T) {
+	s := &setup.Serverless{
+		Service:          "STeLLAR",
+		FrameworkVersion: "3",
+		Provider: setup.Provider{
+			Name:    "gcr",
+			Runtime: "python3.9",
+			Region:  "us-west1",
+		},
+	}
+
+	subex := &setup.SubExperiment{
+		Title:       "test_hellopy",
+		Parallelism: 1,
+	}
+
+	s.DeployContainerService(subex, 0, "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
+	deleteMsg := setup.RemoveService("gcr", "../deployment/raw-code/serverless/gcr/hellopy/")
+	require.Equal(t, "All GCR services deleted.", deleteMsg)
+
 }
