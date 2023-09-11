@@ -123,8 +123,15 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 
 		// TODO: assign endpoints to subexperiments
 		// Get the endpoints by scraping the serverless deploy message.
-
-		endpointID := GetEndpointID(slsDeployMessage)
+		var endpointID string
+		switch config.Provider {
+		case "aws":
+			endpointID = GetAWSEndpointID(slsDeployMessage)
+		case "gcr":
+			break // Adding endpoints for GCR is done in DeployContainerService as GCR endpoints have no routes and are unique for every subexperiment/parallelism
+		default:
+			log.Fatalf("Getting Endpoints for Provider %s is not supported", config.Provider)
+		}
 
 		// Assign Endpoint ID to each deployed function
 		for i := range config.SubExperiments {
