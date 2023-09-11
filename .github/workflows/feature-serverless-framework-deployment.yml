@@ -233,7 +233,7 @@ jobs:
 
   e2e_gcr:
     name: GCR e2e test
-    needs: [build_client]
+    needs: [build_client, integration_tests]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
