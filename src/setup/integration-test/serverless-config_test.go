@@ -10,7 +10,7 @@ import (
 )
 
 // If this test is failing on your local machine, try running it with sudo.
-func TestDeployAndRemoveService(t *testing.T) {
+func TestDeployAndRemoveServiceAWS(t *testing.T) {
 	// The two unit tests were merged together in order to make sure we are not left with a number of deployed test function on the cloud which are never used in.
 	assert := require.New(t)
 

@@ -127,7 +127,7 @@ func ProvisionFunctionsServerlessAws(config *Configuration, serverlessDirPath st
 	// TODO: assign endpoints to subexperiments
 	// Get the endpoints by scraping the serverless deploy message.
 
-	endpointID := GetEndpointIDFromAWSDeployment(slsDeployMessage)
+	endpointID := GetEndpointIDAWS(slsDeployMessage)
 
 	// Assign Endpoint ID to each deployed function
 	for i := range config.SubExperiments {
@@ -160,7 +160,7 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 		slsDeployMessage := DeployService(fmt.Sprintf("%s/sub-experiment-%d", serverlessDirPath, index))
 		log.Info(slsDeployMessage)
 
-		endpointID := GetEndpointIDFromAzureDeployment(slsDeployMessage)
+		endpointID := GetEndpointIDAzure(slsDeployMessage)
 		config.SubExperiments[index].AssignEndpointIDs(endpointID)
 	}
 }

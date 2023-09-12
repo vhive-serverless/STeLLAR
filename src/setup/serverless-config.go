@@ -150,9 +150,9 @@ func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, art
 			},
 		}
 
-		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
-		f.AddPackagePattern(subex.PackagePattern)
-		s.Functions[name] = f
+		function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+		function.AddPackagePattern(subex.PackagePattern)
+		s.Functions[name] = function
 		subex.AddRoute(name)
 	}
 }
@@ -176,7 +176,7 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 	}
 }
 
-// RemoveServiceAWS removes the service defined in serverless.yml
+// RemoveServiceAWS removes the AWS service defined in serverless.yml
 func RemoveServiceAWS(path string) string {
 	slsRemoveCmd := exec.Command("sls", "remove")
 	slsRemoveCmd.Dir = path
@@ -186,7 +186,7 @@ func RemoveServiceAWS(path string) string {
 	return slsRemoveMessage
 }
 
-// RemoveServiceAzure removes the service defined in serverless.yml
+// RemoveServiceAzure removes the Azure service defined in serverless.yml
 func RemoveServiceAzure(path string) string {
 	slsRemoveCmd := exec.Command("sls", "remove", "--force")
 	slsRemoveCmd.Dir = path
@@ -204,13 +204,14 @@ func DeployService(path string) string {
 	return slsDeployMessage
 }
 
-// GetEndpointIDFromAWSDeployment scrapes the serverless deploy message for the endpoint ID
-func GetEndpointIDFromAWSDeployment(slsDeployMessage string) string {
+// GetEndpointIDAWS finds the AWS endpoint ID from the deployment message
+func GetEndpointIDAWS(slsDeployMessage string) string {
 	regex := regexp.MustCompile(`https:\/\/(.*)\.execute`)
 	return regex.FindStringSubmatch(slsDeployMessage)[1]
 }
 
-func GetEndpointIDFromAzureDeployment(message string) string {
+// GetEndpointIDAzure finds the Azure endpoint ID from the deployment message
+func GetEndpointIDAzure(message string) string {
 	methodAndEndpointRegex := regexp.MustCompile(`\[GET] .+\n`)
 	methodAndEndpoint := methodAndEndpointRegex.FindString(message) // e.g. [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
 	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
