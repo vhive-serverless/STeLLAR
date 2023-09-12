@@ -44,7 +44,7 @@ var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory contai
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 var writeToDatabaseFlag = flag.Bool("db", false, "This bool flag specifies whether statistics should be written to the database")
-var serverlessDeployment = flag.Bool("s", false, "Use serverless.com framework for deployment. ")
+var serverlessDeployment = flag.Bool("s", true, "Use serverless.com framework for deployment. ")
 
 func main() {
 	startTime := time.Now()
