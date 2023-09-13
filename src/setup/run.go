@@ -27,11 +27,13 @@ package setup
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"stellar/setup/building"
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/setup/deployment/packaging"
+	"stellar/util"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -88,55 +90,94 @@ func ProvisionFunctions(config Configuration) {
 
 // ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
 func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath string) {
+	switch config.Provider {
+	case "aws":
+		ProvisionFunctionsServerlessAWS(config, serverlessDirPath)
+	case "azure":
+		ProvisionFunctionsServerlessAzure(config, serverlessDirPath)
+	case "gcr":
+		ProvisionFunctionsGCR(config, serverlessDirPath)
+	}
+}
 
+// ProvisionFunctionsServerlessAWS will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath string) {
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
 
-	slsConfig.CreateHeaderConfig(config)
+	slsConfig.CreateHeaderConfig(config, "STeLLAR")
+	slsConfig.packageIndividually()
+
+	for index, subExperiment := range config.SubExperiments {
+		//TODO: generate the code
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		// TODO: build the functions (Java and Golang)
+		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+		slsConfig.AddFunctionConfigAWS(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
+
+		// generate filler files and zip used as Serverless artifacts
+		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
+	}
+
+	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
+
+	log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+	slsDeployMessage := DeployService(serverlessDirPath)
+	log.Info(slsDeployMessage)
+
+	// TODO: assign endpoints to subexperiments
+	// Get the endpoints by scraping the serverless deploy message.
+
+	endpointID := GetAWSEndpointID(slsDeployMessage)
+
+	// Assign Endpoint ID to each deployed function
+	for i := range config.SubExperiments {
+		config.SubExperiments[i].AssignEndpointIDs(endpointID)
+	}
+
+}
+
+func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
+	for index, subExperiment := range config.SubExperiments {
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		builder := &building.Builder{}
+		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+
+		preDeploymentDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/sub-experiment-%d", config.Provider, index)
+		if err := os.MkdirAll(preDeploymentDir, os.ModePerm); err != nil {
+			log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+		}
+		artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
+		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
+
+		slsConfig := &Serverless{}
+		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-Azure-sub-experiment-%d", index))
+		slsConfig.addPlugin("serverless-azure-functions")
+		slsConfig.AddFunctionConfigAzure(&config.SubExperiments[index], index, "")
+		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
+
+		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+		slsDeployMessage := DeployService(fmt.Sprintf("%s/sub-experiment-%d", serverlessDirPath, index))
+		log.Info(slsDeployMessage)
+
+		endpointID := GetAzureEndpointID(slsDeployMessage)
+		config.SubExperiments[index].AssignEndpointIDs(endpointID)
+	}
+}
+
+func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
+	slsConfig := &Serverless{}
+	slsConfig.CreateHeaderConfig(config, "STeLLAR-GCR")
 
 	for index, subExperiment := range config.SubExperiments {
 		switch subExperiment.PackageType {
 		case "Container":
 			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider)
-			slsConfig.DeployContainerService(&config.SubExperiments[index], index, imageLink, serverlessDirPath, slsConfig.Provider.Region)
-		case "Zip":
-			//TODO: generate the code
-			code_generation.GenerateCode(subExperiment.Function, config.Provider)
-
-			// TODO: build the functions (Java and Golang)
-			artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-			slsConfig.AddFunctionConfig(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
-
-			// generate filler files and zip used as Serverless artifacts
-			packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
+			slsConfig.DeployGCRContainerService(&config.SubExperiments[index], index, imageLink, serverlessDirPath, slsConfig.Provider.Region)
 		default:
 			log.Fatalf("Package type %s is not supported", subExperiment.PackageType)
 		}
 	}
-
-	if slsConfig.Functions != nil {
-		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
-
-		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
-		slsDeployMessage := DeployService(serverlessDirPath)
-		log.Info(slsDeployMessage)
-
-		// TODO: assign endpoints to subexperiments
-		// Get the endpoints by scraping the serverless deploy message.
-		var endpointID string
-		switch config.Provider {
-		case "aws":
-			endpointID = GetAWSEndpointID(slsDeployMessage)
-		case "gcr":
-			break // Adding endpoints for GCR is done in DeployContainerService as GCR endpoints have no routes and are unique for every subexperiment/parallelism
-		default:
-			log.Fatalf("Getting Endpoints for Provider %s is not supported", config.Provider)
-		}
-
-		// Assign Endpoint ID to each deployed function
-		for i := range config.SubExperiments {
-			config.SubExperiments[i].AssignEndpointIDs(endpointID)
-		}
-	}
-
 }

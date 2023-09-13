@@ -41,7 +41,7 @@ jobs:
           docker create --name temp stellar /bin/bash
       - name: Package client artifact
         run: |
-          mkdir -p 'setup/deployment/raw-code'
+          mkdir -p "setup/deployment/raw-code"
           docker cp temp:/app/stellar ./main
           docker cp temp:/app/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           tar -czvf build.tar ./main ./setup/deployment/raw-code/functions
@@ -67,7 +67,7 @@ jobs:
             ./setup/deployment/packaging/test/...,
             ./setup/deployment/connection/...,
           ]
-    needs: [build_client]
+    needs: [ build_client ]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
@@ -114,12 +114,16 @@ jobs:
 
   integration_tests:
     name: Integration tests
-    needs: [build_client]
+    needs: [ build_client ]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
       DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
       DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
@@ -152,8 +156,9 @@ jobs:
         with:
           node-version: 14.x
 
-      - name: Install serverless framework
-        run: npm install -g serverless
+      - name: Install Serverless framework and related plugins
+        # functions-have-names appears to be a dependency of serverless-azure-functions
+        run: npm install -g serverless serverless-azure-functions functions-have-names
 
       - name: Download client artifact
         uses: actions/download-artifact@v2
@@ -166,17 +171,65 @@ jobs:
 
       - name: Prepare benchmarking functions
         run: |
-          mkdir -p 'setup/deployment/raw-code'
+          mkdir -p "setup/deployment/raw-code"
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p './src/latency-samples'
+          mkdir -p "./src/latency-samples"
 
       - name: Integration Tests
         working-directory: ${{env.working-directory}}
         run: go test -short -v ./setup/integration-test/...
 
+  e2e_azure:
+    name: Azure e2e test
+    needs: [ build_client, integration_tests ]
+    runs-on: ubuntu-22.04
+    env:
+      working-directory: ./src
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Set up Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        # functions-have-names appears to be a dependency of serverless-azure-functions
+        run: npm install -g serverless serverless-azure-functions functions-have-names
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Prepare benchmarking functions
+        run: |
+          mkdir -p "setup/deployment/raw-code"
+          cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
+          mkdir -p "./src/latency-samples"
+
+      - name: Azure end-to-end test for Python
+        working-directory: ${{env.working-directory}}
+        run: ./main --o latency-samples --c ../experiments/tests/azure/hellopy.json --s true
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
   e2e_aws:
     name: AWS e2e test
-    needs: [build_client, integration_tests]
+    needs: [ build_client, integration_tests ]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
@@ -215,9 +268,9 @@ jobs:
 
       - name: Prepare benchmarking functions
         run: |
-          mkdir -p 'setup/deployment/raw-code'
+          mkdir -p "setup/deployment/raw-code"
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p './src/latency-samples'
+          mkdir -p "./src/latency-samples"
 
       - name: AWS end-to-end test for Python
         working-directory: ${{env.working-directory}}
@@ -233,7 +286,7 @@ jobs:
 
   e2e_gcr:
     name: GCR e2e test
-    needs: [build_client, integration_tests]
+    needs: [ build_client, integration_tests ]
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src

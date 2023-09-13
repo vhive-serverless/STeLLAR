@@ -71,14 +71,7 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)
 		}
 	case "azure":
-		// Example Azure Functions URL:
-		// stellar.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
-
-		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
-		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
-
-		queryCode := strings.Split(gatewayEndpoint.ID, "code=")[1]
-		request.URL.RawQuery += fmt.Sprintf("&code=%v", queryCode)
+		request.URL.Path = fmt.Sprintf("/api/%s", route)
 	case "google":
 		// Example Google Cloud Functions URL:
 		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1

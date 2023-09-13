@@ -16,6 +16,7 @@ type Serverless struct {
 	Service          string               `yaml:"service"`
 	FrameworkVersion string               `yaml:"frameworkVersion"`
 	Provider         Provider             `yaml:"provider"`
+	Plugins          []string             `yaml:"plugins,omitempty"`
 	Package          Package              `yaml:"package"`
 	Functions        map[string]*Function `yaml:"functions"`
 }
@@ -45,10 +46,13 @@ type FunctionPackage struct {
 }
 
 type Event struct {
-	HttpApi HttpApi `yaml:"httpApi"`
+	AWSHttpEvent   AWSHttpEvent `yaml:"httpApi,omitempty"`
+	AzureHttp      bool         `yaml:"http,omitempty"`
+	AzureMethods   []string     `yaml:"methods,omitempty"`
+	AzureAuthLevel string       `yaml:"authLevel,omitempty"`
 }
 
-type HttpApi struct {
+type AWSHttpEvent struct {
 	Path   string `yaml:"path"`
 	Method string `yaml:"method"`
 }
@@ -56,12 +60,13 @@ type HttpApi struct {
 var nonAlphanumericRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 
 const (
-	AWS_DEFAULT_REGION = "us-west-1"
-	GCR_DEFAULT_REGION = "us-west1"
+	AWS_DEFAULT_REGION   = "us-west-1"
+	AZURE_DEFAULT_REGION = "West US 2"
+	GCR_DEFAULT_REGION   = "us-west1"
 )
 
 // CreateHeaderConfig sets the fields Service, FrameworkVersion, and Provider
-func (s *Serverless) CreateHeaderConfig(config *Configuration) {
+func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName string) {
 
 	var region string
 	switch config.Provider {
@@ -69,11 +74,13 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		region = AWS_DEFAULT_REGION
 	case "gcr":
 		region = GCR_DEFAULT_REGION
+	case "azure":
+		region = AZURE_DEFAULT_REGION
 	default:
 		log.Errorf("Deployment to provider %s not supported yet.", config.Provider)
 	}
 
-	s.Service = "STeLLAR" // or some other string
+	s.Service = serviceName
 	s.FrameworkVersion = "3"
 
 	s.Provider = Provider{
@@ -81,6 +88,14 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration) {
 		Runtime: config.Runtime,
 		Region:  region,
 	}
+}
+
+func (s *Serverless) addPlugin(pluginName string) {
+	s.Plugins = append(s.Plugins, pluginName)
+}
+
+// packageIndividually enables individual packaging for providers like AWS, it is not supported by Azure
+func (s *Serverless) packageIndividually() {
 	s.Package.Individually = true
 }
 
@@ -91,9 +106,9 @@ func (f *Function) AddPackagePattern(pattern string) {
 	}
 }
 
-// AddFunctionConfig Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifactPath string) {
-	log.Warnf("Adding function config of Subexperiment %s, index %d", subex.Function, index)
+// AddFunctionConfigAWS Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
+func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, artifactPath string) {
+	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
@@ -101,7 +116,7 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		handler := subex.Handler
 		runtime := subex.Runtime
 		name := createName(subex, index, i)
-		events := []Event{{HttpApi{Path: "/" + name, Method: "GET"}}}
+		events := []Event{{AWSHttpEvent: AWSHttpEvent{Path: "/" + name, Method: "GET"}}}
 
 		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
 		f.AddPackagePattern(subex.PackagePattern)
@@ -114,6 +129,33 @@ func (s *Serverless) AddFunctionConfig(subex *SubExperiment, index int, artifact
 		s.Functions[name] = f
 		subex.AddRoute(name)
 		// TODO: producer-consumer sub-function definition
+	}
+}
+
+// AddFunctionConfigAzure Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
+func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, artifactPath string) {
+	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
+
+	if s.Functions == nil {
+		s.Functions = make(map[string]*Function)
+	}
+
+	for i := 0; i < subex.Parallelism; i++ {
+		handler := subex.Handler
+		runtime := subex.Runtime
+		name := createName(subex, index, i)
+		events := []Event{
+			{
+				AzureHttp:      true,
+				AzureMethods:   []string{"GET"},
+				AzureAuthLevel: "anonymous",
+			},
+		}
+
+		function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+		function.AddPackagePattern(subex.PackagePattern)
+		s.Functions[name] = function
+		subex.AddRoute(name)
 	}
 }
 
@@ -137,20 +179,55 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 }
 
 // RemoveService removes the service defined in serverless.yml
-func RemoveService(provider string, path string) string {
+func RemoveService(provider string, path string, numSubExperiments int) string {
 	switch provider {
+	case "aws":
+		return RemoveAWSService(path)
+	case "azure":
+		RemoveAzureAllServices(path, numSubExperiments)
+		return "All Azure services removed."
 	case "gcr":
 		removeGCRService()
 		return "All GCR services deleted."
 	default:
-		slsRemoveCmd := exec.Command("sls", "remove")
-		slsRemoveCmd.Dir = path
-		slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
-		// cleanup
-		util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
-		log.Info(slsRemoveMessage)
-		return slsRemoveMessage
+		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", provider))
+		return ""
 	}
+}
+
+// RemoveAWSService removes the AWS service defined in serverless.yml
+func RemoveAWSService(path string) string {
+	slsRemoveCmd := exec.Command("sls", "remove")
+	slsRemoveCmd.Dir = path
+	slsRemoveMessage := util.RunCommandAndLog(slsRemoveCmd)
+	// cleanup
+	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
+	return slsRemoveMessage
+}
+
+// RemoveAzureAllServices removes all Azure services
+func RemoveAzureAllServices(path string, numSubExperiments int) []string {
+	var removeServiceMessages []string
+	for i := 0; i < numSubExperiments; i++ {
+		subExPath := fmt.Sprintf("%ssub-experiment-%d/", path, i)
+		slsRemoveCmdOutput := RemoveAzureSingleService(subExPath)
+		removeServiceMessages = append(removeServiceMessages, slsRemoveCmdOutput)
+	}
+	return removeServiceMessages
+}
+
+// RemoveAzureSingleService removes a single Azure service defined in the serverless.yml file at the specified path
+func RemoveAzureSingleService(path string) string {
+	log.Infof(fmt.Sprintf("Removing Azure service at %s", path))
+	slsRemoveCmd := exec.Command("sls", "remove", "--force")
+	slsRemoveCmd.Dir = path
+	slsRemoveCmdOutput := util.RunCommandAndLog(slsRemoveCmd)
+
+	deleteSlsConfigFileCmd := exec.Command("rm", "serverless.yml")
+	deleteSlsConfigFileCmd.Dir = path
+	util.RunCommandAndLog(deleteSlsConfigFileCmd)
+
+	return slsRemoveCmdOutput
 }
 
 func removeGCRService() {
@@ -169,32 +246,28 @@ func removeGCRService() {
 
 // DeployService deploys the functions defined in the serverless.com file
 func DeployService(path string) string {
+	log.Infof(fmt.Sprintf("Deploying service at %s", path))
 	slsDeployCmd := exec.Command("sls", "deploy")
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
 	return slsDeployMessage
 }
 
-// DeployContainerService deploys a container service to cloud provider
-func (s *Serverless) DeployContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
-	switch s.Provider.Name {
-	case "gcr":
-		log.Infof("Deploying container service(s) to GCR...")
-		for i := 0; i < subex.Parallelism; i++ {
-			name := createName(subex, index, i)
+// DeployGCRContainerService deploys a container service to cloud provider
+func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
+	log.Infof("Deploying container service(s) to GCR...")
+	for i := 0; i < subex.Parallelism; i++ {
+		name := createName(subex, index, i)
 
-			gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
-			deployMessage := util.RunCommandAndLog(gcrDeployCommand)
-			log.Info(deployMessage)
-			subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
-			subex.AddRoute("")
-		}
-	default:
-		log.Fatalf("Container deployment not supported for provider %s", s.Provider.Name)
+		gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
+		deployMessage := util.RunCommandAndLog(gcrDeployCommand)
+		log.Info(deployMessage)
+		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
+		subex.AddRoute("")
 	}
 }
 
-// GetEndpointID scrapes the serverless deploy message for the endpoint ID
+// GetAWSEndpointID scrapes the serverless deploy message for the endpoint ID
 func GetAWSEndpointID(slsDeployMessage string) string {
 	regex := regexp.MustCompile(`https:\/\/(.*)\.execute`)
 	return regex.FindStringSubmatch(slsDeployMessage)[1]
@@ -206,4 +279,13 @@ func GetGCREndpointID(deployMessage string) string {
 	endpointID := strings.Split(regex.FindString(deployMessage), "//")[1]
 	return endpointID
 
+}
+
+// GetAzureEndpointID finds the Azure endpoint ID from the deployment message
+func GetAzureEndpointID(message string) string {
+	methodAndEndpointRegex := regexp.MustCompile(`\[GET] .+\n`)
+	methodAndEndpoint := methodAndEndpointRegex.FindString(message) // e.g. [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
+	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
+	endpointId := strings.Split(endpoint, ".")[0]                   // e.g. sls-seasi-dev-stellar-sub-experiment-1
+	return endpointId
 }
