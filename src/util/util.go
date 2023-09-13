@@ -25,8 +25,6 @@
 package util
 
 import (
-	"bytes"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
@@ -62,19 +60,12 @@ func IntegerMin(x, y int) int {
 
 // RunCommandAndLog runs a command in the terminal, logs the result and returns it
 func RunCommandAndLog(cmd *exec.Cmd) string {
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	log.Infof("Command result: %s", out.String())
+	stdoutStderr, err := cmd.CombinedOutput()
+	log.Infof("Command combined output: %s\n", stdoutStderr)
 	if err != nil {
-		log.Fatalf("%s: %s", fmt.Sprint(err.Error()), stderr.String())
+		log.Fatalf(err.Error())
 	}
-	if out.String() != "" {
-		return out.String()
-	}
-	return stderr.String() // Some commands like gcloud cli pipes their non-error output to stderr instead of stdout
+	return string(stdoutStderr)
 }
 
 func StringContains(s []string, str string) bool {

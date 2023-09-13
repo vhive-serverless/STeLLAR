@@ -29,10 +29,10 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"sync"
-	"time"
 	"stellar/benchmarking/writers"
 	"stellar/setup"
+	"sync"
+	"time"
 )
 
 // TriggerSubExperiments will run the sub-experiments specified by the passed configuration object. It creates

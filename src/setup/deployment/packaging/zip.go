@@ -115,7 +115,7 @@ func GenerateServerlessZIPArtifacts(experimentID int, provider string, runtime s
 
 func generateServerlessZIPArtifactsPythonGolang(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
 	defaultBinaryName := map[string]string{
-		"python3.9": "lambda_function.py",
+		"python3.9": "main.py",
 		"go1.x":     "main",
 	}
 	binaryPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s", provider, functionName, defaultBinaryName[runtime])
