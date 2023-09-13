@@ -1,14 +1,14 @@
 {
   "Sequential": false,
-  "Provider": "aws",
-  "Runtime": "python3.9",
+  "Provider": "azure",
+  "Runtime": "python3.8",
   "SubExperiments": [
     {
       "Title": "parallelism1",
       "Function": "hellopy",
-	  "Handler": "main.lambda_handler",
-	  "PackageType": "Zip",
-	  "PackagePattern": "main.py",
+      "Handler": "main.main",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
       "Bursts": 2,
       "BurstSizes": [
         2
@@ -19,11 +19,11 @@
       "FunctionImageSizeMB": 24
     },
     {
-      "Title": "parallelism2",
+      "Title": "parallelism1",
       "Function": "hellopy",
-	  "Handler": "main.lambda_handler",
-	  "PackageType": "Zip",
-	  "PackagePattern": "main.py",
+      "Handler": "main.main",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
       "Bursts": 3,
       "BurstSizes": [
         4

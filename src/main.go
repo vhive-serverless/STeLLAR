@@ -80,11 +80,10 @@ func main() {
 		serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
 		setup.ProvisionFunctionsServerless(&config, serverlessDirPath)
 		log.Infof("number of routes %d, numebr of endpoints %d", len(config.SubExperiments[0].Routes), len(config.SubExperiments[0].Endpoints))
-		// TODO: trigger benchmarking.TriggerSubExperiments once implemented (disabled to pass CI pipeline, for now)
 		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
 		log.Info("Starting functions removal from cloud.")
-		setup.RemoveService(config.Provider, serverlessDirPath)
+		setup.RemoveService(config.Provider, serverlessDirPath, len(config.SubExperiments))
 	} else {
 		setup.ProvisionFunctions(config)
 		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
