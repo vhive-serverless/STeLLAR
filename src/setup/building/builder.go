@@ -38,6 +38,8 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 		buildJava(functionName, functionDir, artifactDir)
 	case "go1.x":
 		buildGolang(functionName, functionDir, artifactDir)
+	case "python3.8":
+		fallthrough
 	case "python3.9":
 		copyPythonFile(functionName, functionDir, artifactDir)
 	default:
@@ -68,8 +70,8 @@ func buildGolang(functionName string, functionDir string, artifactDir string) st
 // copyPythonFile copies the main Python file into the artifacts directory
 func copyPythonFile(functionName string, functionDir string, artifactDir string) string {
 	log.Infof("Copying Python source code from the %s directory", functionDir)
-	functionPath := fmt.Sprintf("%s/lambda_function.py", functionDir)
-	artifactPath := fmt.Sprintf("%s/lambda_function.py", artifactDir)
+	functionPath := fmt.Sprintf("%s/main.py", functionDir)
+	artifactPath := fmt.Sprintf("%s/main.py", artifactDir)
 	util.RunCommandAndLog(exec.Command("cp", functionPath, artifactPath))
 	return artifactPath
 }

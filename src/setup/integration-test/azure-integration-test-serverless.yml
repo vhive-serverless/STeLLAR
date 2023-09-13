@@ -1,0 +1,23 @@
+service: STeLLAR-Azure-Integration-Test-Service
+
+frameworkVersion: '3'
+
+provider:
+  name: azure
+  region: Southeast Asia
+  runtime: python3.8
+
+plugins:
+  - serverless-azure-functions
+
+functions:
+  stellar-azure-integration-test-0:
+    package:
+      patterns:
+        - 'main.py'
+    handler: main.main
+    events:
+      - http: true
+        methods:
+          - GET
+        authLevel: anonymous

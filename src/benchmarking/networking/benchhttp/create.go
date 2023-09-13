@@ -54,7 +54,10 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 	case "azure":
 		// Example Azure Functions URL:
 		// stellar.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
-		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
+		request = createGeneralRequest(
+			http.MethodGet,
+			fmt.Sprintf("%s.azurewebsites.net", gatewayEndpoint.ID),
+		)
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
 			gatewayEndpoint, storageTransfer, route)
