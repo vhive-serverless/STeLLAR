@@ -56,3 +56,19 @@ func TestDeployAndRemoveServiceAzure(t *testing.T) {
 	assert.True(strings.Contains(msgDeploy, "Deployed serverless functions"))
 	assert.True(strings.Contains(msgRemove, "successfully removed"))
 }
+
+func TestDeployAndRemoveServiceCloudflare(t *testing.T) {
+	assert := require.New(t)
+
+	subex := &setup.SubExperiment{
+		Title:       "cloudflaretest",
+		Function:    "hellonode",
+		Handler:     "index.js",
+		Parallelism: 1,
+	}
+
+	setup.DeployCloudflareWorkers(subex, 0, "../deployment/raw-code/serverless/cloudflare")
+	msgRemove := setup.RemoveCloudflareSingleWorker("cloudflaretest-0-0")
+
+	assert.True(strings.Contains(msgRemove, "Successfully deleted"))
+}
