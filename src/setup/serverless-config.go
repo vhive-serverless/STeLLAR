@@ -294,7 +294,6 @@ func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, 
 
 		gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
 		deployMessage := util.RunCommandAndLog(gcrDeployCommand)
-		log.Info(deployMessage)
 		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
 		subex.AddRoute("")
 	}
@@ -307,7 +306,6 @@ func DeployCloudflareWorkers(subex *SubExperiment, index int, path string) {
 
 		cloudFlareDeployCommand := exec.Command("wrangler", "deploy", subex.Handler, "--name", name, "--compatibility-date", time.Now().Format("2006-01-02"))
 		deployMessage := util.RunCommandAndLog(cloudFlareDeployCommand)
-		log.Info(deployMessage)
 		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetCloudflareEndpointID(deployMessage)})
 		subex.AddRoute("")
 	}
