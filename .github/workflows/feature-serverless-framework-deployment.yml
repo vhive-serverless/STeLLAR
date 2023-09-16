@@ -152,10 +152,10 @@ jobs:
         with:
           go-version: 1.21
 
-      - name: Set up Node.js 14.x
-        uses: actions/setup-node@v1
+      - name: Set up Node.js 16.16.0
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.16.0
 
       - name: Install Serverless framework and related plugins
         # functions-have-names appears to be a dependency of serverless-azure-functions
@@ -253,10 +253,10 @@ jobs:
         with:
           go-version: 1.21
 
-      - name: Set up Node.js 14.x
-        uses: actions/setup-node@v1
+      - name: Set up Node.js 16.16.0
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.16.0
 
       - name: Install serverless framework
         run: npm install -g serverless
@@ -316,10 +316,10 @@ jobs:
         with:
           go-version: 1.21
 
-      - name: Set up Node.js 14.x
-        uses: actions/setup-node@v1
+      - name: Set up Node.js 16.16.0
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.16.0
 
       - name: Download client artifact
         uses: actions/download-artifact@v2
@@ -364,10 +364,10 @@ jobs:
           with:
             go-version: 1.21
 
-        - name: Set up Node.js 14.x
-          uses: actions/setup-node@v1
+        - name: Set up Node.js 16.16.0
+          uses: actions/setup-node@v3
           with:
-            node-version: 14.x
+            node-version: 16.16.0
 
         - name: Install Cloudflare Wrangler
           run: npm install -g wrangler
