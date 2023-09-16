@@ -274,3 +274,9 @@ func TestGetGCREndpointID(t *testing.T) {
 	actual := setup.GetGCREndpointID(testMsg)
 	require.Equal(t, "test-function-nfjrndgaha-uw.a.run.app", actual)
 }
+
+func TestGetCloudflareEndpointID(t *testing.T) {
+	testMsg := "Published hellojs_wrangler0 (3.48 sec)\nhttps://hellonode.stellarbench.workers.dev\nCurrent Deployment ID: 26923084-4e66-4b4b-b876-cb85341b75f6"
+	actual := setup.GetCloudflareEndpointID(testMsg)
+	require.Equal(t, "hellonode.stellarbench.workers.dev", actual)
+}
