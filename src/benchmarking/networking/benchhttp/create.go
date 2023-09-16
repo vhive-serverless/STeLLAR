@@ -68,6 +68,8 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
 			gatewayEndpoint, storageTransfer, route)
+	case "cloudflare":
+		fallthrough
 	case "gcr":
 		request = createGeneralRequest(http.MethodGet, gatewayEndpoint.ID)
 
