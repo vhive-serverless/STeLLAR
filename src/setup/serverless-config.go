@@ -190,6 +190,9 @@ func RemoveService(config *Configuration, path string) string {
 	case "gcr":
 		RemoveGCRAllServices(config.SubExperiments)
 		return "All GCR services deleted."
+	case "cloudflare":
+		RemoveCloudflareAllWorkers(config.SubExperiments)
+		return "All Cloudflare Workers deleted."
 	default:
 		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
 		return ""
@@ -250,6 +253,28 @@ func RemoveGCRSingleService(service string) string {
 	deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
 	deleteMessage := util.RunCommandAndLog(deleteServiceCommand)
 	return deleteMessage
+}
+
+// Removes all Cloudflare Workers
+func RemoveCloudflareAllWorkers(subExperiments []SubExperiment) []string {
+	log.Infof("Removing Cloudflare Workers...")
+	var removeServiceMessages []string
+	for index, subex := range subExperiments {
+		for i := 0; i < subex.Parallelism; i++ {
+			workerName := createName(&subex, index, i)
+			removeMessage := RemoveCloudflareSingleWorker(workerName)
+			removeServiceMessages = append(removeServiceMessages, removeMessage)
+		}
+	}
+	return removeServiceMessages
+}
+
+// Removes a single Cloudflare Worker specified by name
+func RemoveCloudflareSingleWorker(workerName string) string {
+	log.Infof("Removing Cloudflare Worker %s...", workerName)
+	removeWorkerCommand := exec.Command("wrangler", "delete", "--name", workerName, "--force")
+	removeMessage := util.RunCommandAndLog(removeWorkerCommand)
+	return removeMessage
 }
 
 // DeployService deploys the functions defined in the serverless.com file
