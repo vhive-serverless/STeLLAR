@@ -188,10 +188,7 @@ func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 }
 
 func ProvisionFunctionsCloudflare(config *Configuration, serverlessDirPath string) {
-	slsConfig := &Serverless{}
-	slsConfig.CreateHeaderConfig(config, "STeLLAR-Cloudflare")
-
-	for index, subExperiment := range config.SubExperiments {
-		slsConfig.DeployCloudflareWorkers(&config.SubExperiments[index], index, serverlessDirPath)
+	for index := range config.SubExperiments {
+		DeployCloudflareWorkers(&config.SubExperiments[index], index, serverlessDirPath)
 	}
 }

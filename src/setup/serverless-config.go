@@ -304,7 +304,7 @@ func DeployCloudflareWorkers(subex *SubExperiment, index int, path string) {
 	for i := 0; i < subex.Parallelism; i++ {
 		name := createName(subex, index, i)
 
-		cloudFlareDeployCommand := exec.Command("wrangler", "deploy", subex.Handler, "--name", name, "--compatibility-date", time.Now().Format("2006-01-02"))
+		cloudFlareDeployCommand := exec.Command("wrangler", "deploy", fmt.Sprintf("%s/%s/%s", path, subex.Function, subex.Handler), "--name", name, "--compatibility-date", time.Now().Format("2006-01-02"))
 		deployMessage := util.RunCommandAndLog(cloudFlareDeployCommand)
 		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetCloudflareEndpointID(deployMessage)})
 		subex.AddRoute("")
