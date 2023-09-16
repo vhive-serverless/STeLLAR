@@ -179,18 +179,18 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 }
 
 // RemoveService removes the service defined in serverless.yml
-func RemoveService(provider string, path string, numSubExperiments int) string {
-	switch provider {
+func RemoveService(config *Configuration, path string) string {
+	switch config.Provider {
 	case "aws":
 		return RemoveAWSService(path)
 	case "azure":
-		RemoveAzureAllServices(path, numSubExperiments)
+		RemoveAzureAllServices(path, len(config.SubExperiments))
 		return "All Azure services removed."
 	case "gcr":
-		removeGCRService()
+		RemoveGCRAllServices(config.SubExperiments)
 		return "All GCR services deleted."
 	default:
-		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", provider))
+		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
 		return ""
 	}
 }
@@ -230,18 +230,23 @@ func RemoveAzureSingleService(path string) string {
 	return slsRemoveCmdOutput
 }
 
-func removeGCRService() {
-	cmd := fmt.Sprintf("gcloud run services list --region %s | awk '{print $2}' | awk NR\\>1", GCR_DEFAULT_REGION)
-	getServicesCommand := exec.Command("bash", "-c", cmd)
-	lines := util.RunCommandAndLog(getServicesCommand)
-	services := strings.Split(lines, "\n")
-	services = services[:len(services)-1] // Remove last empty line
-	for _, service := range services {
-		log.Infof("Deleting GCR service %s...", service)
-		deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
-		deleteMessage := util.RunCommandAndLog(deleteServiceCommand)
-		log.Infof(deleteMessage)
+func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
+	var deleteServiceMessages []string
+	for index, subex := range subExperiments {
+		for i := 0; i < subex.Parallelism; i++ {
+			service := createName(&subex, index, i)
+			deleteMsg := RemoveGCRSingleService(service)
+			deleteServiceMessages = append(deleteServiceMessages, deleteMsg)
+		}
 	}
+	return deleteServiceMessages
+}
+
+func RemoveGCRSingleService(service string) string {
+	log.Infof("Deleting GCR service %s...", service)
+	deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
+	deleteMessage := util.RunCommandAndLog(deleteServiceCommand)
+	return deleteMessage
 }
 
 // DeployService deploys the functions defined in the serverless.com file
