@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"stellar/util"
 	"strings"
+	"time"
 )
 
 // Serverless describes the serverless.yml contents.
@@ -274,6 +275,19 @@ func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, 
 	}
 }
 
+func DeployCloudflareWorkers(subex *SubExperiment, index int, path string) {
+	log.Infof("Deploying Cloudflare Workers...")
+	for i := 0; i < subex.Parallelism; i++ {
+		name := createName(subex, index, i)
+
+		cloudFlareDeployCommand := exec.Command("wrangler", "deploy", subex.Handler, "--name", name, "--compatibility-date", time.Now().Format("2006-01-02"))
+		deployMessage := util.RunCommandAndLog(cloudFlareDeployCommand)
+		log.Info(deployMessage)
+		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetCloudflareEndpointID(deployMessage)})
+		subex.AddRoute("")
+	}
+}
+
 // GetAWSEndpointID scrapes the serverless deploy message for the endpoint ID
 func GetAWSEndpointID(slsDeployMessage string) string {
 	regex := regexp.MustCompile(`https:\/\/(.*)\.execute`)
@@ -285,7 +299,6 @@ func GetGCREndpointID(deployMessage string) string {
 	regex := regexp.MustCompile(`https:\/\/.*\.run\.app`)
 	endpointID := strings.Split(regex.FindString(deployMessage), "//")[1]
 	return endpointID
-
 }
 
 // GetAzureEndpointID finds the Azure endpoint ID from the deployment message
@@ -295,4 +308,10 @@ func GetAzureEndpointID(message string) string {
 	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
 	endpointId := strings.Split(endpoint, ".")[0]                   // e.g. sls-seasi-dev-stellar-sub-experiment-1
 	return endpointId
+}
+
+func GetCloudflareEndpointID(message string) string {
+	regex := regexp.MustCompile(`https:\/\/.*\.workers\.dev`)
+	endpointID := strings.Split(regex.FindString(message), "//")[1]
+	return endpointID
 }
