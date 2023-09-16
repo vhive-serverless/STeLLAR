@@ -23,7 +23,8 @@ func TestDeployAndRemoveServiceAWS(t *testing.T) {
 	assert.True(strings.Contains(msgRemove, "successfully removed"))
 }
 
-func TestDeployAndRemoveContainerService(t *testing.T) {
+func TestDeployAndRemoveServiceGCR(t *testing.T) {
+	assert := require.New(t)
 	s := &setup.Serverless{
 		Service:          "STeLLAR",
 		FrameworkVersion: "3",
@@ -35,13 +36,13 @@ func TestDeployAndRemoveContainerService(t *testing.T) {
 	}
 
 	subex := &setup.SubExperiment{
-		Title:       "test_hellopy",
+		Title:       "hellopytest",
 		Parallelism: 1,
 	}
 
 	s.DeployGCRContainerService(subex, 0, "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
-	deleteMsg := setup.RemoveService("gcr", "../deployment/raw-code/serverless/gcr/hellopy/", 1)
-	require.Equal(t, "All GCR services deleted.", deleteMsg)
+	deleteMsg := setup.RemoveGCRSingleService("hellopytest-0-0")
+	assert.True(strings.Contains(deleteMsg, "Deleted service [hellopytest-0-0]"))
 }
 
 func TestDeployAndRemoveServiceAzure(t *testing.T) {
