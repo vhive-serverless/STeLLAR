@@ -178,7 +178,7 @@ func (s *Serverless) CreateServerlessConfigFile(path string) {
 	}
 }
 
-// RemoveService removes the service defined in serverless.yml
+// RemoveService removes the services created by experiments
 func RemoveService(config *Configuration, path string) string {
 	switch config.Provider {
 	case "aws":
@@ -230,6 +230,7 @@ func RemoveAzureSingleService(path string) string {
 	return slsRemoveCmdOutput
 }
 
+// RemoveGCRAllServices removes all GCR services defined in the Subexperiment array
 func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
 	var deleteServiceMessages []string
 	for index, subex := range subExperiments {
@@ -242,6 +243,7 @@ func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
 	return deleteServiceMessages
 }
 
+// RemoveGCRSingleService removes a single GCR service
 func RemoveGCRSingleService(service string) string {
 	log.Infof("Deleting GCR service %s...", service)
 	deleteServiceCommand := exec.Command("gcloud", "run", "services", "delete", "--quiet", "--region", GCR_DEFAULT_REGION, service)
