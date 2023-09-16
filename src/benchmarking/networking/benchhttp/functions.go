@@ -81,9 +81,9 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 		if storageTransfer {
 			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", googleBucket)
 		}
+	case "cloudflare":
 	case "gcr":
-		break
-		// there is no raw query
+		break // there is no raw query for GCR and Cloudflare
 	default:
 		log.Fatalf("Unrecognized provider %q", provider)
 	}

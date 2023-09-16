@@ -107,6 +107,8 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		fallthrough
 	case "gcr":
 		fallthrough
+	case "cloudflare":
+		fallthrough
 	case "google":
 		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer, route)
 		log.Debugf("Created HTTP request with URL (%q), Body (%q)", (*request).URL, (*request).Body)
