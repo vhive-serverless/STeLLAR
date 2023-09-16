@@ -263,8 +263,14 @@ func TestGetAWSEndpointIdMultipleFunctions(t *testing.T) {
 	require.Equal(t, "z4a0lmtx64", actual)
 }
 
-func TestGetEndpointIdAzure(t *testing.T) {
+func TestGetAzureEndpointID(t *testing.T) {
 	testMsg := "Deployed serverless functions:\n-> subexperiment2_1_0: [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0\n-> subexperiment2_1_1: [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_1\n"
 	actual := setup.GetAzureEndpointID(testMsg)
 	require.Equal(t, "sls-seasi-dev-stellar-sub-experiment-1", actual)
+}
+
+func TestGetGCREndpointID(t *testing.T) {
+	testMsg := "Service [test-function] revision [test-function-00001-cec] has been deployed and is serving 100 percent of traffic.\nService URL: https://test-function-nfjrndgaha-uw.a.run.app"
+	actual := setup.GetGCREndpointID(testMsg)
+	require.Equal(t, "test-function-nfjrndgaha-uw.a.run.app", actual)
 }
