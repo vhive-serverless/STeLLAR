@@ -97,6 +97,10 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 		ProvisionFunctionsServerlessAzure(config, serverlessDirPath)
 	case "gcr":
 		ProvisionFunctionsGCR(config, serverlessDirPath)
+	case "cloudflare":
+		ProvisionFunctionsCloudflare(config, serverlessDirPath)
+	default:
+		log.Fatalf("Provider %s not supported for deployment", config.Provider)
 	}
 }
 
@@ -179,5 +183,14 @@ func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 		default:
 			log.Fatalf("Package type %s is not supported", subExperiment.PackageType)
 		}
+	}
+}
+
+func ProvisionFunctionsCloudflare(config *Configuration, serverlessDirPath string) {
+	slsConfig := &Serverless{}
+	slsConfig.CreateHeaderConfig(config, "STeLLAR-Cloudflare")
+
+	for index, subExperiment := range config.SubExperiments {
+		slsConfig.DeployCloudflareWorkers(&config.SubExperiments[index], index, serverlessDirPath)
 	}
 }
