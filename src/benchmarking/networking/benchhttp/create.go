@@ -39,7 +39,7 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 
 	switch provider {
 	case "aws":
-		request = createGeneralRequest(
+		request = createGeneralHttpsRequest(
 			http.MethodGet,
 			fmt.Sprintf("%s.execute-api.%s.amazonaws.com", gatewayEndpoint.ID, amazon.AWSRegion),
 		)
@@ -54,35 +54,50 @@ func CreateRequest(provider string, payloadLengthBytes int, gatewayEndpoint setu
 	case "azure":
 		// Example Azure Functions URL:
 		// stellar.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
-		request = createGeneralRequest(
+		request = createGeneralHttpsRequest(
 			http.MethodGet,
 			fmt.Sprintf("%s.azurewebsites.net", gatewayEndpoint.ID),
 		)
 
-		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint, storageTransfer, route)
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit, gatewayEndpoint, storageTransfer, route)
 	case "google":
 		// Example Google Cloud Functions URL:
 		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
-		request = createGeneralRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
+		request = createGeneralHttpsRequest(http.MethodGet, strings.Split(gatewayEndpoint.ID, "/")[0])
 
-		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit,
-			gatewayEndpoint, storageTransfer, route)
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit, gatewayEndpoint, storageTransfer, route)
 	case "cloudflare":
 		fallthrough
 	case "gcr":
-		request = createGeneralRequest(http.MethodGet, gatewayEndpoint.ID)
+		request = createGeneralHttpsRequest(http.MethodGet, gatewayEndpoint.ID)
+
+		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit, gatewayEndpoint, storageTransfer, route)
+	case "aliyun":
+		// Example Alibaba Cloud URL:
+		// http://5cfeb440ed6d4ad69ae29d8408aa606e-ap-southeast-1.alicloudapi.com/foo
+		request = createGeneralHttpRequest(
+			http.MethodGet,
+			fmt.Sprintf("%s-us-west-1.alicloudapi.com", gatewayEndpoint.ID),
+		)
 
 		appendProducerConsumerParameters(provider, request, payloadLengthBytes, assignedFunctionIncrementLimit, gatewayEndpoint, storageTransfer, route)
 	default:
-		return createGeneralRequest(http.MethodGet, provider)
+		return createGeneralHttpsRequest(http.MethodGet, provider)
 	}
 
 	return request
 }
 
-func createGeneralRequest(method string, hostname string) *http.Request {
+func createGeneralHttpsRequest(method string, hostname string) *http.Request {
 	request, err := http.NewRequest(method, fmt.Sprintf("https://%s", hostname), nil)
+	if err != nil {
+		log.Fatalf("Could not create HTTPS request: %s", err.Error())
+	}
+	return request
+}
+
+func createGeneralHttpRequest(method string, hostname string) *http.Request {
+	request, err := http.NewRequest(method, fmt.Sprintf("http://%s", hostname), nil)
 	if err != nil {
 		log.Fatalf("Could not create HTTP request: %s", err.Error())
 	}

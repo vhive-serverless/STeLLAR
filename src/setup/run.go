@@ -99,6 +99,8 @@ func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath strin
 		ProvisionFunctionsGCR(config, serverlessDirPath)
 	case "cloudflare":
 		ProvisionFunctionsCloudflare(config, serverlessDirPath)
+	case "aliyun":
+		ProvisionFunctionsServerlessAlibaba(config, serverlessDirPath)
 	default:
 		log.Fatalf("Provider %s not supported for deployment", config.Provider)
 	}
@@ -164,7 +166,6 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 
 		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
 		slsDeployMessage := DeployService(fmt.Sprintf("%s/sub-experiment-%d", serverlessDirPath, index))
-		log.Info(slsDeployMessage)
 
 		endpointID := GetAzureEndpointID(slsDeployMessage)
 		config.SubExperiments[index].AssignEndpointIDs(endpointID)
@@ -189,5 +190,33 @@ func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 func ProvisionFunctionsCloudflare(config *Configuration, serverlessDirPath string) {
 	for index := range config.SubExperiments {
 		DeployCloudflareWorkers(&config.SubExperiments[index], index, serverlessDirPath)
+	}
+}
+
+func ProvisionFunctionsServerlessAlibaba(config *Configuration, serverlessDirPath string) {
+	for index, subExperiment := range config.SubExperiments {
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		builder := &building.Builder{}
+		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+
+		preDeploymentDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/sub-experiment-%d", config.Provider, index)
+		if err := os.MkdirAll(preDeploymentDir, os.ModePerm); err != nil {
+			log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+		}
+		artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
+		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
+
+		slsConfig := &Serverless{}
+		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-aliyun-sub-exp-%d", index))
+		slsConfig.addPlugin("serverless-aliyun-function-compute")
+		slsConfig.AddFunctionConfigAlibaba(&config.SubExperiments[index], index, "")
+		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
+
+		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+		slsDeployMessage := DeployService(fmt.Sprintf("%ssub-experiment-%d", serverlessDirPath, index))
+
+		endpointID := GetAlibabaEndpointID(slsDeployMessage)
+		config.SubExperiments[index].AssignEndpointIDs(endpointID)
 	}
 }
