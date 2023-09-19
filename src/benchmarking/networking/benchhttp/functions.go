@@ -84,6 +84,8 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 	case "cloudflare":
 	case "gcr":
 		break // there is no raw query for GCR and Cloudflare
+	case "aliyun":
+		request.URL.Path = fmt.Sprintf("/%s", route)
 	default:
 		log.Fatalf("Unrecognized provider %q", provider)
 	}
