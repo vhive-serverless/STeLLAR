@@ -17,7 +17,7 @@ func TestDeployAndRemoveServiceAWS(t *testing.T) {
 	util.RunCommandAndLog(exec.Command("cp", "aws-integration-test-serverless.yml", "../deployment/raw-code/serverless/aws/serverless.yml"))
 
 	msgDeploy := setup.DeployService("../deployment/raw-code/serverless/aws/")
-	msgRemove := setup.RemoveAWSService("../deployment/raw-code/serverless/aws/")
+	msgRemove := setup.RemoveServerlessService("../deployment/raw-code/serverless/aws/")
 
 	assert.True(strings.Contains(msgDeploy, "Service deployed"))
 	assert.True(strings.Contains(msgRemove, "successfully removed"))
@@ -51,7 +51,7 @@ func TestDeployAndRemoveServiceAzure(t *testing.T) {
 	util.RunCommandAndLog(exec.Command("cp", "azure-integration-test-serverless.yml", "../deployment/raw-code/serverless/azure/hellopy/serverless.yml"))
 
 	msgDeploy := setup.DeployService("../deployment/raw-code/serverless/azure/hellopy/")
-	msgRemove := setup.RemoveAzureSingleService("../deployment/raw-code/serverless/azure/hellopy/")
+	msgRemove := setup.RemoveServerlessServiceForcefully("../deployment/raw-code/serverless/azure/hellopy/")
 
 	assert.True(strings.Contains(msgDeploy, "Deployed serverless functions"))
 	assert.True(strings.Contains(msgRemove, "successfully removed"))
@@ -71,4 +71,16 @@ func TestDeployAndRemoveServiceCloudflare(t *testing.T) {
 	msgRemove := setup.RemoveCloudflareSingleWorker("cloudflaretest-0-0")
 
 	assert.True(strings.Contains(msgRemove, "Successfully deleted"))
+}
+
+func TestDeployAndRemoveServiceAlibaba(t *testing.T) {
+	assert := require.New(t)
+
+	util.RunCommandAndLog(exec.Command("cp", "aliyun-integration-test-serverless.yml", "../deployment/raw-code/serverless/aliyun/hellopy/serverless.yml"))
+
+	msgDeploy := setup.DeployService("../deployment/raw-code/serverless/aliyun/hellopy/")
+	msgRemove := setup.RemoveServerlessService("../deployment/raw-code/serverless/aliyun/hellopy/")
+
+	assert.True(strings.Contains(msgDeploy, "Deployed API"))
+	assert.True(strings.Contains(msgRemove, "Removed service"))
 }

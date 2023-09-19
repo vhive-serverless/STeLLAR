@@ -46,7 +46,16 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{AWSHttpEvent: setup.AWSHttpEvent{Path: "/test1-2-0", Method: "GET"}}}},
+					{
+						AWSEvent: &setup.AWSEvent{
+							AWSHttpEvent: setup.AWSHttpEvent{
+								Path:   "/test1-2-0",
+								Method: "GET",
+							},
+						},
+					},
+				},
+			},
 			"test1-2-1": {
 				Name:    "test1-2-1",
 				Handler: "main.lambda_handler",
@@ -56,8 +65,18 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 					Artifact: "",
 				},
 				Events: []setup.Event{
-					{AWSHttpEvent: setup.AWSHttpEvent{Path: "/test1-2-1", Method: "GET"}}}},
-		}}
+					{
+						AWSEvent: &setup.AWSEvent{
+							AWSHttpEvent: setup.AWSHttpEvent{
+								Path:   "/test1-2-1",
+								Method: "GET",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
 
 	actual := &setup.Serverless{Package: setup.Package{Individually: true}}
 
@@ -82,9 +101,13 @@ func TestAddFunctionConfigAzure(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						AzureHttp:      true,
-						AzureMethods:   []string{"GET"},
-						AzureAuthLevel: "anonymous",
+						AzureEvent: &setup.AzureEvent{
+							AzureHttpEvent: setup.AzureHttpEvent{
+								AzureHttp:      true,
+								AzureMethods:   []string{"GET"},
+								AzureAuthLevel: "anonymous",
+							},
+						},
 					},
 				},
 			},
@@ -98,9 +121,13 @@ func TestAddFunctionConfigAzure(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						AzureHttp:      true,
-						AzureMethods:   []string{"GET"},
-						AzureAuthLevel: "anonymous",
+						AzureEvent: &setup.AzureEvent{
+							AzureHttpEvent: setup.AzureHttpEvent{
+								AzureHttp:      true,
+								AzureMethods:   []string{"GET"},
+								AzureAuthLevel: "anonymous",
+							},
+						},
 					},
 				},
 			},
@@ -142,9 +169,11 @@ func TestCreateServerlessConfigFile(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						AWSHttpEvent: setup.AWSHttpEvent{
-							Path:   "/parallelism1-0-0",
-							Method: "GET",
+						AWSEvent: &setup.AWSEvent{
+							AWSHttpEvent: setup.AWSHttpEvent{
+								Path:   "/parallelism1-0-0",
+								Method: "GET",
+							},
 						},
 					},
 				},
@@ -194,9 +223,11 @@ func TestCreateServerlessConfigFileSnapStart(t *testing.T) {
 				},
 				Events: []setup.Event{
 					{
-						AWSHttpEvent: setup.AWSHttpEvent{
-							Path:   "/parallelism1-0-0",
-							Method: "GET",
+						AWSEvent: &setup.AWSEvent{
+							AWSHttpEvent: setup.AWSHttpEvent{
+								Path:   "/parallelism1-0-0",
+								Method: "GET",
+							},
 						},
 					},
 				},
@@ -279,4 +310,10 @@ func TestGetCloudflareEndpointID(t *testing.T) {
 	testMsg := "Published hellojs_wrangler0 (3.48 sec)\nhttps://hellonode.stellarbench.workers.dev\nCurrent Deployment ID: 26923084-4e66-4b4b-b876-cb85341b75f6"
 	actual := setup.GetCloudflareEndpointID(testMsg)
 	require.Equal(t, "hellonode.stellarbench.workers.dev", actual)
+}
+
+func TestGetAlibabaEndpointID(t *testing.T) {
+	testMsg := "Deploying API sls_http_my_service_dev_hello...\nDeployed API sls_http_my_service_dev_hello\nGET http://5cfeb440ed6d4ad69ae29d8408aa606e-ap-southeast-1.alicloudapi.com/foo -> my-service-dev.my-service-dev-hello\n"
+	actual := setup.GetAlibabaEndpointID(testMsg)
+	require.Equal(t, "5cfeb440ed6d4ad69ae29d8408aa606e", actual)
 }
