@@ -57,7 +57,7 @@ type StatisticsRecord struct {
 func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperiment) {
 	experimentID := experiment.ID
 	log.Infof("[sub-experiment %d] Writing statistics to the database", experimentID)
-	url := "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com/results"
+	url := "https://di4g51664l.execute-api.us-west-2.amazonaws.com/results"
 	method := "POST"
 
 	record := StatisticsRecord{
