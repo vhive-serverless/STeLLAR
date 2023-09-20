@@ -31,13 +31,13 @@ import (
 	"io"
 	"os"
 	"sort"
-	"strconv"
-	"time"
 	"stellar/benchmarking/visualization"
 	"stellar/setup"
+	"strconv"
+	"time"
 )
 
-func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File, writeToDatabase bool) {
+func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File, writeToDatabase bool, warmExperiment bool) {
 	log.Debugf("[sub-experiment %d] Reading written latencies from file %s", experiment.ID, latenciesFile.Name())
 
 	_, err := latenciesFile.Seek(0, io.SeekStart)
@@ -46,7 +46,9 @@ func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burs
 	}
 
 	latenciesDF := dataframe.ReadCSV(latenciesFile)
-
+	if warmExperiment {
+		latenciesDF = removeWarmLatency(latenciesDF)
+	}
 	sortedLatencies := latenciesDF.Col("Client Latency (ms)").Float()
 	sort.Float64s(sortedLatencies)
 
@@ -81,8 +83,15 @@ func generateStatistics(file *os.File, sortedLatencies []float64, experiment set
 
 	statisticsWriter.Flush()
 
-	if (writeToDatabase) {
+	if writeToDatabase {
 		writeStatisticsToDB(sortedLatencies, experiment)
 	}
 
+}
+
+// Removes the warm latency row from the dataframe
+func removeWarmLatency(df dataframe.DataFrame) dataframe.DataFrame {
+	records := df.Records()
+	records = append(records[:1], records[2:]...)
+	return dataframe.LoadRecords(records)
 }

@@ -37,14 +37,14 @@ import (
 
 // TriggerSubExperiments will run the sub-experiments specified by the passed configuration object. It creates
 // a directory for each sub-experiment, as well as separate visualizations and latency files.
-func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath string, specificExperiment int, writeToDatabase bool) {
+func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath string, specificExperiment int, writeToDatabase bool, warmExperiment bool) {
 	var experimentsWaitGroup sync.WaitGroup
 
 	switch specificExperiment {
 	case -1: // run all experiments
 		for experimentIndex := 0; experimentIndex < len(config.SubExperiments); experimentIndex++ {
 			experimentsWaitGroup.Add(1)
-			go triggerSubExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[experimentIndex], outputDirectoryPath, writeToDatabase)
+			go triggerSubExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[experimentIndex], outputDirectoryPath, writeToDatabase, warmExperiment)
 
 			if config.Sequential {
 				experimentsWaitGroup.Wait()
@@ -56,13 +56,13 @@ func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath strin
 		}
 
 		experimentsWaitGroup.Add(1)
-		go triggerSubExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[specificExperiment], outputDirectoryPath, writeToDatabase)
+		go triggerSubExperiment(&experimentsWaitGroup, config.Provider, config.SubExperiments[specificExperiment], outputDirectoryPath, writeToDatabase, warmExperiment)
 	}
 
 	experimentsWaitGroup.Wait()
 }
 
-func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, experiment setup.SubExperiment, outputDirectoryPath string, writeToDatabase bool) {
+func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string, experiment setup.SubExperiment, outputDirectoryPath string, writeToDatabase bool, warmExperiment bool) {
 	log.Infof("[sub-experiment %d] Starting...", experiment.ID)
 	defer experimentsWaitGroup.Done()
 
@@ -84,7 +84,7 @@ func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string,
 
 	runSubExperiment(experiment, burstDeltas, provider, latenciesWriter, dataTransferWriter)
 
-	postProcessing(experiment, latenciesFile, burstDeltas, experimentDirectoryPath, statisticsFile, writeToDatabase)
+	postProcessing(experiment, latenciesFile, burstDeltas, experimentDirectoryPath, statisticsFile, writeToDatabase, warmExperiment)
 
 	log.Infof("[sub-experiment %d] Successfully finished.", experiment.ID)
 }
