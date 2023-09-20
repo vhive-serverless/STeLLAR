@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "cloudflare",
+  "Runtime": "python",
+  "SubExperiments": [
+    {
+      "Title": "cold-baseline-cloudflare",
+      "Function": "hellopy",
+	  "Handler": "dist/main.js",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24,
+	  "Parallelism": 100
+    }]
+}
