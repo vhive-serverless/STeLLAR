@@ -45,6 +45,7 @@ var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experim
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 var writeToDatabaseFlag = flag.Bool("db", false, "This bool flag specifies whether statistics should be written to the database")
 var serverlessDeployment = flag.Bool("s", true, "Use serverless.com framework for deployment. ")
+var warmFlag = flag.Bool("w", false, "Warm up the serverless function with 1 invocation before recording statistics. For continuous benchmarking.")
 
 func main() {
 	startTime := time.Now()
@@ -81,13 +82,13 @@ func main() {
 		serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
 		setup.ProvisionFunctionsServerless(&config, serverlessDirPath)
 		log.Infof("number of routes %d, numebr of endpoints %d", len(config.SubExperiments[0].Routes), len(config.SubExperiments[0].Endpoints))
-		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag, *warmFlag)
 
 		log.Info("Starting functions removal from cloud.")
 		setup.RemoveService(&config, serverlessDirPath)
 	} else {
 		setup.ProvisionFunctions(config)
-		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag, *warmFlag)
 	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
