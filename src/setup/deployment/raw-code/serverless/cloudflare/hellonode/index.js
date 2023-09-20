@@ -10,7 +10,7 @@ export default {
 
 		const resData = {
 			"RequestID": "cloudflare-does-not-specify",
-			"TimestampChain": [str(Date.now())],
+			"TimestampChain": [Date.now().toString()],
 		};
 
 		const body = JSON.stringify(resData, null, 2);
