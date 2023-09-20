@@ -44,7 +44,7 @@ import (
 
 const (
 	//AWSRegion is the region that AWS operates in
-	AWSRegion = endpoints.UsWest2RegionID
+	AWSRegion = endpoints.UsWest1RegionID
 	//AWSBucketName is the name of the bucket where the client operates
 	AWSBucketName      = "stellar-continuous"
 	deploymentStage    = "prod"
@@ -52,10 +52,10 @@ const (
 	namingPrefix       = "continuous-bench-"
 )
 
-//AWSSingletonInstance is an object used to interact with AWS through the methods it exports.
+// AWSSingletonInstance is an object used to interact with AWS through the methods it exports.
 var AWSSingletonInstance *awsSingleton
 
-//UserARNNumber is used in AWS benchmarking for client authentication
+// UserARNNumber is used in AWS benchmarking for client authentication
 var UserARNNumber string
 
 type awsSingleton struct {
@@ -76,7 +76,7 @@ type awsSingleton struct {
 	localZipFileContents    []byte
 }
 
-//InitializeSingleton will create a new Amazon awsSingleton to interact with different AWS services.
+// InitializeSingleton will create a new Amazon awsSingleton to interact with different AWS services.
 func InitializeSingleton(apiTemplatePath string) {
 	sessionInstance := session.Must(session.NewSession(&aws.Config{
 		Region:                         aws.String(AWSRegion),
@@ -101,7 +101,7 @@ func InitializeSingleton(apiTemplatePath string) {
 	}
 }
 
-//UploadZIPToS3 helps get around the 50MB image size limit for AWS functions.
+// UploadZIPToS3 helps get around the 50MB image size limit for AWS functions.
 func UploadZIPToS3(localZipPath string, sizeMB float64) {
 	log.Infof(`Deploying to AWS and package size (~%vMB) > 50 MB, will now attempt to upload to Amazon S3.`, sizeMB)
 	AWSSingletonInstance.S3Key = fmt.Sprintf("benchmarking%vMB.zip", sizeMB)
@@ -131,7 +131,7 @@ func UploadZIPToS3(localZipPath string, sizeMB float64) {
 	log.Infof("Successfully uploaded %q to bucket %q (%s)", AWSSingletonInstance.S3Key, AWSSingletonInstance.S3Bucket, uploadOutput.Location)
 }
 
-//SetLocalZip sets the location of the zipped binary file for the function to be deployed.
+// SetLocalZip sets the location of the zipped binary file for the function to be deployed.
 func SetLocalZip(path string) {
 	zipBytes, err := os.ReadFile(path)
 	if err != nil {
@@ -140,7 +140,7 @@ func SetLocalZip(path string) {
 	AWSSingletonInstance.localZipFileContents = zipBytes
 }
 
-//GetECRAuthorizationToken helps the client get authorization for container AWS deployment.
+// GetECRAuthorizationToken helps the client get authorization for container AWS deployment.
 func GetECRAuthorizationToken() string {
 	log.Info("Requesting ECR authorization token.")
 
