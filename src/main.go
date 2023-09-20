@@ -81,13 +81,13 @@ func main() {
 		serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
 		setup.ProvisionFunctionsServerless(&config, serverlessDirPath)
 		log.Infof("number of routes %d, numebr of endpoints %d", len(config.SubExperiments[0].Routes), len(config.SubExperiments[0].Endpoints))
-		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag)
 
 		log.Info("Starting functions removal from cloud.")
 		setup.RemoveService(&config, serverlessDirPath)
 	} else {
 		setup.ProvisionFunctions(config)
-		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag, *writeToDatabaseFlag)
 	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
