@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "warm-baseline-gcr",
+      "Function": "hellopy",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+	  "PackagePattern": "lambda_function.py",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+    }]
+}
