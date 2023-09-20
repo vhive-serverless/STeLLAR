@@ -1,0 +1,23 @@
+{
+  "Sequential": false,
+  "Provider": "azure",
+  "Runtime": "python3.8",
+  "SubExperiments": [
+    {
+      "Title": "warm-baseline-azure",
+      "Function": "hellopy",
+      "Handler": "main.main",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    }
+  ]
+}

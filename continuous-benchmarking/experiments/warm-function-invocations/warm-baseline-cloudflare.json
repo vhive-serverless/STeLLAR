@@ -1,0 +1,20 @@
+{
+  "Sequential": false,
+  "Provider": "cloudflare",
+  "Runtime": "python",
+  "SubExperiments": [
+    {
+      "Title": "warm-baseline-cloudflare",
+      "Function": "hellopy",
+	  "Handler": "dist/main.js",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    }]
+}
