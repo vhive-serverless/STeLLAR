@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - feature-serverless-framework-deployment
+      - continuous-benchmarking
   pull_request:
     branches:
       - feature-serverless-framework-deployment
+      - continuous-benchmarking
 
 jobs:
   check_syntax:
