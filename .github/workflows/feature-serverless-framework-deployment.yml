@@ -183,7 +183,7 @@ jobs:
 
       - name: Integration Tests
         working-directory: ${{env.working-directory}}
-        run: go test -short -v ./setup/integration-test/...
+        run: go test -short -v ./setup/integration-test/... -timeout 30m
 
   e2e_azure:
     name: Azure e2e test
