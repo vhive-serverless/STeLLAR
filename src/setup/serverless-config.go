@@ -279,8 +279,9 @@ func RemoveCloudflareSingleWorker(workerName string) string {
 
 // DeployService deploys the functions defined in the serverless.com file
 func DeployService(path string) string {
+	log.Infof("AWS_ACCESS_KEY_ID: %s", os.Getenv("AWS_ACCESS_KEY_ID"))
 	log.Infof(fmt.Sprintf("Deploying service at %s", path))
-	slsDeployCmd := exec.Command("sls", "deploy")
+	slsDeployCmd := exec.Command("bash", "-c", "sls deploy")
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
 	return slsDeployMessage

@@ -1,7 +1,7 @@
 {
   "Sequential": false,
   "Provider": "azure",
-  "Runtime": "python3.8",
+  "Runtime": "python3.9",
   "SubExperiments": [
     {
       "Title": "warm-baseline-azure",

@@ -1,11 +1,15 @@
 {
   "Sequential": false,
   "Provider": "aws",
+  "Runtime": "python3.9",
   "SubExperiments": [
     {
       "Title": "cold-baseline-aws",
       "RepurposeIdentifier": "hellopy-zip-img0MB",
       "Function": "hellopy",
+	  "Handler": "main.lambda_handler",
+	  "PackageType": "Zip",
+	  "PackagePattern": "main.py",
       "Bursts": 1000,
       "BurstSizes": [
         1
