@@ -38,12 +38,6 @@ sudo apt-get install nodejs -y
 sudo apt install npm
 sudo npm install -g serverless serverless-azure-functions --save-dev
 
-# Install gcloud CLI
-sudo apt-get install google-cloud-cli
-
-# Install Wrangler CLI
-npm install -g wrangler --save-dev
-
 # For the client to run unattended
 sudo apt-get install --no-install-recommends --assume-yes tmux
 
