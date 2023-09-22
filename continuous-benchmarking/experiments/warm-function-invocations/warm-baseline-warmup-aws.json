@@ -1,6 +1,7 @@
 {
     "Sequential": false,
     "Provider": "aws",
+    "Runtime": "python3.9",
     "SubExperiments": [
       {
         "Title": "warm-baseline-aws-warmup",
