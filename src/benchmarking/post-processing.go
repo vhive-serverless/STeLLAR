@@ -37,7 +37,7 @@ import (
 	"time"
 )
 
-func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File, writeToDatabase bool, warmExperiment bool) {
+func postProcessing(provider string, experiment setup.SubExperiment, latenciesFile *os.File, burstDeltas []time.Duration, experimentDirectoryPath string, statisticsFile *os.File, writeToDatabase bool, warmExperiment bool) {
 	log.Debugf("[sub-experiment %d] Reading written latencies from file %s", experiment.ID, latenciesFile.Name())
 
 	_, err := latenciesFile.Seek(0, io.SeekStart)
@@ -53,10 +53,10 @@ func postProcessing(experiment setup.SubExperiment, latenciesFile *os.File, burs
 	sort.Float64s(sortedLatencies)
 
 	visualization.Generate(experiment, burstDeltas, latenciesDF, sortedLatencies, experimentDirectoryPath)
-	generateStatistics(statisticsFile, sortedLatencies, experiment, writeToDatabase)
+	generateStatistics(statisticsFile, sortedLatencies, experiment, writeToDatabase, provider)
 }
 
-func generateStatistics(file *os.File, sortedLatencies []float64, experiment setup.SubExperiment, writeToDatabase bool) {
+func generateStatistics(file *os.File, sortedLatencies []float64, experiment setup.SubExperiment, writeToDatabase bool, provider string) {
 	experimentID := experiment.ID
 	log.Debugf("[sub-experiment %d] Generating result statistics...", experimentID)
 
@@ -84,7 +84,7 @@ func generateStatistics(file *os.File, sortedLatencies []float64, experiment set
 	statisticsWriter.Flush()
 
 	if writeToDatabase {
-		writeStatisticsToDB(sortedLatencies, experiment)
+		writeStatisticsToDB(sortedLatencies, experiment, provider)
 	}
 
 }
