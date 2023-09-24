@@ -84,7 +84,7 @@ func triggerSubExperiment(experimentsWaitGroup *sync.WaitGroup, provider string,
 
 	runSubExperiment(experiment, burstDeltas, provider, latenciesWriter, dataTransferWriter)
 
-	postProcessing(experiment, latenciesFile, burstDeltas, experimentDirectoryPath, statisticsFile, writeToDatabase, warmExperiment)
+	postProcessing(provider, experiment, latenciesFile, burstDeltas, experimentDirectoryPath, statisticsFile, writeToDatabase, warmExperiment)
 
 	log.Infof("[sub-experiment %d] Successfully finished.", experiment.ID)
 }

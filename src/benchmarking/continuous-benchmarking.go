@@ -54,7 +54,7 @@ type StatisticsRecord struct {
 	Provider          string `json:"provider"`
 }
 
-func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperiment) {
+func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperiment, provider string) {
 	experimentID := experiment.ID
 	log.Infof("[sub-experiment %d] Writing statistics to the database", experimentID)
 	url := "https://di4g51664l.execute-api.us-west-2.amazonaws.com/results"
@@ -74,7 +74,7 @@ func writeStatisticsToDB(sortedLatencies []float64, experiment setup.SubExperime
 		BurstSize:         strings.Trim(strings.Join(strings.Fields(fmt.Sprint(experiment.BurstSizes)), ","), "[]"),
 		IATType:           experiment.IATType,
 		Count:             int32(len(sortedLatencies)),
-		Provider:          "aws",
+		Provider:          provider,
 	}
 
 	jsonRecord, _ := json.Marshal(record)
