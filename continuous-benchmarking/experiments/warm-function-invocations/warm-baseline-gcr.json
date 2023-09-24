@@ -9,7 +9,7 @@
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
 	  "PackagePattern": "lambda_function.py",
-      "Bursts": 3000,
+      "Bursts": 51,
       "BurstSizes": [
         1
       ],

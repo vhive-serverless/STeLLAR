@@ -10,7 +10,7 @@
 	  "Handler": "main.lambda_handler",
 	  "PackageType": "Zip",
 	  "PackagePattern": "main.py",
-      "Bursts": 1000,
+      "Bursts": 50,
       "BurstSizes": [
         1
       ],
@@ -20,7 +20,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Parallelism": 100
+      "Parallelism": 50
     }
   ]
 }
