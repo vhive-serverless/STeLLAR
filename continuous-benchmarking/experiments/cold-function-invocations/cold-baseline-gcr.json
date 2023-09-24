@@ -9,7 +9,7 @@
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
 	  "PackagePattern": "lambda_function.py",
-      "Bursts": 1000,
+      "Bursts": 50,
       "BurstSizes": [
         1
       ],
@@ -17,6 +17,6 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-	  "Parallelism": 100
+	  "Parallelism": 50
     }]
 }
