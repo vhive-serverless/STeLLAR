@@ -15,7 +15,6 @@
         1
       ],
       "IATSeconds": 600,
-      "PackageType": "Zip",
       "FunctionMemoryMB": 2048,
       "DesiredServiceTimes": [
         "0ms"
