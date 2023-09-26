@@ -145,30 +145,36 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 }
 
 func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
-	for index, subExperiment := range config.SubExperiments {
+	for subExperimentIndex, subExperiment := range config.SubExperiments {
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
 		builder := &building.Builder{}
 		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 
-		preDeploymentDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/sub-experiment-%d", config.Provider, index)
-		if err := os.MkdirAll(preDeploymentDir, os.ModePerm); err != nil {
-			log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+		if config.SubExperiments[subExperimentIndex].Endpoints == nil {
+			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
 		}
-		artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
-		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
 
-		slsConfig := &Serverless{}
-		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-Azure-sub-experiment-%d", index))
-		slsConfig.addPlugin("serverless-azure-functions")
-		slsConfig.AddFunctionConfigAzure(&config.SubExperiments[index], index, "")
-		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
+		for parallelism := 0; parallelism < subExperiment.Parallelism; parallelism++ {
+			deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", serverlessDirPath, subExperimentIndex, parallelism)
+			if err := os.MkdirAll(deploymentDir, os.ModePerm); err != nil {
+				log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+			}
+			artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
+			util.RunCommandAndLog(exec.Command("cp", artifactsPath, deploymentDir))
 
-		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
-		slsDeployMessage := DeployService(fmt.Sprintf("%s/sub-experiment-%d", serverlessDirPath, index))
+			slsConfig := &Serverless{}
+			slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-azure-subex%d-para%d", subExperimentIndex, parallelism))
+			slsConfig.addPlugin("serverless-azure-functions")
+			slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, parallelism)
+			slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/serverless.yml", deploymentDir))
 
-		endpointID := GetAzureEndpointID(slsDeployMessage)
-		config.SubExperiments[index].AssignEndpointIDs(endpointID)
+			log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+			slsDeployMessage := DeployService(deploymentDir)
+
+			endpointID := GetAzureEndpointID(slsDeployMessage)
+			config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, EndpointInfo{ID: endpointID})
+		}
 	}
 }
 
@@ -208,7 +214,7 @@ func ProvisionFunctionsServerlessAlibaba(config *Configuration, serverlessDirPat
 		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
 
 		slsConfig := &Serverless{}
-		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-aliyun-sub-exp-%d", index))
+		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-aliyun-subex%d", index))
 		slsConfig.addPlugin("serverless-aliyun-function-compute")
 		slsConfig.AddFunctionConfigAlibaba(&config.SubExperiments[index], index, "")
 		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
