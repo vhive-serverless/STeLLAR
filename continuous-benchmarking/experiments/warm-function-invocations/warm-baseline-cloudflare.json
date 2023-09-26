@@ -7,7 +7,7 @@
       "Title": "warm-baseline-cloudflare",
       "Function": "hellopy",
 	  "Handler": "dist/main.js",
-      "Bursts": 3000,
+      "Bursts": 51,
       "BurstSizes": [
         1
       ],
