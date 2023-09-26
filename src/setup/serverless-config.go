@@ -191,34 +191,32 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, artif
 }
 
 // AddFunctionConfigAzure Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, artifactPath string) {
+func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, parallelism int) {
 	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
 
-	for i := 0; i < subex.Parallelism; i++ {
-		handler := subex.Handler
-		runtime := subex.Runtime
-		name := createName(subex, index, i)
-		events := []Event{
-			{
-				AzureEvent: &AzureEvent{
-					AzureHttpEvent: AzureHttpEvent{
-						AzureHttp:      true,
-						AzureMethods:   []string{"GET"},
-						AzureAuthLevel: "anonymous",
-					},
+	handler := subex.Handler
+	runtime := subex.Runtime
+	name := createName(subex, index, parallelism)
+	events := []Event{
+		{
+			AzureEvent: &AzureEvent{
+				AzureHttpEvent: AzureHttpEvent{
+					AzureHttp:      true,
+					AzureMethods:   []string{"GET"},
+					AzureAuthLevel: "anonymous",
 				},
 			},
-		}
-
-		function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
-		function.AddPackagePattern(subex.PackagePattern)
-		s.Functions[name] = function
-		subex.AddRoute(name)
+		},
 	}
+
+	function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+	function.AddPackagePattern(subex.PackagePattern)
+	s.Functions[name] = function
+	subex.AddRoute(name)
 }
 
 // AddFunctionConfigAlibaba Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
@@ -276,7 +274,7 @@ func RemoveService(config *Configuration, path string) string {
 	case "aws":
 		return RemoveServerlessService(path)
 	case "azure":
-		RemoveAzureAllServices(path, len(config.SubExperiments))
+		RemoveAzureAllServices(config.SubExperiments, path)
 		return "All Azure services removed."
 	case "gcr":
 		RemoveGCRAllServices(config.SubExperiments)
@@ -320,12 +318,14 @@ func RemoveServerlessServiceForcefully(path string) string {
 }
 
 // RemoveAzureAllServices removes all Azure services
-func RemoveAzureAllServices(path string, numSubExperiments int) []string {
+func RemoveAzureAllServices(subExperiments []SubExperiment, path string) []string {
 	var removeServiceMessages []string
-	for i := 0; i < numSubExperiments; i++ {
-		subExPath := fmt.Sprintf("%ssub-experiment-%d/", path, i)
-		slsRemoveCmdOutput := RemoveServerlessServiceForcefully(subExPath)
-		removeServiceMessages = append(removeServiceMessages, slsRemoveCmdOutput)
+	for subExperimentIndex, subExperiment := range subExperiments {
+		for parallelism := 0; parallelism < subExperiment.Parallelism; parallelism++ {
+			deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", path, subExperimentIndex, parallelism)
+			slsRemoveCmdOutput := RemoveServerlessServiceForcefully(deploymentDir)
+			removeServiceMessages = append(removeServiceMessages, slsRemoveCmdOutput)
+		}
 	}
 	return removeServiceMessages
 }
