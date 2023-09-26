@@ -91,26 +91,6 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 func TestAddFunctionConfigAzure(t *testing.T) {
 	expected := &setup.Serverless{
 		Functions: map[string]*setup.Function{
-			"test1-2-0": {
-				Name:    "test1-2-0",
-				Handler: "main.main",
-				Runtime: "Python3.8",
-				Package: setup.FunctionPackage{
-					Patterns: []string{"main.py"},
-					Artifact: "",
-				},
-				Events: []setup.Event{
-					{
-						AzureEvent: &setup.AzureEvent{
-							AzureHttpEvent: setup.AzureHttpEvent{
-								AzureHttp:      true,
-								AzureMethods:   []string{"GET"},
-								AzureAuthLevel: "anonymous",
-							},
-						},
-					},
-				},
-			},
 			"test1-2-1": {
 				Name:    "test1-2-1",
 				Handler: "main.main",
@@ -137,11 +117,11 @@ func TestAddFunctionConfigAzure(t *testing.T) {
 	actual := &setup.Serverless{}
 
 	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "main.main", PackagePattern: "main.py"}
-	actual.AddFunctionConfigAzure(subEx, 2, "")
+	actual.AddFunctionConfigAzure(subEx, 2, 1)
 
 	require.Equal(t, expected, actual)
 
-	require.Equal(t, []string{"test1-2-0", "test1-2-1"}, subEx.Routes)
+	require.Equal(t, []string{"test1-2-1"}, subEx.Routes)
 }
 
 func TestCreateServerlessConfigFile(t *testing.T) {
