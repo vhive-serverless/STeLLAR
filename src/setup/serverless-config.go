@@ -97,7 +97,7 @@ var nonAlphanumericRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
 
 const (
 	AWS_DEFAULT_REGION         = "us-west-1"
-	AZURE_DEFAULT_REGION       = "West US 2"
+	AZURE_DEFAULT_REGION       = "West US"
 	GCR_DEFAULT_REGION         = "us-west1"
 	ALIBABA_DEFAULT_REGION     = "us-west-1"
 	ALIBABA_DEFAULT_ACCOUNT_ID = "5776795023355240"
