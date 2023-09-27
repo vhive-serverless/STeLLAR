@@ -1,11 +1,11 @@
 service: stellar-aliyun-itgr-test
 
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aliyun
   runtime: python3.9
-  credentials: ~/.aliyuncli/credentials # path must be absolute
+  credentials: ~/.aliyuncli/credentials
   region: us-west-1
 
 plugins:
