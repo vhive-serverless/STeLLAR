@@ -1,10 +1,10 @@
-service: STeLLAR-Azure-Integration-Test-Service
+service: stellar-azure-itgr-test
 
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: azure
-  region: Southeast Asia
+  region: West US
   runtime: python3.8
 
 plugins:
