@@ -192,6 +192,46 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-cloudflare.json -db -w
 
+  run_warm_experiments_azure:
+    name: Run Azure warm function experiments
+    needs: build_client
+    runs-on: [ self-hosted, azure ]
+    env:
+      working-directory: src
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: continuous-benchmarking-new
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Set up Node 16.16.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.16.0
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Azure Warm Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
+
   run_cold_experiments_aws:
     name: Run AWS cold function experiments
     needs: run_warm_experiments_aws
@@ -312,3 +352,43 @@ jobs:
       - name: Cloudflare Cold Function Invocation - Baseline
         working-directory: ${{env.working-directory}}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-cloudflare.json -db
+
+  run_cold_experiments_azure:
+    name: Run Azure cold function experiments
+    needs: run_warm_experiments_azure
+    runs-on: [ self-hosted, azure ]
+    env:
+      working-directory: src
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: continuous-benchmarking-new
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Set up Node 16.16.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.16.0
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Azure Cold Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
