@@ -13,7 +13,7 @@
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 1800,
+      "IATSeconds": 600,
       "DesiredServiceTimes": [
         "0ms"
       ],
