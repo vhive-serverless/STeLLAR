@@ -84,7 +84,7 @@ export default function About() {
               </Box>
               
             {/* </Stack> */}
-            <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda, but we hope to extend to other cloud providers in the future.</Typography>
+            <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda, Google Cloud Run, Azure and Cloudflare but we hope to extend to other cloud providers in the future.</Typography>
             </CardContent>
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Client Configuration</Typography>
