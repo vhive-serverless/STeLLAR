@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/STeLLAR/static/css/main.feeb957e.css",
-    "main.js": "/STeLLAR/static/js/main.4791ed4e.js",
+    "main.js": "/STeLLAR/static/js/main.588a3879.js",
     "static/js/787.1199a6d1.chunk.js": "/STeLLAR/static/js/787.1199a6d1.chunk.js",
     "index.html": "/STeLLAR/index.html",
     "main.feeb957e.css.map": "/STeLLAR/static/css/main.feeb957e.css.map",
-    "main.4791ed4e.js.map": "/STeLLAR/static/js/main.4791ed4e.js.map",
+    "main.588a3879.js.map": "/STeLLAR/static/js/main.588a3879.js.map",
     "787.1199a6d1.chunk.js.map": "/STeLLAR/static/js/787.1199a6d1.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.feeb957e.css",
-    "static/js/main.4791ed4e.js"
+    "static/js/main.588a3879.js"
   ]
 }
