@@ -207,7 +207,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
         with:
-          ref: continuous-benchmarking-new
+          ref: continuous-benchmarking
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
@@ -368,7 +368,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
         with:
-          ref: continuous-benchmarking-new
+          ref: continuous-benchmarking
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
