@@ -21,7 +21,7 @@ import {
 import { disablePreviousDates } from '../utils/timeUtils';
 
 // ----------------------------------------------------------------------
-const baseURL = "https://jn1rocpdu9.execute-api.us-west-2.amazonaws.com";
+const baseURL = "https://di4g51664l.execute-api.us-west-2.amazonaws.com";
 
 export default function BaselineLatencyDashboard() {
   const theme = useTheme();
@@ -29,19 +29,30 @@ export default function BaselineLatencyDashboard() {
     const isMountedRef = useIsMountedRef();
     const today = new Date();
     const yesterday = subDays(today,1);
-    const experimentType = 'warm-baseline-aws';
+
+
+    const experimentTypeAWS = 'warm-baseline-aws';
+    const experimentTypeGCR = 'warm-baseline-gcr';
+    const experimentTypeAzure = 'warm-baseline-azure';
+    const experimentTypeCloudflare = 'warm-baseline-cloudflare';
 
     const oneWeekBefore = subWeeks(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
-    const [overallStatistics,setOverallStatistics] = useState(null);
+
+    const [overallStatisticsAWS,setOverallStatisticsAWS] = useState(null);
+    const [overallStatisticsGCR,setOverallStatisticsGCR] = useState(null);
+    const [overallStatisticsAzure,setOverallStatisticsAzure] = useState(null);
+    const [overallStatisticsCloudflare,setOverallStatisticsCloudflare] = useState(null);
+
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
     const [dateRange, setDateRange] = useState('week');
+    const [individualProvider,setIndividualProvider] = useState(experimentTypeAWS);
 
     const handleChange = (event) => {
 
@@ -61,10 +72,17 @@ export default function BaselineLatencyDashboard() {
       setDateRange(event.target.value);
     };
 
-    const fetchIndividualData = useCallback(async () => {
+
+    const handleChangeProvider = (event) => {
+
+      const selectedValueProvider = event.target.value;
+      setIndividualProvider(selectedValueProvider);
+    };
+
+    const fetchIndividualDataAWS = useCallback(async () => {
         try {
             const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentType,
+                params: { experiment_type: individualProvider,
                     selected_date:selectedDate
                 },
             });
@@ -74,53 +92,161 @@ export default function BaselineLatencyDashboard() {
         } catch (err) {
             setIsErrorDailyStatistics(true);
         }
-    }, [isMountedRef,selectedDate]);
+    }, [isMountedRef,selectedDate,individualProvider]);
 
     useMemo(() => {
-        fetchIndividualData();
-    }, [fetchIndividualData]);
+        fetchIndividualDataAWS();
+    }, [fetchIndividualDataAWS]);
 
-    const fetchDataRange = useCallback(async () => {
+    const fetchDataRangeAWS = useCallback(async () => {
         try {
             const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentType,
+                params: { experiment_type: experimentTypeAWS,
                     start_date:startDate,
                     end_date:endDate,
                 },
             });
             if (isMountedRef.current) {
-                setOverallStatistics(response.data)
+                setOverallStatisticsAWS(response.data)
             }
         } catch (err) {
             setIsErrorDataRangeStatistics(true);
         }
-    }, [isMountedRef,startDate,endDate,experimentType]);
+    }, [isMountedRef,startDate,endDate,experimentTypeAWS]);
+
+    const fetchDataRangeGCR = useCallback(async () => {
+      try {
+          const response = await axios.get(`${baseURL}/results`, {
+              params: { experiment_type: experimentTypeGCR,
+                  start_date:startDate,
+                  end_date:endDate,
+              },
+          });
+          if (isMountedRef.current) {
+              setOverallStatisticsGCR(response.data)
+          }
+      } catch (err) {
+          setIsErrorDataRangeStatistics(true);
+      }
+  }, [isMountedRef,startDate,endDate,experimentTypeGCR]);
+
+  const fetchDataRangeAzure = useCallback(async () => {
+    try {
+        const response = await axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeAzure,
+                start_date:startDate,
+                end_date:endDate,
+            },
+        });
+        if (isMountedRef.current) {
+            setOverallStatisticsAzure(response.data)
+        }
+    } catch (err) {
+        setIsErrorDataRangeStatistics(true);
+    }
+}, [isMountedRef,startDate,endDate,experimentTypeAzure]);
+
+const fetchDataRangeCloudflare = useCallback(async () => {
+  try {
+      const response = await axios.get(`${baseURL}/results`, {
+          params: { experiment_type: experimentTypeCloudflare,
+              start_date:startDate,
+              end_date:endDate,
+          },
+      });
+      if (isMountedRef.current) {
+          setOverallStatisticsCloudflare(response.data)
+      }
+  } catch (err) {
+      setIsErrorDataRangeStatistics(true);
+  }
+}, [isMountedRef,startDate,endDate,experimentTypeCloudflare]);
 
     useMemo(() => {
-        fetchDataRange();
-    }, [fetchDataRange]);
+        fetchDataRangeAWS();
+    }, [fetchDataRangeAWS]);
+
+    useMemo(() => {
+      fetchDataRangeGCR();
+  }, [fetchDataRangeGCR]);
+
+  useMemo(() => {
+    fetchDataRangeAzure();
+}, [fetchDataRangeAzure]);
+
+useMemo(() => {
+  fetchDataRangeCloudflare();
+}, [fetchDataRangeCloudflare]);
 
     const dateRangeList = useMemo(()=> {
-        if(overallStatistics)
-            return overallStatistics.map(record => record.date);
+        if(overallStatisticsAWS)
+            return overallStatisticsAWS.map(record => record.date);
         return null
 
-    },[overallStatistics])
+    },[overallStatisticsAWS])
 
-    const tailLatencies = useMemo(()=> {
-        if(overallStatistics)
-            return overallStatistics.map(record => record.tail_latency);
+    const tailLatenciesAWS = useMemo(()=> {
+        if(overallStatisticsAWS)
+            return overallStatisticsAWS.map(record => record.tail_latency);
         return null
 
-    },[overallStatistics])
+    },[overallStatisticsAWS])
+
+    const tailLatenciesGCR = useMemo(()=> {
+      if(overallStatisticsGCR)
+          return overallStatisticsGCR.map(record => record.tail_latency);
+      return null
+
+  },[overallStatisticsGCR])
 
 
-    const medianLatencies = useMemo(()=> {
-        if(overallStatistics)
-            return overallStatistics.map(record => record.median);
+  const tailLatenciesAzure = useMemo(()=> {
+    if(overallStatisticsAzure)
+        return overallStatisticsAzure.map(record => record.tail_latency);
+    return null
+
+},[overallStatisticsAzure])
+
+
+const tailLatenciesCloudflare = useMemo(()=> {
+  if(overallStatisticsCloudflare)
+      return overallStatisticsCloudflare.map(record => record.tail_latency);
+  return null
+
+},[overallStatisticsCloudflare])
+
+
+
+
+    const medianLatenciesAWS = useMemo(()=> {
+        if(overallStatisticsAWS)
+            return overallStatisticsAWS.map(record => record.median);
         return null
 
-    },[overallStatistics])
+    },[overallStatisticsAWS])
+
+    const medianLatenciesGCR = useMemo(()=> {
+      if(overallStatisticsGCR)
+          return overallStatisticsGCR.map(record => record.median);
+      return null
+
+  },[overallStatisticsGCR])
+
+
+  const medianLatenciesAzure = useMemo(()=> {
+    if(overallStatisticsAzure)
+        return overallStatisticsAzure.map(record => record.median);
+    return null
+
+},[overallStatisticsAzure])
+
+const medianLatenciesCloudflare = useMemo(()=> {
+  if(overallStatisticsCloudflare)
+      return overallStatisticsCloudflare.map(record => record.median);
+  return null
+
+},[overallStatisticsCloudflare])
+
 
     const TMR = useMemo(() => {
             if (dailyStatistics)
@@ -134,8 +260,8 @@ export default function BaselineLatencyDashboard() {
         setStartDate('2023-01-20');
       }
     },[startDate])
-    
 
+    console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
@@ -164,9 +290,9 @@ export default function BaselineLatencyDashboard() {
             </Typography>
             <Stack direction="row" alignItems="center" mt={2}>
             <Box sx={{ width: '100%',ml:1}}>
-            <ListItem sx={{ display: 'list-item' }}>
+            {/* <ListItem sx={{ display: 'list-item' }}>
             Serverless Cloud : <b>AWS Lambda</b>
-          </ListItem>
+          </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
             Request Type : <b>Non-bursty</b>
           </ListItem>
@@ -180,9 +306,9 @@ export default function BaselineLatencyDashboard() {
 
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
-            <ListItem sx={{ display: 'list-item' }}>
+            {/* <ListItem sx={{ display: 'list-item' }}>
             Datacenter : <b>Oregon (us-west-2)</b>
-          </ListItem>
+          </ListItem> */}
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>3 seconds</b>
           </ListItem>
@@ -205,7 +331,7 @@ export default function BaselineLatencyDashboard() {
           <Grid item xs={12} >
 
           <Typography variant={'h6'} sx={{ mb: 2 }}>
-              Latency measurements from <Box component="span" sx={{color:theme.palette.chart.red[1]}}>{startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box>for Warm Function Invocations (AWS)
+              Latency measurements from <Box component="span" sx={{color:theme.palette.chart.red[1]}}>{startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box>for Warm Function Invocations
           </Typography>
           
           <Stack direction="row" alignItems="center">
@@ -225,7 +351,7 @@ export default function BaselineLatencyDashboard() {
         </Stack>
 
             </Grid>
-            {dateRange==='custom' && <Stack direction="row" alignItems="center" mt={3}>
+            {dateRange==='custom' && tailLatenciesAWS && tailLatenciesCloudflare && tailLatenciesGCR && tailLatenciesAzure && <Stack direction="row" alignItems="center" mt={3}>
               <Grid item xs={3}>
                     <DatePicker
                         label="From : "
@@ -251,23 +377,75 @@ export default function BaselineLatencyDashboard() {
             }
           <Grid item xs={12} mt={3}>
             <AppLatency
-              title="Tail & Median Latency"
-              subheader={<>99<sup>th</sup> & 50<sup>th</sup> Percentile</>}
+              title="Tail Latency"
+              subheader={<>99<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
               chartData={[
                 {
-                  name: 'Tail Latency',
+                  name: 'AWS',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
-                  data: tailLatencies,
+                  data: tailLatenciesAWS,
                 },
                 {
-                  name: 'Median Latency',
+                  name: 'Google Cloud Run',
                   type: 'line',
                   fill: 'solid',
                   color: theme.palette.primary.main,
-                  data: medianLatencies,
+                  data: tailLatenciesGCR,
+                },
+                {
+                  name: 'Azure',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.yellow[0],
+                  data: tailLatenciesAzure,
+                },
+                {
+                  name: 'Cloudflare',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.green[0],
+                  data: tailLatenciesCloudflare,
+                },
+                
+              ]}
+            />
+          </Grid>
+          <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Median Latency"
+              subheader={<>50<sup>th</sup> Percentile</>}
+              chartLabels={dateRangeList}
+              chartData={[
+                {
+                  name: 'AWS',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: medianLatenciesAWS,
+                },
+                {
+                  name: 'Google Cloud Run',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.primary.main,
+                  data: medianLatenciesGCR,
+                },
+                {
+                  name: 'Azure',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.yellow[0],
+                  data: medianLatenciesAzure,
+                },
+                {
+                  name: 'Cloudflare',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.green[0],
+                  data: medianLatenciesCloudflare,
                 },
                 
               ]}
@@ -283,7 +461,7 @@ export default function BaselineLatencyDashboard() {
                 <CardContent>
             <Grid item xs={12} >
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Warm Function Invocations (AWS)
+               Individual (Daily) Latency Statistics for Warm Function Invocations
             </Typography>
             <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
@@ -296,6 +474,19 @@ export default function BaselineLatencyDashboard() {
                     }}
                     renderInput={(params) => <TextField {...params} />}
                 />
+
+<InputLabel sx={{ml:3,mr:3}}>Cloud Provider :</InputLabel>
+              <Select
+                id="individual-provider"
+                value={individualProvider}
+                label="provider"
+                onChange={handleChangeProvider}
+              >
+                <MenuItem value={'warm-baseline-aws'}>AWS</MenuItem>
+                <MenuItem value={'warm-baseline-gcr'}>Google Cloud Run</MenuItem>
+                <MenuItem value={'warm-baseline-azure'}>Azure</MenuItem>
+                <MenuItem value={'warm-baseline-cloudflare'}>Cloudflare</MenuItem>
+              </Select>
                 </Stack>
             </Grid>
             {
