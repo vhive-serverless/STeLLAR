@@ -135,12 +135,14 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		)
 	}
 
+	clientLatencyMs := strconv.FormatInt(reqReceivedTime.Sub(reqSentTime).Milliseconds(), 10)
+	log.Debugf("Received HTTP response after %sms.", clientLatencyMs)
 	latenciesWriter.WriteRTTLatencyRow(
 		responseID,
 		hostname,
 		reqSentTime.Format(time.RFC3339),
 		reqReceivedTime.Format(time.RFC3339),
-		strconv.FormatInt(reqReceivedTime.Sub(reqSentTime).Milliseconds(), 10),
+		clientLatencyMs,
 		strconv.Itoa(burstID),
 	)
 }
