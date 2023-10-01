@@ -1,0 +1,178 @@
+# MIT License
+#
+# Copyright (c) 2022 Dilina Dehigama and EASE Lab
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+name: Run scheduled experiments
+
+on: 
+  workflow_dispatch:
+  
+jobs:
+
+  clean_up:
+    name: Clean-up workspace
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+      - name: 'Cleanup build folder'
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
+  build_client:
+    name: Build framework
+    needs: clean_up
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-2
+
+      - name: Setup go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y libsnmp-dev build-essential zip docker.io
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: continuous-benchmarking
+
+      - name: Check syntax
+        uses: golangci/golangci-lint-action@v3.3.1
+        with:
+          working-directory: ${{env.working-directory}}
+          args: --timeout 5m --skip-dirs raw-code
+          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
+
+      - name: Clean and build client binary
+        working-directory: ${{env.working-directory}}
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+  run_function_warm_up:
+    name: Run warm function - Warm up
+    needs: build_client
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Warm Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-warmup-aws.json
+
+  run_warm_experiments:
+    name: Run warm function tests
+    needs: run_function_warm_up
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Warm Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db
+
+  run_cold_experiments:
+    name: Run cold function tests
+    needs: run_warm_experiments
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+    
+      - name: Cold Function Invocation - Baseline
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
+
+
+  run_cold_img_size_10_experiments:
+    name: Run cold image size test - 10 MB
+    needs: run_cold_experiments
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Cold Function Invocation - Image Size 10 MB
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-10-aws.json -db
+
+  run_cold_img_size_60_experiments:
+    name: Run cold image size test - 60 MB
+    needs: run_cold_img_size_10_experiments
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Cold Function Invocation - Image Size 60 MB
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-60-aws.json -db
+
+  run_cold_img_size_100_experiments:
+    name: Run cold image size test - 100 MB
+    needs: run_cold_img_size_60_experiments
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Cold Function Invocation - Image Size 100 MB
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-aws.json -db
+
+  run_lang_deployment_cold_py_img_experiments:
+    name: Run cold python image tests (Python)
+    needs: run_cold_img_size_100_experiments
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Cold Function Invocation - Python Image based
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/cold-hellopy-img-aws.json -db
+
+
+  run_lang_deployment_cold_pc_img_experiments:
+    name: Run cold python image tests (Go)
+    needs: run_lang_deployment_cold_py_img_experiments
+    runs-on: [self-hosted, aws, legacy]
+    env:
+      working-directory: ./src
+    steps:
+
+      - name: Cold Function Invocation - Producer Consumer Image based
+        working-directory: ${{env.working-directory}}
+        run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/cold-pc-img-aws.json -db
