@@ -14,8 +14,7 @@
       "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
-      ],
-      "FunctionImageSizeMB": 24
+      ]
     }
   ]
 }
