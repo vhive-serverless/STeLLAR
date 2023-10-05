@@ -27,6 +27,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"stellar/util"
+	"sync"
 )
 
 // Configuration is the schema for all experiment configurations.
@@ -69,6 +70,7 @@ type SubExperiment struct {
 	BusySpinIncrements []int64 `json:"BusySpinIncrements"`
 	Endpoints          []EndpointInfo
 	Routes             []string
+	mu                 sync.Mutex
 }
 
 const (
