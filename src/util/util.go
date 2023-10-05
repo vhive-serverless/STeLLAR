@@ -26,6 +26,7 @@ package util
 
 import (
 	log "github.com/sirupsen/logrus"
+	"math/rand"
 	"os"
 	"os/exec"
 )
@@ -75,4 +76,13 @@ func StringContains(s []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func GenerateRandomLowercaseLetters(length int) string {
+	const lowercaseAlphabet = "abcdefghijklmnopqrstuvwxyz"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = lowercaseAlphabet[rand.Intn(len(lowercaseAlphabet))]
+	}
+	return string(b)
 }

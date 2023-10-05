@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"stellar/util"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -320,22 +321,33 @@ func RemoveServerlessServiceForcefully(path string) string {
 // RemoveAzureAllServices removes all Azure services
 func RemoveAzureAllServices(subExperiments []SubExperiment, path string) []string {
 	var removeServiceMessages []string
-	for subExperimentIndex, subExperiment := range subExperiments {
+	mu := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	for index := 0; index < len(subExperiments); index++ {
+		subExperiment := &subExperiments[index]
 		for parallelism := 0; parallelism < subExperiment.Parallelism; parallelism++ {
-			deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", path, subExperimentIndex, parallelism)
-			slsRemoveCmdOutput := RemoveServerlessServiceForcefully(deploymentDir)
-			removeServiceMessages = append(removeServiceMessages, slsRemoveCmdOutput)
+			wg.Add(1)
+			go func(subExperimentIndex int, parallelism int) {
+				deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", path, subExperimentIndex, parallelism)
+				slsRemoveCmdOutput := RemoveServerlessServiceForcefully(deploymentDir)
+				mu.Lock()
+				defer mu.Unlock()
+				removeServiceMessages = append(removeServiceMessages, slsRemoveCmdOutput)
+				defer wg.Done()
+			}(index, parallelism)
 		}
 	}
+	wg.Wait()
 	return removeServiceMessages
 }
 
 // RemoveGCRAllServices removes all GCR services defined in the Subexperiment array
 func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
 	var deleteServiceMessages []string
-	for index, subex := range subExperiments {
-		for i := 0; i < subex.Parallelism; i++ {
-			service := createName(&subex, index, i)
+	for index := 0; index < len(subExperiments); index++ {
+		subExperiment := &subExperiments[index]
+		for i := 0; i < subExperiment.Parallelism; i++ {
+			service := createName(subExperiment, index, i)
 			deleteMsg := RemoveGCRSingleService(service)
 			deleteServiceMessages = append(deleteServiceMessages, deleteMsg)
 		}
@@ -355,9 +367,10 @@ func RemoveGCRSingleService(service string) string {
 func RemoveCloudflareAllWorkers(subExperiments []SubExperiment) []string {
 	log.Infof("Removing Cloudflare Workers...")
 	var removeServiceMessages []string
-	for index, subex := range subExperiments {
-		for i := 0; i < subex.Parallelism; i++ {
-			workerName := createName(&subex, index, i)
+	for index := 0; index < len(subExperiments); index++ {
+		subExperiment := &subExperiments[index]
+		for i := 0; i < subExperiment.Parallelism; i++ {
+			workerName := createName(subExperiment, index, i)
 			removeMessage := RemoveCloudflareSingleWorker(workerName)
 			removeServiceMessages = append(removeServiceMessages, removeMessage)
 		}

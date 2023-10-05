@@ -34,6 +34,7 @@ import (
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/setup/deployment/packaging"
 	"stellar/util"
+	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -48,7 +49,8 @@ func ProvisionFunctions(config Configuration) {
 
 	availableEndpoints := connection.Singleton.ListAPIs()
 
-	for index, subExperiment := range config.SubExperiments {
+	for index := 0; index < len(config.SubExperiments); index++ {
+		subExperiment := &config.SubExperiments[index]
 		config.SubExperiments[index].ID = index
 
 		for _, burstSize := range subExperiment.BurstSizes {
@@ -114,7 +116,8 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 	slsConfig.CreateHeaderConfig(config, "STeLLAR")
 	slsConfig.packageIndividually()
 
-	for index, subExperiment := range config.SubExperiments {
+	for index := 0; index < len(config.SubExperiments); index++ {
+		subExperiment := &config.SubExperiments[index]
 		//TODO: generate the code
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
@@ -145,18 +148,23 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 }
 
 func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
-	for subExperimentIndex, subExperiment := range config.SubExperiments {
+	wg := sync.WaitGroup{}
+
+	randomExperimentTag := util.GenerateRandomLowercaseLetters(5)
+
+	for index := 0; index < len(config.SubExperiments); index++ {
+		subExperiment := &config.SubExperiments[index]
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
 		builder := &building.Builder{}
 		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 
-		if config.SubExperiments[subExperimentIndex].Endpoints == nil {
-			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
+		if config.SubExperiments[index].Endpoints == nil {
+			config.SubExperiments[index].Endpoints = []EndpointInfo{}
 		}
 
 		for parallelism := 0; parallelism < subExperiment.Parallelism; parallelism++ {
-			deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", serverlessDirPath, subExperimentIndex, parallelism)
+			deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", serverlessDirPath, index, parallelism)
 			if err := os.MkdirAll(deploymentDir, os.ModePerm); err != nil {
 				log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
 			}
@@ -164,25 +172,39 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 			util.RunCommandAndLog(exec.Command("cp", artifactsPath, deploymentDir))
 
 			slsConfig := &Serverless{}
-			slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-azure-subex%d-para%d", subExperimentIndex, parallelism))
+			slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-%s-subex%d-para%d", randomExperimentTag, index, parallelism))
 			slsConfig.addPlugin("serverless-azure-functions")
-			slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, parallelism)
+			slsConfig.AddFunctionConfigAzure(subExperiment, index, parallelism)
 			slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/serverless.yml", deploymentDir))
 
 			log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
-			slsDeployMessage := DeployService(deploymentDir)
-
-			endpointID := GetAzureEndpointID(slsDeployMessage)
-			config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, EndpointInfo{ID: endpointID})
+			wg.Add(1)
+			log.Infof("Deploying subex %d", index)
+			go func(config *Configuration, index int, deploymentDir string) {
+				defer wg.Done()
+				deployServiceAndSaveEndpointId(config, index, deploymentDir)
+			}(config, index, deploymentDir)
 		}
 	}
+
+	wg.Wait()
+}
+
+func deployServiceAndSaveEndpointId(config *Configuration, subExperimentIndex int, deploymentDir string) {
+	log.Infof("insinde goroutine Deploying subex %d", subExperimentIndex)
+	slsDeployMessage := DeployService(deploymentDir)
+	endpointID := GetAzureEndpointID(slsDeployMessage)
+	config.SubExperiments[subExperimentIndex].mu.Lock()
+	defer config.SubExperiments[subExperimentIndex].mu.Unlock()
+	config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, EndpointInfo{ID: endpointID})
 }
 
 func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 	slsConfig := &Serverless{}
 	slsConfig.CreateHeaderConfig(config, "STeLLAR-GCR")
 
-	for index, subExperiment := range config.SubExperiments {
+	for index := 0; index < len(config.SubExperiments); index++ {
+		subExperiment := &config.SubExperiments[index]
 		switch subExperiment.PackageType {
 		case "Container":
 			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider)
@@ -200,7 +222,8 @@ func ProvisionFunctionsCloudflare(config *Configuration, serverlessDirPath strin
 }
 
 func ProvisionFunctionsServerlessAlibaba(config *Configuration, serverlessDirPath string) {
-	for index, subExperiment := range config.SubExperiments {
+	for index := 0; index < len(config.SubExperiments); index++ {
+		subExperiment := &config.SubExperiments[index]
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
 		builder := &building.Builder{}
