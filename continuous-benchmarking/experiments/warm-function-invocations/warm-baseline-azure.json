@@ -9,11 +9,11 @@
       "Handler": "main.main",
       "PackageType": "Zip",
       "PackagePattern": "main.py",
-      "Bursts": 51,
+      "Bursts": 1001,
       "BurstSizes": [
         1
       ],
-      "IATSeconds": 10,
+      "IATSeconds": 3,
       "DesiredServiceTimes": [
         "0ms"
       ]

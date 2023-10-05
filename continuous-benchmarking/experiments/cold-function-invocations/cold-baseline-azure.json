@@ -9,7 +9,7 @@
       "Handler": "main.main",
       "PackageType": "Zip",
       "PackagePattern": "main.py",
-      "Bursts": 50,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],

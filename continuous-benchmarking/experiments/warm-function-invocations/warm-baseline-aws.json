@@ -10,7 +10,7 @@
 	  "Handler": "main.lambda_handler",
 	  "PackageType": "Zip",
 	  "PackagePattern": "main.py",
-      "Bursts": 51,
+      "Bursts": 1001,
       "BurstSizes": [
         1
       ],
