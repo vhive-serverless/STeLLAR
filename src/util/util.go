@@ -78,7 +78,7 @@ func StringContains(s []string, str string) bool {
 	return false
 }
 
-func GenerateRandomLowercaseLetters(length int) string {
+func GenerateRandLowercaseLetters(length int) string {
 	const lowercaseAlphabet = "abcdefghijklmnopqrstuvwxyz"
 	b := make([]byte, length)
 	for i := range b {
