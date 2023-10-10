@@ -26,6 +26,7 @@ package setup
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"stellar/setup/building"
@@ -146,9 +147,6 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 }
 
 func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
-	mu := sync.Mutex{}
-	wg := sync.WaitGroup{}
-
 	randomExperimentTag := util.GenerateRandLowercaseLetters(5)
 
 	for subExperimentIndex, subExperiment := range config.SubExperiments {
@@ -161,9 +159,23 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
 		}
 
-		for parallelism := 0; parallelism < subExperiment.Parallelism; parallelism++ {
+		deploySubExperimentParallelismInBatches(config, serverlessDirPath, randomExperimentTag, subExperimentIndex, 3)
+	}
+}
+
+func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDirPath string, randomExperimentTag string, subExperimentIndex int, functionsPerBatch int) {
+	subExperiment := config.SubExperiments[subExperimentIndex]
+
+	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
+
+	for batchNumber := 0; batchNumber < numberOfBatches; batchNumber++ {
+		mu := sync.Mutex{}
+		wg := sync.WaitGroup{}
+
+		for parallelism := batchNumber * functionsPerBatch; parallelism < (batchNumber+1)*functionsPerBatch && parallelism < subExperiment.Parallelism; parallelism++ {
 			wg.Add(1)
-			go func(subExperimentIndex int, subExperiment SubExperiment, parallelism int) {
+
+			go func(parallelism int) {
 				defer wg.Done()
 
 				deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", serverlessDirPath, subExperimentIndex, parallelism)
@@ -186,11 +198,11 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 				mu.Lock()
 				defer mu.Unlock()
 				config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, EndpointInfo{ID: endpointID})
-			}(subExperimentIndex, subExperiment, parallelism)
-		}
-	}
+			}(parallelism)
 
-	wg.Wait()
+		}
+		wg.Wait()
+	}
 }
 
 func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
