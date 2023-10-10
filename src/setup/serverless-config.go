@@ -4,6 +4,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
+	"math"
 	"os"
 	"os/exec"
 	"regexp"
@@ -321,23 +322,34 @@ func RemoveServerlessServiceForcefully(path string) string {
 // RemoveAzureAllServices removes all Azure services
 func RemoveAzureAllServices(subExperiments []SubExperiment, path string) []string {
 	var removeServiceMessages []string
-	mu := sync.Mutex{}
-	wg := sync.WaitGroup{}
 	for subExperimentIndex, subExperiment := range subExperiments {
-		for parallelism := 0; parallelism < subExperiment.Parallelism; parallelism++ {
+		removeSubExperimentParallelismInBatches(path, subExperimentIndex, subExperiment, removeServiceMessages, 3)
+	}
+	return removeServiceMessages
+}
+
+func removeSubExperimentParallelismInBatches(path string, subExperimentIndex int, subExperiment SubExperiment, removeServiceMessages []string, functionsPerBatch int) {
+	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
+
+	for batchNumber := 0; batchNumber < numberOfBatches; batchNumber++ {
+		mu := sync.Mutex{}
+		wg := sync.WaitGroup{}
+
+		for parallelism := batchNumber * functionsPerBatch; parallelism < (batchNumber+1)*functionsPerBatch && parallelism < subExperiment.Parallelism; parallelism++ {
 			wg.Add(1)
-			go func(subExperimentIndex int, parallelism int) {
+
+			go func(parallelism int) {
 				defer wg.Done()
+
 				deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", path, subExperimentIndex, parallelism)
 				slsRemoveCmdOutput := RemoveServerlessServiceForcefully(deploymentDir)
 				mu.Lock()
 				defer mu.Unlock()
 				removeServiceMessages = append(removeServiceMessages, slsRemoveCmdOutput)
-			}(subExperimentIndex, parallelism)
+			}(parallelism)
 		}
+		wg.Wait()
 	}
-	wg.Wait()
-	return removeServiceMessages
 }
 
 // RemoveGCRAllServices removes all GCR services defined in the Subexperiment array
