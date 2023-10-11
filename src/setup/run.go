@@ -169,6 +169,8 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 
 	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
 
+	endpoints := make(map[int]EndpointInfo)
+
 	for batchNumber := 0; batchNumber < numberOfBatches; batchNumber++ {
 		mu := sync.Mutex{}
 		wg := sync.WaitGroup{}
@@ -198,11 +200,14 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 				endpointID := GetAzureEndpointID(slsDeployMessage)
 				mu.Lock()
 				defer mu.Unlock()
-				config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, EndpointInfo{ID: endpointID})
+				endpoints[parallelism] = EndpointInfo{ID: endpointID}
 			}(parallelism)
-
 		}
 		wg.Wait()
+	}
+
+	for i := 0; i < subExperiment.Parallelism; i++ {
+		config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, endpoints[i])
 	}
 }
 
