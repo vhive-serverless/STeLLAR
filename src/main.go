@@ -34,6 +34,7 @@ import (
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"strconv"
 	"time"
 )
 
@@ -51,7 +52,7 @@ func main() {
 	rand.Seed(randomSeed) // comment line for reproducible inter-arrival times
 	flag.Parse()
 
-	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))
+	outputDirectoryPath := filepath.Join(*outputPathFlag, strconv.FormatInt(time.Now().Unix(), 10))
 	log.Infof("Creating directory for this run at `%s`", outputDirectoryPath)
 	if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
