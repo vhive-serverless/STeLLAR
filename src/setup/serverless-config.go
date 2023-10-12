@@ -193,7 +193,7 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, artif
 }
 
 // AddFunctionConfigAzure Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, parallelism int) {
+func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, name string) {
 	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 
 	if s.Functions == nil {
@@ -202,7 +202,6 @@ func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, par
 
 	handler := subex.Handler
 	runtime := subex.Runtime
-	name := createName(subex, index, parallelism)
 	events := []Event{
 		{
 			AzureEvent: &AzureEvent{
@@ -218,7 +217,6 @@ func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, par
 	function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
 	function.AddPackagePattern(subex.PackagePattern)
 	s.Functions[name] = function
-	subex.AddRoute(name)
 }
 
 // AddFunctionConfigAlibaba Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
