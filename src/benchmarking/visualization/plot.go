@@ -129,8 +129,7 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 
 func plotLatenciesCDF(plotPath string, sortedLatencies []float64, experiment setup.SubExperiment) {
 	plotInstance := plot.New()
-
-	plotInstance.Title.Text = fmt.Sprintf("IAT ~%vs, Burst sizes %v", experiment.IATSeconds, experiment.BurstSizes)
+	plotInstance.Title.Text = fmt.Sprintf("%v\nIAT ~%vs, Burst sizes %v", experiment.Title, experiment.IATSeconds, experiment.BurstSizes)
 	plotInstance.Y.Label.Text = "Portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.
