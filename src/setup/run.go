@@ -170,6 +170,7 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
 
 	endpoints := make(map[int]EndpointInfo)
+	routes := make(map[int]string)
 
 	for batchNumber := 0; batchNumber < numberOfBatches; batchNumber++ {
 		mu := sync.Mutex{}
@@ -191,7 +192,8 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 				slsConfig := &Serverless{}
 				slsConfig.CreateHeaderConfig(config, fmt.Sprintf("%s-subex%d-para%d", randomExperimentTag, subExperimentIndex, parallelism))
 				slsConfig.addPlugin("serverless-azure-functions")
-				slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, parallelism)
+				name := createName(&subExperiment, subExperimentIndex, parallelism)
+				slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, name)
 				slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/serverless.yml", deploymentDir))
 
 				log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
@@ -201,6 +203,7 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 				mu.Lock()
 				defer mu.Unlock()
 				endpoints[parallelism] = EndpointInfo{ID: endpointID}
+				routes[parallelism] = name
 			}(parallelism)
 		}
 		wg.Wait()
@@ -208,6 +211,7 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 
 	for i := 0; i < subExperiment.Parallelism; i++ {
 		config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, endpoints[i])
+		config.SubExperiments[subExperimentIndex].Routes = append(config.SubExperiments[subExperimentIndex].Routes, routes[i])
 	}
 }
 
