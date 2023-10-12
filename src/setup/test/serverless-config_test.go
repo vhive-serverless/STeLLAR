@@ -117,11 +117,9 @@ func TestAddFunctionConfigAzure(t *testing.T) {
 	actual := &setup.Serverless{}
 
 	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "main.main", PackagePattern: "main.py"}
-	actual.AddFunctionConfigAzure(subEx, 2, 1)
+	actual.AddFunctionConfigAzure(subEx, 2, "test1-2-1")
 
 	require.Equal(t, expected, actual)
-
-	require.Equal(t, []string{"test1-2-1"}, subEx.Routes)
 }
 
 func TestCreateServerlessConfigFile(t *testing.T) {
