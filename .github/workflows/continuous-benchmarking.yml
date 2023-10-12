@@ -385,7 +385,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gcr-cold-latency-samples
+          name: cloudflare-cold-latency-samples
           path: ${{env.working-directory}}/latency-samples
 
   run_cold_experiments_azure:
