@@ -392,6 +392,7 @@ jobs:
     name: Run Azure cold function experiments
     needs: run_warm_experiments_azure
     runs-on: [ self-hosted, azure ]
+    timeout-minutes: 540
     env:
       working-directory: src
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
