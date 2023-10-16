@@ -24,6 +24,8 @@ package benchmarking
 
 import (
 	log "github.com/sirupsen/logrus"
+	"io"
+	"net/http"
 	"stellar/benchmarking/networking/benchgrpc"
 	"stellar/benchmarking/networking/benchhttp"
 	"stellar/benchmarking/writers"
@@ -89,6 +91,7 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, storageTransfer bool, route string) {
 	defer requestsWaitGroup.Done()
 
+	var resp *http.Response
 	var reqSentTime, reqReceivedTime time.Time
 	var responseID, hostname string
 	var timestampChain []string
@@ -115,9 +118,19 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		request := benchhttp.CreateRequest(provider, payloadLengthBytes, gatewayEndpoint, incrementLimit, storageTransfer, route)
 		log.Debugf("Created HTTP request with URL (%q), Body (%q)", (*request).URL, (*request).Body)
 
-		var respBody []byte
-		respBody, reqSentTime, reqReceivedTime = benchhttp.ExecuteRequest(*request)
-		response := benchhttp.ExtractProducerConsumerResponse(respBody)
+		resp, reqSentTime, reqReceivedTime = benchhttp.ExecuteRequest(*request)
+
+		var respBodyBytes []byte
+		respBodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Errorf("Could not read HTTP response body: %s", err.Error())
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			log.Errorf("Response from %s had status %s: %s. Latency of this request will not be recorded.", request.URL.Hostname(), resp.Status, string(respBodyBytes))
+			return
+		}
+		response := benchhttp.ExtractProducerConsumerResponse(respBodyBytes)
 
 		timestampChain = response.TimestampChain
 		hostname = request.URL.Hostname()
