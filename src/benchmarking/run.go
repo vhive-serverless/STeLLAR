@@ -35,14 +35,30 @@ import (
 	"time"
 )
 
+type ErrorCount struct {
+	mu    sync.Mutex
+	count int
+}
+
+func (e *ErrorCount) Increment() {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.count++
+}
+
+func (e *ErrorCount) Read() int {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	return e.count
+}
+
 // runSubExperiment will trigger bursts sequentially to each available gateway for a given experiment, then sleep for the
 // selected interval, and repeat.
 func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duration, provider string, latenciesWriter *writers.RTTLatencyWriter, dataTransferWriter *writers.DataTransferWriter) {
 	burstID := 0
 	deltaIndex := 0
 	errorThreshold := (experiment.Bursts) * (experiment.BurstSizes[util.IntegerMin(deltaIndex, len(experiment.BurstSizes)-1)]) / 10
-	errorCount := 0
-	mu := sync.Mutex{}
+	errorCount := ErrorCount{}
 	for burstID < experiment.Bursts {
 		time.Sleep(burstDeltas[deltaIndex])
 		// Send one burst to each available gateway (the more gateways used, the faster the experiment)
@@ -51,12 +67,11 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 			incrementLimit := experiment.BusySpinIncrements[util.IntegerMin(deltaIndex, len(experiment.BusySpinIncrements)-1)]
 			burstSize := experiment.BurstSizes[util.IntegerMin(deltaIndex, len(experiment.BurstSizes)-1)]
 			log.Infof("%d", len(experiment.Routes))
-			sendBurst(provider, experiment, burstID, burstSize, experiment.Endpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter, experiment.Routes[gatewayID], &errorCount, &mu)
-			mu.Lock()
-			if errorCount > errorThreshold {
-				log.Fatalf("Too many errors (%d) occurred, aborting experiment.", errorCount)
+			sendBurst(provider, experiment, burstID, burstSize, experiment.Endpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter, experiment.Routes[gatewayID], &errorCount)
+			errs := errorCount.Read()
+			if errorCount.Read() > errorThreshold {
+				log.Fatalf("Too many errors (%d) occurred, aborting experiment.", errs)
 			}
-			mu.Unlock()
 			burstID++
 		}
 
@@ -70,7 +85,7 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 }
 
 func sendBurst(provider string, config setup.SubExperiment, burstID int, requests int, gatewayEndpoint setup.EndpointInfo,
-	incrementLimit int64, latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, route string, errorCount *int, mu *sync.Mutex) {
+	incrementLimit int64, latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, route string, errorCount *ErrorCount) {
 
 	log.Infof("[sub-experiment %d] Starting burst %d, making %d requests with increment limit %d to gateway with ID %q of provider %q.",
 		config.ID,
@@ -85,7 +100,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 	for i := 0; i < requests; i++ {
 		requestsWaitGroup.Add(1)
 		go executeRequestAndWriteResults(&requestsWaitGroup, provider, incrementLimit, latenciesWriter, dataTransfersWriter, burstID,
-			config.PayloadLengthBytes, gatewayEndpoint, config.StorageTransfer, route, errorCount, mu)
+			config.PayloadLengthBytes, gatewayEndpoint, config.StorageTransfer, route, errorCount)
 	}
 
 	requestsWaitGroup.Wait()
@@ -94,7 +109,7 @@ func sendBurst(provider string, config setup.SubExperiment, burstID int, request
 
 func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider string, incrementLimit int64,
 	latenciesWriter *writers.RTTLatencyWriter, dataTransfersWriter *writers.DataTransferWriter, burstID int,
-	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, storageTransfer bool, route string, errorCount *int, mu *sync.Mutex) {
+	payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, storageTransfer bool, route string, errorCount *ErrorCount) {
 	defer requestsWaitGroup.Done()
 
 	var reqSentTime, reqReceivedTime time.Time
@@ -127,10 +142,8 @@ func executeRequestAndWriteResults(requestsWaitGroup *sync.WaitGroup, provider s
 		var respBody []byte
 		ok, respBody, reqSentTime, reqReceivedTime = benchhttp.ExecuteRequest(*request)
 		if !ok {
-			defer mu.Unlock()
 			log.Errorf("Request failed, skipping...")
-			mu.Lock()
-			*errorCount++
+			errorCount.Increment()
 			return
 		}
 		response := benchhttp.ExtractProducerConsumerResponse(respBody)
