@@ -33,7 +33,7 @@ func TestExecuteExternalHTTPRequest(t *testing.T) {
 	randomAssignedIncrement := int64(1482911482)
 	req := CreateRequest("www.google.com", randomPayloadLength, setup.EndpointInfo{}, randomAssignedIncrement, false, "route1")
 
-	respBytes, reqSentTime, reqReceivedTime := ExecuteRequest(*req)
+	_, respBytes, reqSentTime, reqReceivedTime := ExecuteRequest(*req)
 	require.Equal(t, true, respBytes != nil)
 	require.Equal(t, true, reqReceivedTime.Sub(reqSentTime) > 0)
 }

@@ -35,26 +35,29 @@ const (
 	timeout = 15 * time.Minute
 )
 
-//ExecuteRequest will send an HTTP request, check its status code and return the response body.
-func ExecuteRequest(req http.Request) ([]byte, time.Time, time.Time) {
+// ExecuteRequest will send an HTTP request, check its status code and return the response body.
+func ExecuteRequest(req http.Request) (bool, []byte, time.Time, time.Time) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ok := true
 	defer cancel()
 
 	resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
+		ok = false
 		log.Errorf("Could not read HTTP response body: %s", err.Error())
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		ok = false
 		log.Errorf("Response from %s had status %s: %s", req.URL.Hostname(), resp.Status, string(bodyBytes))
 	}
 
-	return bodyBytes, reqSentTime, reqReceivedTime
+	return ok, bodyBytes, reqSentTime, reqReceivedTime
 }
 
-//https://stackoverflow.com/questions/48077098/getting-ttfb-time-to-first-byte-value-in-golang/48077762#48077762
+// https://stackoverflow.com/questions/48077098/getting-ttfb-time-to-first-byte-value-in-golang/48077762#48077762
 func sendTimedRequest(ctx context.Context, req http.Request) (*http.Response, time.Time, time.Time) {
 	var receivedFirstByte time.Time
 
