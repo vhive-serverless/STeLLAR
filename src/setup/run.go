@@ -122,7 +122,8 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 
 		// TODO: build the functions (Java and Golang)
 		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		slsConfig.AddFunctionConfigAWS(&config.SubExperiments[index], index, artifactPathRelativeToServerlessConfigFile)
+		randomTag := util.GenerateRandLowercaseLetters(5)
+		slsConfig.AddFunctionConfigAWS(&config.SubExperiments[index], index, randomTag, artifactPathRelativeToServerlessConfigFile)
 
 		// generate filler files and zip used as Serverless artifacts
 		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
@@ -222,7 +223,8 @@ func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 		switch subExperiment.PackageType {
 		case "Container":
 			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider)
-			slsConfig.DeployGCRContainerService(&config.SubExperiments[index], index, imageLink, serverlessDirPath, slsConfig.Provider.Region)
+			randomTag := util.GenerateRandLowercaseLetters(5)
+			slsConfig.DeployGCRContainerService(&config.SubExperiments[index], index, randomTag, imageLink, serverlessDirPath, slsConfig.Provider.Region)
 		default:
 			log.Fatalf("Package type %s is not supported", subExperiment.PackageType)
 		}
@@ -231,7 +233,8 @@ func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 
 func ProvisionFunctionsCloudflare(config *Configuration, serverlessDirPath string) {
 	for index := range config.SubExperiments {
-		DeployCloudflareWorkers(&config.SubExperiments[index], index, serverlessDirPath)
+		randomTag := util.GenerateRandLowercaseLetters(5)
+		DeployCloudflareWorkers(&config.SubExperiments[index], index, randomTag, serverlessDirPath)
 	}
 }
 
