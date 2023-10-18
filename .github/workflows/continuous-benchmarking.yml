@@ -44,7 +44,7 @@ jobs:
   build_client:
     name: Build framework
     needs: clean_up
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     env:
       working-directory: ./src
     steps:
