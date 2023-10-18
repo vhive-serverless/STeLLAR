@@ -96,6 +96,7 @@ type AlibabaHttpEvent struct {
 }
 
 var nonAlphanumericRegex *regexp.Regexp = regexp.MustCompile(`[^a-zA-Z0-9 ]+`)
+var providerFunctionNames map[string]([]string) = make(map[string]([]string))
 
 const (
 	AWS_DEFAULT_REGION         = "us-west-1"
@@ -158,7 +159,7 @@ func (f *Function) AddPackagePattern(pattern string) {
 }
 
 // AddFunctionConfigAWS Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
-func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, artifactPath string) {
+func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, randomTag string, artifactPath string) {
 	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
@@ -166,7 +167,7 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, artif
 	for i := 0; i < subex.Parallelism; i++ {
 		handler := subex.Handler
 		runtime := subex.Runtime
-		name := createName(subex, index, i)
+		name := fmt.Sprintf("%s-%s", randomTag, createName(subex, index, i))
 		events := []Event{
 			{
 				AWSEvent: &AWSEvent{
@@ -353,12 +354,9 @@ func removeSubExperimentParallelismInBatches(path string, subExperimentIndex int
 // RemoveGCRAllServices removes all GCR services defined in the Subexperiment array
 func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
 	var deleteServiceMessages []string
-	for index, subex := range subExperiments {
-		for i := 0; i < subex.Parallelism; i++ {
-			service := createName(&subex, index, i)
-			deleteMsg := RemoveGCRSingleService(service)
-			deleteServiceMessages = append(deleteServiceMessages, deleteMsg)
-		}
+	for _, functionName := range providerFunctionNames["gcr"] {
+		deleteMsg := RemoveGCRSingleService(functionName)
+		deleteServiceMessages = append(deleteServiceMessages, deleteMsg)
 	}
 	return deleteServiceMessages
 }
@@ -375,12 +373,9 @@ func RemoveGCRSingleService(service string) string {
 func RemoveCloudflareAllWorkers(subExperiments []SubExperiment) []string {
 	log.Infof("Removing Cloudflare Workers...")
 	var removeServiceMessages []string
-	for index, subex := range subExperiments {
-		for i := 0; i < subex.Parallelism; i++ {
-			workerName := createName(&subex, index, i)
-			removeMessage := RemoveCloudflareSingleWorker(workerName)
-			removeServiceMessages = append(removeServiceMessages, removeMessage)
-		}
+	for _, functionName := range providerFunctionNames["cloudflare"] {
+		removeMessage := RemoveCloudflareSingleWorker(functionName)
+		removeServiceMessages = append(removeServiceMessages, removeMessage)
 	}
 	return removeServiceMessages
 }
@@ -422,10 +417,11 @@ func DeployService(path string) string {
 }
 
 // DeployGCRContainerService deploys a container service to cloud provider
-func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, imageLink string, path string, region string) {
+func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, randomTag string, imageLink string, path string, region string) {
 	log.Infof("Deploying container service(s) to GCR...")
 	for i := 0; i < subex.Parallelism; i++ {
-		name := createName(subex, index, i)
+		name := fmt.Sprintf("%s-%s", randomTag, createName(subex, index, i))
+		providerFunctionNames["gcr"] = append(providerFunctionNames["gcr"], name) // Used for function removal
 
 		gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
 		deployMessage := util.RunCommandAndLog(gcrDeployCommand)
@@ -434,10 +430,11 @@ func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, 
 	}
 }
 
-func DeployCloudflareWorkers(subex *SubExperiment, index int, path string) {
+func DeployCloudflareWorkers(subex *SubExperiment, index int, randomTag string, path string) {
 	log.Infof("Deploying Cloudflare Workers...")
 	for i := 0; i < subex.Parallelism; i++ {
-		name := createName(subex, index, i)
+		name := fmt.Sprintf("%s-%s", randomTag, createName(subex, index, i))
+		providerFunctionNames["cloudflare"] = append(providerFunctionNames["cloudflare"], name) // Used for function removal
 
 		cloudFlareDeployCommand := exec.Command("wrangler", "deploy", fmt.Sprintf("%s/%s/%s", path, subex.Function, subex.Handler), "--name", name, "--compatibility-date", time.Now().Format("2006-01-02"))
 		deployMessage := util.RunCommandAndLog(cloudFlareDeployCommand)
