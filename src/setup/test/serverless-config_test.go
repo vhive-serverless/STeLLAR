@@ -37,8 +37,8 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 	expected := &setup.Serverless{
 		Package: setup.Package{Individually: true},
 		Functions: map[string]*setup.Function{
-			"test1-2-0": {
-				Name:    "test1-2-0",
+			"abc12-test1-2-0": {
+				Name:    "abc12-test1-2-0",
 				Handler: "main.lambda_handler",
 				Runtime: "Python3.8",
 				Package: setup.FunctionPackage{
@@ -49,15 +49,15 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 					{
 						AWSEvent: &setup.AWSEvent{
 							AWSHttpEvent: setup.AWSHttpEvent{
-								Path:   "/test1-2-0",
+								Path:   "/abc12-test1-2-0",
 								Method: "GET",
 							},
 						},
 					},
 				},
 			},
-			"test1-2-1": {
-				Name:    "test1-2-1",
+			"abc12-test1-2-1": {
+				Name:    "abc12-test1-2-1",
 				Handler: "main.lambda_handler",
 				Runtime: "Python3.8",
 				Package: setup.FunctionPackage{
@@ -68,7 +68,7 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 					{
 						AWSEvent: &setup.AWSEvent{
 							AWSHttpEvent: setup.AWSHttpEvent{
-								Path:   "/test1-2-1",
+								Path:   "/abc12-test1-2-1",
 								Method: "GET",
 							},
 						},
@@ -81,11 +81,11 @@ func TestAddFunctionConfigAWS(t *testing.T) {
 	actual := &setup.Serverless{Package: setup.Package{Individually: true}}
 
 	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "main.lambda_handler", PackagePattern: "main.py"}
-	actual.AddFunctionConfigAWS(subEx, 2, "")
+	actual.AddFunctionConfigAWS(subEx, 2, "abc12", "")
 
 	require.Equal(t, expected, actual)
 
-	require.Equal(t, []string{"test1-2-0", "test1-2-1"}, subEx.Routes)
+	require.Equal(t, []string{"abc12-test1-2-0", "abc12-test1-2-1"}, subEx.Routes)
 }
 
 func TestAddFunctionConfigAzure(t *testing.T) {
