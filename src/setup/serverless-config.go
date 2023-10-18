@@ -297,7 +297,7 @@ func RemoveServerlessService(path string) string {
 	log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
 	slsRemoveCmd := exec.Command("sls", "remove")
 	slsRemoveCmd.Dir = path
-	slsRemoveCmdOutput := util.RunCommandAndLog(slsRemoveCmd)
+	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
 
 	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
 
@@ -309,7 +309,7 @@ func RemoveServerlessServiceForcefully(path string) string {
 	log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
 	slsRemoveCmd := exec.Command("sls", "remove", "--force")
 	slsRemoveCmd.Dir = path
-	slsRemoveCmdOutput := util.RunCommandAndLog(slsRemoveCmd)
+	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
 
 	deleteSlsConfigFileCmd := exec.Command("rm", "serverless.yml")
 	deleteSlsConfigFileCmd.Dir = path
@@ -412,7 +412,7 @@ func DeployService(path string) string {
 	log.Infof(fmt.Sprintf("Deploying service at %s", path))
 	slsDeployCmd := exec.Command("bash", "-c", "sls deploy")
 	slsDeployCmd.Dir = path
-	slsDeployMessage := util.RunCommandAndLog(slsDeployCmd)
+	slsDeployMessage := util.RunCommandAndLogWithRetries(slsDeployCmd, 3)
 	return slsDeployMessage
 }
 
