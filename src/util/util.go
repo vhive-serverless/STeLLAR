@@ -61,12 +61,33 @@ func IntegerMin(x, y int) int {
 
 // RunCommandAndLog runs a command in the terminal, logs the result and returns it
 func RunCommandAndLog(cmd *exec.Cmd) string {
-	stdoutStderr, err := cmd.CombinedOutput()
-	log.Infof("Command combined output: %s\n", stdoutStderr)
-	if err != nil {
-		log.Fatalf(err.Error())
+	return RunCommandAndLogWithRetries(cmd, 1)
+}
+
+// RunCommandAndLogWithRetries runs a command in the terminal, logs the result and returns it,
+// while retrying the same command up to a specified number of attempts if it fails
+func RunCommandAndLogWithRetries(cmd *exec.Cmd, maxAttempts int) string {
+	log.Infof("Running the command %s with a maximum of %d retries.", cmd.String(), maxAttempts)
+
+	var stdoutStderr []byte
+	var err error
+
+	for i := 1; i <= maxAttempts; i++ {
+		log.Infof("Attempt %d at running command %s", i, cmd.String())
+
+		// Creating a copy of exec.Cmd as it cannot be reused after calling its Run, Output or CombinedOutput methods
+		copyOfCmd := *cmd
+
+		stdoutStderr, err = copyOfCmd.CombinedOutput()
+		log.Infof("Command combined output: %s\n", stdoutStderr)
+
+		if err == nil {
+			return string(stdoutStderr)
+		}
 	}
-	return string(stdoutStderr)
+
+	log.Fatalf(err.Error())
+	return err.Error()
 }
 
 func StringContains(s []string, str string) bool {
