@@ -40,9 +40,9 @@ func TestDeployAndRemoveServiceGCR(t *testing.T) {
 		Parallelism: 1,
 	}
 
-	s.DeployGCRContainerService(subex, 0, "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
-	deleteMsg := setup.RemoveGCRSingleService("hellopytest-0-0")
-	assert.True(strings.Contains(deleteMsg, "Deleted service [hellopytest-0-0]"))
+	s.DeployGCRContainerService(subex, 0, "abc12", "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
+	deleteMsg := setup.RemoveGCRSingleService("abc12-hellopytest-0-0")
+	assert.True(strings.Contains(deleteMsg, "Deleted service [abc12-hellopytest-0-0]"))
 }
 
 func TestDeployAndRemoveServiceAzure(t *testing.T) {
@@ -67,8 +67,8 @@ func TestDeployAndRemoveServiceCloudflare(t *testing.T) {
 		Parallelism: 1,
 	}
 
-	setup.DeployCloudflareWorkers(subex, 0, "../deployment/raw-code/serverless/cloudflare")
-	msgRemove := setup.RemoveCloudflareSingleWorker("cloudflaretest-0-0")
+	setup.DeployCloudflareWorkers(subex, 0, "abc12", "../deployment/raw-code/serverless/cloudflare")
+	msgRemove := setup.RemoveCloudflareSingleWorker("abc12-cloudflaretest-0-0")
 
 	assert.True(strings.Contains(msgRemove, "Successfully deleted"))
 }
