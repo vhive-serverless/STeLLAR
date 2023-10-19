@@ -11,13 +11,14 @@ import { BaseOptionChart } from '../../../components/chart';
 AppLatency.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
-  yLabel: PropTypes.string,
+  type:PropTypes.string,
   chartData: PropTypes.array.isRequired,
   chartLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
   dashArrayValue: PropTypes.arrayOf(PropTypes.number)
 };
 
-export default function AppLatency({ title, subheader, chartLabels, chartData, dashArrayValue,yLabel, ...other }) {
+export default function AppLatency({ title, subheader, chartLabels, chartData, dashArrayValue, type, ...other }) {
+  
   const chartOptions = merge(BaseOptionChart(), {
     plotOptions: { bar: { columnWidth: '16%' } },
     fill: { 
@@ -26,16 +27,16 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
       opacity:1,
     },
     labels: chartLabels,
-    
     xaxis: { type: 'datetime' },
     yaxis:{
       title: {
-          text: yLabel ?? 'ms'
+          text: 'ms'
         },
         labels:{
           formatter: (y) => {
             if (typeof y !== 'undefined') {
-              return yLabel ? `${(10 ** y).toFixed(0)}`  : `${y.toFixed(0)}`;
+              // return Math.pow(10, Math.ceil(Math.log10(v)));
+              return type ? `${(10 ** y).toFixed(0)}`  : `${y.toFixed(0)}`;
             }
             return y;
           },
@@ -51,13 +52,22 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return yLabel ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
+            // return y
+            return type ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
           }
           return y;
         },
       },
     },
   });
+  if (type==='median') {
+    chartOptions.yaxis.min = 1; // Replace with the minimum value you want
+    chartOptions.yaxis.max = 4; // Replace with the maximum value you want
+  }
+  if (type==='tail') {
+    chartOptions.yaxis.min = 1; // Replace with the minimum value you want
+    chartOptions.yaxis.max = 5; // Replace with the maximum value you want
+  }
 
   return (
     <Card {...other} sx={{transition: "0.3s",

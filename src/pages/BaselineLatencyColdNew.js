@@ -218,6 +218,12 @@ const tailLatenciesCloudflare = useMemo(()=> {
 
 
 
+
+
+
+
+
+
     const medianLatenciesAWS = useMemo(()=> {
         if(overallStatisticsAWS)
             return overallStatisticsAWS.map(record => Math.log10(record.median).toFixed(2));
@@ -297,7 +303,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
             Language Runtime : <b>Python</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Deployment Method : <b>ZIP based</b>
+            Deployment Method : <b>ZIP based</b> <br/> <span style={{marginLeft:'15px'}}>* Google Cloud Run - <b>Container based</b></span>
           </ListItem>
 
           </Box>
@@ -373,7 +379,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
               title="Tail Latency"
               subheader={<>99<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
-              yLabel={'ms'}
+              type={'tail'}
               chartData={[
                 {
                   name: 'AWS',
@@ -412,7 +418,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
               title="Median Latency"
               subheader={<>50<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
-              yLabel={'ms'}
+              type={'median'}
               chartData={[
                 {
                   name: 'AWS',
