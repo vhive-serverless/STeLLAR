@@ -6,7 +6,7 @@ import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 import Team from './pages/Team';
 import NotFound from './pages/Page404';
 import BaselineLatencyWarm from './pages/BaselineLatencyWarm';
-import BaselineLatencyCold from './pages/BaselineLatencyCold';
+import BaselineLatencyCold from './pages/BaselineLatencyColdNew';
 import BaselineLatencyColdImageSize from './pages/BaselineLatencyColdImageSize';
 import BaselineLatencyColdDeploymentLanguage from './pages/BaselineLatencyDeploymentLanguage';
 import ComingSoon from './pages/PageComingSoon';

@@ -87,22 +87,144 @@ export default function About() {
             <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda, Google Cloud Run, Azure and Cloudflare but we hope to extend to other cloud providers in the future.</Typography>
             </CardContent>
             <CardContent>
-            <Typography variant='h5' marginBottom={2}>Client Configuration</Typography>
-            <ListItem sx={{display:'list-item'}}>We run the STeLLAR client on <b>t2.small</b> node in <b>AWS - Oregon (us-west-2)</b> datacenter region which features a <b>Intel Xeon CPU</b> with <b>2GB DRAM</b>.</ListItem>
-            <ListItem sx={{display:'list-item'}}>We initiate the experiments sequentially at <b> 00:00h (GMT) </b> on each day.
-            </ListItem>
+            <Typography variant='h5'>Client Configuration</Typography>
+            <br/>
+            <Typography variant={'p'} sx={{ mb: 2 }}>
+               <b>AWS</b>
+            </Typography>
+
+      <Stack direction="row" alignItems="center" mt={2}>
+            <Box sx={{ width: '100%',ml:1}}>
+          <ListItem sx={{ display: 'list-item' }}>
+            Instance Type : <b>t2.micro</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            CPU : <b>1 vCPUs</b>
+          </ListItem>
+         
+         
+
+          </Box>
+            <Box sx={{ width: '100%',ml:1}}>
+            <ListItem sx={{ display: 'list-item' }}>
+            Datacenter : <b>us-west-1</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Memory : <b>1.0 GiB RAM</b>
+          </ListItem>
+         
+              </Box>
+              
+              </Stack>
             
-            <ListItem sx={{display:'list-item'}}>We collect <b>1000 samples</b> for all experiments except for warm function experiment where we collect <b>3000 samples</b> to generate statistics.
+              <br/>
+            <Typography variant={'p'} sx={{ mb: 2 }}>
+               <b>Azure</b>
+            </Typography>
+
+<Stack direction="row" alignItems="center" mt={2}>
+            <Box sx={{ width: '100%',ml:1}}>
+          <ListItem sx={{ display: 'list-item' }}>
+            Instance Type : <b>Standard B1s</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            CPU : <b>1 vCPUs</b>
+          </ListItem>
+         
+         
+
+          </Box>
+            <Box sx={{ width: '100%',ml:1}}>
+            <ListItem sx={{ display: 'list-item' }}>
+            Datacenter : <b>West US</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Memory : <b>1.0 GiB RAM</b>
+          </ListItem>
+         
+              </Box>
+              </Stack>
+            
+
+              <br/>
+            <Typography variant={'p'} sx={{ mb: 2 }}>
+               <b>Google Cloud</b>
+            </Typography>
+
+<Stack direction="row" alignItems="center" mt={2}>
+            <Box sx={{ width: '100%',ml:1}}>
+          <ListItem sx={{ display: 'list-item' }}>
+            Instance Type : <b>Compute Engine e2-micro</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            CPU : <b>2 vCPUs</b>
+          </ListItem>
+         
+         
+
+          </Box>
+            <Box sx={{ width: '100%',ml:1}}>
+            <ListItem sx={{ display: 'list-item' }}>
+            Datacenter : <b>us-west1-a</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Memory : <b>1.0 GiB RAM</b>
+          </ListItem>
+         
+              </Box>
+              </Stack>
+
+              <br/>
+            <Typography variant={'p'} sx={{ mb: 2 }}>
+               <b>Cloudflare</b>
+            </Typography>
+
+<Stack direction="row" alignItems="center" mt={2}>
+            <Box sx={{ width: '100%',ml:1}}>
+          <ListItem sx={{ display: 'list-item' }}>
+            Instance Type : <b>AWS t2.micro</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            CPU : <b>1 vCPUs</b>
+          </ListItem>
+         
+         
+
+          </Box>
+            <Box sx={{ width: '100%',ml:1}}>
+            <ListItem sx={{ display: 'list-item' }}>
+            Datacenter : <b>us-east-2</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Memory : <b>1.0 GiB RAM</b>
+          </ListItem>
+         
+              </Box>
+              </Stack>
+
+            {/* <ListItem sx={{display:'list-item'}}>We run the STeLLAR client on <b>t2.small</b> node in <b>AWS - Oregon (us-west-2)</b> datacenter region which features a <b>Intel Xeon CPU</b> with <b>2GB DRAM</b>.</ListItem>
+            <ListItem sx={{display:'list-item'}}>We initiate the experiments sequentially at <b> 00:00h (GMT) </b> on each day.
+            </ListItem> */}
+             <br/>
+               <ListItem sx={{display:'list-item'}}>
+               <b>Scheduled Experiment time: 00:00 UTC</b>
             </ListItem>
+            {/* <ListItem sx={{display:'list-item'}}>We collect <b>1000 samples</b> for all experiments except for warm function experiment where we collect <b>3000 samples</b> to generate statistics.
+            </ListItem> */}
 
             </CardContent>
           
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
-              <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - Oregon (us-west-2). </ListItem>
+              {/* <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - Oregon (us-west-2). </ListItem> */}
               <ListItem sx={{display:'list-item'}}>The functions are configured with the different memory sizes, ranging from <b>128MB to 2GB </b> and are specified in the section of each experiment.</ListItem>
               <ListItem sx={{display:'list-item'}}>Unless specified otherwise, we deploy all functions using the <b>ZIP-based deployment</b> method and use <b>Python 3</b> functions for all experiments except the function image size experiment. <br/>In this experiments, we use <b>Golang</b> functions to minimize the image size.
- 
+              <ListItem sx={{display:'list-item'}}><b>Function Deployment Regions</b>
+              <ListItem sx={{display:'list-item'}}>AWS - us-west-1</ListItem>
+              <ListItem sx={{display:'list-item'}}>Azure - West US</ListItem>
+              <ListItem sx={{display:'list-item'}}>Google Cloud - us-west1-a</ListItem>
+              <ListItem sx={{display:'list-item'}}>Cloudflare - n/a</ListItem>
+              </ListItem>
             </ListItem>
             </CardContent>
           </Card>

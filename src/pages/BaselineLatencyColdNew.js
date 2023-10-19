@@ -31,10 +31,10 @@ export default function BaselineLatencyDashboard() {
     const yesterday = subDays(today,1);
 
 
-    const experimentTypeAWS = 'warm-baseline-aws';
-    const experimentTypeGCR = 'warm-baseline-gcr';
-    const experimentTypeAzure = 'warm-baseline-azure';
-    const experimentTypeCloudflare = 'warm-baseline-cloudflare';
+    const experimentTypeAWS = 'cold-baseline-aws';
+    const experimentTypeGCR = 'cold-baseline-gcr';
+    const experimentTypeAzure = 'cold-baseline-azure';
+    const experimentTypeCloudflare = 'cold-baseline-cloudflare';
 
     const oneWeekBefore = subWeeks(today,1);
 
@@ -187,14 +187,14 @@ useMemo(() => {
 
     const tailLatenciesAWS = useMemo(()=> {
         if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => record.tail_latency);
+            return overallStatisticsAWS.map(record => Math.log10(record.tail_latency).toFixed(2));
         return null
 
     },[overallStatisticsAWS])
 
     const tailLatenciesGCR = useMemo(()=> {
       if(overallStatisticsGCR)
-          return overallStatisticsGCR.map(record => record.tail_latency);
+          return overallStatisticsGCR.map(record => Math.log10(record.tail_latency).toFixed(2));
       return null
 
   },[overallStatisticsGCR])
@@ -202,7 +202,7 @@ useMemo(() => {
 
   const tailLatenciesAzure = useMemo(()=> {
     if(overallStatisticsAzure)
-        return overallStatisticsAzure.map(record => record.tail_latency);
+        return overallStatisticsAzure.map(record => Math.log10(record.tail_latency).toFixed(2));
     return null
 
 },[overallStatisticsAzure])
@@ -210,7 +210,7 @@ useMemo(() => {
 
 const tailLatenciesCloudflare = useMemo(()=> {
   if(overallStatisticsCloudflare)
-      return overallStatisticsCloudflare.map(record => record.tail_latency);
+      return overallStatisticsCloudflare.map(record => Math.log10(record.tail_latency).toFixed(2));
   return null
 
 },[overallStatisticsCloudflare])
@@ -220,14 +220,14 @@ const tailLatenciesCloudflare = useMemo(()=> {
 
     const medianLatenciesAWS = useMemo(()=> {
         if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => record.median);
+            return overallStatisticsAWS.map(record => Math.log10(record.median).toFixed(2));
         return null
 
     },[overallStatisticsAWS])
 
     const medianLatenciesGCR = useMemo(()=> {
       if(overallStatisticsGCR)
-          return overallStatisticsGCR.map(record => record.median);
+          return overallStatisticsGCR.map(record => Math.log10(record.median).toFixed(2));
       return null
 
   },[overallStatisticsGCR])
@@ -235,14 +235,14 @@ const tailLatenciesCloudflare = useMemo(()=> {
 
   const medianLatenciesAzure = useMemo(()=> {
     if(overallStatisticsAzure)
-        return overallStatisticsAzure.map(record => record.median);
+        return overallStatisticsAzure.map(record => Math.log10(record.median).toFixed(2));
     return null
 
 },[overallStatisticsAzure])
 
 const medianLatenciesCloudflare = useMemo(()=> {
   if(overallStatisticsCloudflare)
-      return overallStatisticsCloudflare.map(record => record.median);
+      return overallStatisticsCloudflare.map(record => Math.log10(record.median).toFixed(2));
   return null
 
 },[overallStatisticsCloudflare])
@@ -274,7 +274,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Warm Function Invocations
+               Cold Function Invocations
             </Typography>
            
             <Card>
@@ -283,32 +283,21 @@ const medianLatenciesCloudflare = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we evaluate the response time of functions with warm instances by issuing invocations with a short inter-arrival time (IAT) of 3 seconds. <br/>
+            In this experiment, we evaluate the base response time of functions with cold instances by issuing invocations with a long inter-arrival time (IAT) of 600 seconds. <br/>
             <br/>
             Detailed configuration parameters are as below.
             
-            </Typography>
-           
-             
-            <br/>
-            <br/>
-              <Typography variant={'p'} sx={{ mb: 2 }}>
-               <b>Function Deployment Configuration</b>
             </Typography>
             <Stack direction="row" alignItems="center" mt={2}>
             <Box sx={{ width: '100%',ml:1}}>
             {/* <ListItem sx={{ display: 'list-item' }}>
             Serverless Cloud : <b>AWS Lambda</b>
           </ListItem> */}
-          <ListItem sx={{ display: 'list-item' }}>
-            Request Type : <b>Non-bursty</b>
-          </ListItem>
-          {/* <ListItem sx={{ display: 'list-item' }}>
-            Deployment Method : <b>ZIP based</b>
-          </ListItem> */}
-         
-          <ListItem sx={{ display: 'list-item' }}>
+            <ListItem sx={{ display: 'list-item' }}>
             Language Runtime : <b>Python</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method : <b>ZIP based</b>
           </ListItem>
 
           </Box>
@@ -317,11 +306,8 @@ const medianLatenciesCloudflare = useMemo(()=> {
             Datacenter : <b>Oregon (us-west-2)</b>
           </ListItem> */}
             <ListItem sx={{ display: 'list-item' }}>
-            Inter-Arrival Time : <b>3 seconds</b>
+            Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
-          {/* <ListItem sx={{ display: 'list-item' }}>
-            Function Memory Size : <b>128MB</b>
-          </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/continuous-benchmarking/src/setup/deployment/raw-code/functions/hellopy/aws'}><b>Python (hellopy)</b></Link>
           </ListItem>
@@ -338,7 +324,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
           <Grid item xs={12} >
 
           <Typography variant={'h6'} sx={{ mb: 2 }}>
-              Latency measurements from <Box component="span" sx={{color:theme.palette.chart.red[1]}}>{startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box>for Warm Function Invocations
+              Latency measurements from <Box component="span" sx={{color:theme.palette.chart.red[1]}}>{startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box>for Cold Function Invocations
           </Typography>
           
           <Stack direction="row" alignItems="center">
@@ -387,6 +373,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
               title="Tail Latency"
               subheader={<>99<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
+              yLabel={'ms'}
               chartData={[
                 {
                   name: 'AWS',
@@ -425,6 +412,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
               title="Median Latency"
               subheader={<>50<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
+              yLabel={'ms'}
               chartData={[
                 {
                   name: 'AWS',
@@ -468,7 +456,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
                 <CardContent>
             <Grid item xs={12} >
             <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Warm Function Invocations
+               Individual (Daily) Latency Statistics for Cold Function Invocations
             </Typography>
             <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
@@ -489,10 +477,10 @@ const medianLatenciesCloudflare = useMemo(()=> {
                 label="provider"
                 onChange={handleChangeProvider}
               >
-                <MenuItem value={'warm-baseline-aws'}>AWS</MenuItem>
-                <MenuItem value={'warm-baseline-gcr'}>Google Cloud Run</MenuItem>
-                <MenuItem value={'warm-baseline-azure'}>Azure</MenuItem>
-                <MenuItem value={'warm-baseline-cloudflare'}>Cloudflare</MenuItem>
+                <MenuItem value={'cold-baseline-aws'}>AWS</MenuItem>
+                <MenuItem value={'cold-baseline-gcr'}>Google Cloud Run</MenuItem>
+                <MenuItem value={'cold-baseline-azure'}>Azure</MenuItem>
+                <MenuItem value={'cold-baseline-cloudflare'}>Cloudflare</MenuItem>
               </Select>
                 </Stack>
             </Grid>

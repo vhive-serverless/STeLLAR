@@ -11,12 +11,13 @@ import { BaseOptionChart } from '../../../components/chart';
 AppLatency.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
+  yLabel: PropTypes.string,
   chartData: PropTypes.array.isRequired,
   chartLabels: PropTypes.arrayOf(PropTypes.string).isRequired,
   dashArrayValue: PropTypes.arrayOf(PropTypes.number)
 };
 
-export default function AppLatency({ title, subheader, chartLabels, chartData, dashArrayValue, ...other }) {
+export default function AppLatency({ title, subheader, chartLabels, chartData, dashArrayValue,yLabel, ...other }) {
   const chartOptions = merge(BaseOptionChart(), {
     plotOptions: { bar: { columnWidth: '16%' } },
     fill: { 
@@ -29,7 +30,15 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
     xaxis: { type: 'datetime' },
     yaxis:{
       title: {
-          text:'ms'
+          text: yLabel ?? 'ms'
+        },
+        labels:{
+          formatter: (y) => {
+            if (typeof y !== 'undefined') {
+              return yLabel ? `${(10 ** y).toFixed(0)}`  : `${y.toFixed(0)}`;
+            }
+            return y;
+          },
         }
       },
       stroke: {
@@ -42,7 +51,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return `${y.toFixed(0)} ms`;
+            return yLabel ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
           }
           return y;
         },
