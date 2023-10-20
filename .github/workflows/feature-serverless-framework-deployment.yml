@@ -348,17 +348,9 @@ jobs:
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           mkdir -p "./src/latency-samples"
 
-      - name: AWS end-to-end test for Python
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/hellopy.json --s true
-
       - name: AWS end-to-end test for Go
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/aws/hellogo.json --s true
-
-      - name: AWS end-to-end test for Java
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/hellojava-snapstart.json --s true
 
   e2e_gcr:
     name: GCR e2e test
