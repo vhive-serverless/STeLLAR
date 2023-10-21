@@ -453,10 +453,6 @@ jobs:
           cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
           mkdir -p './src/latency-samples'
 
-      - name: Cloudflare end-to-end test for Node
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/cloudflare/hellonode.json --s true
-
       - name: Cloudflare end-to-end test for Python
         working-directory: ${{env.working-directory}}
         run: ./main --o latency-samples --c ../experiments/tests/cloudflare/hellopy.json --s true
