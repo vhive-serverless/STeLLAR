@@ -66,7 +66,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
   }
   if (type==='tail') {
     chartOptions.yaxis.min = 1; // Replace with the minimum value you want
-    chartOptions.yaxis.max = 5; // Replace with the maximum value you want
+    chartOptions.yaxis.max = 6; // Replace with the maximum value you want
   }
 
   return (
