@@ -2,6 +2,7 @@
 import { Grid, Card, Container, Stack,Box,Button, Typography, CardContent,Link } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import ListItem from '@mui/material/ListItem';
+import {ReactComponent as ArchitectureDiagram} from '../images/diagram.svg';
 // components
 import Page from '../components/Page';
 
@@ -38,11 +39,12 @@ export default function About() {
             <CardContent>
             <Typography variant='h4' marginBottom={3}>Design & Methodology</Typography>
             {/* <Stack direction="row" alignItems="center" mt={5}> */}
-            <Box sx={{display: 'flex',my:3,alignItems:'center',justifyContent:'center' }}>
-            <Box component="img" src="/STeLLAR/static/design.png" sx={{width:'60%'}} />
+            <Box sx={{display: 'flex',my:3,alignItems:'center',justifyContent:'center'}}>
+            
+            <ArchitectureDiagram width={'90%'}/>
             </Box>
             <Box sx={{display: 'flex',my:3,alignItems:'center',justifyContent:'center' }}>
-            Figure 1: STeLLAR Architecture Overview
+            STeLLAR Architecture Overview
               </Box>
             <Box sx={{ width: '100%',ml:5}}>
               
@@ -84,7 +86,7 @@ export default function About() {
               </Box>
               
             {/* </Stack> */}
-            <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda, Google Cloud Run, Azure and Cloudflare but we hope to extend to other cloud providers in the future.</Typography>
+            <Typography variant='p' color={'red'}>* Currently we only supports visualizing benchmarking results from AWS Lambda, Google Cloud Run, Azure and Cloudflare but we will extend to other cloud providers in the future.</Typography>
             </CardContent>
             <CardContent>
             <Typography variant='h5'>Client Configuration</Typography>
@@ -253,7 +255,7 @@ export default function About() {
             View Results
           </Button>
           </ListItem>
-              <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Next, we evaluate response times of cold functions varying the function image sizes in 3 different settings.
+              {/* <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Next, we evaluate response times of cold functions varying the function image sizes in 3 different settings.
               <Button to="/dashboard/cold/image-size" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
@@ -269,7 +271,7 @@ export default function About() {
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Python - Image based deployment</ListItem>
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - ZIP based deployment</ListItem>
             <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - Image based deployment</ListItem>
-          </ListItem>
+          </ListItem> */}
           <Typography variant='p'>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography>
           </CardContent>
           </Card>
