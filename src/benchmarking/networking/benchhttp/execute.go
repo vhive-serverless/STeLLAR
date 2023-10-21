@@ -41,7 +41,12 @@ func ExecuteRequest(req http.Request) (bool, []byte, time.Time, time.Time) {
 	ok := true
 	defer cancel()
 
-	resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
+	err, resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
+	if err != nil {
+		ok = false
+		log.Errorf("Could not send HTTP request: %s", err.Error())
+		return ok, nil, reqSentTime, reqReceivedTime
+	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -58,7 +63,7 @@ func ExecuteRequest(req http.Request) (bool, []byte, time.Time, time.Time) {
 }
 
 // https://stackoverflow.com/questions/48077098/getting-ttfb-time-to-first-byte-value-in-golang/48077762#48077762
-func sendTimedRequest(ctx context.Context, req http.Request) (*http.Response, time.Time, time.Time) {
+func sendTimedRequest(ctx context.Context, req http.Request) (error, *http.Response, time.Time, time.Time) {
 	var receivedFirstByte time.Time
 
 	trace := &httptrace.ClientTrace{
@@ -69,10 +74,7 @@ func sendTimedRequest(ctx context.Context, req http.Request) (*http.Response, ti
 
 	reqSentTime := time.Now()
 	resp, err := http.DefaultTransport.RoundTrip(req.WithContext(httptrace.WithClientTrace(ctx, trace)))
-	if err != nil {
-		log.Fatalf("HTTP request failed with error %s", err.Error())
-	}
 
 	// For total time, return resp, reqSentTime, time.Now()
-	return resp, reqSentTime, receivedFirstByte
+	return err, resp, reqSentTime, receivedFirstByte
 }
