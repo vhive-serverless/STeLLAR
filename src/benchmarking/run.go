@@ -65,7 +65,7 @@ func runSubExperiment(experiment setup.SubExperiment, burstDeltas []time.Duratio
 		for gatewayID := 0; gatewayID < len(experiment.Endpoints) && burstID < experiment.Bursts; gatewayID++ {
 			// Every refresh period, we cycle through burst sizes if they're dynamic i.e. more than 1 element
 			incrementLimit := experiment.BusySpinIncrements[util.IntegerMin(deltaIndex, len(experiment.BusySpinIncrements)-1)]
-			burstSize := experiment.BurstSizes[util.IntegerMin(deltaIndex, len(experiment.BurstSizes)-1)]
+			burstSize := experiment.BurstSizes[deltaIndex%len(experiment.BurstSizes)]
 			log.Infof("%d", len(experiment.Routes))
 			sendBurst(provider, experiment, burstID, burstSize, experiment.Endpoints[gatewayID], incrementLimit, latenciesWriter, dataTransferWriter, experiment.Routes[gatewayID], &errorCount)
 			errs := errorCount.Read()
