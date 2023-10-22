@@ -18,7 +18,8 @@ import {
             justifyContent:'center',
             display: 'flex',
             flexDirection: 'column',
-            padding:2
+            padding:2,
+            height:'160px'
           }}
         >
           
