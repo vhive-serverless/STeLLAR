@@ -123,6 +123,52 @@ jobs:
           name: aws-warm-latency-samples
           path: ${{env.working-directory}}/latency-samples
 
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
   run_warm_experiments_gcr:
     name: Run GCR warm function experiments
     needs: build_client
@@ -171,6 +217,52 @@ jobs:
           name: gcr-warm-latency-samples
           path: ${{env.working-directory}}/latency-samples
 
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
   run_warm_experiments_cloudflare:
     name: Run Cloudflare warm function experiments
     needs: build_client
@@ -206,6 +298,52 @@ jobs:
         with:
           name: cloudflare-warm-latency-samples
           path: ${{env.working-directory}}/latency-samples
+
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   run_warm_experiments_azure:
     name: Run Azure warm function experiments
@@ -251,6 +389,52 @@ jobs:
         with:
           name: azure-warm-latency-samples
           path: ${{env.working-directory}}/latency-samples
+
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   run_cold_experiments_aws:
     name: Run AWS cold function experiments
@@ -304,6 +488,52 @@ jobs:
           name: aws-cold-latency-samples
           path: ${{env.working-directory}}/latency-samples
 
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
   run_cold_experiments_gcr:
     name: Run GCR cold function experiments
     needs: run_warm_experiments_gcr
@@ -352,6 +582,52 @@ jobs:
           name: gcr-cold-latency-samples
           path: ${{env.working-directory}}/latency-samples
 
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
   run_cold_experiments_cloudflare:
     name: Run Cloudflare cold function experiments
     needs: run_warm_experiments_cloudflare
@@ -387,6 +663,52 @@ jobs:
         with:
           name: cloudflare-cold-latency-samples
           path: ${{env.working-directory}}/latency-samples
+
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   run_cold_experiments_azure:
     name: Run Azure cold function experiments
@@ -433,3 +755,49 @@ jobs:
         with:
           name: azure-cold-latency-samples
           path: ${{env.working-directory}}/latency-samples
+
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
