@@ -20,7 +20,7 @@ jobs:
       - name: Check syntax
         uses: golangci/golangci-lint-action@v3
         with:
-          working-directory: ${{env.working-directory}}
+          working-directory: ${{ env.working-directory }}
           args: --timeout 5m --skip-dirs raw-code
           skip-pkg-cache: true
           skip-build-cache: true
@@ -35,10 +35,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build client binary
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: |
           docker build -t stellar .
           docker create --name temp stellar /bin/bash
+
       - name: Package client artifact
         run: |
           mkdir -p "setup/deployment/raw-code"
@@ -71,8 +72,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
-      DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
-      DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
@@ -84,20 +85,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - id: "auth"
+      - id: auth
         name: Configure GCR credentials
-        uses: "google-github-actions/auth@v1"
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
 
-      - name: "Set up gcloud"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: ">= 363.0.0"
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -105,12 +102,12 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Unit tests
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ${{matrix.path}}
+        working-directory: ${{ env.working-directory }}
+        run: go test -short -v ${{ matrix.path }}
 
   integration_tests:
     name: Integration tests
@@ -118,8 +115,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
-      DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
-      DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -136,14 +133,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - id: "auth"
+      - id: auth
         name: Configure GCR credentials
-        uses: "google-github-actions/auth@v1"
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
 
-      - name: "Set up gcloud"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: ">= 363.0.0"
 
@@ -159,11 +156,6 @@ jobs:
           ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
           ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALIYUN_ACCOUNT_ID: ${{ secrets.ALIYUN_ACCOUNT_ID }}
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
 
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
@@ -183,7 +175,7 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Prepare benchmarking functions
@@ -193,7 +185,7 @@ jobs:
           mkdir -p "./src/latency-samples"
 
       - name: Integration Tests
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: go test -short -v ./setup/integration-test/... -timeout 30m
 
   e2e_alibaba:
@@ -223,11 +215,6 @@ jobs:
           ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALIYUN_ACCOUNT_ID: ${{ secrets.ALIYUN_ACCOUNT_ID }}
 
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
-
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
         with:
@@ -242,7 +229,7 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Prepare benchmarking functions
@@ -252,7 +239,7 @@ jobs:
           mkdir -p "./src/latency-samples"
 
       - name: Alibaba Cloud end-to-end test for Python
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/aliyun/hellopy.json --s true
 
   e2e_azure:
@@ -264,11 +251,6 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
 
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
@@ -285,7 +267,7 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Prepare benchmarking functions
@@ -295,7 +277,7 @@ jobs:
           mkdir -p "./src/latency-samples"
 
       - name: Azure end-to-end test for Python
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/azure/hellopy.json --s true
         env:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -320,11 +302,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
-
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
         with:
@@ -339,7 +316,7 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Prepare benchmarking functions
@@ -349,7 +326,7 @@ jobs:
           mkdir -p "./src/latency-samples"
 
       - name: AWS end-to-end test for Go
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/aws/hellogo.json --s true
 
   e2e_gcr:
@@ -358,27 +335,22 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       working-directory: ./src
-      DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
 
-      - id: "auth"
+      - id: auth
         name: Configure GCR credentials
-        uses: "google-github-actions/auth@v1"
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
 
-      - name: "Set up gcloud"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: ">= 363.0.0"
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
 
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
@@ -391,7 +363,7 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Prepare benchmarking functions
@@ -401,15 +373,15 @@ jobs:
           mkdir -p './src/latency-samples'
 
       - name: GCR end-to-end test for Python
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/gcr/hellopy.json --s true
 
       - name: GCR end-to-end test for Go
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/gcr/hellogo.json --s true
 
       - name: GCR end-to-end test for Java
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/gcr/hellogo.json --s true
 
   e2e_cloudflare:
@@ -422,11 +394,6 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.21
 
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
@@ -442,7 +409,7 @@ jobs:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Prepare benchmarking functions
@@ -452,5 +419,5 @@ jobs:
           mkdir -p './src/latency-samples'
 
       - name: Cloudflare end-to-end test for Python
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./main --o latency-samples --c ../experiments/tests/cloudflare/hellopy.json --s true
