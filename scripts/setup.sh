@@ -4,7 +4,7 @@ sudo add-apt-repository --yes ppa:longsleep/golang-backports
 sudo add-apt-repository --yes ppa:linuxuprising/java
 sudo add-apt-repository --yes ppa:cwchien/gradle
 sudo apt-get update
-sudo apt-get install --yes apt-transport-https ca-certificates gnupg curl sudo
+sudo apt-get install --yes apt-transport-https ca-certificates curl gnupg sudo zip
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 
