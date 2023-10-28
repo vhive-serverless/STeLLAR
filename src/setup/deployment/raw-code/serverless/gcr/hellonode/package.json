@@ -1,0 +1,14 @@
+{
+  "name": "hellonode-gcr",
+  "version": "1.0.0",
+  "description": "Simple GCR function in Node",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
