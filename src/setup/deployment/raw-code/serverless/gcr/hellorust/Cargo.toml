@@ -1,0 +1,10 @@
+[package]
+name = "hellorust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web="4"
+itoa = "1.0"
+serde = { version = "1.0.190", features = ["derive"]}
+
