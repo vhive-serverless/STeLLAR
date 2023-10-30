@@ -38,6 +38,8 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 		buildJava(functionName, functionDir, artifactDir)
 	case "go1.x":
 		buildGolang(functionName, functionDir, artifactDir)
+	case "nodejs18.x":
+		copyNodeJSFile(functionName, functionDir, artifactDir)
 	case "python3.8":
 		fallthrough
 	case "python3.9":
@@ -72,6 +74,15 @@ func copyPythonFile(functionName string, functionDir string, artifactDir string)
 	log.Infof("Copying Python source code from the %s directory", functionDir)
 	functionPath := fmt.Sprintf("%s/main.py", functionDir)
 	artifactPath := fmt.Sprintf("%s/main.py", artifactDir)
+	util.RunCommandAndLog(exec.Command("cp", functionPath, artifactPath))
+	return artifactPath
+}
+
+// copyNodeJSFile copies the main NodeJS file into the artifacts directory
+func copyNodeJSFile(functioName string, functionDir string, artifactDir string) string {
+	log.Infof("Copying Node source code from the %s directory", functionDir)
+	functionPath := fmt.Sprintf("%s/index.js", functionDir)
+	artifactPath := fmt.Sprintf("%s/index.js", artifactDir)
 	util.RunCommandAndLog(exec.Command("cp", functionPath, artifactPath))
 	return artifactPath
 }
