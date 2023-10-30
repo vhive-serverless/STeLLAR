@@ -1,0 +1,17 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "ruby3.2",
+  "SubExperiments": [
+    {
+      "Title": "helloruby",
+      "Function": "helloruby",
+      "Handler": "function.handler",
+      "PackageType": "Zip",
+      "PackagePattern": "function.rb",
+      "Bursts": 2,
+      "BurstSizes": [2],
+      "DesiredServiceTimes": ["0ms"]
+    }
+  ]
+}
