@@ -72,6 +72,17 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsJava() {
 	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
 }
 
+func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsNode() {
+	b := &building.Builder{}
+	b.BuildFunction("aws", "hellonode", "nodejs18.x")
+	packaging.GenerateServerlessZIPArtifacts(2, "aws", "nodejs18.x", "hellonode", 50)
+	fileInfo, err := os.Stat("setup/deployment/raw-code/serverless/aws/artifacts/hellonode/hellonode.zip")
+	if err != nil {
+		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
+	}
+	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+}
+
 func TestZipTestSuite(t *testing.T) {
 	suite.Run(t, new(ZipTestSuite))
 }
