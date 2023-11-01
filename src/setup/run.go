@@ -29,6 +29,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"stellar/setup/building"
 	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
@@ -183,19 +184,27 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 			go func(parallelism int) {
 				defer wg.Done()
 
-				deploymentDir := fmt.Sprintf("%ssub-experiment-%d/parallelism-%d", serverlessDirPath, subExperimentIndex, parallelism)
+				artifactsPath := filepath.Join(serverlessDirPath, "artifacts", subExperiment.Function, subExperiment.PackagePattern)
+				deploymentDir := filepath.Join(serverlessDirPath, fmt.Sprintf("sub-experiment-%d", subExperimentIndex), fmt.Sprintf("parallelism-%d", parallelism))
 				if err := os.MkdirAll(deploymentDir, os.ModePerm); err != nil {
 					log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
 				}
-				artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
 				util.RunCommandAndLog(exec.Command("cp", artifactsPath, deploymentDir))
+
+				deploymentCodePath := filepath.Join(deploymentDir, subExperiment.PackagePattern)
+				currentSizeInBytes := packaging.GetZippedBinaryFileSize(subExperiment.ID, deploymentCodePath)
+				targetSizeInBytes := util.MBToBytes(subExperiment.FunctionImageSizeMB)
+
+				fillerFileSize := packaging.CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
+				fillerFilePath := filepath.Join(deploymentDir, "filler.file")
+				packaging.GenerateFillerFile(subExperiment.ID, fillerFilePath, fillerFileSize)
 
 				slsConfig := &Serverless{}
 				slsConfig.CreateHeaderConfig(config, fmt.Sprintf("%s-subex%d-para%d", randomExperimentTag, subExperimentIndex, parallelism))
 				slsConfig.addPlugin("serverless-azure-functions")
 				name := createName(&subExperiment, subExperimentIndex, parallelism)
 				slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, name)
-				slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/serverless.yml", deploymentDir))
+				slsConfig.CreateServerlessConfigFile(filepath.Join(deploymentDir, "serverless.yml"))
 
 				log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
 				slsDeployMessage := DeployService(deploymentDir)
