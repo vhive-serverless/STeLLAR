@@ -54,17 +54,18 @@ func SetupZIPDeployment(provider string, deploymentSizeBytes int64, zipPath stri
 // GetZippedBinaryFileSize zips the binary and returns its size
 func GetZippedBinaryFileSize(experimentID int, binaryPath string) int64 {
 	log.Infof("[sub-experiment %d] Zipping binary file to find its size...", experimentID)
+	pathToTempArchive := filepath.Join(filepath.Dir(binaryPath), "zipped-binary.zip")
 
-	util.RunCommandAndLog(exec.Command("zip", "zipped-binary", binaryPath))
+	util.RunCommandAndLog(exec.Command("zip", pathToTempArchive, binaryPath))
 
-	fi, err := os.Stat("zipped-binary.zip")
+	fi, err := os.Stat(pathToTempArchive)
 	if err != nil {
 		log.Fatalf("Could not get size of zipped binary file: %s", err.Error())
 	}
 	zippedBinarySizeBytes := fi.Size()
 
 	log.Debug("Cleaning up zipped binary...")
-	util.RunCommandAndLog(exec.Command("rm", "-r", "zipped-binary.zip"))
+	util.RunCommandAndLog(exec.Command("rm", "-r", pathToTempArchive))
 
 	return zippedBinarySizeBytes
 }
@@ -119,26 +120,14 @@ func generateServerlessZIPArtifactsPythonGolang(experimentID int, provider strin
 		"go1.x":     "main",
 	}
 	binaryPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s", provider, functionName, defaultBinaryName[runtime])
+
 	currentSizeInBytes := GetZippedBinaryFileSize(experimentID, binaryPath)
 	targetSizeInBytes := util.MBToBytes(functionImageSizeMB)
 
-	if targetSizeInBytes == 0 {
-		log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
-			experimentID,
-			util.BytesToMB(currentSizeInBytes),
-		)
-		targetSizeInBytes = currentSizeInBytes
-	}
-	if targetSizeInBytes < currentSizeInBytes {
-		log.Fatalf("[sub-experiment %d] Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
-			experimentID,
-			util.BytesToMB(targetSizeInBytes),
-			util.BytesToMB(currentSizeInBytes),
-		)
-	}
-
+	fillerFileSize := CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
 	fillerFilePath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/filler.file", provider, functionName)
-	GenerateFillerFile(experimentID, fillerFilePath, targetSizeInBytes-currentSizeInBytes)
+	GenerateFillerFile(experimentID, fillerFilePath, fillerFileSize)
+
 	zipPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s.zip", provider, functionName, functionName)
 	GenerateZIP(experimentID, fillerFilePath, binaryPath, zipPath)
 }
@@ -149,27 +138,31 @@ func generateServerlessZIPArtifactsJava(experimentID int, provider string, runti
 	if err != nil {
 		log.Fatalf("Could not file size of Java artifact at %s", gradleArtifactPath)
 	}
+
 	currentSizeInBytes := fileInfo.Size()
 	targetSizeInBytes := util.MBToBytes(functionImageSizeMB)
 
+	fillerFileSize := CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
+	fillerFilePath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/filler.file", provider, functionName)
+	GenerateFillerFile(experimentID, fillerFilePath, fillerFileSize)
+
+	addFileToExistingZIPArchive(gradleArtifactPath, fillerFilePath)
+}
+
+func CalculateFillerFileSizeInBytes(currentSizeInBytes int64, targetSizeInBytes int64) int64 {
 	if targetSizeInBytes == 0 {
-		log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
-			experimentID,
+		log.Infof("Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
 			util.BytesToMB(currentSizeInBytes),
 		)
 		targetSizeInBytes = currentSizeInBytes
 	}
 	if targetSizeInBytes < currentSizeInBytes {
-		log.Fatalf("[sub-experiment %d] Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
-			experimentID,
+		log.Fatalf("Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
 			util.BytesToMB(targetSizeInBytes),
 			util.BytesToMB(currentSizeInBytes),
 		)
 	}
-
-	fillerFilePath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/filler.file", provider, functionName)
-	GenerateFillerFile(experimentID, fillerFilePath, targetSizeInBytes-currentSizeInBytes)
-	addFileToExistingZIPArchive(gradleArtifactPath, fillerFilePath)
+	return targetSizeInBytes - currentSizeInBytes
 }
 
 func addFileToExistingZIPArchive(archivePath string, filePath string) {
