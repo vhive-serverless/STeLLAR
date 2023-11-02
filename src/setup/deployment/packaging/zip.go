@@ -109,18 +109,21 @@ func GenerateServerlessZIPArtifacts(experimentID int, provider string, runtime s
 		fallthrough
 	case "nodejs18.x":
 		fallthrough
+	case "ruby3.2":
+		fallthrough
 	case "go1.x":
-		generateServerlessZIPArtifactsPythonGolangNode(experimentID, provider, runtime, functionName, functionImageSizeMB)
+		generateServerlessZIPArtifactsGeneral(experimentID, provider, runtime, functionName, functionImageSizeMB)
 	case "java11":
 		generateServerlessZIPArtifactsJava(experimentID, provider, runtime, functionName, functionImageSizeMB)
 	}
 }
 
-func generateServerlessZIPArtifactsPythonGolangNode(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
+func generateServerlessZIPArtifactsGeneral(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
 	defaultBinaryName := map[string]string{
 		"python3.9":  "main.py",
 		"go1.x":      "main",
 		"nodejs18.x": "index.js",
+		"ruby3.2":    "function.rb",
 	}
 	binaryPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s", provider, functionName, defaultBinaryName[runtime])
 
