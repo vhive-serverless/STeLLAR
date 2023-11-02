@@ -40,6 +40,8 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 		buildGolang(functionName, functionDir, artifactDir)
 	case "nodejs18.x":
 		copyNodeJSFile(functionName, functionDir, artifactDir)
+	case "ruby3.2":
+		copyRubyFile(functionName, functionDir, artifactDir)
 	case "python3.8":
 		fallthrough
 	case "python3.9":
@@ -83,6 +85,14 @@ func copyNodeJSFile(functioName string, functionDir string, artifactDir string) 
 	log.Infof("Copying Node source code from the %s directory", functionDir)
 	functionPath := fmt.Sprintf("%s/index.js", functionDir)
 	artifactPath := fmt.Sprintf("%s/index.js", artifactDir)
+	util.RunCommandAndLog(exec.Command("cp", functionPath, artifactPath))
+	return artifactPath
+}
+
+func copyRubyFile(functionName string, functionDir string, artifactDir string) string {
+	log.Infof("Copying Ruby source code from the %s directory", functionDir)
+	functionPath := fmt.Sprintf("%s/function.rb", functionDir)
+	artifactPath := fmt.Sprintf("%s/function.rb", artifactDir)
 	util.RunCommandAndLog(exec.Command("cp", functionPath, artifactPath))
 	return artifactPath
 }
