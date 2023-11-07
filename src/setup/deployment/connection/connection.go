@@ -103,7 +103,7 @@ func setupAWSConnection(apiTemplatePath string) {
 							GatewayID:        strings.Split(*function.FunctionName, "_")[1],
 							FunctionMemoryMB: *function.MemorySize,
 							PackageType:      *function.PackageType,
-							ImageSizeMB:      util.BytesToMB(*function.CodeSize),
+							ImageSizeMB:      util.BytesToMebibyte(*function.CodeSize),
 						})
 					}
 				}
