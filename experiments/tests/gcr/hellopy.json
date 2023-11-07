@@ -16,7 +16,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 24
+      "FunctionImageSizeMB": 60
     },
     {
       "Title": "parallelism2",
@@ -31,7 +31,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 48,
+      "FunctionImageSizeMB": 100,
       "Parallelism": 2
     }
   ]
