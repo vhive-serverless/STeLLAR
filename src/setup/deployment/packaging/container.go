@@ -63,8 +63,8 @@ func SetupContainerImageDeployment(function string, provider string, compressedI
 
 	taggedImage := fmt.Sprintf("%s_%v_stellar:latest", function, compressedImageSizeMebibyte)
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
-	if builtImages[function] {
-		log.Infof("Container image for function %q is already built. Skipping...", function)
+	if builtImages[taggedImage] {
+		log.Infof("Container image for function %q is already built. Skipping...", taggedImage)
 		return imageName
 	}
 
@@ -78,6 +78,6 @@ func SetupContainerImageDeployment(function string, provider string, compressedI
 	if provider == "aws" {
 		amazon.AWSSingletonInstance.ImageURI = imageName
 	}
-	builtImages[function] = true
+	builtImages[taggedImage] = true
 	return imageName
 }
