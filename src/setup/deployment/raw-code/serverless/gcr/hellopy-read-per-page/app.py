@@ -1,7 +1,6 @@
 import json
 import os
 import time
-import random
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -37,10 +36,9 @@ def simulate_work(incr):
 
 
 def read_filler_file(path: str) -> None:
-    file_size = os.stat(path).st_size
     with open(path, 'rb') as f:
         for i in range(20480):
-            f.seek(random.randrange(0, file_size))
+            f.seek(i * 4096)
             f.read(1)
 
 

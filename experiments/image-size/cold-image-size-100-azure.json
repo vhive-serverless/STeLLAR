@@ -1,0 +1,23 @@
+{
+  "Provider": "azure",
+  "Runtime": "python3.8",
+  "SubExperiments": [
+    {
+      "Title": "cold-image-size-100-azure",
+      "Function": "hellopy",
+      "Handler": "main.main",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 100
+    }
+  ]
+}

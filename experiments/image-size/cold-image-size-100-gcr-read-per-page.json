@@ -1,0 +1,23 @@
+{
+  "Provider": "gcr",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "cold-image-size-100-gcr-read-per-page",
+      "Function": "hellopy-read-per-page",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+	  "PackagePattern": "lambda_function.py",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 30,
+      "FunctionImageSizeMB": 100
+    }
+  ]
+}

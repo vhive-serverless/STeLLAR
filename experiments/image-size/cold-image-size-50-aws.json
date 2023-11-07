@@ -1,0 +1,23 @@
+{
+  "Provider": "aws",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "cold-image-size-50-aws",
+      "Function": "hellopy",
+      "Handler": "main.lambda_handler",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 50
+    }
+  ]
+}
