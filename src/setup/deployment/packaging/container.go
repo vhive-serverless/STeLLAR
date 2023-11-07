@@ -36,7 +36,7 @@ var privateRepoURI string = ""
 var loggedIn bool = false
 
 // SetupContainerImageDeployment will package the function using container images and push to registry
-func SetupContainerImageDeployment(function string, provider string) string {
+func SetupContainerImageDeployment(function string, provider string, compressedImageSizeMebibyte float64) string {
 	functionDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, function)
 	switch provider {
 	case "aws":
@@ -61,7 +61,7 @@ func SetupContainerImageDeployment(function string, provider string) string {
 		log.Fatalf("Provider %s does not support container image deployment.", provider)
 	}
 
-	taggedImage := fmt.Sprintf("%s_stellar:latest", function)
+	taggedImage := fmt.Sprintf("%s_%v_stellar:latest", function, compressedImageSizeMebibyte)
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
 	if builtImages[function] {
 		log.Infof("Container image for function %q is already built. Skipping...", function)
