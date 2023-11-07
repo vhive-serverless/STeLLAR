@@ -29,14 +29,14 @@ import (
 )
 
 func TestBytesToMB(t *testing.T) {
-	res := BytesToMB(1024. * 1024.)
+	res := BytesToMebibyte(1024. * 1024.)
 	require.Equal(t, 1., res)
 }
 
 func TestMBToBytes(t *testing.T) {
-	res := MBToBytes(7.)
-	require.Equal(t, int64(7 * 1024 * 1024), res)
+	res := MebibyteToBytes(7.)
+	require.Equal(t, int64(7*1024*1024), res)
 
-	res = MBToBytes(0.)
+	res = MebibyteToBytes(0.)
 	require.Equal(t, int64(0), res)
 }

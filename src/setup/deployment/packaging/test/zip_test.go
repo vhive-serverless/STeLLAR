@@ -24,13 +24,13 @@ func (s *ZipTestSuite) SetupSuite() {
 func (s *ZipTestSuite) TestGenerateFillerFile() {
 	expectedFillerFileSizeMB := 30.0
 
-	packaging.GenerateFillerFile(1, "filler.file", util.MBToBytes(expectedFillerFileSizeMB))
+	packaging.GenerateFillerFile(1, "filler.file", util.MebibyteToBytes(expectedFillerFileSizeMB))
 
 	fileInfo, err := os.Stat("filler.file")
 	if err != nil {
 		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
 	}
-	actualFillerFileSize := util.BytesToMB(fileInfo.Size())
+	actualFillerFileSize := util.BytesToMebibyte(fileInfo.Size())
 	assert.InDelta(s.T(), expectedFillerFileSizeMB, actualFillerFileSize, 0.1)
 
 	err = os.Remove("filler.file")
@@ -47,7 +47,7 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsPython() {
 	if err != nil {
 		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
 	}
-	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+	assert.InDelta(s.T(), 50, util.BytesToMebibyte(fileInfo.Size()), 0.1)
 }
 
 func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsGolang() {
@@ -58,7 +58,7 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsGolang() {
 	if err != nil {
 		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
 	}
-	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+	assert.InDelta(s.T(), 50, util.BytesToMebibyte(fileInfo.Size()), 0.1)
 }
 
 func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsJava() {
@@ -69,7 +69,7 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsJava() {
 	if err != nil {
 		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
 	}
-	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+	assert.InDelta(s.T(), 50, util.BytesToMebibyte(fileInfo.Size()), 0.1)
 }
 
 func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsNode() {
@@ -80,7 +80,7 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsNode() {
 	if err != nil {
 		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
 	}
-	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+	assert.InDelta(s.T(), 50, util.BytesToMebibyte(fileInfo.Size()), 0.1)
 }
 
 func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsRuby() {
@@ -91,7 +91,7 @@ func (s *ZipTestSuite) TestGenerateServerlessZipArtifactsRuby() {
 	if err != nil {
 		assert.Fail(s.T(), "Could not obtain file info of ZIP artifact")
 	}
-	assert.InDelta(s.T(), 50, util.BytesToMB(fileInfo.Size()), 0.1)
+	assert.InDelta(s.T(), 50, util.BytesToMebibyte(fileInfo.Size()), 0.1)
 }
 
 func TestZipTestSuite(t *testing.T) {

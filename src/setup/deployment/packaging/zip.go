@@ -35,7 +35,7 @@ import (
 
 // SetupZIPDeployment will package the function using ZIP
 func SetupZIPDeployment(provider string, deploymentSizeBytes int64, zipPath string) {
-	deploymentSizeMB := util.BytesToMB(deploymentSizeBytes)
+	deploymentSizeMB := util.BytesToMebibyte(deploymentSizeBytes)
 	switch provider {
 	case "aws":
 		if deploymentSizeMB > 50. {
@@ -128,7 +128,7 @@ func generateServerlessZIPArtifactsGeneral(experimentID int, provider string, ru
 	binaryPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/%s", provider, functionName, defaultBinaryName[runtime])
 
 	currentSizeInBytes := GetZippedBinaryFileSize(experimentID, binaryPath)
-	targetSizeInBytes := util.MBToBytes(functionImageSizeMB)
+	targetSizeInBytes := util.MebibyteToBytes(functionImageSizeMB)
 
 	fillerFileSize := CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
 	fillerFilePath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/filler.file", provider, functionName)
@@ -146,7 +146,7 @@ func generateServerlessZIPArtifactsJava(experimentID int, provider string, runti
 	}
 
 	currentSizeInBytes := fileInfo.Size()
-	targetSizeInBytes := util.MBToBytes(functionImageSizeMB)
+	targetSizeInBytes := util.MebibyteToBytes(functionImageSizeMB)
 
 	fillerFileSize := CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
 	fillerFilePath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/filler.file", provider, functionName)
@@ -158,14 +158,14 @@ func generateServerlessZIPArtifactsJava(experimentID int, provider string, runti
 func CalculateFillerFileSizeInBytes(currentSizeInBytes int64, targetSizeInBytes int64) int64 {
 	if targetSizeInBytes == 0 {
 		log.Infof("Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
-			util.BytesToMB(currentSizeInBytes),
+			util.BytesToMebibyte(currentSizeInBytes),
 		)
 		targetSizeInBytes = currentSizeInBytes
 	}
 	if targetSizeInBytes < currentSizeInBytes {
 		log.Fatalf("Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
-			util.BytesToMB(targetSizeInBytes),
-			util.BytesToMB(currentSizeInBytes),
+			util.BytesToMebibyte(targetSizeInBytes),
+			util.BytesToMebibyte(currentSizeInBytes),
 		)
 	}
 	return targetSizeInBytes - currentSizeInBytes

@@ -190,7 +190,7 @@ func setupDeployment(packageType string, function string) (float64, string) {
 	deployedImageSizeMB, binaryPath := deployment.SetupDeployment(
 		fmt.Sprintf("../raw-code/functions/producer-consumer/%s", aws),
 		aws,
-		util.MBToBytes(0.),
+		util.MebibyteToBytes(0.),
 		packageType,
 		0,
 		function,

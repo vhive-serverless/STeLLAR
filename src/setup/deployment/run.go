@@ -45,7 +45,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		if deploymentSizeBytes == 0 {
 			log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
 				experimentID,
-				util.BytesToMB(zippedBinaryFileSizeBytes),
+				util.BytesToMebibyte(zippedBinaryFileSizeBytes),
 			)
 			deploymentSizeBytes = zippedBinaryFileSizeBytes
 		}
@@ -53,8 +53,8 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		if deploymentSizeBytes < zippedBinaryFileSizeBytes {
 			log.Fatalf("[sub-experiment %d] Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
 				experimentID,
-				util.BytesToMB(deploymentSizeBytes),
-				util.BytesToMB(zippedBinaryFileSizeBytes),
+				util.BytesToMebibyte(deploymentSizeBytes),
+				util.BytesToMebibyte(zippedBinaryFileSizeBytes),
 			)
 		}
 
@@ -62,7 +62,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		zipPath := packaging.GenerateZIP(experimentID, fillerFilePath, binaryPath, "benchmarking.zip")
 		packaging.SetupZIPDeployment(provider, deploymentSizeBytes, zipPath)
 
-		return util.BytesToMB(deploymentSizeBytes), handlerPath
+		return util.BytesToMebibyte(deploymentSizeBytes), handlerPath
 	case "Image":
 		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
@@ -74,7 +74,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		log.Fatalf("[sub-experiment %d] Unrecognized package type: %s", experimentID, packageType)
 	}
 
-	return util.BytesToMB(deploymentSizeBytes), ""
+	return util.BytesToMebibyte(deploymentSizeBytes), ""
 }
 
 func getExecutableInfo(rawCodePath string, experimentID int, function string) (int64, string, string) {
