@@ -231,7 +231,14 @@ func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 	for index, subExperiment := range config.SubExperiments {
 		switch subExperiment.PackageType {
 		case "Container":
-			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider)
+			// size of compressed images of GCR functions on Docker Hub are experimentally found to be approximately 21.84 MiB
+			currentSizeInBytes := util.MebibyteToBytes(21.84)
+			targetSizeInBytes := util.MebibyteToBytes(subExperiment.FunctionImageSizeMB)
+			fillerFileSize := packaging.CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
+			fillerFilePath := filepath.Join(serverlessDirPath, subExperiment.Function, "filler.file")
+			packaging.GenerateFillerFile(subExperiment.ID, fillerFilePath, fillerFileSize)
+
+			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider, subExperiment.FunctionImageSizeMB)
 			randomTag := util.GenerateRandLowercaseLetters(5)
 			slsConfig.DeployGCRContainerService(&config.SubExperiments[index], index, randomTag, imageLink, serverlessDirPath, slsConfig.Provider.Region)
 		default:
