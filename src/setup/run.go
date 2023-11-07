@@ -192,7 +192,7 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 
 				deploymentCodePath := filepath.Join(deploymentDir, subExperiment.PackagePattern)
 				currentSizeInBytes := packaging.GetZippedBinaryFileSize(subExperiment.ID, deploymentCodePath)
-				targetSizeInBytes := util.MBToBytes(subExperiment.FunctionImageSizeMB)
+				targetSizeInBytes := util.MebibyteToBytes(subExperiment.FunctionImageSizeMB)
 
 				fillerFileSize := packaging.CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
 				fillerFilePath := filepath.Join(deploymentDir, "filler.file")

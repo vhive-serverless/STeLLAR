@@ -43,7 +43,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		experiment.FunctionImageSizeMB, assignedHandler = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/functions/%s/%s", experiment.Function, provider),
 			provider,
-			util.MBToBytes(experiment.FunctionImageSizeMB),
+			util.MebibyteToBytes(experiment.FunctionImageSizeMB),
 			experiment.PackageType,
 			experiment.ID,
 			experiment.Function,
