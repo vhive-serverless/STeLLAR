@@ -25,10 +25,15 @@ type Serverless struct {
 }
 
 type Provider struct {
-	Name        string `yaml:"name"`
-	Runtime     string `yaml:"runtime"`
-	Region      string `yaml:"region"`
-	Credentials string `yaml:"credentials,omitempty"`
+	Name        string      `yaml:"name"`
+	Runtime     string      `yaml:"runtime"`
+	Region      string      `yaml:"region"`
+	Credentials string      `yaml:"credentials,omitempty"`
+	FunctionApp FunctionApp `yaml:"functionApp,omitempty"`
+}
+
+type FunctionApp struct {
+	ExtensionVersion string `yaml:"extensionVersion"`
 }
 
 type Package struct {
@@ -126,14 +131,22 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName strin
 	s.Service = serviceName
 	s.FrameworkVersion = "3"
 
-	if config.Provider == "aliyun" {
+	switch config.Provider {
+	case "azure":
+		s.Provider = Provider{
+			Name:        config.Provider,
+			Runtime:     config.Runtime,
+			Region:      region,
+			FunctionApp: FunctionApp{ExtensionVersion: "~4"},
+		}
+	case "aliyun":
 		s.Provider = Provider{
 			Name:        config.Provider,
 			Runtime:     config.Runtime,
 			Region:      region,
 			Credentials: "~/.aliyuncli/credentials",
 		}
-	} else {
+	default:
 		s.Provider = Provider{
 			Name:    config.Provider,
 			Runtime: config.Runtime,

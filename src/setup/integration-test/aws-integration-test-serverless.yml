@@ -1,11 +1,15 @@
 service: TestService
+
 frameworkVersion: "3"
+
 provider:
     name: aws
     runtime: python3.9
     region: us-west-1
+
 package:
     individually: true
+
 functions:
     testFunction1:
         handler: hellopy/lambda_function.lambda_handler
