@@ -3,23 +3,23 @@ service: stellar-aliyun-itgr-test
 frameworkVersion: "3"
 
 provider:
-  name: aliyun
-  runtime: python3.9
-  credentials: ~/.aliyuncli/credentials
-  region: us-west-1
+    name: aliyun
+    runtime: python3.9
+    credentials: ~/.aliyuncli/credentials
+    region: us-west-1
 
 plugins:
-  - serverless-aliyun-function-compute
+    - serverless-aliyun-function-compute
 
 functions:
-  hello:
-    handler: main.main
-    runtime: python3.9
-    package:
-      patterns:
-        - "!**"
-        - main.py
-    events:
-      - http:
-          path: /foo
-          method: get
+    hello:
+        handler: main.main
+        runtime: python3.9
+        package:
+            patterns:
+                - "!**"
+                - main.py
+        events:
+            - http:
+                path: /foo
+                method: get
