@@ -115,7 +115,8 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 	slsConfig := &Serverless{}
 	builder := &building.Builder{}
 
-	slsConfig.CreateHeaderConfig(config, "STeLLAR")
+	randomTag := util.GenerateRandLowercaseLetters(5)
+	slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-%s", randomTag))
 	slsConfig.packageIndividually()
 
 	for index, subExperiment := range config.SubExperiments {
@@ -124,7 +125,6 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 
 		// TODO: build the functions (Java and Golang)
 		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
-		randomTag := util.GenerateRandLowercaseLetters(5)
 		slsConfig.AddFunctionConfigAWS(&config.SubExperiments[index], index, randomTag, artifactPathRelativeToServerlessConfigFile)
 
 		// generate filler files and zip used as Serverless artifacts
