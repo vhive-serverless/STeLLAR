@@ -3,7 +3,7 @@
   "Runtime": "python3.9",
   "SubExperiments": [
     {
-      "Title": "cold-image-size-100-aws",
+      "Title": "cold-image-size-50-aws",
       "Function": "hellopy",
       "Handler": "main.lambda_handler",
       "PackageType": "Zip",
@@ -17,7 +17,7 @@
         "0ms"
       ],
       "Parallelism": 50,
-      "FunctionImageSizeMB": 100
+      "FunctionImageSizeMB": 50
     }
   ]
 }
