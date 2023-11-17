@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-name: Run scheduled experiments
+name: Continuous benchmarking - Baseline experiments
 
 on:
   workflow_dispatch:
@@ -73,8 +73,8 @@ jobs:
           path: ${{env.working-directory}}/build.tar
           retention-days: 1
 
-  run_warm_experiments_aws:
-    name: Run AWS warm function experiments
+  warm-baseline-aws:
+    name: AWS warm baseline experiment
     needs: build_client
     runs-on: [self-hosted, aws]
     env:
@@ -169,8 +169,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_warm_experiments_gcr:
-    name: Run GCR warm function experiments
+  warm-baseline-gcr:
+    name: GCR warm baseline experiment
     needs: build_client
     runs-on: [self-hosted, gcr]
     env:
@@ -263,8 +263,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_warm_experiments_cloudflare:
-    name: Run Cloudflare warm function experiments
+  warm-baseline-cloudflare:
+    name: Cloudflare warm baseline experiment
     needs: build_client
     runs-on: [self-hosted, cloudflare]
     env:
@@ -345,8 +345,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_warm_experiments_azure:
-    name: Run Azure warm function experiments
+  warm-baseline-azure:
+    name: Azure warm baseline experiment
     needs: build_client
     runs-on: [ self-hosted, azure ]
     env:
@@ -436,9 +436,9 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_cold_experiments_aws:
-    name: Run AWS cold function experiments
-    needs: run_warm_experiments_aws
+  cold-baseline-aws:
+    name: AWS cold baseline experiment
+    needs: build_client
     runs-on: [self-hosted, aws]
     env:
       working-directory: src
@@ -534,9 +534,9 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_cold_experiments_gcr:
-    name: Run GCR cold function experiments
-    needs: run_warm_experiments_gcr
+  cold-baseline-gcr:
+    name: GCR cold baseline experiment
+    needs: build_client
     runs-on: [self-hosted, gcr]
     env:
       working-directory: src
@@ -628,9 +628,9 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_cold_experiments_cloudflare:
-    name: Run Cloudflare cold function experiments
-    needs: run_warm_experiments_cloudflare
+  cold-baseline-cloudflare:
+    name: Cloudflare cold baseline experiment
+    needs: build_client
     runs-on: [self-hosted, cloudflare]
     env:
       working-directory: src
@@ -710,11 +710,11 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  run_cold_experiments_azure:
-    name: Run Azure cold function experiments
-    needs: run_warm_experiments_azure
+  cold-baseline-azure:
+    name: Azure cold baseline experiment
+    needs: build_client
     runs-on: [ self-hosted, azure ]
-    timeout-minutes: 540
+    timeout-minutes: 600
     env:
       working-directory: src
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

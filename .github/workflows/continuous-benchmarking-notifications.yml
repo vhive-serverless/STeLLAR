@@ -1,8 +1,8 @@
-name: Send Slack notifications
+name: Continuous benchmarking - Send notifications
 
 on:
   workflow_run:
-    workflows: [Run scheduled experiments]
+    workflows: [ Continuous benchmarking - Baseline experiments, Continuous benchmarking - Image size experiments ]
     types: [completed]
 
 jobs:
