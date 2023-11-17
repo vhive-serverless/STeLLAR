@@ -161,7 +161,7 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
 		}
 
-		deploySubExperimentParallelismInBatches(config, serverlessDirPath, randomExperimentTag, subExperimentIndex, 3)
+		deploySubExperimentParallelismInBatches(config, serverlessDirPath, randomExperimentTag, subExperimentIndex, 1)
 	}
 }
 
