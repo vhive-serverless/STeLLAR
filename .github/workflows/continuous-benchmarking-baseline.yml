@@ -32,7 +32,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        runner: [gcr, aws]
+        runner: [ gcr, aws ]
     env:
       working-directory: ./src
     steps:
@@ -49,7 +49,7 @@ jobs:
       working-directory: ./src
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
@@ -59,24 +59,24 @@ jobs:
           go-version: 1.21
 
       - name: Build client binary
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o stellar main.go
 
       - name: Package client artifact
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar -czvf build.tar ./stellar
 
       - name: Upload client artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: STeLLAR-build
-          path: ${{env.working-directory}}/build.tar
+          path: ${{ env.working-directory }}/build.tar
           retention-days: 1
 
   warm-baseline-aws:
     name: AWS warm baseline experiment
     needs: build_client
-    runs-on: [self-hosted, aws]
+    runs-on: [ self-hosted, aws ]
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -84,21 +84,16 @@ jobs:
 
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
       - name: Configure AWS credentials using EASE lab account
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
 
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
@@ -106,22 +101,22 @@ jobs:
           node-version: 16.16.0
 
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: AWS Warm Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
-          name: aws-warm-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: warm-baseline-aws
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -172,50 +167,45 @@ jobs:
   warm-baseline-gcr:
     name: GCR warm baseline experiment
     needs: build_client
-    runs-on: [self-hosted, gcr]
+    runs-on: [ self-hosted, gcr ]
     env:
       working-directory: src
-      DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
-      DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
-      - id: "auth"
+      - id: auth
         name: Configure GCR credentials
-        uses: "google-github-actions/auth@v1"
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
 
-      - name: "Set up gcloud"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: ">= 363.0.0"
 
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
-
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: GCR Warm Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-gcr.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gcr-warm-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: warm-baseline-gcr
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -266,38 +256,33 @@ jobs:
   warm-baseline-cloudflare:
     name: Cloudflare warm baseline experiment
     needs: build_client
-    runs-on: [self-hosted, cloudflare]
+    runs-on: [ self-hosted, cloudflare ]
     env:
       working-directory: src
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    steps:      
+    steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
-
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Cloudflare Warm Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-cloudflare.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
-          name: cloudflare-warm-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: warm-baseline-cloudflare
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -358,14 +343,9 @@ jobs:
 
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
 
       - name: Set up Node 16.16.0
         uses: actions/setup-node@v3
@@ -373,22 +353,22 @@ jobs:
           node-version: 16.16.0
 
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Azure Warm Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
-          name: azure-warm-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: warm-baseline-azure
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -439,28 +419,23 @@ jobs:
   cold-baseline-aws:
     name: AWS cold baseline experiment
     needs: build_client
-    runs-on: [self-hosted, aws]
+    runs-on: [ self-hosted, aws ]
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
       - name: Configure AWS credentials using EASE lab account
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
 
       - name: Set up Node.js 16.16.0
         uses: actions/setup-node@v3
@@ -468,16 +443,16 @@ jobs:
           node-version: 16.16.0
 
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: AWS Cold Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
@@ -485,8 +460,8 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: aws-cold-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: cold-baseline-aws
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -537,50 +512,45 @@ jobs:
   cold-baseline-gcr:
     name: GCR cold baseline experiment
     needs: build_client
-    runs-on: [self-hosted, gcr]
+    runs-on: [ self-hosted, gcr ]
     env:
       working-directory: src
-      DOCKER_HUB_USERNAME: ${{secrets.DOCKER_HUB_USERNAME}}
-      DOCKER_HUB_ACCESS_TOKEN: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
-      - id: "auth"
+      - id: auth
         name: Configure GCR credentials
-        uses: "google-github-actions/auth@v1"
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: "${{secrets.GCR_CREDENTIALS}}"
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
 
-      - name: "Set up gcloud"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
         with:
           version: ">= 363.0.0"
 
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
-
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: GCR Cold Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-gcr.json -db
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gcr-cold-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: cold-baseline-gcr
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -631,38 +601,33 @@ jobs:
   cold-baseline-cloudflare:
     name: Cloudflare cold baseline experiment
     needs: build_client
-    runs-on: [self-hosted, cloudflare]
+    runs-on: [ self-hosted, cloudflare ]
     env:
       working-directory: src
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    steps:      
+    steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
-
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Cloudflare Cold Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-cloudflare.json -db
 
       - uses: actions/upload-artifact@v3
         with:
-          name: cloudflare-cold-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: cold-baseline-cloudflare
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -724,14 +689,9 @@ jobs:
 
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
-
-      - name: Set up Go 1.21
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.21
 
       - name: Set up Node 16.16.0
         uses: actions/setup-node@v3
@@ -739,22 +699,22 @@ jobs:
           node-version: 16.16.0
 
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
       - name: Untar client build
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Azure Cold Function Invocation - Baseline
-        working-directory: ${{env.working-directory}}
+        working-directory: ${{ env.working-directory }}
         run: ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
 
       - uses: actions/upload-artifact@v3
         with:
-          name: azure-cold-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: cold-baseline-azure
+          path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}

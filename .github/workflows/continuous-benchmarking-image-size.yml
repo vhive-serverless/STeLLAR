@@ -81,7 +81,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: aws-image-size-50mb
+          name: cold-image-size-50-aws
           path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
@@ -174,7 +174,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: aws-image-size-100mb
+          name: cold-image-size-100-aws
           path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
@@ -261,7 +261,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: azure-image-size-50mb
+          name: cold-image-size-50-azure
           path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
@@ -348,7 +348,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: azure-image-size-100mb
+          name: cold-image-size-100-azure
           path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
@@ -444,7 +444,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gcr-image-size-50mb
+          name: cold-image-size-50-gcr
           path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
@@ -540,7 +540,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: gcr-image-size-100mb
+          name: cold-image-size-100-gcr
           path: ${{ env.working-directory }}/latency-samples
 
       - name: Send Slack message using Incoming Webhooks
