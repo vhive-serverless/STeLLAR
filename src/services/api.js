@@ -1,0 +1,1 @@
+export const baseURL = "https://di4g51664l.execute-api.us-west-2.amazonaws.com";
