@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "java11",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellojava-zip-aws",
+      "Function": "hellojava",
+	  "Handler": "org.hellojava.Handler",
+	  "PackageType": "Zip",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

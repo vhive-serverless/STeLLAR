@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "ruby3.2",
+  "SubExperiments": [
+    {
+      "Title": "warm-helloruby-zip-aws",
+      "Function": "helloruby",
+	  "Handler": "function.handler",
+	  "PackageType": "Zip",
+	  "PackagePattern": "function.rb",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellopy-zip-aws",
+      "RepurposeIdentifier": "hellopy-zip-img0MB",
+      "Function": "hellopy",
+	  "Handler": "main.lambda_handler",
+	  "PackageType": "Zip",
+	  "PackagePattern": "main.py",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}
