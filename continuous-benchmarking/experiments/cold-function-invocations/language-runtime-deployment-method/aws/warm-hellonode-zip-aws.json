@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "nodejs18.x",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellonode-zip-aws",
+      "Function": "hellonode",
+	  "Handler": "index.handler",
+	  "PackageType": "Zip",
+	  "PackagePattern": "index.js",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

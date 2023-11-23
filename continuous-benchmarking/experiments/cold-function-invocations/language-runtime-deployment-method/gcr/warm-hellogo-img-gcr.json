@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "go1.x",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellogo-img-gcr",
+      "Function": "hellogo",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

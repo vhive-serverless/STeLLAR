@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "rust",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellorust-img-gcr",
+      "Function": "hellorust",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellopy-img-gcr",
+      "Function": "hellopy",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+	  "PackagePattern": "lambda_function.py",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "go1.x",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellogo-zip-aws",
+      "Function": "hellogo",
+	  "Handler": "main",
+	  "PackageType": "Zip",
+	  "PackagePattern": "main.go",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}
