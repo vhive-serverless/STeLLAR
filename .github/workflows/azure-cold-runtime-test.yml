@@ -1,0 +1,79 @@
+name: Run runtime experiments (Azure)
+on:
+  push:
+    branches:
+      - azure-runtime-test
+
+jobs:
+  build_client:
+    name: Build framework
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./src
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: azure-runtime-test 
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Build client binary
+        working-directory: ${{env.working-directory}}
+        run: env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o stellar main.go
+
+      - name: Package client artifact
+        working-directory: ${{env.working-directory}}
+        run: tar -czvf build.tar ./stellar
+
+      - name: Upload client artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: STeLLAR-build
+          path: ${{env.working-directory}}/build.tar
+          retention-days: 1
+
+  runtime_experiments_azure_cold:
+    name: Runtime Experiments (Azure Cold)
+    needs: [ build_client ]
+    runs-on: [ self-hosted, azure]
+    strategy:
+          matrix:
+            runtime:
+              [
+                py,
+                node,
+              ]
+    env:
+      working-directory: src
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: azure-runtime-test
+
+      - name: Download client artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: STeLLAR-build
+
+      - name: Untar client build
+        working-directory: ${{env.working-directory}}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
+
+      - name: Run experiment
+        working-directory: ${{ env.working-directory }}
+        run: ./stellar -o latency-samples-aws -l debug -c ../experiments/tests/hello${{matrix.runtime}}cold.json
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: azure-warm-latency-samples
+          path: ${{env.working-directory}}/latency-samples
