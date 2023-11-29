@@ -17,7 +17,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 24
+      "FunctionImageSizeMB": 24,
+      "Parallelism": 50
     }
   ]
 }
