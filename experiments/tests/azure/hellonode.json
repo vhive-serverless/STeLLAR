@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "azure",
+  "Runtime": "nodejs18",
+  "SubExperiments": [
+    {
+      "Title": "warm-hellonode-zip-azure",
+      "Function": "hellonode",
+      "Handler": "index.handler",
+      "PackageType": "Zip",
+      "PackagePattern": "index.js",
+      "Bursts": 100,
+      "BurstSizes": [
+        1
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    }
+  ]
+}
