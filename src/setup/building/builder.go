@@ -38,6 +38,8 @@ func (b *Builder) BuildFunction(provider string, functionName string, runtime st
 		buildJava(functionName, functionDir, artifactDir)
 	case "go1.x":
 		buildGolang(functionName, functionDir, artifactDir)
+	case "nodejs18":
+		fallthrough
 	case "nodejs18.x":
 		copyNodeJSFile(functionName, functionDir, artifactDir)
 	case "ruby3.2":
