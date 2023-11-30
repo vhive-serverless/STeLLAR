@@ -3,9 +3,9 @@
   "Provider": "aws",
   "SubExperiments": [
     {
-      "Title": "cold-language_deployment_hellopy_zip-aws",
+      "Title": "cold-language_deployment_hellopy_img-aws",
       "Function": "hellopy",
-      "RepurposeIdentifier": "hellopy-zip-img0MB",
+      "RepurposeIdentifier": "hellopy-img-img0MB",
       "Bursts": 1000,
       "BurstSizes": [
         1
@@ -15,7 +15,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "PackageType": "Zip",
+      "PackageType": "Image",
       "Parallelism":  100
     }
   ]
