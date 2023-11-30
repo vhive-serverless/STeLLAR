@@ -71,9 +71,9 @@ jobs:
 
       - name: Run experiment
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -o latency-samples-aws -l debug -c ../experiments/tests/azure/hello${{matrix.runtime}}cold.json
+        run: ./stellar -o latency-samples-azure -l debug -c ../experiments/tests/azure/hello${{matrix.runtime}}cold.json
 
       - uses: actions/upload-artifact@v3
         with:
-          name: azure-warm-latency-samples
-          path: ${{env.working-directory}}/latency-samples
+          name: azure-cold-latency-samples-${{ matrix.runtime }}
+          path: ${{env.working-directory}}/latency-samples-azure
