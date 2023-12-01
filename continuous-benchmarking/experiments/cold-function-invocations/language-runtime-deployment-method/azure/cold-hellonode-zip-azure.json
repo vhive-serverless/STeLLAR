@@ -9,7 +9,7 @@
       "Handler": "index.handler",
       "PackageType": "Zip",
       "PackagePattern": "index.js",
-      "Bursts": 1000,
+      "Bursts": 500,
       "BurstSizes": [
         1
       ],
