@@ -7,7 +7,7 @@ import Team from './pages/Team';
 import NotFound from './pages/Page404';
 import BaselineLatencyWarm from './pages/BaselineLatencyWarm';
 import BaselineLatencyCold from './pages/BaselineLatencyColdNew';
-import BaselineLatencyColdImageSize from './pages/BaselineLatencyColdImageSizeNew';
+import BaselineLatencyColdImageSize from './pages/BaselineLatencyColdImageSizeAll';
 // import BaselineLatencyColdDeploymentLanguage from './pages/BaselineLatencyDeploymentLanguage';
 import ComingSoon from './pages/PageComingSoon';
 import About from './pages/About';
