@@ -1,0 +1,92 @@
+name: Continuous benchmarking - Send notifications
+
+on:
+  workflow_run:
+    workflows: [ Continuous benchmarking - Baseline experiments, Continuous benchmarking - Image size experiments ]
+    types: [completed]
+
+jobs:
+  on-failure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack message using Incoming Webhooks after successful scheduled experiment run
+        uses: slackapi/slack-github-action@v1.24.0
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Workflow status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.event.workflow_run.name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Status*: ${{ github.event.workflow_run.conclusion }} ✅"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*URL*: ${{ github.event.workflow_run.html_url }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Send Slack message using Incoming Webhooks after failed scheduled experiment run
+        uses: slackapi/slack-github-action@v1.24.0
+        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Workflow status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.event.workflow_run.name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Status*: ${{ github.event.workflow_run.conclusion }} ❌"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*URL*: ${{ github.event.workflow_run.html_url }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

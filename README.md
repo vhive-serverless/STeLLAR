@@ -43,6 +43,9 @@ that describes the intial setup, as well as how to set up benchmarking experimen
 We would be happy to answer any questions in GitHub Issues and encourage the open-source community
 to submit new Issues, assist in addressing existing issues and limitations, and contribute their code with Pull Requests.
 
+### Continuous Benchmarking
+
+We provide scheduled benchmarks for AWS Lambda, Azure Functions, Google Cloudrun and Cloudflare Workers daily, which can be found on our [dashboard](https://vhive-serverless.github.io/STeLLAR/). Currently, there are benchmarks for warm and cold function invocations.
 
 ## License and copyright
 
@@ -57,7 +60,9 @@ The software is maintained at the [EASE lab](https://easelab.inf.ed.ac.uk/) as p
 * Dmitrii Ustiugov: [GitHub](https://github.com/ustiugov),
   [twitter](https://twitter.com/DmitriiUstiugov), [web page](http://homepages.inf.ed.ac.uk/s1373190/)
 * [Theodor Amariucai](https://github.com/amariucaitheodor)
-
+* [Dilina Dehigama](https://github.com/dilinade)
+* [Min Kabar Kyaw](https://github.com/kk-min)
+* [Yi Pun Wong](https://github.com/ypwong99)
 
 ## Design
 To begin with, we provide an overview of our benchmarking solution and define the main terms used throughout the rest of the codebase:
@@ -131,25 +136,19 @@ Below are listed key packages and components that are most essential to serverle
     - The serverless.yml file is stored inside each provider's subdirectory.
     - Function source code is stored in each provider’s subdirectories (e.g. aws/hellogo, azure/hellopy).
 
+### Current support & integration with Cloud Providers
 
-### Serverless.com & Cloud Provider Capabilities
-While serverless.com framework is a powerful tool when it comes to deploying Lambda Functions to AWS, its capabilities are more limited with other providers. The following table shows serverless.com features vs. different providers whose deployment was considered to be automated.
+|                          | AWS Lambda | Azure Function | Google Cloud Run | Cloudflare |
+| ------------------------ | ---------- | -------------- | ---------------- | ---------- |
+| Deploy function - zip    | Yes        | Yes            | No               | Yes        |
+| Deploy function - docker | Yes        | No             | Yes              | No         |
+| Python Runtime           | Yes        | Yes            | Yes              | Yes*       |
+| Go Runtime               | Yes        | No             | Yes              | Yes*       |
+| Java Runtime             | Yes        | No             | Yes              | Yes*       |
+| Node JS                  | Yes        | Yes            | Yes              | Yes        |
+| HTTP trigger             | Yes        | Yes            | Yes              | Yes        |
 
-|                                              | AWS Lambda | Azure Function                           | Google Cloud Run | Knative | Google Cloud Function *                  | Alibaba                                  |
-|----------------------------------------------|------------|------------------------------------------|------------------|---------|------------------------------------------|------------------------------------------|
-| Deploy function - zip                        | Yes        | Yes                                      | No               | N/A     | Yes                                      | Yes                                      |
-| Deploy function - docker                     | Yes        | No (documentation does not mention it)** | No               | Yes     | No (documentation does not mention it)** | No (documentation does not mention it)** |
-| Python Runtime                               | Yes        | Yes                                      | No               | Yes     | Yes                                      | ??**                                     |
-| Go Runtime                                   | Yes        | No                                       | No               | Yes     | Yes                                      | ??**                                     |
-| Java Runtime                                 | Yes        | No                                       | No               | ??**    | No                                       | ??**                                     |
-| Node JS                                      | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
-| HTTP trigger                                 | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
-| Resource Management (e.g. buckets databases) | Yes        | Yes (at least it looks like it)          | No               | ??**    | ??**                                     | ??**                                     |
-| Serverless framework support                 | Yes        | Yes                                      | No               | Yes     | Yes                                      | Yes                                      |
-
-*experimental version, not meant for production yet
-
-**needs to be empirically verified
+*\* Requires transpilation*
 
 ## Data Transfer Measurement
 We integrate all necessary server-side functionality into a single function that we call a _measurement function_. This approach is similar to that taken in [40] and other serverless performance evaluation frameworks. A measurement function can perform up to three tasks, depending on the use case:

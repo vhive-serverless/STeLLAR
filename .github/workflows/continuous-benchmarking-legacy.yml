@@ -19,18 +19,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-name: Run scheduled experiments
+name: Run scheduled experiments - legacy
 
 on: 
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
   
 jobs:
 
   clean_up:
     name: Clean-up workspace
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -42,7 +40,7 @@ jobs:
   build_client:
     name: Build framework
     needs: clean_up
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -84,7 +82,7 @@ jobs:
   run_function_warm_up:
     name: Run warm function - Warm up
     needs: build_client
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -96,7 +94,7 @@ jobs:
   run_warm_experiments:
     name: Run warm function tests
     needs: run_function_warm_up
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -108,7 +106,7 @@ jobs:
   run_cold_experiments:
     name: Run cold function tests
     needs: run_warm_experiments
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -121,7 +119,7 @@ jobs:
   run_cold_img_size_10_experiments:
     name: Run cold image size test - 10 MB
     needs: run_cold_experiments
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -133,7 +131,7 @@ jobs:
   run_cold_img_size_60_experiments:
     name: Run cold image size test - 60 MB
     needs: run_cold_img_size_10_experiments
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -145,7 +143,7 @@ jobs:
   run_cold_img_size_100_experiments:
     name: Run cold image size test - 100 MB
     needs: run_cold_img_size_60_experiments
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -157,7 +155,7 @@ jobs:
   run_lang_deployment_cold_py_img_experiments:
     name: Run cold python image tests (Python)
     needs: run_cold_img_size_100_experiments
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -170,7 +168,7 @@ jobs:
   run_lang_deployment_cold_pc_img_experiments:
     name: Run cold python image tests (Go)
     needs: run_lang_deployment_cold_py_img_experiments
-    runs-on: self-hosted
+    runs-on: [self-hosted, aws, legacy]
     env:
       working-directory: ./src
     steps:
@@ -178,4 +176,3 @@ jobs:
       - name: Cold Function Invocation - Producer Consumer Image based
         working-directory: ${{env.working-directory}}
         run: ./stellar -a 356764711652 -o latency-samples -g endpoints -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/cold-pc-img-aws.json -db
-
