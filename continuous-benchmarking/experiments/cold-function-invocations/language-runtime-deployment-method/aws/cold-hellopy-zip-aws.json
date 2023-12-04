@@ -1,6 +1,7 @@
 {
   "Sequential": false,
   "Provider": "aws",
+  "Runtime": "python3.9",
   "SubExperiments": [
     {
       "Title": "cold-language_deployment_hellopy_zip-aws",
