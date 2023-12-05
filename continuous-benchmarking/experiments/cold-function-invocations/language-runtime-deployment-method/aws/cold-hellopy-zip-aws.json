@@ -6,7 +6,9 @@
     {
       "Title": "cold-language_deployment_hellopy_zip-aws",
       "Function": "hellopy",
-      "RepurposeIdentifier": "hellopy-zip-img0MB",
+	  "Handler": "main.lambda_handler",
+	  "PackageType": "Zip",
+	  "PackagePattern": "main.py",
       "Bursts": 1000,
       "BurstSizes": [
         1

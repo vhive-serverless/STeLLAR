@@ -17,7 +17,7 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Parallelism": 50
+      "Parallelism": 30
     }
   ]
 }
