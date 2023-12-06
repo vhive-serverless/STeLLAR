@@ -4,7 +4,8 @@
   "Runtime": "python3.9",
   "SubExperiments": [
     {
-      "Title": "cold-language_deployment_hellopy_zip-aws",
+      "Title": "cold-hellopy-zip-aws",
+      "RepurposeIdentifier": "hellopy-zip-img0MB",
       "Function": "hellopy",
 	  "Handler": "main.lambda_handler",
 	  "PackageType": "Zip",
