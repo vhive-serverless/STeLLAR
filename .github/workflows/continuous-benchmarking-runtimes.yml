@@ -67,7 +67,7 @@ jobs:
 
       - name: Set up Go 1.21
         if: ${{ matrix.runtime == 'go'}}
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.21
 
@@ -183,7 +183,7 @@ jobs:
 
       - name: Set up Go 1.21
         if: ${{ matrix.runtime == 'go'}}
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.21
 
@@ -296,13 +296,8 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Node.js 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-
       - name: Download client artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: STeLLAR-build
 
