@@ -8,7 +8,7 @@ import NotFound from './pages/Page404';
 import BaselineLatencyWarm from './pages/BaselineLatencyWarm';
 import BaselineLatencyCold from './pages/BaselineLatencyColdNew';
 import BaselineLatencyColdImageSize from './pages/BaselineLatencyColdImageSizeAll';
-// import BaselineLatencyColdDeploymentLanguage from './pages/BaselineLatencyDeploymentLanguage';
+import BaselineLatencyColdDeploymentLanguageNew from './pages/BaselineLatencyDeploymentLanguageNew';
 import ComingSoon from './pages/PageComingSoon';
 import About from './pages/About';
 
@@ -35,8 +35,8 @@ export default function Router() {
           { path: 'baseline', element: <BaselineLatencyCold/> },
           // { path: 'image-size', element:<BaselineLatencyColdImageSize/> },
           { path: 'image-size', element:<BaselineLatencyColdImageSize/> },
-          // { path: 'deployment-language', element: <BaselineLatencyColdDeploymentLanguage /> }
-          { path: 'deployment-language', element: <ComingSoon /> }
+          { path: 'deployment-language', element: <BaselineLatencyColdDeploymentLanguageNew /> }
+          // { path: 'deployment-language', element: <ComingSoon /> }
         ]},
         { 
         path: 'data-transfer', 

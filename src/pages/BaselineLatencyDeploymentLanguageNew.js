@@ -31,9 +31,7 @@ export default function BaselineLatencyDashboard() {
     const today = new Date();
     const yesterday = subDays(today,1);
 
-
-    const experimentTypeAWS50 = 'cold-image-size-50-aws';
-    const experimentTypeAWS100 = 'cold-image-size-100-aws';
+    const experimentTypeAWSPythonZip = 'cold-hellopy-zip-aws';
 
     const oneWeekBefore = subWeeks(today,1);
 
@@ -47,11 +45,11 @@ export default function BaselineLatencyDashboard() {
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
-    const [experimentType,setExperimentType] = useState(experimentTypeAWS50);
-    const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold-image-size-50');
+    const [experimentType,setExperimentType] = useState(experimentTypeAWSPythonZip);
+    const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold-hellopy');
     const [dateRange, setDateRange] = useState('week');
     const [imageSize, setImageSize] = useState('50');
-    const [imageSizeOverall, setImageSizeOverall] = useState('50');
+    const [languageRuntime, setLanguageRuntime] = useState('python');
     const [provider, setProvider] = useState('aws');
 
     const handleChangeDate = (event) => {
@@ -72,15 +70,10 @@ export default function BaselineLatencyDashboard() {
       setDateRange(event.target.value);
     };
 
-    const handleChangeImageSize = (event) => {
-      const selectedValue = event.target.value;  
-      setImageSize(selectedValue);
-    };
 
-
-    const handleChangeImageSizeOverall = (event) => {
+    const handleChangeLanguageRuntime = (event) => {
       const selectedValue = event.target.value;  
-      setImageSizeOverall(selectedValue);
+      setLanguageRuntime(selectedValue);
     };
 
     const handleChangeProvider = (event) => {
@@ -88,13 +81,28 @@ export default function BaselineLatencyDashboard() {
       setProvider(selectedValue);
     };
     
-    useMemo(()=>{
-      setExperimentType(`cold-image-size-${imageSize}-${provider}`)
-    },[imageSize,provider])
+    // useMemo(()=>{
+    //   setExperimentType(`cold-${languageRuntime}-${provider}`)
+    // },[languageRuntime,provider])
 
     useMemo(()=>{
-      setExperimentTypeOverall(`cold-image-size-${imageSizeOverall}`)
-    },[imageSizeOverall])
+      let app = 'hellopy';
+
+      if(languageRuntime==='python') {
+        app = 'hellopy'
+      }
+      else if(languageRuntime==='go'){
+        app = 'hellogo'
+      }
+      else if(languageRuntime==='node'){
+        app = 'hellonode'
+      }
+      else{
+        app = 'hellojava'
+      }
+
+      setExperimentTypeOverall(`cold-${app}`)
+    },[languageRuntime])
 
     useMemo(()=>{
       if(startDate <'2023-01-20'){
@@ -102,56 +110,54 @@ export default function BaselineLatencyDashboard() {
       }
     },[startDate])
 
-    const fetchIndividualData = useCallback(async () => {
-        try {
-            const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentType,
-                    selected_date:selectedDate
-                },
-            });
-            if (isMountedRef.current) {
-                setDailyStatistics(response.data);
-            }
-        } catch (err) {
-            setIsErrorDailyStatistics(true);
-        }
-    }, [isMountedRef,selectedDate,experimentType]);
+    // const fetchIndividualData = useCallback(async () => {
+    //     try {
+    //         const response = await axios.get(`${baseURL}/results`, {
+    //             params: { experiment_type: experimentType,
+    //                 selected_date:selectedDate
+    //             },
+    //         });
+    //         if (isMountedRef.current) {
+    //             setDailyStatistics(response.data);
+    //         }
+    //     } catch (err) {
+    //         setIsErrorDailyStatistics(true);
+    //     }
+    // }, [isMountedRef,selectedDate,experimentType]);
 
-    useMemo(() => {
-        fetchIndividualData();
-    }, [fetchIndividualData]);
+    // useMemo(() => {
+    //     fetchIndividualData();
+    // }, [fetchIndividualData]);
 
-    // 50 MB Functionality AWS
-    const fetchDataRangeAWS50MB = useCallback(async () => {
+    // ZIP Image Functionality
+    
+    const fetchDataRangeImageZipAWS = useCallback(async () => {
         try {
-            const responseAWS = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: `${experimentTypeOverall}-aws`,
+            const responseAWSZip = await axios.get(`${baseURL}/results`, {
+                params: { experiment_type: `${experimentTypeOverall}-zip-aws`,
                     start_date:startDate,
                     end_date:endDate,
                 },
             });
-            const responseGCR = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: `${experimentTypeOverall}-gcr`,
+            // console.log(`${experimentTypeOverall}-zip-aws`)
+            const responseAWSImage= await axios.get(`${baseURL}/results`, {
+              params: { experiment_type: `${experimentTypeOverall}-img-aws`,
                   start_date:startDate,
                   end_date:endDate,
               },
           });
-          const responseAzure = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-azure`,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
-        console.log(responseAWS.data,responseGCR.data,responseAzure.data)
-            if (isMountedRef.current) {
-              if(responseGCR.data.length>0){
-                setoverallStatisticsGCR(responseGCR.data)
-              }
-              if(responseAzure.data.length>0){
-                setoverallStatisticsAzure(responseAzure.data)
-              }
-              if(responseAWS.data.length>0){
-                setoverallStatisticsAWS(responseAWS.data)
+
+          const [resultAWSZip, resultAWSImage] = await Promise.all([responseAWSZip, responseAWSImage]);
+
+
+         if (isMountedRef.current) {
+             
+              if(resultAWSImage.data && resultAWSZip.data){
+                setoverallStatisticsAWS({
+                  'image': resultAWSImage.data ,
+                  'zip': resultAWSZip.data
+                })
+                
               }
             }
         } catch (err) {
@@ -159,104 +165,140 @@ export default function BaselineLatencyDashboard() {
         }
     }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
 
-
-  // 100 MB Functionality
-
-  const fetchDataRange100MB = useCallback(async () => {
-    try {
-        const response = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeAWS100,
+    const fetchDataRangeImageZipGCR = useCallback(async () => {
+      try {
+          const responseGCRZip = await axios.get(`${baseURL}/results`, {
+              params: { experiment_type: `${experimentTypeOverall}-zip-gcr`,
+                  start_date:startDate,
+                  end_date:endDate,
+              },
+          });
+          const responseGCRImage= await axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-img-gcr`,
                 start_date:startDate,
                 end_date:endDate,
             },
         });
-        if (isMountedRef.current) {
-            setoverallStatisticsAWS100MB(response.data)
-        }
-    } catch (err) {
-        setIsErrorDataRangeStatistics(true);
-    }
-}, [isMountedRef,startDate,endDate]);
+
+        const [resultGCRZip, resultGCRImage] = await Promise.all([responseGCRZip, responseGCRImage]);
+
+       if (isMountedRef.current) {
+           
+            if(resultGCRImage.data && resultGCRZip.data){
+              // console.log(resultAWSImage,resultAWSImage)
+              setoverallStatisticsGCR({
+                'image': resultGCRImage.data ,
+                'zip': resultGCRZip.data
+              })
+              
+            }
+          }
+      } catch (err) {
+          setIsErrorDataRangeStatistics(true);
+      }
+  }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
+
+    const fetchDataRangeImageZipAzure = useCallback(async () => {
+      try {
+          const responseAzureZip = await axios.get(`${baseURL}/results`, {
+              params: { experiment_type: `${experimentTypeOverall}-zip-azure`,
+                  start_date:startDate,
+                  end_date:endDate,
+              },
+          });
+          const responseAzureImage= await axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-img-azure`,
+                start_date:startDate,
+                end_date:endDate,
+            },
+        });
+
+        const [resultAzureZip, resultAzureImage] = await Promise.all([responseAzureZip, responseAzureImage]);
+
+       if (isMountedRef.current) {
+           
+            if(resultAzureImage.data && resultAzureZip.data){
+              setoverallStatisticsAzure({
+                'image': resultAzureImage.data ,
+                'zip': resultAzureZip.data
+              })
+              
+            }
+          }
+      } catch (err) {
+          setIsErrorDataRangeStatistics(true);
+      }
+  }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
+
     
 
-useMemo(() => {
-      fetchDataRangeAWS50MB();
-      fetchDataRange100MB();
-    }, [fetchDataRangeAWS50MB,fetchDataRange100MB]);
+  useMemo(() => {
+    fetchDataRangeImageZipAWS();
+  }, [fetchDataRangeImageZipAWS]);
+      
+
+  useMemo(() => {
+    fetchDataRangeImageZipGCR();
+  }, [fetchDataRangeImageZipGCR]);
+        
+
+  useMemo(() => {
+    fetchDataRangeImageZipAzure();
+  }, [fetchDataRangeImageZipAzure]);
+        
+
  
-    const dateRangeList50MB = useMemo(()=> {
-        if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => record.date);
+    const dateRangeListAWS = useMemo(()=> {
+        if(overallStatisticsAzure)
+            return overallStatisticsAzure.zip.map(record => record.date);
         return null
 
-    },[overallStatisticsAWS])
+    },[overallStatisticsAzure])
     
-
-
-    // 50 MB Data Processing AWS
+ // Tail latency calculation
     
-  const tailLatenciesAWS = useMemo(()=> {
-      if(overallStatisticsAWS)
-          return overallStatisticsAWS.map(record => Math.log10(record.tail_latency).toFixed(2));
-      return null
-
-  },[overallStatisticsAWS])
-  
-    // 50 MB Data Processing GCR
-  const tailLatenciesGCR = useMemo(()=> {
-    if(overallStatisticsGCR)
-        return overallStatisticsGCR.map(record => Math.log10(record.tail_latency).toFixed(2));
-    return null
-
-},[overallStatisticsGCR])
-
-    // 50 MB Data Processing Azure
-const tailLatenciesAzure = useMemo(()=> {
-  if(overallStatisticsAzure)
-      return overallStatisticsAzure.map(record => Math.log10(record.tail_latency).toFixed(2));
-  return null
-
-},[overallStatisticsAzure])
-
-// Median Latencies AWS
-  const medianLatenciesAWS = useMemo(()=> {
-      if(overallStatisticsAWS)
-          return overallStatisticsAWS.map(record => record.median);
-      return null
+  const [tailLatenciesAWSZip,tailLatenciesAWSImage,medianLatenciesAWSZip,medianLatenciesAWSImage] = useMemo(()=> {
+   
+      if(overallStatisticsAWS){
+          return [
+            overallStatisticsAWS.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
+            overallStatisticsAWS.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
+            overallStatisticsAWS.zip.map(record => (record.median)),
+            overallStatisticsAWS.image.map(record => (record.median))
+          ];
+        }
+      return [null,null]
 
   },[overallStatisticsAWS])
 
-  const medianLatenciesGCR = useMemo(()=> {
-    if(overallStatisticsGCR)
-        return overallStatisticsGCR.map(record => record.median);
-    return null
+  const [tailLatenciesGCRZip,tailLatenciesGCRImage,medianLatenciesGCRZip,medianLatenciesGCRImage] = useMemo(()=> {
+   
+    if(overallStatisticsGCR){
+        return [
+          overallStatisticsGCR.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
+          overallStatisticsGCR.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
+          overallStatisticsGCR.zip.map(record => (record.median)),
+          overallStatisticsGCR.image.map(record => (record.median))
+        ];
+      }
+    return [null,null]
 
 },[overallStatisticsGCR])
 
-const medianLatenciesAzure = useMemo(()=> {
-  if(overallStatisticsAzure)
-      return overallStatisticsAzure.map(record => record.median);
-  return null
+const [tailLatenciesAzureZip,tailLatenciesAzureImage,medianLatenciesAzureZip,medianLatenciesAzureImage] = useMemo(()=> {
+   
+  if(overallStatisticsAzure){
+      return [
+        overallStatisticsAzure.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
+        overallStatisticsAzure.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
+        overallStatisticsAzure.zip.map(record => (record.median)),
+        overallStatisticsAzure.image.map(record => (record.median))
+        
+      ];
+    }
+  return [null,null]
 
 },[overallStatisticsAzure])
-  // 100 MB Data Processing 
-    
-  const tailLatencies100MB = useMemo(()=> {
-    if(overallStatisticsAWS100MB)
-        return overallStatisticsAWS100MB.map(record => record.tail_latency);
-    return null
-
-},[overallStatisticsAWS100MB])
-
-
-const medianLatencies100MB = useMemo(()=> {
-    if(overallStatisticsAWS100MB)
-        return overallStatisticsAWS100MB.map(record => record.median);
-    return null
-
-},[overallStatisticsAWS100MB])
-
-
 
 
 
@@ -282,7 +324,7 @@ const medianLatencies100MB = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Cold Function Invocations - Impact of Function Image Size
+            Cold Function Invocations - Impacts of Deployment Method and Language Runtime
             </Typography>
            
             <Card>
@@ -292,9 +334,15 @@ const medianLatencies100MB = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we assess the impact of the image size on the median and tail
-response times, by adding an extra random-content file to
-each image. <br/>
+            In this experiment, we study the implications of different deployment methods
+and language runtimes. <br/> Deployment methods refer to how a
+developer packages and deploys their functions, which also
+affects the way in which serverless infrastructures store and
+load a function image when an instance is cold booted. <br/> <br/>
+We study the two deployment methods that are in common use
+today: <b> ZIP archive </b>, and <b> Container-based image. </b> <br/>
+With respect to language runtime, we focus on fundamental classes
+of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
             <br/>
             Detailed configuration parameters are as below.
             
@@ -305,12 +353,9 @@ each image. <br/>
             Serverless Clouds : <b>AWS Lambda, Google Cloud Run, Azure Functions</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Go</b>
+            Language Runtimes : <b>Python, Go, Node.js ,Java</b>
           </ListItem>
-          <ListItem sx={{ display: 'list-item' }}>
-            Deployment Method : <b>ZIP based</b>
-          </ListItem>
-
+  
           
 
           </Box>
@@ -319,11 +364,15 @@ each image. <br/>
             Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
+            Deployment Methods : <b>ZIP & Image based</b>
+          </ListItem>
+
+          {/* <ListItem sx={{ display: 'list-item' }}>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
             Function Image Sizes : <b>50MB, 100MB</b>
-          </ListItem>
+          </ListItem> */}
               </Box>
               </Stack>
             </CardContent>
@@ -359,12 +408,14 @@ each image. <br/>
   </Select>
   <InputLabel sx={{mx:3}}> Image Size :</InputLabel>
   <Select
-    value={imageSizeOverall}
-    label="imageSizeOverall"
-    onChange={handleChangeImageSizeOverall}
+    value={languageRuntime}
+    label="languageRuntime"
+    onChange={handleChangeLanguageRuntime}
   >
-    <MenuItem value={'50'}>50 MB</MenuItem>
-    <MenuItem value={'100'}>100 MB</MenuItem>
+    <MenuItem value={'python'}>Python</MenuItem>
+    <MenuItem value={'node'}>Node</MenuItem>
+    <MenuItem value={'go'}>Go</MenuItem>
+    <MenuItem value={'java'}>Java</MenuItem>
   </Select>
           </Stack>
          
@@ -400,54 +451,130 @@ each image. <br/>
               title="Tail Latency "
               subheader="99th Percentile"
               type={'tail'}
-              chartLabels={dateRangeList50MB}
+              chartLabels={dateRangeListAWS}
+              dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
-                  name: `AWS - ${imageSizeOverall} MB`,
+                  name: `AWS - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[2],
+                  data: tailLatenciesAWSZip,
+                },
+                {
+                  name: `AWS - Image - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.blue[0],
-                  data: tailLatenciesAWS,
+                  data: tailLatenciesAWSImage,
                 },
                 {
-                  name: `GCR - ${imageSizeOverall} MB`,
+                  name: `GCR - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[2],
+                  data: tailLatenciesGCRZip,
+                },
+                {
+                  name: `GCR - Image - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.green[0],
-                  data: tailLatenciesGCR,
+                  data: tailLatenciesGCRImage,
                 },
                 {
-                  name: `Azure - ${imageSizeOverall} MB`,
+                  name: `Azure - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[2],
+                  data: tailLatenciesAzureZip,
+                },
+                {
+                  name: `Azure - Image - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
-                  data: tailLatenciesAzure,
+                  data: tailLatenciesAzureImage,
                 },
               ]}
             />
           </Grid>
+
           <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Median Latency "
+              subheader="50th Percentile"
+              chartLabels={dateRangeListAWS}
+              dashArrayValue = {[5,0,5,0,5,0]}
+              chartData={[
+                {
+                  name: `AWS - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[2],
+                  data: medianLatenciesAWSZip,
+                },
+                {
+                  name: `AWS - Image - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[0],
+                  data: medianLatenciesAWSImage,
+                },
+                {
+                  name: `GCR - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[2],
+                  data: medianLatenciesGCRZip,
+                },
+                {
+                  name: `GCR - Image - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[0],
+                  data: medianLatenciesGCRImage,
+                },
+                {
+                  name: `Azure - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[2],
+                  data: medianLatenciesAzureZip,
+                },
+                {
+                  name: `Azure - Image - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: medianLatenciesAzureImage,
+                },
+              ]}
+            />
+          </Grid>
+
+          {/* <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency "
               subheader="50th Percentile"
               chartLabels={dateRangeList50MB}
               chartData={[
                 {
-                  name: `AWS - ${imageSizeOverall} MB`,
+                  name: 'AWS - 50 MB',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.blue[0],
                   data: medianLatenciesAWS,
                 },
                 {
-                  name: `GCR - ${imageSizeOverall} MB`,
+                  name: 'GCR - 50 MB',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.green[0],
                   data: medianLatenciesGCR,
                 },
                 {
-                  name: `Azure - ${imageSizeOverall} MB`,
+                  name: 'Azure - 50 MB',
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
@@ -456,12 +583,12 @@ each image. <br/>
                 
               ]}
             />
-          </Grid>
+          </Grid> */}
           
           </CardContent>
           </Card>
           </Grid>
-
+{/* 
           <Grid item xs={12} sx={{mt:5}}>
               <Card>
                 <CardContent>
@@ -537,7 +664,7 @@ each image. <br/>
 
           </CardContent>
               </Card>
-          </Grid>
+          </Grid> */}
 
         </Grid>
         
