@@ -41,6 +41,7 @@ jobs:
     name: AWS 50MB image size experiment
     needs: build_client
     runs-on: [ self-hosted, aws ]
+    timeout-minutes: 600
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -134,6 +135,7 @@ jobs:
     name: AWS 100MB image size experiment
     needs: build_client
     runs-on: [ self-hosted, aws ]
+    timeout-minutes: 600
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
