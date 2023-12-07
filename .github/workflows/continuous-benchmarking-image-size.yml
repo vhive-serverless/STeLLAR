@@ -6,8 +6,23 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  clean_up:
+    name: Clean-up workspace
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ gcr, aws, azure, cloudflare ]
+    env:
+      working-directory: ./src
+    steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
   build_client:
     name: Build framework
+    needs: clean_up
     runs-on: ubuntu-latest
     env:
       working-directory: ./src
