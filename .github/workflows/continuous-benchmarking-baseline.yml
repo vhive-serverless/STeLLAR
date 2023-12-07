@@ -77,6 +77,7 @@ jobs:
     name: AWS warm baseline experiment
     needs: build_client
     runs-on: [ self-hosted, aws ]
+    timeout-minutes: 600
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -168,6 +169,7 @@ jobs:
     name: GCR warm baseline experiment
     needs: build_client
     runs-on: [ self-hosted, gcr ]
+    timeout-minutes: 600
     env:
       working-directory: src
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -257,6 +259,7 @@ jobs:
     name: Cloudflare warm baseline experiment
     needs: build_client
     runs-on: [ self-hosted, cloudflare ]
+    timeout-minutes: 600
     env:
       working-directory: src
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -334,6 +337,7 @@ jobs:
     name: Azure warm baseline experiment
     needs: build_client
     runs-on: [ self-hosted, azure ]
+    timeout-minutes: 600
     env:
       working-directory: src
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -420,6 +424,7 @@ jobs:
     name: AWS cold baseline experiment
     needs: build_client
     runs-on: [ self-hosted, aws ]
+    timeout-minutes: 600
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -513,6 +518,7 @@ jobs:
     name: GCR cold baseline experiment
     needs: build_client
     runs-on: [ self-hosted, gcr ]
+    timeout-minutes: 600
     env:
       working-directory: src
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -602,6 +608,7 @@ jobs:
     name: Cloudflare cold baseline experiment
     needs: build_client
     runs-on: [ self-hosted, cloudflare ]
+    timeout-minutes: 600
     env:
       working-directory: src
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
