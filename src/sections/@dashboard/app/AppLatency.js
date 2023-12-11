@@ -56,7 +56,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
             return type ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
           }
           if(y===0)
-            return `Not found`;
+            return `No data`;
           
           return y;
         },
