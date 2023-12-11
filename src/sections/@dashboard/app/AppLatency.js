@@ -36,7 +36,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
           formatter: (y) => {
             if (typeof y !== 'undefined') {
               // return Math.pow(10, Math.ceil(Math.log10(v)));
-              return type ? `${(10 ** y).toFixed(0)}`  : `${y.toFixed(0)}`;
+              return type && y!==0 ? `${(10 ** y).toFixed(0)}`  : `${y.toFixed(0)}`;
             }
             return y;
           },
@@ -51,10 +51,13 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
       intersect: false,
       y: {
         formatter: (y) => {
-          if (typeof y !== 'undefined') {
+          if (typeof y !== 'undefined' && y!== 0 ) {
             // return y
             return type ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
           }
+          if(y===0)
+            return `Not found`;
+          
           return y;
         },
       },
@@ -65,7 +68,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
     chartOptions.yaxis.max = 4; // Replace with the maximum value you want
   }
   if (type==='tail') {
-    chartOptions.yaxis.min = 1; // Replace with the minimum value you want
+    chartOptions.yaxis.min = 0; // Replace with the minimum value you want
     chartOptions.yaxis.max = 6; // Replace with the maximum value you want
   }
 

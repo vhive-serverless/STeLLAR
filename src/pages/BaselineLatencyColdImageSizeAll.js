@@ -197,7 +197,7 @@ useMemo(() => {
     
   const tailLatenciesAWS = useMemo(()=> {
       if(overallStatisticsAWS)
-          return overallStatisticsAWS.map(record => Math.log10(record.tail_latency).toFixed(2));
+          return overallStatisticsAWS.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2));
       return null
 
   },[overallStatisticsAWS])
@@ -205,7 +205,7 @@ useMemo(() => {
     // 50 MB Data Processing GCR
   const tailLatenciesGCR = useMemo(()=> {
     if(overallStatisticsGCR)
-        return overallStatisticsGCR.map(record => Math.log10(record.tail_latency).toFixed(2));
+        return overallStatisticsGCR.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2));
     return null
 
 },[overallStatisticsGCR])
@@ -213,7 +213,7 @@ useMemo(() => {
     // 50 MB Data Processing Azure
 const tailLatenciesAzure = useMemo(()=> {
   if(overallStatisticsAzure)
-      return overallStatisticsAzure.map(record => Math.log10(record.tail_latency).toFixed(2));
+      return overallStatisticsAzure.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
   return null
 
 },[overallStatisticsAzure])
