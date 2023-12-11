@@ -255,23 +255,22 @@ export default function About() {
             View Results
           </Button>
           </ListItem>
-              {/* <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Next, we evaluate response times of cold functions varying the function image sizes in 3 different settings.
+              <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Next, we evaluate response times of cold functions varying the function image sizes in 2 different settings.
               <Button to="/dashboard/cold/image-size" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
           
-          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 10MB , 60MB , 100MB</ListItem>
+          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 50MB , 100MB</ListItem>
        
           </ListItem>
-          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> We examine the implications of utilizing different deployment techniques and language runtimes. We specifically investigate the two prevalent deployment methods in use currently, namely ZIP archive and container-based image. Additionally, we concentrate on two essential categories of language runtimes: compiled and interpreted. 
+          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> We examine the implications of utilizing different deployment techniques and language runtimes. We specifically investigate the two prevalent deployment methods in use currently, namely ZIP archive and container-based image.
               <Button to="/dashboard/cold/deployment-language" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
                   View Results
               </Button>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Python - ZIP based deployment</ListItem>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Python - Image based deployment</ListItem>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - ZIP based deployment</ListItem>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Go - Image based deployment</ListItem>
-          </ListItem> */}
+            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>AWS - ZIP based deployment</ListItem>
+            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Google Cloud Run - Image based deployment</ListItem>
+            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Azure - ZIP based deployment</ListItem>
+          </ListItem>
           <Typography variant='p'>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography>
           </CardContent>
           </Card>
