@@ -142,7 +142,7 @@ export default function BaselineLatencyDashboard() {
                 end_date:endDate,
             },
         });
-        console.log(responseAWS.data,responseGCR.data,responseAzure.data)
+        // console.log(responseAWS.data,responseGCR.data,responseAzure.data)
             if (isMountedRef.current) {
               if(responseGCR.data.length>0){
                 setoverallStatisticsGCR(responseGCR.data)

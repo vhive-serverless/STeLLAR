@@ -204,7 +204,7 @@ const azureData100 = useLatencyData(experimentTypeAzure100, startDate, endDate);
 
 },[overallStatisticsAzure])
 
-console.log(tailLatenciesAWS);
+// console.log(tailLatenciesAWS);
 
   const medianLatenciesAWS = useMemo(()=> {
       if(overallStatisticsAWS)

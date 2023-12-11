@@ -267,7 +267,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
       }
     },[startDate])
 
-    console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
+    // console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
