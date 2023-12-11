@@ -140,21 +140,21 @@ export default function BaselineLatencyDashboard() {
                 },
             });
             // console.log(`${experimentTypeOverall}-zip-aws`)
-            const responseAWSImage= await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: `${experimentTypeOverall}-img-aws`,
-                  start_date:startDate,
-                  end_date:endDate,
-              },
-          });
+          //   const responseAWSImage= await axios.get(`${baseURL}/results`, {
+          //     params: { experiment_type: `${experimentTypeOverall}-img-aws`,
+          //         start_date:startDate,
+          //         end_date:endDate,
+          //     },
+          // });
 
-          const [resultAWSZip, resultAWSImage] = await Promise.all([responseAWSZip, responseAWSImage]);
+          const [resultAWSZip] = await Promise.all([responseAWSZip]);
 
 
          if (isMountedRef.current) {
              
-              if(resultAWSImage.data && resultAWSZip.data){
+              if(resultAWSZip.data){
                 setoverallStatisticsAWS({
-                  'image': resultAWSImage.data ,
+                  // 'image': resultAWSImage.data ,
                   'zip': resultAWSZip.data
                 })
                 
@@ -167,12 +167,12 @@ export default function BaselineLatencyDashboard() {
 
     const fetchDataRangeImageZipGCR = useCallback(async () => {
       try {
-          const responseGCRZip = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: `${experimentTypeOverall}-zip-gcr`,
-                  start_date:startDate,
-                  end_date:endDate,
-              },
-          });
+          // const responseGCRZip = await axios.get(`${baseURL}/results`, {
+          //     params: { experiment_type: `${experimentTypeOverall}-zip-gcr`,
+          //         start_date:startDate,
+          //         end_date:endDate,
+          //     },
+          // });
           const responseGCRImage= await axios.get(`${baseURL}/results`, {
             params: { experiment_type: `${experimentTypeOverall}-img-gcr`,
                 start_date:startDate,
@@ -180,15 +180,16 @@ export default function BaselineLatencyDashboard() {
             },
         });
 
-        const [resultGCRZip, resultGCRImage] = await Promise.all([responseGCRZip, responseGCRImage]);
+        // const [resultGCRZip, resultGCRImage] = await Promise.all([responseGCRZip, responseGCRImage]);
+        const [resultGCRImage] = await Promise.all([responseGCRImage]);
 
        if (isMountedRef.current) {
            
-            if(resultGCRImage.data && resultGCRZip.data){
+            if(resultGCRImage.data){
               // console.log(resultAWSImage,resultAWSImage)
               setoverallStatisticsGCR({
                 'image': resultGCRImage.data ,
-                'zip': resultGCRZip.data
+                // 'zip': resultGCRZip.data
               })
               
             }
@@ -206,20 +207,20 @@ export default function BaselineLatencyDashboard() {
                   end_date:endDate,
               },
           });
-          const responseAzureImage= await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-img-azure`,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
+        //   const responseAzureImage= await axios.get(`${baseURL}/results`, {
+        //     params: { experiment_type: `${experimentTypeOverall}-img-azure`,
+        //         start_date:startDate,
+        //         end_date:endDate,
+        //     },
+        // });
 
-        const [resultAzureZip, resultAzureImage] = await Promise.all([responseAzureZip, responseAzureImage]);
+        const [resultAzureZip] = await Promise.all([responseAzureZip]);
 
        if (isMountedRef.current) {
            
-            if(resultAzureImage.data && resultAzureZip.data){
+            if(resultAzureZip.data){
               setoverallStatisticsAzure({
-                'image': resultAzureImage.data ,
+                // 'image': resultAzureImage.data ,
                 'zip': resultAzureZip.data
               })
               
@@ -257,27 +258,27 @@ export default function BaselineLatencyDashboard() {
     
  // Tail latency calculation
     
-  const [tailLatenciesAWSZip,tailLatenciesAWSImage,medianLatenciesAWSZip,medianLatenciesAWSImage] = useMemo(()=> {
+  const [tailLatenciesAWSZip,medianLatenciesAWSZip] = useMemo(()=> {
    
       if(overallStatisticsAWS){
           return [
-            overallStatisticsAWS.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
-            overallStatisticsAWS.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
+            overallStatisticsAWS.zip.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
+            // overallStatisticsAWS.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
             overallStatisticsAWS.zip.map(record => (record.median)),
-            overallStatisticsAWS.image.map(record => (record.median))
+            // overallStatisticsAWS.image.map(record => (record.median))
           ];
         }
       return [null,null]
 
   },[overallStatisticsAWS])
 
-  const [tailLatenciesGCRZip,tailLatenciesGCRImage,medianLatenciesGCRZip,medianLatenciesGCRImage] = useMemo(()=> {
+  const [tailLatenciesGCRImage,medianLatenciesGCRImage] = useMemo(()=> {
    
     if(overallStatisticsGCR){
         return [
-          overallStatisticsGCR.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
-          overallStatisticsGCR.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
-          overallStatisticsGCR.zip.map(record => (record.median)),
+          // overallStatisticsGCR.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
+          overallStatisticsGCR.image.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
+          // overallStatisticsGCR.zip.map(record => (record.median)),
           overallStatisticsGCR.image.map(record => (record.median))
         ];
       }
@@ -285,14 +286,14 @@ export default function BaselineLatencyDashboard() {
 
 },[overallStatisticsGCR])
 
-const [tailLatenciesAzureZip,tailLatenciesAzureImage,medianLatenciesAzureZip,medianLatenciesAzureImage] = useMemo(()=> {
+const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
    
   if(overallStatisticsAzure){
       return [
-        overallStatisticsAzure.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
-        overallStatisticsAzure.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
+        overallStatisticsAzure.zip.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
+        // overallStatisticsAzure.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
         overallStatisticsAzure.zip.map(record => (record.median)),
-        overallStatisticsAzure.image.map(record => (record.median))
+        // overallStatisticsAzure.image.map(record => (record.median))
         
       ];
     }
@@ -406,7 +407,7 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
     <MenuItem value={'3-months'}>Last 3 months</MenuItem>
     <MenuItem value={'custom'}>Custom range</MenuItem>
   </Select>
-  <InputLabel sx={{mx:3}}> Image Size :</InputLabel>
+  <InputLabel sx={{mx:3}}> Language Runtime :</InputLabel>
   <Select
     value={languageRuntime}
     label="languageRuntime"
@@ -458,23 +459,23 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                   name: `AWS - Zip - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.blue[2],
+                  color:theme.palette.chart.blue[0],
                   data: tailLatenciesAWSZip,
                 },
-                {
-                  name: `AWS - Image - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: tailLatenciesAWSImage,
-                },
-                {
-                  name: `GCR - Zip - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[2],
-                  data: tailLatenciesGCRZip,
-                },
+                // {
+                //   name: `AWS - Image - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.blue[0],
+                //   data: tailLatenciesAWSImage,
+                // },
+                // {
+                //   name: `GCR - Zip - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.green[2],
+                //   data: tailLatenciesGCRZip,
+                // },
                 {
                   name: `GCR - Image - ${languageRuntime}`,
                   type: 'line',
@@ -486,16 +487,16 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                   name: `Azure - Zip - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.red[2],
+                  color:theme.palette.chart.red[0],
                   data: tailLatenciesAzureZip,
                 },
-                {
-                  name: `Azure - Image - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: tailLatenciesAzureImage,
-                },
+                // {
+                //   name: `Azure - Image - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.red[0],
+                //   data: tailLatenciesAzureImage,
+                // },
               ]}
             />
           </Grid>
@@ -511,23 +512,23 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                   name: `AWS - Zip - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.blue[2],
+                  color:theme.palette.chart.blue[0],
                   data: medianLatenciesAWSZip,
                 },
-                {
-                  name: `AWS - Image - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: medianLatenciesAWSImage,
-                },
-                {
-                  name: `GCR - Zip - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[2],
-                  data: medianLatenciesGCRZip,
-                },
+                // {
+                //   name: `AWS - Image - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.blue[0],
+                //   data: medianLatenciesAWSImage,
+                // },
+                // {
+                //   name: `GCR - Zip - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.green[2],
+                //   data: medianLatenciesGCRZip,
+                // },
                 {
                   name: `GCR - Image - ${languageRuntime}`,
                   type: 'line',
@@ -539,16 +540,16 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                   name: `Azure - Zip - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
-                  color:theme.palette.chart.red[2],
+                  color:theme.palette.chart.red[0],
                   data: medianLatenciesAzureZip,
                 },
-                {
-                  name: `Azure - Image - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: medianLatenciesAzureImage,
-                },
+                // {
+                //   name: `Azure - Image - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.red[0],
+                //   data: medianLatenciesAzureImage,
+                // },
               ]}
             />
           </Grid>
