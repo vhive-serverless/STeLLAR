@@ -446,6 +446,40 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
             
             </Stack>
             }
+          {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
+          <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Tail Latency "
+              subheader="99th Percentile"
+              type={'tail'}
+              chartLabels={dateRangeListAWS}
+              dashArrayValue = {[5,0,5,0,5,0]}
+              chartData={[
+                {
+                  name: `AWS - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[0],
+                  data: tailLatenciesAWSZip,
+                },
+                {
+                  name: `GCR - Image - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[0],
+                  data: tailLatenciesGCRImage,
+                },
+                {
+                  name:  `Azure - Zip - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: (languageRuntime === 'go' || languageRuntime === 'java') ? [] : tailLatenciesAzureZip,
+                },
+              ]}
+            />
+          </Grid>
+          :
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Tail Latency "
@@ -482,13 +516,6 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                   color:theme.palette.chart.green[0],
                   data: tailLatenciesGCRImage,
                 },
-                {
-                  name: `Azure - Zip - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: (languageRuntime === 'go' || languageRuntime === 'java') ? [] : tailLatenciesAzureZip,
-                },
                 // {
                 //   name: `Azure - Image - ${languageRuntime}`,
                 //   type: 'line',
@@ -499,8 +526,10 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               ]}
             />
           </Grid>
+          }
 
-          <Grid item xs={12} mt={3}>
+{(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
+      <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency "
               subheader="50th Percentile"
@@ -552,7 +581,31 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               ]}
             />
           </Grid>
-
+          :
+          <Grid item xs={12} mt={3}>
+          <AppLatency
+            title="Median Latency "
+            subheader="50th Percentile"
+            chartLabels={dateRangeListAWS}
+            dashArrayValue = {[5,0,5,0,5,0]}
+            chartData={[
+              {
+                name: `AWS - Zip - ${languageRuntime}`,
+                type: 'line',
+                fill: 'solid',
+                color:theme.palette.chart.blue[0],
+                data: medianLatenciesAWSZip,
+              },
+              {
+                name: `GCR - Image - ${languageRuntime}`,
+                type: 'line',
+                fill: 'solid',
+                color:theme.palette.chart.green[0],
+                data: medianLatenciesGCRImage,
+              },
+            ]}
+          />
+          </Grid>}
           {/* <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency "
