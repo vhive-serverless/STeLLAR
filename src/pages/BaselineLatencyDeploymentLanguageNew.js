@@ -18,7 +18,6 @@ import {
 } from '../sections/@dashboard/app';
 
 import { disablePreviousDates } from '../utils/timeUtils';
-
 // ----------------------------------------------------------------------
 
 export const baseURL = "https://di4g51664l.execute-api.us-west-2.amazonaws.com";
@@ -41,12 +40,14 @@ export default function BaselineLatencyDashboard() {
     const [overallStatisticsAWS,setoverallStatisticsAWS] = useState(null);
     const [overallStatisticsAWS100MB,setoverallStatisticsAWS100MB] = useState(null);
     const [overallStatisticsGCR,setoverallStatisticsGCR] = useState(null);
-    const [overallStatisticsAzure,setoverallStatisticsAzure] = useState(null);
+    const [overallStatisticsAzure,setoverallStatisticsAzure] = useState({
+      'zip': []
+    });
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     const [experimentType,setExperimentType] = useState(experimentTypeAWSPythonZip);
-    const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold-hellopy');
+    const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold');
     const [dateRange, setDateRange] = useState('week');
     const [imageSize, setImageSize] = useState('50');
     const [languageRuntime, setLanguageRuntime] = useState('python');
@@ -72,6 +73,7 @@ export default function BaselineLatencyDashboard() {
 
 
     const handleChangeLanguageRuntime = (event) => {
+  
       const selectedValue = event.target.value;  
       setLanguageRuntime(selectedValue);
     };
@@ -100,9 +102,8 @@ export default function BaselineLatencyDashboard() {
       else{
         app = 'hellojava'
       }
-
       setExperimentTypeOverall(`cold-${app}`)
-    },[languageRuntime])
+    },[languageRuntime,experimentType])
 
     useMemo(()=>{
       if(startDate <'2023-01-20'){
@@ -201,6 +202,7 @@ export default function BaselineLatencyDashboard() {
 
     const fetchDataRangeImageZipAzure = useCallback(async () => {
       try {
+   
           const responseAzureZip = await axios.get(`${baseURL}/results`, {
               params: { experiment_type: `${experimentTypeOverall}-zip-azure`,
                   start_date:startDate,
@@ -218,14 +220,14 @@ export default function BaselineLatencyDashboard() {
 
        if (isMountedRef.current) {
            
-            if(resultAzureZip.data){
+            // if(resultAzureZip.data){
               setoverallStatisticsAzure({
                 // 'image': resultAzureImage.data ,
                 'zip': resultAzureZip.data
               })
               
-            }
-          }
+            // }
+        }
       } catch (err) {
           setIsErrorDataRangeStatistics(true);
       }
@@ -244,17 +246,17 @@ export default function BaselineLatencyDashboard() {
         
 
   useMemo(() => {
-    fetchDataRangeImageZipAzure();
+      fetchDataRangeImageZipAzure();
   }, [fetchDataRangeImageZipAzure]);
         
 
  
     const dateRangeListAWS = useMemo(()=> {
-        if(overallStatisticsAzure)
-            return overallStatisticsAzure.zip.map(record => record.date);
+        if(overallStatisticsAWS)
+            return overallStatisticsAWS.zip.map(record => record.date);
         return null
 
-    },[overallStatisticsAzure])
+    },[overallStatisticsAWS])
     
  // Tail latency calculation
     
@@ -287,7 +289,6 @@ export default function BaselineLatencyDashboard() {
 },[overallStatisticsGCR])
 
 const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
-   
   if(overallStatisticsAzure){
       return [
         overallStatisticsAzure.zip.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
@@ -302,8 +303,6 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
 },[overallStatisticsAzure])
 
 
-
-
     const TMR = useMemo(() => {
             if (dailyStatistics)
                 return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
@@ -311,7 +310,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
         }
     ,[dailyStatistics])
 
-    
+    // console.log(overallStatisticsAzure)
 
   return (
     <Page title="Dashboard">
@@ -488,7 +487,7 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
-                  data: tailLatenciesAzureZip,
+                  data: (languageRuntime === 'go' || languageRuntime === 'java') ? [] : tailLatenciesAzureZip,
                 },
                 // {
                 //   name: `Azure - Image - ${languageRuntime}`,
