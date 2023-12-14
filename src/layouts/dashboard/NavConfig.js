@@ -27,7 +27,7 @@ const navConfig = [
     icon: getIcon('ic:baseline-severe-cold'),
   },
   {
-    title: 'Cold Function - Deployment and Language Runtime',
+    title: 'Cold Function - Language Runtime',
     path: '/dashboard/cold/deployment-language',
     icon: getIcon('ic:baseline-severe-cold'),
   },

@@ -324,7 +324,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-            Cold Function Invocations - Impacts of Deployment Method and Language Runtime
+            Cold Function Invocations - Impact of Language Runtime
             </Typography>
            
             <Card>
@@ -334,12 +334,8 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we study the implications of different deployment methods
-and language runtimes. <br/> Deployment methods refer to how a
-developer packages and deploys their functions, which also
-affects the way in which serverless infrastructures store and
-load a function image when an instance is cold booted. <br/> <br/>
-We study the two deployment methods that are in common use
+            In this experiment, we study the implications of different language runtimes. <br/> <br/>
+We use the two deployment methods that are in common use
 today: <b> ZIP archive </b>, and <b> Container-based image. </b> <br/>
 With respect to language runtime, we focus on fundamental classes
 of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
@@ -456,21 +452,21 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
-                  name: `AWS - Zip - ${languageRuntime}`,
+                  name: `AWS - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.blue[0],
                   data: tailLatenciesAWSZip,
                 },
                 {
-                  name: `GCR - Image - ${languageRuntime}`,
+                  name: `GCR - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.green[0],
                   data: tailLatenciesGCRImage,
                 },
                 {
-                  name:  `Azure - Zip - ${languageRuntime}`,
+                  name:  `Azure - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
@@ -489,7 +485,7 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
-                  name: `AWS - Zip - ${languageRuntime}`,
+                  name: `AWS - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.blue[0],
@@ -510,7 +506,7 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                 //   data: tailLatenciesGCRZip,
                 // },
                 {
-                  name: `GCR - Image - ${languageRuntime}`,
+                  name: `GCR - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.green[0],
@@ -537,7 +533,7 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
-                  name: `AWS - Zip - ${languageRuntime}`,
+                  name: `AWS  - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.blue[0],
@@ -558,14 +554,14 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
                 //   data: medianLatenciesGCRZip,
                 // },
                 {
-                  name: `GCR - Image - ${languageRuntime}`,
+                  name: `GCR - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.green[0],
                   data: medianLatenciesGCRImage,
                 },
                 {
-                  name: `Azure - Zip - ${languageRuntime}`,
+                  name: `Azure - ${languageRuntime}`,
                   type: 'line',
                   fill: 'solid',
                   color:theme.palette.chart.red[0],
@@ -590,14 +586,14 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
             dashArrayValue = {[5,0,5,0,5,0]}
             chartData={[
               {
-                name: `AWS - Zip - ${languageRuntime}`,
+                name: `AWS - ${languageRuntime}`,
                 type: 'line',
                 fill: 'solid',
                 color:theme.palette.chart.blue[0],
                 data: medianLatenciesAWSZip,
               },
               {
-                name: `GCR - Image - ${languageRuntime}`,
+                name: `GCR - ${languageRuntime}`,
                 type: 'line',
                 fill: 'solid',
                 color:theme.palette.chart.green[0],

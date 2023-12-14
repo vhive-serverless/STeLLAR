@@ -263,7 +263,7 @@ export default function About() {
           <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 50MB , 100MB</ListItem>
        
           </ListItem>
-          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> We examine the implications of utilizing different deployment techniques and language runtimes. We specifically investigate the two prevalent deployment methods in use currently, namely ZIP archive and container-based image.
+          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> We examine the implications of using different language runtimes.
               <Button to="/dashboard/cold/deployment-language" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
                   View Results
               </Button>

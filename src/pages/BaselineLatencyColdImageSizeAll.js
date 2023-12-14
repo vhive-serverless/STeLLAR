@@ -318,9 +318,9 @@ each image. <br/>
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
-          <ListItem sx={{ display: 'list-item' }}>
+          {/* <ListItem sx={{ display: 'list-item' }}>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
-          </ListItem>
+          </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
             Function Image Sizes : <b>50MB, 100MB</b>
           </ListItem>
