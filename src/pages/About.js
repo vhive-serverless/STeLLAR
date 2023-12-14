@@ -268,6 +268,7 @@ export default function About() {
                   View Results
               </Button>
           </ListItem>
+          <Typography variant='p'>Disclaimer: Experiments marked 'No data' reflect repeated unsuccessful attempts.</Typography>
           {/* <Typography variant='p'>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography> */}
           </CardContent>
           </Card>

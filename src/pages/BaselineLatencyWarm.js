@@ -59,15 +59,15 @@ export default function BaselineLatencyDashboard() {
       const selectedValue = event.target.value;
       if(selectedValue ==='week'){
         setStartDate(format(subWeeks(today,1), 'yyyy-MM-dd'));
-        setEndDate(format(today, 'yyyy-MM-dd'))
+        setEndDate(format(yesterday, 'yyyy-MM-dd'))
       }
       else if(selectedValue ==='month'){
         setStartDate(format(subMonths(today,1), 'yyyy-MM-dd'));
-        setEndDate(format(today, 'yyyy-MM-dd'))
+        setEndDate(format(yesterday, 'yyyy-MM-dd'))
       }
       else if(selectedValue ==='3-months'){
         setStartDate(format(subMonths(today,3), 'yyyy-MM-dd'));
-        setEndDate(format(today, 'yyyy-MM-dd'))
+        setEndDate(format(yesterday, 'yyyy-MM-dd'))
       }
       setDateRange(event.target.value);
     };
