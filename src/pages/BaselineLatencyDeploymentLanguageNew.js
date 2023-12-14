@@ -335,10 +335,12 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
             In this experiment, we study the implications of different language runtimes. <br/> <br/>
-We use the two deployment methods that are in common use
-today: <b> ZIP archive </b>, and <b> Container-based image. </b> <br/>
-With respect to language runtime, we focus on fundamental classes
-of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
+            We focus on fundamental classes of language runtimes, deployed as ZIP archive except for Google Cloud Run
+
+<ListItem sx={{ display: 'list-item' }}>Compiled: Java, Go</ListItem>
+  <ListItem sx={{ display: 'list-item' }}>Interpreted: Python</ListItem>
+  <ListItem sx={{ display: 'list-item' }}>JIT: Node.js</ListItem>
+
             <br/>
             Detailed configuration parameters are as below.
             
@@ -449,7 +451,6 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               subheader="99th Percentile"
               type={'tail'}
               chartLabels={dateRangeListAWS}
-              dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
                   name: `AWS - ${languageRuntime}`,
@@ -482,7 +483,6 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               subheader="99th Percentile"
               type={'tail'}
               chartLabels={dateRangeListAWS}
-              dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
                   name: `AWS - ${languageRuntime}`,
@@ -530,7 +530,6 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
               title="Median Latency "
               subheader="50th Percentile"
               chartLabels={dateRangeListAWS}
-              dashArrayValue = {[5,0,5,0,5,0]}
               chartData={[
                 {
                   name: `AWS  - ${languageRuntime}`,
@@ -583,7 +582,6 @@ of language runtimes: <b> Java, Python, Go and Node.js</b> <br/>
             title="Median Latency "
             subheader="50th Percentile"
             chartLabels={dateRangeListAWS}
-            dashArrayValue = {[5,0,5,0,5,0]}
             chartData={[
               {
                 name: `AWS - ${languageRuntime}`,

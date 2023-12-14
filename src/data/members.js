@@ -17,12 +17,6 @@ export const members = [
       link: 'https://ustiugov.github.io/',
       photo: '/STeLLAR/static/avatars/dmitrii.jpeg',
     },
-    {
-        name:'Mária Ďuračková',
-        affiliation: 'University of Edinburgh, United Kingdom',
-        link: 'https://www.linkedin.com/in/maria-durackova-34a4631b6/',
-        photo: '/STeLLAR/static/avatars/maria.jpg',
-      },
       {
         name:'Min Kabar Kyaw',
         affiliation: 'Nanyang Technological University, Singapore',
@@ -34,11 +28,20 @@ export const members = [
         affiliation: 'Nanyang Technological University, Singapore',
         link: 'https://www.linkedin.com/in/wongyipun/',
         photo: '/STeLLAR/static/avatars/yipun.jpg',
-      },
-    {
-        name:' Theodor Amariucai ',
-        affiliation : 'ETH Zurich, Switzerland',
-        link: 'https://github.com/amariucaitheodor',
-        photo: '/STeLLAR/static/avatars/theodor.jpeg',
+      }
+]
+
+export const alumni = [
+  {
+      name:'Mária Ďuračková',
+      affiliation: 'University of Edinburgh, United Kingdom',
+      link: 'https://www.linkedin.com/in/maria-durackova-34a4631b6/',
+      photo: '/STeLLAR/static/avatars/maria.jpg',
     },
+  {
+      name:' Theodor Amariucai ',
+      affiliation : 'ETH Zurich, Switzerland',
+      link: 'https://github.com/amariucaitheodor',
+      photo: '/STeLLAR/static/avatars/theodor.jpeg',
+  },
 ]

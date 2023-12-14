@@ -4,7 +4,7 @@ import { Grid, Card,Box, Container, Stack,Typography,Link } from '@mui/material'
 import Page from '../components/Page';
 import AccountProfile from '../components/AccountProfile'
 // data
-import { members } from '../data/members';
+import { members,alumni } from '../data/members';
 // ----------------------------------------------------------------------
 
 const styles = {
@@ -35,6 +35,25 @@ export default function Info() {
         </Stack>
           <Grid container xs={12}>
                 {members.map((member) => (
+                   <Grid item lg={3}
+                   md={6}
+                   xs={12}
+                   sx={{pr:2,pb:2}} key={member.name} >
+                    <Card>
+            <AccountProfile member={member}/>
+            </Card>
+            </Grid>
+            ))}
+
+            </Grid>
+
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mt={3}>
+          <Typography variant="h4" gutterBottom>
+            Alumni
+          </Typography>
+        </Stack>
+          <Grid container xs={12}>
+                {alumni.map((member) => (
                    <Grid item lg={3}
                    md={6}
                    xs={12}
