@@ -219,7 +219,7 @@ export default function About() {
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
               {/* <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - Oregon (us-west-2). </ListItem> */}
-              <ListItem sx={{display:'list-item'}}>The functions are configured with the different memory sizes, ranging from <b>128MB to 2GB </b> and are specified in the section of each experiment.</ListItem>
+              {/* <ListItem sx={{display:'list-item'}}>The functions are configured with the different memory sizes, ranging from <b>128MB to 2GB </b> and are specified in the section of each experiment.</ListItem> */}
               <ListItem sx={{display:'list-item'}}>Unless specified otherwise, we deploy all functions using the <b>ZIP-based deployment</b> method and use <b>Python 3</b> functions for all experiments except the function image size experiment. <br/>In this experiments, we use <b>Golang</b> functions to minimize the image size.
               <ListItem sx={{display:'list-item'}}><b>Function Deployment Regions</b>
               <ListItem sx={{display:'list-item'}}>AWS - us-west-1</ListItem>
@@ -263,15 +263,12 @@ export default function About() {
           <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 50MB , 100MB</ListItem>
        
           </ListItem>
-          <ListItem sx={{display:'list-item'}}><b>Deployment Method & Language Runtime : </b> We examine the implications of using different language runtimes.
+          <ListItem sx={{display:'list-item'}}><b>Language Runtime : </b> We examine the implications of using different language runtimes.
               <Button to="/dashboard/cold/deployment-language" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
                   View Results
               </Button>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>AWS - ZIP based deployment</ListItem>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Google Cloud Run - Image based deployment</ListItem>
-            <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Azure - ZIP based deployment</ListItem>
           </ListItem>
-          <Typography variant='p'>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography>
+          {/* <Typography variant='p'>* We call a function warm if it has at least one instance online and idle upon a request’s arrival, otherwise we refer to the function as a cold function.</Typography> */}
           </CardContent>
           </Card>
           
