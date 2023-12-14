@@ -115,8 +115,12 @@ jobs:
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: AWS Runtime ${{ matrix.runtime }}
-        working-directory: ${{ env.working-directory }}
-        run: ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -236,8 +240,12 @@ jobs:
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: GCR Runtime ${{ matrix.runtime }}
-        working-directory: ${{ env.working-directory }}
-        run: ./stellar -o latency-samples-gcr -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/gcr/cold-hello${{ matrix.runtime }}-img-gcr.json -db
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -o latency-samples-gcr -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/gcr/cold-hello${{ matrix.runtime }}-img-gcr.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -324,8 +332,12 @@ jobs:
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
       - name: Azure Runtime ${{ matrix.runtime }}
-        working-directory: ${{ env.working-directory }}
-        run: ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+        command: cd src && ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
 
       - uses: actions/upload-artifact@v3
         with:
