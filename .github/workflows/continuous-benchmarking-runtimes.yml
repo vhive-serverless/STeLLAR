@@ -337,7 +337,7 @@ jobs:
           timeout_minutes: 1440
           max_attempts: 5
           retry_wait_seconds: 60
-        command: cd src && ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
+          command: cd src && ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
 
       - uses: actions/upload-artifact@v3
         with:
