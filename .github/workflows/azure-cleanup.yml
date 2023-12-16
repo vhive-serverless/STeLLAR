@@ -30,6 +30,7 @@ on:
 jobs:
   clean_up:
     name: Clean up Azure Resource Groups
+    runs-on: ubuntu-latest
     steps:
       - name: Azure Login
         uses: azure/login@v1
