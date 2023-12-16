@@ -30,6 +30,7 @@ on:
 jobs:
   clean_up:
     name: Clean up GCR Services
+    runs-on: ubuntu-latest
     steps:
       - id: auth
         name: Configure GCR credentials
@@ -43,4 +44,4 @@ jobs:
           version: ">= 363.0.0"
 
       - name: gcloud CLI Cleanup
-        run: gcloud run services list --format="table(name)" | xargs -P 10 -n1 gcloud run services delete --region us-west1 --quiet
+        run: gcloud run services list --format="table[no-heading](name)" | xargs -P 10 -n1 gcloud run services delete --region us-west1 --quiet
