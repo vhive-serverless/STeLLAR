@@ -56,7 +56,7 @@ jobs:
     name: AWS Cold Runtime Experiments
     needs: build_client
     runs-on: [ self-hosted, aws ]
-    timeout-minutes: 600
+    timeout-minutes: 1200
     strategy:
       matrix:
         runtime:
@@ -177,7 +177,7 @@ jobs:
     name: GCR Cold Runtime Experiments
     needs: build_client
     runs-on: [ self-hosted, gcr ]
-    timeout-minutes: 600
+    timeout-minutes: 1200
     strategy:
       matrix:
         runtime:
@@ -302,7 +302,7 @@ jobs:
     name: Azure Cold Runtime Experiments
     needs: build_client
     runs-on: [ self-hosted, azure ]
-    timeout-minutes: 600
+    timeout-minutes: 1200
     strategy:
       matrix:
         runtime:
