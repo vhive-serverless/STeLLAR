@@ -451,11 +451,6 @@ jobs:
         with:
           version: ">= 363.0.0"
 
-      - name: Set up Node 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-
       - name: Download client artifact
         uses: actions/download-artifact@v3
         with:
@@ -550,11 +545,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           version: ">= 363.0.0"
-
-      - name: Set up Node 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
