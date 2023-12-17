@@ -120,7 +120,7 @@ jobs:
           timeout_minutes: 1440
           max_attempts: 5
           retry_wait_seconds: 60
-          command: cd src && stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
+          command: cd src && ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
 
       - uses: actions/upload-artifact@v3
         with:
