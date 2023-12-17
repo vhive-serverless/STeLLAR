@@ -197,11 +197,6 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Node.js 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-
       - name: Set up Go 1.21
         if: ${{ matrix.runtime == 'go'}}
         uses: actions/setup-go@v3
