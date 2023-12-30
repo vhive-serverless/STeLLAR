@@ -2,7 +2,7 @@ name: Continuous benchmarking - Send notifications
 
 on:
   workflow_run:
-    workflows: [ Continuous benchmarking - Baseline experiments, Continuous benchmarking - Image size experiments ]
+    workflows: [ Continuous benchmarking - Baseline experiments, Continuous benchmarking - Image size experiments, Continuous benchmarking - Runtime experiments ]
     types: [completed]
 
 jobs:
