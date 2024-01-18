@@ -336,7 +336,7 @@ jobs:
   cold-image-size-100-azure:
     name: Azure 100MB image size experiment
     needs: build_client
-    runs-on: [ self-hosted, azure ]
+    runs-on: [ self-hosted, azure, large ]
     timeout-minutes: 1200
     env:
       working-directory: src
