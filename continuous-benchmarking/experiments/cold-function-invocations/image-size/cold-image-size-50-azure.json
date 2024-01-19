@@ -4,7 +4,7 @@
   "SubExperiments": [
     {
       "Title": "cold-image-size-50-azure",
-      "Function": "hellopy",
+      "Function": "hellopy-read-random",
       "Handler": "main.main",
       "PackageType": "Zip",
       "PackagePattern": "main.py",

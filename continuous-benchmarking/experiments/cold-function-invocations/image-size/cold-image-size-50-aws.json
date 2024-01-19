@@ -4,7 +4,7 @@
   "SubExperiments": [
     {
       "Title": "cold-image-size-50-aws",
-      "Function": "hellopy",
+      "Function": "hellopy-read-random",
       "Handler": "main.lambda_handler",
       "PackageType": "Zip",
       "PackagePattern": "main.py",

@@ -4,7 +4,7 @@
   "SubExperiments": [
     {
       "Title": "cold-image-size-100-gcr",
-      "Function": "hellopy",
+      "Function": "hellopy-read-random",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
 	  "PackagePattern": "lambda_function.py",
