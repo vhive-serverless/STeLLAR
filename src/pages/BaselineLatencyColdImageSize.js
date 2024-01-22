@@ -244,7 +244,7 @@ const medianLatencies100MB = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Cold Function Invocations - Impact of Function Image Size
+               Cold Function Invocations - Impact of Function Container Image Size
             </Typography>
            
             <Card>
@@ -274,7 +274,7 @@ each image. <br/>
           </ListItem>
 
           <ListItem sx={{ display: 'list-item' }}>
-            Function Image Sizes : <b>10MB, 60MB, 100MB</b>
+            Function Container Image Sizes : <b>10MB, 60MB, 100MB</b>
           </ListItem>
 
           </Box>

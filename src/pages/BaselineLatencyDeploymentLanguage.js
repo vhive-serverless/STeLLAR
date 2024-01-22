@@ -308,7 +308,7 @@ const medianLatenciesGoZip = useMemo(()=> {
 and language runtimes. <br/> Deployment methods refer to how a
 developer packages and deploys their functions, which also
 affects the way in which serverless infrastructures store and
-load a function image when an instance is cold booted. <br/> <br/>
+load a function container image when an instance is cold booted. <br/> <br/>
 We study the two deployment methods that are in common use
 today: <b> ZIP archive </b>, and <b> container-based image. </b> <br/>
 With respect to language runtime, we focus on two fundamental classes

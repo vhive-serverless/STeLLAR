@@ -282,7 +282,7 @@ const medianLatencies100MB = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Cold Function Invocations - Impact of Function Image Size
+               Cold Function Invocations - Impact of Function Container Image Size
             </Typography>
            
             <Card>
@@ -292,7 +292,7 @@ const medianLatencies100MB = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we assess the impact of the image size on the median and tail
+            In this experiment, we assess the impact of the container image size on the median and tail
 response times, by adding an extra random-content file to
 each image. <br/>
             <br/>
@@ -305,12 +305,14 @@ each image. <br/>
             Serverless Clouds : <b>AWS Lambda, Google Cloud Run, Azure Functions</b>
           </ListItem>
             <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Go</b>
+            Language Runtime : <b>Python</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Deployment Method : <b>ZIP based</b>
+            Deployment Method for AWS & Azure : <b> ZIP based </b>
           </ListItem>
-
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method for Google Cloud Run : <b> Container based </b>
+          </ListItem>
           
 
           </Box>
@@ -322,8 +324,9 @@ each image. <br/>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
           </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
-            Function Image Sizes : <b>50MB, 100MB</b>
+            Container Image Sizes : <b>50MB, 100MB</b>
           </ListItem>
+          
               </Box>
               </Stack>
             </CardContent>

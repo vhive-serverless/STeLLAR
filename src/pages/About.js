@@ -220,7 +220,7 @@ export default function About() {
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
               {/* <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - Oregon (us-west-2). </ListItem> */}
               {/* <ListItem sx={{display:'list-item'}}>The functions are configured with the different memory sizes, ranging from <b>128MB to 2GB </b> and are specified in the section of each experiment.</ListItem> */}
-              <ListItem sx={{display:'list-item'}}>Unless specified otherwise, we deploy all functions using the <b>ZIP-based deployment</b> method and use <b>Python 3</b> functions for all experiments except the function image size experiment. <br/>In this experiments, we use <b>Golang</b> functions to minimize the image size.
+              <ListItem sx={{display:'list-item'}}>Unless specified otherwise, we deploy all functions using the <b>ZIP-based deployment</b> method and use <b>Python 3</b> functions for all experiments except the function container image size experiment. <br/>In this experiments, we use <b>Golang</b> functions to minimize the image size.
               <ListItem sx={{display:'list-item'}}><b>Function Deployment Regions</b>
               <ListItem sx={{display:'list-item'}}>AWS - us-west-1</ListItem>
               <ListItem sx={{display:'list-item'}}>Azure - West US</ListItem>
@@ -255,7 +255,7 @@ export default function About() {
             View Results
           </Button>
           </ListItem>
-              <ListItem sx={{display:'list-item'}}><b>Function Image Size : </b> Next, we evaluate response times of cold functions varying the function image sizes in 2 different settings.
+              <ListItem sx={{display:'list-item'}}><b>Function Container Image Size : </b> Next, we evaluate response times of cold functions varying the function container image sizes in 2 different settings.
               <Button to="/dashboard/cold/image-size" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
