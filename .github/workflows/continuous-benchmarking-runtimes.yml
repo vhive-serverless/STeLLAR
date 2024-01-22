@@ -124,8 +124,16 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: cold-hello${{ matrix.runtime }}-aws-zip
+          name: cold-hello${{ matrix.runtime }}-zip-aws
           path: ${{ env.working-directory }}/latency-samples-aws
+
+      - name: Add zero'ed data (Failed experiment)
+        env:
+          name: cold-hello${{ matrix.runtime }}-zip-aws
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        if: ${{ failure() }}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -247,6 +255,13 @@ jobs:
           name: cold-hello${{ matrix.runtime }}-img-gcr
           path: ${{ env.working-directory }}/latency-samples-gcr
 
+      - name: Add zero'ed data (Failed experiment)
+        env:
+          name: cold-hello${{ matrix.runtime }}-img-gcr
+        if: ${{ failure() }}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"gcr"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -338,6 +353,13 @@ jobs:
         with:
           name: cold-hello${{ matrix.runtime }}-zip-azure
           path: ${{env.working-directory}}/latency-samples-azure
+
+      - name: Add zero'ed data (Failed experiment)
+        env:
+          name: cold-hello${{ matrix.runtime }}-zip-azure
+        if: ${{ failure() }}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}

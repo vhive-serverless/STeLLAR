@@ -101,6 +101,13 @@ jobs:
           name: cold-image-size-50-aws
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-image-size-50-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -196,6 +203,13 @@ jobs:
           name: cold-image-size-100-aws
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-image-size-100-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -287,6 +301,13 @@ jobs:
           name: cold-image-size-50-azure
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-image-size-50-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -377,6 +398,13 @@ jobs:
         with:
           name: cold-image-size-100-azure
           path: ${{ env.working-directory }}/latency-samples
+
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-image-size-100-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -473,6 +501,13 @@ jobs:
           name: cold-image-size-50-gcr
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-image-size-50-gcr","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"gcr"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -567,6 +602,13 @@ jobs:
         with:
           name: cold-image-size-100-gcr
           path: ${{ env.working-directory }}/latency-samples
+
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-image-size-100-gcr","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"gcr"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}

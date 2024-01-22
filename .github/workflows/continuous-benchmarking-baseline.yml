@@ -123,6 +123,13 @@ jobs:
           name: warm-baseline-aws
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -217,6 +224,13 @@ jobs:
           name: warm-baseline-gcr
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-gcr","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"gcr"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -298,6 +312,13 @@ jobs:
         with:
           name: warm-baseline-cloudflare
           path: ${{ env.working-directory }}/latency-samples
+
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-cloudflare","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"cloudflare"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -389,6 +410,13 @@ jobs:
         with:
           name: warm-baseline-azure
           path: ${{ env.working-directory }}/latency-samples
+
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -485,6 +513,13 @@ jobs:
           name: cold-baseline-aws
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -579,6 +614,13 @@ jobs:
           name: cold-baseline-gcr
           path: ${{ env.working-directory }}/latency-samples
 
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-gcr","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"gcr"}' $DATA_INSERT_URL
+
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -660,6 +702,13 @@ jobs:
         with:
           name: cold-baseline-cloudflare
           path: ${{ env.working-directory }}/latency-samples
+
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-cloudflare","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"cloudflare"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
@@ -751,6 +800,13 @@ jobs:
         with:
           name: cold-baseline-azure
           path: ${{ env.working-directory }}/latency-samples
+
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
