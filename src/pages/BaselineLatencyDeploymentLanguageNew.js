@@ -334,12 +334,12 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we study the implications of different language runtimes. <br/> <br/>
-            We focus on fundamental classes of language runtimes, deployed as ZIP archive except for Google Cloud Run
-
-<ListItem sx={{ display: 'list-item' }}>Compiled: Java, Go</ListItem>
-  <ListItem sx={{ display: 'list-item' }}>Interpreted: Python</ListItem>
-  <ListItem sx={{ display: 'list-item' }}>JIT: Node.js</ListItem>
+            In this experiment, we evaluate the impact of different language runtimes on the median and tail response times for functions with cold instances.
+            <br/>We issue invocations with a long inter-arrival time (IAT) of 600 seconds. <br/>
+{/* 
+      <ListItem sx={{ display: 'list-item' }}>Compiled: Java, Go</ListItem>
+      <ListItem sx={{ display: 'list-item' }}>Interpreted: Python</ListItem>
+      <ListItem sx={{ display: 'list-item' }}>JIT: Node.js</ListItem> */}
 
             <br/>
             Detailed configuration parameters are as below.
@@ -444,6 +444,85 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             
             </Stack>
             }
+
+    {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
+      <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Median Latency "
+              subheader="50th Percentile"
+              chartLabels={dateRangeListAWS}
+              chartData={[
+                {
+                  name: `AWS  - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[0],
+                  data: medianLatenciesAWSZip,
+                },
+                // {
+                //   name: `AWS - Image - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.blue[0],
+                //   data: medianLatenciesAWSImage,
+                // },
+                // {
+                //   name: `GCR - Zip - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.green[2],
+                //   data: medianLatenciesGCRZip,
+                // },
+                {
+                  name: `GCR - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[0],
+                  data: medianLatenciesGCRImage,
+                },
+                {
+                  name: `Azure - ${languageRuntime}`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: medianLatenciesAzureZip,
+                },
+                // {
+                //   name: `Azure - Image - ${languageRuntime}`,
+                //   type: 'line',
+                //   fill: 'solid',
+                //   color:theme.palette.chart.red[0],
+                //   data: medianLatenciesAzureImage,
+                // },
+              ]}
+            />
+          </Grid>
+          :
+          <Grid item xs={12} mt={3}>
+          <AppLatency
+            title="Median Latency "
+            subheader="50th Percentile"
+            chartLabels={dateRangeListAWS}
+            chartData={[
+              {
+                name: `AWS - ${languageRuntime}`,
+                type: 'line',
+                fill: 'solid',
+                color:theme.palette.chart.blue[0],
+                data: medianLatenciesAWSZip,
+              },
+              {
+                name: `GCR - ${languageRuntime}`,
+                type: 'line',
+                fill: 'solid',
+                color:theme.palette.chart.green[0],
+                data: medianLatenciesGCRImage,
+              },
+            ]}
+          />
+          </Grid>
+      }
+          
           {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
           <Grid item xs={12} mt={3}>
             <AppLatency
@@ -524,194 +603,9 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
           </Grid>
           }
 
-{(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
-      <Grid item xs={12} mt={3}>
-            <AppLatency
-              title="Median Latency "
-              subheader="50th Percentile"
-              chartLabels={dateRangeListAWS}
-              chartData={[
-                {
-                  name: `AWS  - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: medianLatenciesAWSZip,
-                },
-                // {
-                //   name: `AWS - Image - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.blue[0],
-                //   data: medianLatenciesAWSImage,
-                // },
-                // {
-                //   name: `GCR - Zip - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.green[2],
-                //   data: medianLatenciesGCRZip,
-                // },
-                {
-                  name: `GCR - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[0],
-                  data: medianLatenciesGCRImage,
-                },
-                {
-                  name: `Azure - ${languageRuntime}`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: medianLatenciesAzureZip,
-                },
-                // {
-                //   name: `Azure - Image - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.red[0],
-                //   data: medianLatenciesAzureImage,
-                // },
-              ]}
-            />
-          </Grid>
-          :
-          <Grid item xs={12} mt={3}>
-          <AppLatency
-            title="Median Latency "
-            subheader="50th Percentile"
-            chartLabels={dateRangeListAWS}
-            chartData={[
-              {
-                name: `AWS - ${languageRuntime}`,
-                type: 'line',
-                fill: 'solid',
-                color:theme.palette.chart.blue[0],
-                data: medianLatenciesAWSZip,
-              },
-              {
-                name: `GCR - ${languageRuntime}`,
-                type: 'line',
-                fill: 'solid',
-                color:theme.palette.chart.green[0],
-                data: medianLatenciesGCRImage,
-              },
-            ]}
-          />
-          </Grid>}
-          {/* <Grid item xs={12} mt={3}>
-            <AppLatency
-              title="Median Latency "
-              subheader="50th Percentile"
-              chartLabels={dateRangeList50MB}
-              chartData={[
-                {
-                  name: 'AWS - 50 MB',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: medianLatenciesAWS,
-                },
-                {
-                  name: 'GCR - 50 MB',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[0],
-                  data: medianLatenciesGCR,
-                },
-                {
-                  name: 'Azure - 50 MB',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: medianLatenciesAzure,
-                },
-                
-              ]}
-            />
-          </Grid> */}
-          
           </CardContent>
           </Card>
           </Grid>
-{/* 
-          <Grid item xs={12} sx={{mt:5}}>
-              <Card>
-                <CardContent>
-            <Grid item xs={12}>
-            
-            <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocations <br/> Varying Image Sizes
-            </Typography>
-            <Stack direction="row" alignItems="center">
-            <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
-                <DatePicker
-                    value={selectedDate}
-                    shouldDisableDate={disablePreviousDates}
-                    onChange={(newValue) => {
-
-                        setSelectedDate(format(newValue, 'yyyy-MM-dd'));
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
-                 <InputLabel sx={{mx:3}}> with the Image Size of :</InputLabel>
-                <Select
-                  value={imageSize}
-                  label="imageSize"
-                  onChange={handleChangeImageSize}
-                >
-                  <MenuItem value={'50'}>50 MB</MenuItem>
-                  <MenuItem value={'100'}>100 MB</MenuItem>
-                </Select>
-                <InputLabel sx={{mx:3}}> for : </InputLabel>
-                <Select
-                  value={provider}
-                  label="provider"
-                  onChange={handleChangeProvider}
-                >
-                  <MenuItem value={'aws'}>AWS</MenuItem>
-                  <MenuItem value={'gcr'}>GCR</MenuItem>
-                  <MenuItem value={'azure'}>Azure</MenuItem>
-                </Select>
-                </Stack>
-               
-            </Grid>
-            {
-                dailyStatistics?.length < 1 ? <Grid item xs={12}>
-            <Typography sx={{fontSize:'14px', color: 'error.main',mt:-2}}>
-                No results found!
-            </Typography>
-            </Grid> : null
-            }
-             <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
-             <Grid container >
-          
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>25<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} shortenNumber={false} color="info" textPictogram={<>50<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>75<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" shortenNumber={false} textPictogram={<>99<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
-          </Grid>
-</Grid>
-          </Stack>
-
-          </CardContent>
-              </Card>
-          </Grid> */}
 
         </Grid>
         

@@ -289,7 +289,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we evaluate the base response time of functions with cold instances by issuing invocations with a long inter-arrival time (IAT) of 600 seconds. <br/>
+            In this experiment, we evaluate the response time of functions with cold instances by issuing invocations with a long inter-arrival time (IAT) of 600 seconds. <br/>
             <br/>
             Detailed configuration parameters are as below.
             
@@ -374,6 +374,45 @@ const medianLatenciesCloudflare = useMemo(()=> {
             </Grid>
             </Stack>
             }
+                      <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Median Latency"
+              subheader={<>50<sup>th</sup> Percentile</>}
+              chartLabels={dateRangeList}
+              type={'median'}
+              chartData={[
+                {
+                  name: 'AWS',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: medianLatenciesAWS,
+                },
+                {
+                  name: 'Google Cloud Run',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.primary.main,
+                  data: medianLatenciesGCR,
+                },
+                {
+                  name: 'Azure',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.yellow[0],
+                  data: medianLatenciesAzure,
+                },
+                {
+                  name: 'Cloudflare',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.green[0],
+                  data: medianLatenciesCloudflare,
+                },
+                
+              ]}
+            />
+          </Grid>
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Tail Latency"
@@ -413,45 +452,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
               ]}
             />
           </Grid>
-          <Grid item xs={12} mt={3}>
-            <AppLatency
-              title="Median Latency"
-              subheader={<>50<sup>th</sup> Percentile</>}
-              chartLabels={dateRangeList}
-              type={'median'}
-              chartData={[
-                {
-                  name: 'AWS',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: medianLatenciesAWS,
-                },
-                {
-                  name: 'Google Cloud Run',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.primary.main,
-                  data: medianLatenciesGCR,
-                },
-                {
-                  name: 'Azure',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.chart.yellow[0],
-                  data: medianLatenciesAzure,
-                },
-                {
-                  name: 'Cloudflare',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.chart.green[0],
-                  data: medianLatenciesCloudflare,
-                },
-                
-              ]}
-            />
-          </Grid>
+
        </CardContent>
           </Card>
           </Grid>

@@ -292,9 +292,9 @@ const medianLatencies100MB = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we assess the impact of the container image size on the median and tail
-response times, by adding an extra random-content file to
-each image. <br/>
+            
+          In this experiment, we evaluate the impact of container image size on the median and tail response times for functions with cold instances. <br/>
+          To do so, we issue invocations with a long inter-arrival time (IAT) of 600 seconds and add an extra random-content file to each image.<br/>
             <br/>
             Detailed configuration parameters are as below.
             
@@ -398,37 +398,7 @@ each image. <br/>
             
             </Stack>
             }
-          <Grid item xs={12} mt={3}>
-            <AppLatency
-              title="Tail Latency "
-              subheader="99th Percentile"
-              type={'tail'}
-              chartLabels={dateRangeList50MB}
-              chartData={[
-                {
-                  name: `AWS - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: tailLatenciesAWS,
-                },
-                {
-                  name: `GCR - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[0],
-                  data: tailLatenciesGCR,
-                },
-                {
-                  name: `Azure - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: tailLatenciesAzure,
-                },
-              ]}
-            />
-          </Grid>
+
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency "
@@ -460,7 +430,37 @@ each image. <br/>
               ]}
             />
           </Grid>
-          
+          <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Tail Latency "
+              subheader="99th Percentile"
+              type={'tail'}
+              chartLabels={dateRangeList50MB}
+              chartData={[
+                {
+                  name: `AWS - ${imageSizeOverall} MB`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.blue[0],
+                  data: tailLatenciesAWS,
+                },
+                {
+                  name: `GCR - ${imageSizeOverall} MB`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.green[0],
+                  data: tailLatenciesGCR,
+                },
+                {
+                  name: `Azure - ${imageSizeOverall} MB`,
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: tailLatenciesAzure,
+                },
+              ]}
+            />
+          </Grid>
           </CardContent>
           </Card>
           </Grid>

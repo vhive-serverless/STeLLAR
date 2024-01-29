@@ -382,44 +382,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
             </Grid>
             </Stack>
             }
-          <Grid item xs={12} mt={3}>
-            <AppLatency
-              title="Tail Latency"
-              subheader={<>99<sup>th</sup> Percentile</>}
-              chartLabels={dateRangeList}
-              chartData={[
-                {
-                  name: 'AWS',
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: tailLatenciesAWS,
-                },
-                {
-                  name: 'Google Cloud Run',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.primary.main,
-                  data: tailLatenciesGCR,
-                },
-                {
-                  name: 'Azure',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.chart.yellow[0],
-                  data: tailLatenciesAzure,
-                },
-                {
-                  name: 'Cloudflare',
-                  type: 'line',
-                  fill: 'solid',
-                  color: theme.palette.chart.green[0],
-                  data: tailLatenciesCloudflare,
-                },
-                
-              ]}
-            />
-          </Grid>
+
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency"
@@ -453,6 +416,44 @@ const medianLatenciesCloudflare = useMemo(()=> {
                   fill: 'solid',
                   color: theme.palette.chart.green[0],
                   data: medianLatenciesCloudflare,
+                },
+                
+              ]}
+            />
+          </Grid>
+          <Grid item xs={12} mt={3}>
+            <AppLatency
+              title="Tail Latency"
+              subheader={<>99<sup>th</sup> Percentile</>}
+              chartLabels={dateRangeList}
+              chartData={[
+                {
+                  name: 'AWS',
+                  type: 'line',
+                  fill: 'solid',
+                  color:theme.palette.chart.red[0],
+                  data: tailLatenciesAWS,
+                },
+                {
+                  name: 'Google Cloud Run',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.primary.main,
+                  data: tailLatenciesGCR,
+                },
+                {
+                  name: 'Azure',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.yellow[0],
+                  data: tailLatenciesAzure,
+                },
+                {
+                  name: 'Cloudflare',
+                  type: 'line',
+                  fill: 'solid',
+                  color: theme.palette.chart.green[0],
+                  data: tailLatenciesCloudflare,
                 },
                 
               ]}

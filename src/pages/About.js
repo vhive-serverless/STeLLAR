@@ -58,12 +58,10 @@ export default function About() {
 </ListItem>
 
 
-       <ListItem sx={{display:'list-item'}}>Multiple endpoints can be used simultaneously by the same experiment to speed up the benchmarking. The JSON configuration field parallelism defines this number: the higher it is, the more endpoints will be allocated, and the more bursts will be sent in short succession (speeding up the process for large IATs).
-</ListItem>
-
 <Typography variant='h6' mt={2}><b>Components</b></Typography>
           <ListItem sx={{ display: 'list-item' }}>
-          The coordinator orchestrates the entire benchmarking procedure.
+          The client consists of two primary elements: the deployer and the load generator. 
+          The deployer is responsible for coordinating the deployment of functions to various cloud providers, while the load generator is tasked with sending requests to the deployed functions.
 
 
           </ListItem>
@@ -71,11 +69,7 @@ export default function About() {
           The experiment configuration is an input JSON file used to specify and customize the experiments.
 
           </ListItem>
-       
       
-              
-       <ListItem sx={{display:'list-item'}}>The vendor endpoints input JSON file is only used for providers such as vHive that do not currently support automated function management (e.g., function listing, deployment, repurposing, or removal via SDKs or APIs).
-</ListItem>
 
        
        <ListItem sx={{display:'list-item'}}>The latencies CSV files are the main output of the evaluation framework. They are used in our plotting tools to produce insightful visualizations.
@@ -218,16 +212,13 @@ export default function About() {
           
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
-              {/* <ListItem sx={{display:'list-item'}}>We deploy the functions in same datacenter region where STeLLAR client runs which is AWS - Oregon (us-west-2). </ListItem> */}
-              {/* <ListItem sx={{display:'list-item'}}>The functions are configured with the different memory sizes, ranging from <b>128MB to 2GB </b> and are specified in the section of each experiment.</ListItem> */}
-              <ListItem sx={{display:'list-item'}}>Unless specified otherwise, we deploy all functions using the <b>ZIP-based deployment</b> method and use <b>Python 3</b> functions for all experiments except the function container image size experiment. <br/>In this experiments, we use <b>Golang</b> functions to minimize the image size.
-              <ListItem sx={{display:'list-item'}}><b>Function Deployment Regions</b>
+              <ListItem sx={{display:'list-item'}}>We deploy most functions using the <b> ZIP-based deployment </b> method and use <b>Python 3</b> functions. 
+              An exception to this is the image size experiments, which use <b>Golang</b> functions to minimize the image size.</ListItem><br/>
+       <b>Function Deployment Regions</b>
               <ListItem sx={{display:'list-item'}}>AWS - us-west-1</ListItem>
               <ListItem sx={{display:'list-item'}}>Azure - West US</ListItem>
               <ListItem sx={{display:'list-item'}}>Google Cloud - us-west1-a</ListItem>
               <ListItem sx={{display:'list-item'}}>Cloudflare - n/a</ListItem>
-              </ListItem>
-            </ListItem>
             </CardContent>
           </Card>
           

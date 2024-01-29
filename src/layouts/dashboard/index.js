@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 // material
+import{ IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import DashboardSidebar from './DashboardSidebar';
+
+
+import Iconify from '../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -33,12 +37,16 @@ const MainStyle = styled('div')(({ theme }) => ({
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
 
-  return (
+  return (<>
+    <IconButton onClick={()=>setOpen(true)} sx={{ mt: 1, color: 'text.primary',display: { lg: 'none' } }}>
+          <Iconify icon="eva:menu-2-fill" />
+        </IconButton>
     <RootStyle>
       <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
       <MainStyle>
         <Outlet />
       </MainStyle>
     </RootStyle>
+    </>
   );
 }
