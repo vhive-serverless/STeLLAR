@@ -51,7 +51,7 @@ export default function About() {
             <Typography variant='h6'><b>Terminology</b></Typography>
             
             <ListItem sx={{display:'list-item'}}>
-       An endpoint is a URL used for locating the function instance over the Internet. As seen in the diagram, this URL most often points to resources such as AWS API Gateway, Azure HTTP Triggers, vHive Kubernetes Load Balancer, or similar.
+       An endpoint is a URL used for locating the function instance over the Internet. As seen in the diagram, this URL most often points to resources such as AWS API Gateway, Azure HTTP Triggers, or similar.
        </ListItem>
 
        <ListItem sx={{display:'list-item'}}>The inter-arrival time (IAT) is the time interval that the client waits for in-between sending two bursts to the same endpoint.
@@ -198,9 +198,6 @@ export default function About() {
               </Box>
               </Stack>
 
-            {/* <ListItem sx={{display:'list-item'}}>We run the STeLLAR client on <b>t2.small</b> node in <b>AWS - Oregon (us-west-2)</b> datacenter region which features a <b>Intel Xeon CPU</b> with <b>2GB DRAM</b>.</ListItem>
-            <ListItem sx={{display:'list-item'}}>We initiate the experiments sequentially at <b> 00:00h (GMT) </b> on each day.
-            </ListItem> */}
              <br/>
                <ListItem sx={{display:'list-item'}}>
                <b>Scheduled Experiment time: 00:00 UTC</b>
@@ -212,8 +209,9 @@ export default function About() {
           
             <CardContent>
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
-              <ListItem sx={{display:'list-item'}}>We deploy most functions using the <b> ZIP-based deployment </b> method and use <b>Python 3</b> functions. 
-              An exception to this is the image size experiments, which use <b>Golang</b> functions to minimize the image size.</ListItem><br/>
+              <ListItem sx={{display:'list-item'}}>
+            Our experiments are based on <b>Python 3 functions</b>, except for evaluations of language runtimes where we evaluate four different language runtimes. </ListItem>
+            <ListItem sx={{display:'list-item'}}>We commonly employ <b>ZIP-based deployment</b> as our default method of deployment, with the exception of Google Cloud Run (GCR), which exclusively requires <b>Container based deployment.</b></ListItem><br/>
        <b>Function Deployment Regions</b>
               <ListItem sx={{display:'list-item'}}>AWS - us-west-1</ListItem>
               <ListItem sx={{display:'list-item'}}>Azure - West US</ListItem>
@@ -235,26 +233,26 @@ export default function About() {
             <Typography variant='h5' fontWeight={500}>1. Warm Function Invocations <Button to="/dashboard/warm/aws" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button></Typography>
-            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions * under individual invocations (i.e., allowing no more than a single outstanding request to each function).
+            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions under individual invocations (i.e., allowing no more than a single outstanding request to each function).
 <br/>
             </ListItem>
             
               <Typography variant='h5' fontWeight={500} mt={3}>2. Cold Function Invocations</Typography>
               Under Cold Function Invocation experiments, we evaluate the response time of functions with cold instances by issuing invocations (one-request at a time) with a long inter-arrival time (IAT) of 600 seconds.
-              <ListItem sx={{display:'list-item'}}><b>Basic :</b> We assess the cold function delays under individual invocations as our baseline cold invocation latency.  
+              <ListItem sx={{display:'list-item'}}><b>Basic :</b> We evaluate the response time of functions with cold instances.  
               <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
           </ListItem>
-              <ListItem sx={{display:'list-item'}}><b>Function Container Image Size : </b> Next, we evaluate response times of cold functions varying the function container image sizes in 2 different settings.
+              <ListItem sx={{display:'list-item'}}><b>Function Container Image Size : </b> We evaluate the impact of container image size on response time for functions with cold instances.
               <Button to="/dashboard/cold/image-size" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button>
           
-          <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 50MB , 100MB</ListItem>
+          {/* <ListItem sx={{ml:3,opacity: 0.7, display:'list-item'}}>Image Sizes : 50MB , 100MB</ListItem> */}
        
           </ListItem>
-          <ListItem sx={{display:'list-item'}}><b>Language Runtime : </b> We examine the implications of using different language runtimes.
+          <ListItem sx={{display:'list-item'}}><b>Language Runtime : </b> We evaluate the impact of different language runtimes on response time for functions with cold instances.
               <Button to="/dashboard/cold/deployment-language" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
                   View Results
               </Button>

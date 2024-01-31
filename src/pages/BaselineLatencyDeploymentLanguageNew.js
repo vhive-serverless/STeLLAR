@@ -350,8 +350,11 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             <ListItem sx={{ display: 'list-item' }}>
             Serverless Clouds : <b>AWS Lambda, Google Cloud Run, Azure Functions</b>
           </ListItem>
-            <ListItem sx={{ display: 'list-item' }}>
-            Language Runtimes : <b>Python, Go, Node.js ,Java</b>
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method for AWS & Azure : <b> ZIP based </b><br/>(Irrespective of the language runtime used)
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method for Google Cloud Run : <b> Container based </b><br/>(Irrespective of the language runtime used)
           </ListItem>
   
           
@@ -361,8 +364,9 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>600 seconds</b>
           </ListItem>
+
           <ListItem sx={{ display: 'list-item' }}>
-            Deployment Methods : <b>ZIP & Image based</b>
+            Language Runtimes : <b>Python, Go, Node.js ,Java</b>
           </ListItem>
 
           {/* <ListItem sx={{ display: 'list-item' }}>
@@ -372,8 +376,11 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             Function Image Sizes : <b>50MB, 100MB</b>
           </ListItem> */}
               </Box>
+              
               </Stack>
+              {/* <br/>* We deploy our function using ZIP-based deployment for AWS and Azure. Similarly, for Google Cloud Run, we use Container based deployment  */}
             </CardContent>
+            
             </Card>
             </Grid>
 
@@ -389,7 +396,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             
           <Typography variant={'h6'} sx={{ mb: 2}}>
           Latency measurements from 
-            <Box component="span" sx={{color:theme.palette.chart.red[1]}}>  {startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box> for Cold Function Invocations <br/> Varying Image Sizes
+            <Box component="span" sx={{color:theme.palette.chart.red[1]}}>  {startDate} </Box> to <Box component="span" sx={{color:theme.palette.chart.red[1]}}> {endDate} </Box> for Cold Function Invocations <br/> Varying Language Runtimes
             </Typography>
           <Stack direction="row" alignItems="center">
             <InputLabel sx={{mr:3}}>Time span :</InputLabel>

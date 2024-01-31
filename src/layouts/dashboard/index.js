@@ -38,8 +38,8 @@ export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
 
   return (<>
-    <IconButton onClick={()=>setOpen(true)} sx={{ mt: 1, color: 'text.primary',display: { lg: 'none' } }}>
-          <Iconify icon="eva:menu-2-fill" />
+    <IconButton onClick={()=>setOpen(true)} sx={{ mt: 1,  fontSize: '36px' ,color: 'text.primary',display: { lg: 'none' } }}>
+          <Iconify icon="eva:menu-2-fill"/>
         </IconButton>
     <RootStyle>
       <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />

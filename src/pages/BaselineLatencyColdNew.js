@@ -299,12 +299,14 @@ const medianLatenciesCloudflare = useMemo(()=> {
             {/* <ListItem sx={{ display: 'list-item' }}>
             Serverless Cloud : <b>AWS Lambda</b>
           </ListItem> */}
-            <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Python</b>
+
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method for AWS , Azure & Cloudflare : <b> ZIP based </b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Deployment Method : <b>ZIP based</b> <br/> <span style={{marginLeft:'15px'}}>* Google Cloud Run - <b>Container based</b></span>
+            Deployment Method for Google Cloud Run : <b> Container based </b>
           </ListItem>
+  
 
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
@@ -313,6 +315,9 @@ const medianLatenciesCloudflare = useMemo(()=> {
           </ListItem> */}
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>600 seconds</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Language Runtime : <b>Python</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/continuous-benchmarking/src/setup/deployment/raw-code/functions/hellopy/aws'}><b>Python (hellopy)</b></Link>

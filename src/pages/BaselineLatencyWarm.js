@@ -300,17 +300,23 @@ const medianLatenciesCloudflare = useMemo(()=> {
             {/* <ListItem sx={{ display: 'list-item' }}>
             Serverless Cloud : <b>AWS Lambda</b>
           </ListItem> */}
-          <ListItem sx={{ display: 'list-item' }}>
+          {/* <ListItem sx={{ display: 'list-item' }}>
             Request Type : <b>Non-bursty</b>
-          </ListItem>
+          </ListItem> */}
           {/* <ListItem sx={{ display: 'list-item' }}>
             Deployment Method : <b>ZIP based</b>
           </ListItem> */}
          
+          
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method for AWS , Azure & Cloudflare : <b> ZIP based </b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Deployment Method for Google Cloud Run : <b> Container based </b>
+          </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
             Language Runtime : <b>Python</b>
           </ListItem>
-
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
             {/* <ListItem sx={{ display: 'list-item' }}>
@@ -319,6 +325,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
             <ListItem sx={{ display: 'list-item' }}>
             Inter-Arrival Time : <b>3 seconds</b>
           </ListItem>
+         
           {/* <ListItem sx={{ display: 'list-item' }}>
             Function Memory Size : <b>128MB</b>
           </ListItem> */}
