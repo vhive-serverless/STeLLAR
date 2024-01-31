@@ -211,7 +211,7 @@ export default function About() {
             <Typography variant='h5' marginBottom={2}>Function Deployment Configuration</Typography>
               <ListItem sx={{display:'list-item'}}>
             Our experiments are based on <b>Python 3 functions</b>, except for evaluations of language runtimes where we evaluate four different language runtimes. </ListItem>
-            <ListItem sx={{display:'list-item'}}>We commonly employ <b>ZIP-based deployment</b> as our default method of deployment, with the exception of Google Cloud Run (GCR), which exclusively requires <b>Container based deployment.</b></ListItem><br/>
+            <ListItem sx={{display:'list-item'}}>We employ <b>ZIP-based deployment</b> as our default method of deployment, with the exception of Google Cloud Run (GCR), which exclusively requires <b>Container based deployment.</b></ListItem><br/>
        <b>Function Deployment Regions</b>
               <ListItem sx={{display:'list-item'}}>AWS - us-west-1</ListItem>
               <ListItem sx={{display:'list-item'}}>Azure - West US</ListItem>
@@ -233,12 +233,12 @@ export default function About() {
             <Typography variant='h5' fontWeight={500}>1. Warm Function Invocations <Button to="/dashboard/warm/aws" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results
           </Button></Typography>
-            <ListItem sx={{display:'list-item'}}>Under warm function invocations, we evaluate the response time of warm functions under individual invocations (i.e., allowing no more than a single outstanding request to each function).
+            Under warm function invocations, we evaluate the response time of warm functions under individual invocations (i.e., allowing no more than a single outstanding request to each function).
 <br/>
-            </ListItem>
             
               <Typography variant='h5' fontWeight={500} mt={3}>2. Cold Function Invocations</Typography>
-              Under Cold Function Invocation experiments, we evaluate the response time of functions with cold instances by issuing invocations (one-request at a time) with a long inter-arrival time (IAT) of 600 seconds.
+              Under Cold Function Invocation experiments, we evaluate the response time of functions with cold instances by issuing invocations (one-request at a time).
+              These invocations are spaced apart by a long inter-arrival time (IAT) of 600 seconds, except for Google Cloud Run, where a longer IAT of 900 seconds is used in the experiments.
               <ListItem sx={{display:'list-item'}}><b>Basic :</b> We evaluate the response time of functions with cold instances.  
               <Button to="/dashboard/cold/baseline" size="small" variant="outlined" sx={{marginLeft:3,color:'green'}} component={RouterLink}>
             View Results

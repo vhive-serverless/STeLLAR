@@ -226,14 +226,14 @@ const tailLatenciesCloudflare = useMemo(()=> {
 
     const medianLatenciesAWS = useMemo(()=> {
         if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => Math.log10(record.median).toFixed(2));
+            return overallStatisticsAWS.map(record => record.median);
         return null
 
     },[overallStatisticsAWS])
 
     const medianLatenciesGCR = useMemo(()=> {
       if(overallStatisticsGCR)
-          return overallStatisticsGCR.map(record => Math.log10(record.median).toFixed(2));
+          return overallStatisticsGCR.map(record => record.median);
       return null
 
   },[overallStatisticsGCR])
@@ -241,14 +241,14 @@ const tailLatenciesCloudflare = useMemo(()=> {
 
   const medianLatenciesAzure = useMemo(()=> {
     if(overallStatisticsAzure)
-        return overallStatisticsAzure.map(record => Math.log10(record.median).toFixed(2));
+        return overallStatisticsAzure.map(record => record.median);
     return null
 
 },[overallStatisticsAzure])
 
 const medianLatenciesCloudflare = useMemo(()=> {
   if(overallStatisticsCloudflare)
-      return overallStatisticsCloudflare.map(record => Math.log10(record.median).toFixed(2));
+      return overallStatisticsCloudflare.map(record => record.median);
   return null
 
 },[overallStatisticsCloudflare])
@@ -289,7 +289,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
                Experiment Configuration
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
-            In this experiment, we evaluate the response time of functions with cold instances by issuing invocations with a long inter-arrival time (IAT) of 600 seconds. <br/>
+            In this experiment, we evaluate the response time of functions with cold instances by issuing invocations with a long inter-arrival time (IAT).<br/>
             <br/>
             Detailed configuration parameters are as below.
             
@@ -306,6 +306,9 @@ const medianLatenciesCloudflare = useMemo(()=> {
           <ListItem sx={{ display: 'list-item' }}>
             Deployment Method for Google Cloud Run : <b> Container based </b>
           </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            Language Runtime : <b>Python</b>
+          </ListItem>
   
 
           </Box>
@@ -314,11 +317,12 @@ const medianLatenciesCloudflare = useMemo(()=> {
             Datacenter : <b>Oregon (us-west-2)</b>
           </ListItem> */}
             <ListItem sx={{ display: 'list-item' }}>
-            Inter-Arrival Time : <b>600 seconds</b>
+            IAT for AWS,Azure & Cloudflare functions : <b>600 seconds</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Language Runtime : <b>Python</b>
+            IAT for Google Cloud Run functions : <b>900 seconds</b>
           </ListItem>
+         
           <ListItem sx={{ display: 'list-item' }}>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/continuous-benchmarking/src/setup/deployment/raw-code/functions/hellopy/aws'}><b>Python (hellopy)</b></Link>
           </ListItem>
@@ -384,7 +388,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
               title="Median Latency"
               subheader={<>50<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
-              type={'median'}
+              // type={'median'}
               chartData={[
                 {
                   name: 'AWS',

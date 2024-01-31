@@ -197,7 +197,7 @@ useMemo(() => {
     
   const tailLatenciesAWS = useMemo(()=> {
       if(overallStatisticsAWS)
-          return overallStatisticsAWS.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2));
+          return overallStatisticsAWS.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
       return null
 
   },[overallStatisticsAWS])
@@ -205,7 +205,7 @@ useMemo(() => {
     // 50 MB Data Processing GCR
   const tailLatenciesGCR = useMemo(()=> {
     if(overallStatisticsGCR)
-        return overallStatisticsGCR.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2));
+        return overallStatisticsGCR.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
     return null
 
 },[overallStatisticsGCR])
@@ -282,7 +282,7 @@ const medianLatencies100MB = useMemo(()=> {
             <Grid item xs={12}>
            
             <Typography variant={'h4'} sx={{ mb: 2 }}>
-               Cold Function Invocations - Impact of Function Container Image Size
+               Cold Function Invocations - Impact of Function Image Size
             </Typography>
            
             <Card>
@@ -293,8 +293,9 @@ const medianLatencies100MB = useMemo(()=> {
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
             
-          In this experiment, we evaluate the impact of container image size on the median and tail response times for functions with cold instances. <br/>
-          To do so, we issue invocations with a long inter-arrival time (IAT) of 600 seconds and add an extra random-content file to each image.<br/>
+          In this experiment, we evaluate the impact of image size on the median and tail response times for functions with cold instances. <br/>
+          To do so, we issue invocations with a long inter-arrival time (IAT) and add an extra random-content file to each image.<br/>
+          The deployed function source code reads one byte each from 100 pages chosen at random within the extra random-content file. <br/>
             <br/>
             Detailed configuration parameters are as below.
             
@@ -318,13 +319,16 @@ const medianLatencies100MB = useMemo(()=> {
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
             <ListItem sx={{ display: 'list-item' }}>
-            Inter-Arrival Time : <b>600 seconds</b>
+            IAT for AWS,Azure & Cloudflare functions : <b>600 seconds</b>
+          </ListItem>
+          <ListItem sx={{ display: 'list-item' }}>
+            IAT for Google Cloud Run functions : <b>900 seconds</b>
           </ListItem>
           {/* <ListItem sx={{ display: 'list-item' }}>
             Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
           </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
-            Container Image Sizes : <b>50MB, 100MB</b>
+            Image Sizes : <b>50MB, 100MB</b>
           </ListItem>
           
               </Box>

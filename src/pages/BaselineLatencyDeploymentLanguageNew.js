@@ -111,27 +111,6 @@ export default function BaselineLatencyDashboard() {
       }
     },[startDate])
 
-    // const fetchIndividualData = useCallback(async () => {
-    //     try {
-    //         const response = await axios.get(`${baseURL}/results`, {
-    //             params: { experiment_type: experimentType,
-    //                 selected_date:selectedDate
-    //             },
-    //         });
-    //         if (isMountedRef.current) {
-    //             setDailyStatistics(response.data);
-    //         }
-    //     } catch (err) {
-    //         setIsErrorDailyStatistics(true);
-    //     }
-    // }, [isMountedRef,selectedDate,experimentType]);
-
-    // useMemo(() => {
-    //     fetchIndividualData();
-    // }, [fetchIndividualData]);
-
-    // ZIP Image Functionality
-    
     const fetchDataRangeImageZipAWS = useCallback(async () => {
         try {
             const responseAWSZip = await axios.get(`${baseURL}/results`, {
@@ -140,13 +119,6 @@ export default function BaselineLatencyDashboard() {
                     end_date:endDate,
                 },
             });
-            // console.log(`${experimentTypeOverall}-zip-aws`)
-          //   const responseAWSImage= await axios.get(`${baseURL}/results`, {
-          //     params: { experiment_type: `${experimentTypeOverall}-img-aws`,
-          //         start_date:startDate,
-          //         end_date:endDate,
-          //     },
-          // });
 
           const [resultAWSZip] = await Promise.all([responseAWSZip]);
 
@@ -168,12 +140,7 @@ export default function BaselineLatencyDashboard() {
 
     const fetchDataRangeImageZipGCR = useCallback(async () => {
       try {
-          // const responseGCRZip = await axios.get(`${baseURL}/results`, {
-          //     params: { experiment_type: `${experimentTypeOverall}-zip-gcr`,
-          //         start_date:startDate,
-          //         end_date:endDate,
-          //     },
-          // });
+
           const responseGCRImage= await axios.get(`${baseURL}/results`, {
             params: { experiment_type: `${experimentTypeOverall}-img-gcr`,
                 start_date:startDate,
@@ -209,12 +176,6 @@ export default function BaselineLatencyDashboard() {
                   end_date:endDate,
               },
           });
-        //   const responseAzureImage= await axios.get(`${baseURL}/results`, {
-        //     params: { experiment_type: `${experimentTypeOverall}-img-azure`,
-        //         start_date:startDate,
-        //         end_date:endDate,
-        //     },
-        // });
 
         const [resultAzureZip] = await Promise.all([responseAzureZip]);
 
@@ -264,10 +225,9 @@ export default function BaselineLatencyDashboard() {
    
       if(overallStatisticsAWS){
           return [
-            overallStatisticsAWS.zip.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
+            overallStatisticsAWS.zip.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)),
             // overallStatisticsAWS.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
             overallStatisticsAWS.zip.map(record => (record.median)),
-            // overallStatisticsAWS.image.map(record => (record.median))
           ];
         }
       return [null,null]
@@ -279,7 +239,7 @@ export default function BaselineLatencyDashboard() {
     if(overallStatisticsGCR){
         return [
           // overallStatisticsGCR.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
-          overallStatisticsGCR.image.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
+          overallStatisticsGCR.image.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)),
           // overallStatisticsGCR.zip.map(record => (record.median)),
           overallStatisticsGCR.image.map(record => (record.median))
         ];
@@ -291,7 +251,7 @@ export default function BaselineLatencyDashboard() {
 const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
   if(overallStatisticsAzure){
       return [
-        overallStatisticsAzure.zip.map(record => record.tail_latency === '0' ? 1 : Math.log10(record.tail_latency).toFixed(2)),
+        overallStatisticsAzure.zip.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)),
         // overallStatisticsAzure.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
         overallStatisticsAzure.zip.map(record => (record.median)),
         // overallStatisticsAzure.image.map(record => (record.median))
@@ -310,7 +270,6 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
         }
     ,[dailyStatistics])
 
-    // console.log(overallStatisticsAzure)
 
   return (
     <Page title="Dashboard">
@@ -335,11 +294,8 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             </Typography>
             <Typography variant={'p'} sx={{ mb: 2 }}>
             In this experiment, we evaluate the impact of different language runtimes on the median and tail response times for functions with cold instances.
-            <br/>We issue invocations with a long inter-arrival time (IAT) of 600 seconds. <br/>
-{/* 
-      <ListItem sx={{ display: 'list-item' }}>Compiled: Java, Go</ListItem>
-      <ListItem sx={{ display: 'list-item' }}>Interpreted: Python</ListItem>
-      <ListItem sx={{ display: 'list-item' }}>JIT: Node.js</ListItem> */}
+            <br/>We issue invocations with a long inter-arrival time (IAT). <br/>
+
 
             <br/>
             Detailed configuration parameters are as below.
@@ -362,22 +318,23 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
           </Box>
             <Box sx={{ width: '100%',ml:1}}>
             <ListItem sx={{ display: 'list-item' }}>
-            Inter-Arrival Time : <b>600 seconds</b>
-          </ListItem>
-
-          <ListItem sx={{ display: 'list-item' }}>
-            Language Runtimes : <b>Python, Go, Node.js ,Java</b>
-          </ListItem>
-
-          {/* <ListItem sx={{ display: 'list-item' }}>
-            Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
+            IAT for AWS,Azure & Cloudflare functions : <b>600 seconds</b>
           </ListItem>
           <ListItem sx={{ display: 'list-item' }}>
-            Function Image Sizes : <b>50MB, 100MB</b>
-          </ListItem> */}
+            IAT for Google Cloud Run functions : <b>900 seconds</b>
+          </ListItem>
+          
+
               </Box>
               
               </Stack>
+              <br/>
+             Language runtimes used in the experiment <br/><br/>
+            <ListItem sx={{ display: 'list-item' }}>AWS : <b> Go, Java, Node, Python</b></ListItem>
+            <ListItem sx={{ display: 'list-item' }}>Google Cloud Run : <b> Go, Java, Node, Python</b></ListItem>
+            <ListItem sx={{ display: 'list-item' }}>Azure : <b> Node, Python</b></ListItem>
+
+
               {/* <br/>* We deploy our function using ZIP-based deployment for AWS and Azure. Similarly, for Google Cloud Run, we use Container based deployment  */}
             </CardContent>
             

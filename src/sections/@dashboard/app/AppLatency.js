@@ -29,6 +29,9 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
     labels: chartLabels,
     xaxis: { type: 'datetime' },
     yaxis:{
+      min: 0, 
+      tickAmount: 6,
+      forceNiceScale: true,
       title: {
           text: 'ms'
         },
@@ -51,12 +54,16 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
       intersect: false,
       y: {
         formatter: (y) => {
+          if(y===0)
+            return `No data`;
+          if(y===1  && type==='tail')
+            return `No data`;
+
           if (typeof y !== 'undefined' && y!== 0 ) {
+            console.log(y);
             // return y
             return type ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
           }
-          if(y===0)
-            return `No data`;
           
           return y;
         },
