@@ -38,7 +38,7 @@ def simulate_work(incr):
 def read_filler_file(path: str) -> None:
     with open(path, 'rb') as f:
         for i in range(1024):
-            f.seek(i * 4096)
+            f.seek(i * 2048)
             f.read(1)
 
 
