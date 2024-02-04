@@ -435,7 +435,13 @@ func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, 
 		name := fmt.Sprintf("%s-%s", randomTag, createName(subex, index, i))
 		providerFunctionNames["gcr"] = append(providerFunctionNames["gcr"], name) // Used for function removal
 
-		gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
+		var gcrDeployCommand *exec.Cmd
+		if subex.CPUBoostEnabled {
+			gcrDeployCommand = exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region, "--cpu-boost")
+		} else {
+			gcrDeployCommand = exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
+		}
+
 		deployMessage := util.RunCommandAndLog(gcrDeployCommand)
 		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
 		subex.AddRoute("")
