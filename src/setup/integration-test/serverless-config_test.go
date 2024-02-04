@@ -45,6 +45,29 @@ func TestDeployAndRemoveServiceGCR(t *testing.T) {
 	assert.True(strings.Contains(deleteMsg, "Deleted service [abc12-hellopytest-0-0]"))
 }
 
+func TestDeployAndRemoveServiceGCRCPUBoost(t *testing.T) {
+	assert := require.New(t)
+	s := &setup.Serverless{
+		Service:          "STeLLAR",
+		FrameworkVersion: "3",
+		Provider: setup.Provider{
+			Name:    "gcr",
+			Runtime: "python3.9",
+			Region:  "us-west1",
+		},
+	}
+
+	subex := &setup.SubExperiment{
+		Title:           "cpuboosttest",
+		Parallelism:     1,
+		CPUBoostEnabled: true,
+	}
+
+	s.DeployGCRContainerService(subex, 0, "def12", "docker.io/kkmin/hellopy", "../deployment/raw-code/serverless/gcr/hellopy/", "us-west1")
+	deleteMsg := setup.RemoveGCRSingleService("def12-cpuboosttest-0-0")
+	assert.True(strings.Contains(deleteMsg, "Deleted service [def12-cpuboosttest-0-0]"))
+}
+
 func TestDeployAndRemoveServiceAzure(t *testing.T) {
 	assert := require.New(t)
 
