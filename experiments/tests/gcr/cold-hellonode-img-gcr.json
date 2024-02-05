@@ -9,7 +9,7 @@
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
     "CPUBoostEnabled": true,
-      "Bursts": 1000,
+      "Bursts": 100,
       "BurstSizes": [
         1
       ],

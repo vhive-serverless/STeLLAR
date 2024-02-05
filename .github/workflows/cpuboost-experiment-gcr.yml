@@ -41,7 +41,7 @@ jobs:
   cold-gcr-normal:
     name: GCR Cold Runtime Experiments (Normal)
     needs: build_client
-    runs-on: [ self-hosted, gcr, temp ]
+    runs-on: [ self-hosted, gcr ]
     strategy:
       matrix:
         runtime:
@@ -114,7 +114,7 @@ jobs:
   cold-gcr-boosted:
     name: GCR Cold Runtime Experiments (CPU Boosted)
     needs: build_client
-    runs-on: [ self-hosted, gcr, temp ]
+    runs-on: [ self-hosted, gcr ]
     strategy:
       matrix:
         runtime:

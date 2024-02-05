@@ -8,7 +8,7 @@
       "Function": "hellojava",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
-      "Bursts": 1000,
+      "Bursts": 100,
       "BurstSizes": [
         1
       ],
