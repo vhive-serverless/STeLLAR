@@ -104,7 +104,7 @@ jobs:
           timeout_minutes: 1440
           max_attempts: 5
           retry_wait_seconds: 60
-          command: cd src && ./stellar -o latency-samples-gcr -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/gcr/cold-hello${{ matrix.runtime }}-img-gcr.json
+          command: cd src && ./stellar -o latency-samples-gcr -l debug -c ../experiments/tests/gcr/cold-hello${{ matrix.runtime }}-img-gcr.json
 
       - uses: actions/upload-artifact@v3
         with:
