@@ -1,0 +1,22 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "node",
+  "SubExperiments": [
+    {
+      "Title": "cold-hellonode-img-gcr",
+      "Function": "hellonode",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50
+    }
+  ]
+}

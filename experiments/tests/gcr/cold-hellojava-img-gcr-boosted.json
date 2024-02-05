@@ -1,0 +1,23 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "java11",
+  "SubExperiments": [
+    {
+      "Title": "cold-hellojava-img-gcr",
+      "Function": "hellojava",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+    "CPUBoostEnabled": true,
+      "Bursts": 1000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50
+    }
+  ]
+}
