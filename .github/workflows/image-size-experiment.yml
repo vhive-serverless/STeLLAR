@@ -88,8 +88,8 @@ jobs:
 #          name: cold-image-size-100-gcr-read-per-page
 #          path: ${{ env.working-directory }}/latency-samples
 
-  cold-image-size-100-gcr-read-per-12288-bytes:
-    name: GCR 100MB image size experiment (read-per-12288-bytes)
+  cold-image-size-100-gcr-read-per-32768-bytes:
+    name: GCR 100MB image size experiment (read-per-32768-bytes)
     needs: build_client
     runs-on: [ self-hosted, gcr ]
     timeout-minutes: 600
@@ -131,15 +131,15 @@ jobs:
 
       - name: Run experiment
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -c ../experiments/image-size/cold-image-size-100-gcr-read-per-12288-bytes.json
+        run: ./stellar -c ../experiments/image-size/cold-image-size-100-gcr-read-per-32768-bytes.json
 
       - uses: actions/upload-artifact@v3
         with:
-          name: cold-image-size-100-gcr-read-per-12288-bytes
+          name: cold-image-size-100-gcr-read-per-32768-bytes
           path: ${{ env.working-directory }}/latency-samples
 
-  cold-image-size-100-gcr-read-per-16384-bytes:
-    name: GCR 100MB image size experiment (read-per-16384-bytes)
+  cold-image-size-100-gcr-read-per-65536-bytes:
+    name: GCR 100MB image size experiment (read-per-65536-bytes)
     needs: build_client
     runs-on: [ self-hosted, gcr ]
     timeout-minutes: 600
@@ -181,9 +181,9 @@ jobs:
 
       - name: Run experiment
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -c ../experiments/image-size/cold-image-size-100-gcr-read-per-16384-bytes.json
+        run: ./stellar -c ../experiments/image-size/cold-image-size-100-gcr-read-per-65536-bytes.json
 
       - uses: actions/upload-artifact@v3
         with:
-          name: cold-image-size-100-gcr-read-per-16384-bytes
+          name: cold-image-size-100-gcr-read-per-65536-bytes
           path: ${{ env.working-directory }}/latency-samples
