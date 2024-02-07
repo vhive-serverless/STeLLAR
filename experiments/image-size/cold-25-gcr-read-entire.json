@@ -1,0 +1,23 @@
+{
+  "Provider": "gcr",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "cold-25-gcr-read-entire",
+      "Function": "hellopy-read-entire-alpine",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+	  "PackagePattern": "lambda_function.py",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 25
+    }
+  ]
+}

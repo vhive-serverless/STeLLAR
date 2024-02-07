@@ -1,0 +1,23 @@
+{
+  "Provider": "aws",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "cold-75-aws-read-entire",
+      "Function": "hellopy-read-entire",
+      "Handler": "main.lambda_handler",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 75
+    }
+  ]
+}

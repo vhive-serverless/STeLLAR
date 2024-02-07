@@ -1,14 +1,14 @@
 {
-  "Provider": "azure",
-  "Runtime": "python3.8",
+  "Provider": "aws",
+  "Runtime": "python3.9",
   "SubExperiments": [
     {
-      "Title": "cold-image-size-100-azure",
+      "Title": "cold-25-aws",
       "Function": "hellopy",
-      "Handler": "main.main",
+      "Handler": "main.lambda_handler",
       "PackageType": "Zip",
       "PackagePattern": "main.py",
-      "Bursts": 1000,
+      "Bursts": 500,
       "BurstSizes": [
         1
       ],
@@ -17,7 +17,7 @@
         "0ms"
       ],
       "Parallelism": 50,
-      "FunctionImageSizeMB": 100
+      "FunctionImageSizeMB": 25
     }
   ]
 }

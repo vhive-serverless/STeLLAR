@@ -3,12 +3,12 @@
   "Runtime": "python3.9",
   "SubExperiments": [
     {
-      "Title": "cold-image-size-100-gcr-read-consecutive",
-      "Function": "hellopy-read-consecutive",
+      "Title": "cold-75-gcr",
+      "Function": "hellopy-alpine",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
 	  "PackagePattern": "lambda_function.py",
-      "Bursts": 100,
+      "Bursts": 500,
       "BurstSizes": [
         1
       ],
@@ -16,8 +16,8 @@
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "Parallelism": 30,
-      "FunctionImageSizeMB": 100
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 75
     }
   ]
 }
