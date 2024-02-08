@@ -9,28 +9,26 @@
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
 	  "SnapStartEnabled": true,
-      "Bursts": 2,
+      "Bursts": 1000,
       "BurstSizes": [
-        2
+        1
       ],
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 36
     },
     {
       "Title": "snapstart_disabled",
       "Function": "hellojava",
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
-      "Bursts": 2,
+      "Bursts": 1000,
       "BurstSizes": [
-        2
+        1
       ],
       "DesiredServiceTimes": [
         "0ms"
       ],
-      "FunctionImageSizeMB": 48
     }
   ]
 }
