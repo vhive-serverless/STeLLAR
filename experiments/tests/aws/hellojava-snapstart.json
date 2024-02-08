@@ -15,7 +15,7 @@
       ],
       "DesiredServiceTimes": [
         "0ms"
-      ],
+      ]
     },
     {
       "Title": "snapstart_disabled",
@@ -28,7 +28,7 @@
       ],
       "DesiredServiceTimes": [
         "0ms"
-      ],
+      ]
     }
   ]
 }
