@@ -41,4 +41,4 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az group list --query "[?contains(name, 'sls-wus-dev')].name" -o tsv | xargs -P 10 -n1 az group delete --yes --name
+            az group list --query "[?contains(name, 'sls-wus-dev')].name" -o tsv | xargs -r -P 10 -n1 az group delete --yes --name
