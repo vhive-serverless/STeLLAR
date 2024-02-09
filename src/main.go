@@ -29,11 +29,12 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
 	"stellar/benchmarking"
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"strconv"
+	"time"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")
@@ -49,7 +50,7 @@ func main() {
 	rand.Seed(randomSeed) // comment line for reproducible inter-arrival times
 	flag.Parse()
 
-	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))
+	outputDirectoryPath := filepath.Join(*outputPathFlag, strconv.FormatInt(time.Now().Unix(), 10))
 	log.Infof("Creating directory for this run at `%s`", outputDirectoryPath)
 	if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
