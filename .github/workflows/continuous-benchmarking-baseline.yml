@@ -27,20 +27,6 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  clean_up:
-    name: Clean-up workspace
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        runner: [ gcr, aws, azure, cloudflare ]
-    env:
-      working-directory: ./src
-    steps:
-      - name: "Cleanup build folder"
-        run: |
-          sudo rm -rf ./* || true
-          sudo rm -rf ./.??* || true
-
   build_client:
     name: Build framework
     needs: clean_up
@@ -84,6 +70,11 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
 
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -186,6 +177,11 @@ jobs:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -286,6 +282,11 @@ jobs:
       working-directory: src
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -379,6 +380,11 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -474,6 +480,11 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -576,6 +587,11 @@ jobs:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -676,6 +692,11 @@ jobs:
       working-directory: src
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
@@ -769,6 +790,11 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
     steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
