@@ -1,0 +1,96 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "2chain,S3",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATType": "stochastic",
+      "IATSeconds": 1,
+      "Function": "producer-consumer",
+      "PackageType": "Zip",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 1,
+      "DataTransferChainLength": 2,
+      "PayloadLengthBytes": 1024,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATType": "stochastic",
+      "IATSeconds": 1,
+      "Function": "producer-consumer",
+      "PackageType": "Zip",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 1,
+      "DataTransferChainLength": 2,
+      "PayloadLengthBytes": 524288,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATType": "stochastic",
+      "IATSeconds": 1,
+      "Function": "producer-consumer",
+      "PackageType": "Zip",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 1,
+      "DataTransferChainLength": 2,
+      "PayloadLengthBytes": 1048576,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATType": "stochastic",
+      "IATSeconds": 1,
+      "Function": "producer-consumer",
+      "PackageType": "Zip",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 1,
+      "DataTransferChainLength": 2,
+      "PayloadLengthBytes": 1572864,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,S3",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATType": "stochastic",
+      "IATSeconds": 1,
+      "Function": "producer-consumer",
+      "PackageType": "Zip",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 1,
+      "DataTransferChainLength": 2,
+      "PayloadLengthBytes": 2097152,
+      "StorageTransfer": true
+    }
+  ]
+}

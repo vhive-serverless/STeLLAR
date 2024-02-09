@@ -24,9 +24,7 @@ package setup
 
 import (
 	"fmt"
-	"github.com/aws/aws-sdk-go/service/lambda"
 	log "github.com/sirupsen/logrus"
-	"math"
 	"stellar/setup/deployment"
 	"stellar/setup/deployment/connection"
 	"stellar/util"
@@ -120,18 +118,20 @@ func removeEndpointFromSlice(s []connection.Endpoint, i int) []connection.Endpoi
 }
 
 func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
-	if experiment.PackageType != endpoint.PackageType {
-		return false
-	}
+	return false
 
-	if endpoint.FunctionMemoryMB != experiment.FunctionMemoryMB {
-		return false
-	}
-
-	// Image sizes are ignored for PackageTypeImage because AWS does not reveal this information
-	if experiment.PackageType == lambda.PackageTypeImage {
-		return true
-	}
-
-	return math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 5
+	//if experiment.PackageType != endpoint.PackageType {
+	//	return false
+	//}
+	//
+	//if endpoint.FunctionMemoryMB != experiment.FunctionMemoryMB {
+	//	return false
+	//}
+	//
+	//// Image sizes are ignored for PackageTypeImage because AWS does not reveal this information
+	//if experiment.PackageType == lambda.PackageTypeImage {
+	//	return true
+	//}
+	//
+	//return math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 5
 }
