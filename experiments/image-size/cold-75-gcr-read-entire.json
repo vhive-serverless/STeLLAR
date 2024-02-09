@@ -4,7 +4,7 @@
   "SubExperiments": [
     {
       "Title": "cold-75-gcr-read-entire",
-      "Function": "hellopy-read-entire-alpine",
+      "Function": "hellopy-read-entire",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
 	  "PackagePattern": "lambda_function.py",
