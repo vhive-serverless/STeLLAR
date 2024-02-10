@@ -22,9 +22,9 @@
 name: Continuous benchmarking - Baseline experiments
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
+  push:
+    branches:
+      - temp-exp-20240210
 
 jobs:
   build_client:
