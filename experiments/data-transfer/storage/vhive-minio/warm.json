@@ -1,0 +1,146 @@
+{
+  "Sequential": true,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10240,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 102400,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1048576,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 10485760,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 65536000,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 131072000,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 262144000,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 524288000,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    },
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1073741824,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

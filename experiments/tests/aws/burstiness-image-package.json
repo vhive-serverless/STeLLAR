@@ -1,0 +1,18 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "parallelism1",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    }
+  ]
+}

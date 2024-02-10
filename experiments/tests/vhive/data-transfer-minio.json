@@ -1,0 +1,20 @@
+{
+  "Sequential": true,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "2chain,minio",
+      "Bursts": 3,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

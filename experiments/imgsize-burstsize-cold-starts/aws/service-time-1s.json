@@ -1,0 +1,246 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "Parallelism": 100,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 60,
+      "Parallelism": 100,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 60,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 60,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 60,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 120,
+      "Parallelism": 100,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 120,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 120,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 120,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 180,
+      "Parallelism": 100,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 180,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 180,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 180,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 230,
+      "Parallelism": 100,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 230,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 230,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "1s"
+      ],
+      "FunctionImageSizeMB": 230,
+      "FunctionMemoryMB": 2048
+    }
+  ]
+}

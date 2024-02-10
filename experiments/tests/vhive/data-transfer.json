@@ -1,0 +1,18 @@
+{
+  "Sequential": true,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "2chain,inline",
+      "Bursts": 3,
+      "BurstSizes": [
+        1
+      ],
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2
+    }
+  ]
+}

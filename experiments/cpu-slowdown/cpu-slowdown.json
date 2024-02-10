@@ -1,0 +1,266 @@
+{
+  "Sequential": false,
+  "SubExperiments": [
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ]
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ]
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ]
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 480
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 480
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 480
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 832
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 832
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 832
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 1184
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 1184
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 1184
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 1536
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 2304
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 2304
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 2304
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 5120
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 5120
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 5120
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "100ms"
+      ],
+      "FunctionMemoryMB": 10240
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "500ms"
+      ],
+      "FunctionMemoryMB": 10240
+    },
+    {
+      "Bursts": 250,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 1,
+      "DesiredServiceTimes": [
+        "1000ms"
+      ],
+      "FunctionMemoryMB": 10240
+    }
+  ]
+}

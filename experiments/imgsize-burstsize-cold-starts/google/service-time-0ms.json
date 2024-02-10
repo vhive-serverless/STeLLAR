@@ -1,0 +1,55 @@
+{
+  "Sequential": false,
+  "Provider": "google",
+  "SubExperiments": [
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0s"
+      ],
+      "FunctionImageSizeMB": 9,
+      "Parallelism": 22,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0s"
+      ],
+      "FunctionImageSizeMB": 9,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0s"
+      ],
+      "FunctionImageSizeMB": 9,
+      "FunctionMemoryMB": 2048
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "0s"
+      ],
+      "FunctionImageSizeMB": 9,
+      "FunctionMemoryMB": 2048
+    }
+  ]
+}

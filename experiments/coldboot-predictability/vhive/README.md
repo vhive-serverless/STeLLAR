@@ -1,0 +1,1 @@
+Note: please run this experiment only with `vHive-coldboot-predictability.json`, as the images will be assigned in the exact specified order.

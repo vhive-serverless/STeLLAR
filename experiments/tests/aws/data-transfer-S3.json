@@ -1,0 +1,19 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "2chain,S3",
+      "Bursts": 2,
+      "BurstSizes": [
+        1
+      ],
+      "PayloadLengthBytes": 1024,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "DataTransferChainLength": 2,
+      "StorageTransfer": true
+    }
+  ]
+}

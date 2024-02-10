@@ -1,0 +1,58 @@
+{
+  "Sequential": true,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "prodcons",
+      "Function": "prodcons",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 70,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "chameleon",
+      "Function": "chameleon",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 70,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "hellopy",
+      "Function": "hellopy",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 70,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    },
+    {
+      "Title": "rnnserving",
+      "Function": "rnnserving",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 70,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

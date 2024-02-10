@@ -1,0 +1,62 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "SubExperiments": [
+    {
+      "Title": "producer-consumer",
+      "Function": "producer-consumer",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 100
+    },
+    {
+      "Title": "chameleon",
+      "Function": "chameleon",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 100
+    },
+    {
+      "Title": "hellopy",
+      "Function": "hellopy",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 100
+    },
+    {
+      "Title": "rnnserving",
+      "Function": "rnnserving",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 100
+    }
+  ]
+}

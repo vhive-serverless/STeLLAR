@@ -1,0 +1,17 @@
+{
+  "Sequential": false,
+  "Provider": "vhive",
+  "SubExperiments": [
+    {
+      "Title": "burstiness",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "PackageType": "Image",
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

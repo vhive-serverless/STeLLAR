@@ -1,0 +1,55 @@
+{
+  "Sequential": false,
+  "Provider": "azure",
+  "SubExperiments": [
+    {
+      "Bursts": 3000,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "1.5ms"
+      ],
+      "FunctionImageSizeMB": 9,
+      "Parallelism": 22,
+      "FunctionMemoryMB": 1500
+    },
+    {
+      "Bursts": 30,
+      "BurstSizes": [
+        100
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "1.5ms"
+      ],
+      "FunctionImageSizeMB": 9,
+      "FunctionMemoryMB": 1500
+    },
+    {
+      "Bursts": 10,
+      "BurstSizes": [
+        300
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "1.5ms"
+      ],
+      "FunctionImageSizeMB": 9,
+      "FunctionMemoryMB": 1500
+    },
+    {
+      "Bursts": 6,
+      "BurstSizes": [
+        500
+      ],
+      "IATSeconds": 900,
+      "DesiredServiceTimes": [
+        "1.5ms"
+      ],
+      "FunctionImageSizeMB": 9,
+      "FunctionMemoryMB": 1500
+    }
+  ]
+}

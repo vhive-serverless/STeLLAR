@@ -1,0 +1,32 @@
+{
+  "Sequential": false,
+  "Provider": "www.google.com",
+  "SubExperiments": [
+    {
+      "Title": "Google-SubExperiment1",
+      "Bursts": 6,
+      "BurstSizes": [
+        1,
+        2,
+        3,
+        4,
+        50
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Visualization": "all"
+    },
+    {
+      "Title": "Google-SubExperiment2",
+      "Bursts": 10,
+      "BurstSizes": [
+        1
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Visualization": "bar-200"
+    }
+  ]
+}
