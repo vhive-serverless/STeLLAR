@@ -10,7 +10,7 @@
 	  "PackageType": "Container",
 	  "PackagePattern": "lambda_function.py",
     "CPUBoostEnabled": true,
-      "Bursts": 100,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],

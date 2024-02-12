@@ -8,7 +8,7 @@
       "Function": "hellonode",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
-      "Bursts": 100,
+      "Bursts": 1000,
       "BurstSizes": [
         1
       ],
