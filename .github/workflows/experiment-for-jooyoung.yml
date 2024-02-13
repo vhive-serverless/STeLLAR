@@ -27,7 +27,7 @@ jobs:
           ref: ypwong99/experiment-for-jooyoung
 
       - name: Run experiment
-        run: cd src && go run . -l debug -c ../experiments/data-transfer/storage/aws-s3/experiment-jooyoung.json
+        run: cd src && go run . -l debug -c ../experiments/data-transfer/storage/aws-s3/experiment-jooyoung-2.json
 
       - uses: actions/upload-artifact@v4
         with:
