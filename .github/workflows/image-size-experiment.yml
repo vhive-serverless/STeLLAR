@@ -2,9 +2,9 @@ name: Image size experiment
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - ypwong99/temp-experiment-image-sizes
+#  push:
+#    branches:
+#      - ypwong99/temp-experiment-image-sizes
 
 jobs:
   build_client:

@@ -1,11 +1,11 @@
 {
-  "Provider": "aws",
-  "Runtime": "python3.9",
+  "Provider": "azure",
+  "Runtime": "python3.8",
   "SubExperiments": [
     {
-      "Title": "cold-100-aws-read-per-16384-bytes",
-      "Function": "hellopy-read-per-16384-bytes",
-      "Handler": "main.lambda_handler",
+      "Title": "cold-100-azure-read-per-4096-bytes",
+      "Function": "hellopy-read-per-4096-bytes",
+      "Handler": "main.main",
       "PackageType": "Zip",
       "PackagePattern": "main.py",
       "Bursts": 500,

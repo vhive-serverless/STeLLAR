@@ -3,8 +3,8 @@
   "Runtime": "python3.9",
   "SubExperiments": [
     {
-      "Title": "cold-100-aws-read-per-32768-bytes",
-      "Function": "hellopy-read-per-32768-bytes",
+      "Title": "aws-chunk-4-kbytes",
+      "Function": "hellopy-read-per-4096-bytes",
       "Handler": "main.lambda_handler",
       "PackageType": "Zip",
       "PackagePattern": "main.py",
