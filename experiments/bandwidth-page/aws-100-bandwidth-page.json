@@ -1,0 +1,23 @@
+{
+  "Provider": "aws",
+  "Runtime": "python3.9",
+  "SubExperiments": [
+    {
+      "Title": "aws-100-bandwidth-page",
+      "Function": "hellopy-read-per-page",
+      "Handler": "main.lambda_handler",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 100
+    }
+  ]
+}

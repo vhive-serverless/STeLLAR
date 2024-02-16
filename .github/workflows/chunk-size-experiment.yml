@@ -1,10 +1,10 @@
-name: Chunk size experiment
+name: Chunk size experiments
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - ypwong99/temp-experiment-image-sizes
+#  push:
+#    branches:
+#      - ypwong99/temp-experiment-image-sizes
 
 jobs:
   build_client:
@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       working-directory: ./src
+
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4

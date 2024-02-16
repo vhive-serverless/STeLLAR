@@ -1,0 +1,23 @@
+{
+  "Provider": "azure",
+  "Runtime": "python3.8",
+  "SubExperiments": [
+    {
+      "Title": "azure-50-bandwidth-page",
+      "Function": "hellopy-read-per-page",
+      "Handler": "main.main",
+      "PackageType": "Zip",
+      "PackagePattern": "main.py",
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 600,
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 50,
+      "FunctionImageSizeMB": 50
+    }
+  ]
+}
