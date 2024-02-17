@@ -2,9 +2,9 @@ name: Bandwidth experiments
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - ypwong99/temp-experiment-image-sizes
+#  push:
+#    branches:
+#      - ypwong99/temp-experiment-image-sizes
 
 jobs:
   build_client:
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [aws-25-bandwidth-page, aws-50-bandwidth-page, aws-75-bandwidth-page, aws-100-bandwidth-page]
+        name: [ aws-25-bandwidth-page, aws-50-bandwidth-page, aws-75-bandwidth-page, aws-100-bandwidth-page ]
     env:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}

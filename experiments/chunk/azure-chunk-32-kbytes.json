@@ -3,7 +3,7 @@
   "Runtime": "python3.8",
   "SubExperiments": [
     {
-      "Title": "cold-100-azure-read-per-32768-bytes",
+      "Title": "azure-chunk-32-kbytes",
       "Function": "hellopy-read-per-32768-bytes",
       "Handler": "main.main",
       "PackageType": "Zip",
