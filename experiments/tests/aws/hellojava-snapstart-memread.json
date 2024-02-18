@@ -19,21 +19,6 @@
         "0ms"
       ],
       "Parallelism": 25
-    },
-    {
-      "Title": "snapstart_disabled",
-      "Function": "hellojava",
-	  "Handler": "org.hellojava.Handler",
-	  "PackageType": "Zip",
-	"IATSeconds": 600,
-      "Bursts": 1000,
-      "BurstSizes": [
-        1
-      ],
-      "DesiredServiceTimes": [
-        "0ms"
-      ],
-      "Parallelism": 25
     }
   ]
 }
