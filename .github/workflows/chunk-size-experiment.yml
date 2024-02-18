@@ -39,77 +39,130 @@ jobs:
           path: ${{ env.working-directory }}/build.tar
           retention-days: 1
           
-  aws-chunk:
+#  aws-chunk:
+#    needs: build_client
+#    runs-on: [ self-hosted, aws ]
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        name: [ aws-chunk-4-kbytes, aws-chunk-8-kbytes, aws-chunk-16-kbytes, aws-chunk-32-kbytes ]
+#    env:
+#      working-directory: src
+#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#
+#    steps:
+#      - name: Check out code into the Go module directory
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ypwong99/temp-experiment-image-sizes
+#
+#      - name: Configure AWS credentials using EASE lab account
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: us-west-1
+#
+#      - name: Set up Node.js 16.16.0
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 16.16.0
+#
+#      - name: Download client artifact
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: STeLLAR-build
+#
+#      - name: Untar client build
+#        working-directory: ${{ env.working-directory }}
+#        run: tar --strip-components=1 -xvf ../build.tar -C .
+#
+#      - name: Run experiment ${{ matrix.name }}
+#        working-directory: ${{ env.working-directory }}
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/chunk/${{ matrix.name }}.json
+#
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: ${{ matrix.name }}
+#          path: ${{ env.working-directory }}/latency-samples
+
+#  azure-chunk:
+#    needs: build_client
+#    runs-on: [ self-hosted, azure ]
+#    timeout-minutes: 600
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        name: [ azure-chunk-4-kbytes, azure-chunk-8-kbytes, azure-chunk-16-kbytes, azure-chunk-32-kbytes ]
+#    env:
+#      working-directory: src
+#      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+#      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+#      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+#      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+#
+#    steps:
+#      - name: Check out code into the Go module directory
+#        uses: actions/checkout@v4
+#        with:
+#          ref: ypwong99/temp-experiment-image-sizes
+#
+#      - name: Set up Node 16.16.0
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 16.16.0
+#
+#      - name: Download client artifact
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: STeLLAR-build
+#
+#      - name: Untar client build
+#        working-directory: ${{ env.working-directory }}
+#        run: tar --strip-components=1 -xvf ../build.tar -C .
+#
+#      - name: Run experiment ${{ matrix.name }}
+#        working-directory: ${{ env.working-directory }}
+#        run: ./stellar -c ../experiments/chunk/${{ matrix.name }}.json
+#
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: ${{ matrix.name }}
+#          path: ${{ env.working-directory }}/latency-samples
+
+  gcr-chunk:
     needs: build_client
-    runs-on: [ self-hosted, aws ]
-    strategy:
-      fail-fast: false
-      matrix:
-        name: [ aws-chunk-4-kbytes, aws-chunk-8-kbytes, aws-chunk-16-kbytes, aws-chunk-32-kbytes ]
-    env:
-      working-directory: src
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
-        with:
-          ref: ypwong99/temp-experiment-image-sizes
-
-      - name: Configure AWS credentials using EASE lab account
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-west-1
-
-      - name: Set up Node.js 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-
-      - name: Download client artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: STeLLAR-build
-
-      - name: Untar client build
-        working-directory: ${{ env.working-directory }}
-        run: tar --strip-components=1 -xvf ../build.tar -C .
-
-      - name: Run experiment ${{ matrix.name }}
-        working-directory: ${{ env.working-directory }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/chunk/${{ matrix.name }}.json
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.name }}
-          path: ${{ env.working-directory }}/latency-samples
-
-  azure-chunk:
-    needs: build_client
-    runs-on: [ self-hosted, azure ]
+    runs-on: [ self-hosted, gcr ]
     timeout-minutes: 600
     strategy:
       fail-fast: false
       matrix:
-        name: [ azure-chunk-4-kbytes, azure-chunk-8-kbytes, azure-chunk-16-kbytes, azure-chunk-32-kbytes ]
+        name: [ gcr-chunk-40-kbytes, gcr-chunk-48-kbytes, gcr-chunk-56-kbytes ]
     env:
       working-directory: src
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
           ref: ypwong99/temp-experiment-image-sizes
+
+      - id: auth
+        name: Configure GCR credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: ">= 363.0.0"
 
       - name: Set up Node 16.16.0
         uses: actions/setup-node@v3
