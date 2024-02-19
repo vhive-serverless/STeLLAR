@@ -1,4 +1,4 @@
-name: Bandwidth experiments
+name: Bandwidth experiments (Read per page)
 
 on:
   workflow_dispatch:

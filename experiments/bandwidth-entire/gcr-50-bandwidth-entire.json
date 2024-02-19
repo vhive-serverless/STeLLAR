@@ -3,7 +3,7 @@
   "Runtime": "python3.9",
   "SubExperiments": [
     {
-      "Title": "cold-100-gcr-read-entire",
+      "Title": "gcr-50-bandwidth-entire",
       "Function": "hellopy-read-entire",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
@@ -17,7 +17,7 @@
         "0ms"
       ],
       "Parallelism": 50,
-      "FunctionImageSizeMB": 100
+      "FunctionImageSizeMB": 50
     }
   ]
 }

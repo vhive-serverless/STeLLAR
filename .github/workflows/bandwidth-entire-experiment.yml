@@ -1,10 +1,10 @@
-name: Chunk size experiments
+name: Bandwidth experiments (Read entire)
 
 on:
   workflow_dispatch:
-#  push:
-#    branches:
-#      - ypwong99/temp-experiment-image-sizes
+  push:
+    branches:
+      - ypwong99/temp-experiment-image-sizes
 
 jobs:
   build_client:
@@ -38,14 +38,14 @@ jobs:
           name: STeLLAR-build
           path: ${{ env.working-directory }}/build.tar
           retention-days: 1
-          
-#  aws-chunk:
+
+#  aws-bandwidth:
 #    needs: build_client
 #    runs-on: [ self-hosted, aws ]
 #    strategy:
 #      fail-fast: false
 #      matrix:
-#        name: [ aws-chunk-4-kbytes, aws-chunk-8-kbytes, aws-chunk-16-kbytes, aws-chunk-32-kbytes ]
+#        name: [ aws-25-bandwidth-entire, aws-50-bandwidth-entire, aws-75-bandwidth-entire, aws-100-bandwidth-entire ]
 #    env:
 #      working-directory: src
 #      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
@@ -83,21 +83,21 @@ jobs:
 #        env:
 #          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
 #          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-#        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/chunk/${{ matrix.name }}.json
+#        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/bandwidth-entire/${{ matrix.name }}.json
 #
 #      - uses: actions/upload-artifact@v3
 #        with:
 #          name: ${{ matrix.name }}
 #          path: ${{ env.working-directory }}/latency-samples
 
-#  azure-chunk:
+#  azure-bandwidth:
 #    needs: build_client
 #    runs-on: [ self-hosted, azure ]
 #    timeout-minutes: 600
 #    strategy:
 #      fail-fast: false
 #      matrix:
-#        name: [ azure-chunk-4-kbytes, azure-chunk-8-kbytes, azure-chunk-16-kbytes, azure-chunk-32-kbytes ]
+#        name: [ azure-25-bandwidth-entire, azure-50-bandwidth-entire, azure-75-bandwidth-entire, azure-100-bandwidth-entire ]
 #    env:
 #      working-directory: src
 #      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -127,21 +127,21 @@ jobs:
 #
 #      - name: Run experiment ${{ matrix.name }}
 #        working-directory: ${{ env.working-directory }}
-#        run: ./stellar -c ../experiments/chunk/${{ matrix.name }}.json
+#        run: ./stellar -c ../experiments/bandwidth-entire/${{ matrix.name }}.json
 #
 #      - uses: actions/upload-artifact@v3
 #        with:
 #          name: ${{ matrix.name }}
 #          path: ${{ env.working-directory }}/latency-samples
 
-  gcr-chunk:
+  gcr-bandwidth:
     needs: build_client
     runs-on: [ self-hosted, gcr ]
     timeout-minutes: 600
     strategy:
       fail-fast: false
       matrix:
-        name: [ gcr-chunk-32-kbytes, gcr-chunk-64-kbytes ]
+        name: [ gcr-50-bandwidth-entire, gcr-100-bandwidth-entire ]
     env:
       working-directory: src
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -180,7 +180,7 @@ jobs:
 
       - name: Run experiment ${{ matrix.name }}
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -c ../experiments/chunk/${{ matrix.name }}.json
+        run: ./stellar -c ../experiments/bandwidth-entire/${{ matrix.name }}.json
 
       - uses: actions/upload-artifact@v3
         with:
