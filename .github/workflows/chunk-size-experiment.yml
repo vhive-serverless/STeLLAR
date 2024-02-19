@@ -141,7 +141,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [ gcr-chunk-40-kbytes, gcr-chunk-48-kbytes, gcr-chunk-56-kbytes ]
+        name: [ gcr-chunk-32-kbytes, gcr-chunk-64-kbytes ]
     env:
       working-directory: src
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
