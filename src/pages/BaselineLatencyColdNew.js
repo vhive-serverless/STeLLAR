@@ -163,6 +163,7 @@ const fetchDataRangeCloudflare = useCallback(async () => {
 }, [isMountedRef,startDate,endDate,experimentTypeCloudflare]);
 
     useMemo(() => {
+      // console.log()
         fetchDataRangeAWS();
     }, [fetchDataRangeAWS]);
 
@@ -187,14 +188,14 @@ useMemo(() => {
 
     const tailLatenciesAWS = useMemo(()=> {
         if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => Math.log10(record.tail_latency).toFixed(2));
+            return overallStatisticsAWS.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
         return null
 
     },[overallStatisticsAWS])
 
     const tailLatenciesGCR = useMemo(()=> {
       if(overallStatisticsGCR)
-          return overallStatisticsGCR.map(record => Math.log10(record.tail_latency).toFixed(2));
+          return overallStatisticsGCR.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
       return null
 
   },[overallStatisticsGCR])
@@ -202,7 +203,7 @@ useMemo(() => {
 
   const tailLatenciesAzure = useMemo(()=> {
     if(overallStatisticsAzure)
-        return overallStatisticsAzure.map(record => Math.log10(record.tail_latency).toFixed(2));
+        return overallStatisticsAzure.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
     return null
 
 },[overallStatisticsAzure])
@@ -210,7 +211,7 @@ useMemo(() => {
 
 const tailLatenciesCloudflare = useMemo(()=> {
   if(overallStatisticsCloudflare)
-      return overallStatisticsCloudflare.map(record => Math.log10(record.tail_latency).toFixed(2));
+      return overallStatisticsCloudflare.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
   return null
 
 },[overallStatisticsCloudflare])
@@ -267,6 +268,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
       }
     },[startDate])
 
+    console.log(overallStatisticsAzure,tailLatenciesAzure)
     // console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
   return (
     <Page title="Dashboard">

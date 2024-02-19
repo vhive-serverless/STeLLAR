@@ -140,7 +140,7 @@ export default function BaselineLatencyDashboard() {
 
     const fetchDataRangeImageZipGCR = useCallback(async () => {
       try {
-
+          // console.log('GCR',startDate,endDate,experimentTypeOverall)
           const responseGCRImage= await axios.get(`${baseURL}/results`, {
             params: { experiment_type: `${experimentTypeOverall}-img-gcr`,
                 start_date:startDate,
@@ -197,18 +197,25 @@ export default function BaselineLatencyDashboard() {
     
 
   useMemo(() => {
-    fetchDataRangeImageZipAWS();
-  }, [fetchDataRangeImageZipAWS]);
+    if(experimentTypeOverall.includes('-')){
+      fetchDataRangeImageZipAWS();
+    }
+
+  }, [fetchDataRangeImageZipAWS,experimentTypeOverall]);
       
 
   useMemo(() => {
+    if(experimentTypeOverall.includes('-')){
     fetchDataRangeImageZipGCR();
-  }, [fetchDataRangeImageZipGCR]);
+    }
+  }, [fetchDataRangeImageZipGCR,experimentTypeOverall]);
         
 
   useMemo(() => {
+    if(experimentTypeOverall.includes('-')){
       fetchDataRangeImageZipAzure();
-  }, [fetchDataRangeImageZipAzure]);
+    }
+  }, [fetchDataRangeImageZipAzure,experimentTypeOverall]);
         
 
  
