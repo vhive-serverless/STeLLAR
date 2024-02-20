@@ -8,7 +8,6 @@
       "Function": "hellonode",
 	  "Handler": "Dockerfile",
 	  "PackageType": "Container",
-    "CPUBoostEnabled": true,
       "Bursts": 1000,
       "BurstSizes": [
         1
