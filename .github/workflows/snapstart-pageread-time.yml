@@ -1,10 +1,10 @@
-name: Run SnapStart Function Memory Size Experiments (AWS)
+name: Run SnapStart Page Read Time Experiments (AWS)
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - snapstart-exp
 
 jobs:
   build_client:
@@ -39,17 +39,9 @@ jobs:
           retention-days: 1
 
   snapstart-exp:
-    name: AWS SnapStart Function Memory Size Experiments
+    name: AWS SnapStart Experiments
     needs: build_client
     runs-on: [ self-hosted, aws ]
-    strategy:
-      matrix:
-        size:
-          [
-            128,
-            256, 
-            512
-          ]
     timeout-minutes: 1440
     env:
       working-directory: src
@@ -85,7 +77,7 @@ jobs:
 
       - name: AWS Cold Function Invocation - SnapStart Memory Read
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/tests/aws/hellojava-snapstart-function-size-${{matrix.size}}.json 
+        run: ./stellar -a 356764711652 -l debug -o latency-samples -c ../experiments/tests/aws/hellojava-snapstart-pageread.json 
 
       - uses: actions/upload-artifact@v3
         with:

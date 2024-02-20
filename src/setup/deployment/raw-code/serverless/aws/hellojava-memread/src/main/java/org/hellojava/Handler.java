@@ -52,11 +52,13 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             requestId = context.getAwsRequestId();
         }
 
+        long startTime = System.currentTimeMillis();
         byte[] readData = pageData; // Read the memory page
         System.out.println("Data read: "+ readData);
+        long endTime = System.currentTimeMillis();
+        long pageReadTime = endTime-startTime;
 
-        Instant now = Instant.now();
-        String[] timestampChain = new String[]{""+now.getEpochSecond()+now.getNano()};
+        String[] timestampChain = new String[]{""+pageReadTime};
         ResponseEventBody resBody = new ResponseEventBody(System.getenv("AWS_REGION"), requestId, timestampChain);
 
 	Map<String, String> responseHeaders = new HashMap<>();
