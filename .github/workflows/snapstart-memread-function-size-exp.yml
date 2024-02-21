@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - snapstart-exp
 
 jobs:
   build_client:
@@ -89,5 +89,5 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: snapstart-aws
+          name: snapstart-aws-${{matrix.size}}
           path: ${{ env.working-directory }}/latency-samples
