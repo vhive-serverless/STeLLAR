@@ -4,13 +4,13 @@
   "Runtime": "java11",
   "SubExperiments": [
     {
-      "Title": "snapstart_enabled_128mb",
-      "Function": "hellojava",
+      "Title": "snapstart_enabled_seq_512mb",
+      "Function": "hellojava-seqread",
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
 	  "SnapStartEnabled": true,
 	    "IATSeconds": 600,
-      "FunctionMemoryMB": 128,
+      "FunctionMemoryMB": 512,
       "Bursts": 500,
       "BurstSizes": [
         1

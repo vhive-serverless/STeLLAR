@@ -29,7 +29,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     static byte[] pageData;
     @Override
     public void beforeCheckpoint(org.crac.Context<? extends Resource> context) throws Exception {
-        pageData = new byte[4096];
+        pageData = new byte[4096 * 25600]; // 100 MB
         new Random().nextBytes(pageData);
     }
 

@@ -1,0 +1,24 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "java11",
+  "SubExperiments": [
+    {
+      "Title": "snapstart_enabled_seq_256mb",
+      "Function": "hellojava-seqread",
+	  "Handler": "org.hellojava.Handler",
+	  "PackageType": "Zip",
+	  "SnapStartEnabled": true,
+	    "IATSeconds": 600,
+      "FunctionMemoryMB": 256,
+      "Bursts": 500,
+      "BurstSizes": [
+        1
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "Parallelism": 10
+    }
+  ]
+}

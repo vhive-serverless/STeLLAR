@@ -1,10 +1,10 @@
-name: Run SnapStart Function Memory Size Experiments (AWS)
+name: Run SnapStart Sequential Memory Read Experiments (AWS)
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - snapstart-exp
 
 jobs:
   build_client:
@@ -39,7 +39,7 @@ jobs:
           retention-days: 1
 
   snapstart-exp:
-    name: AWS SnapStart Function Memory Size Experiments
+    name: AWS SnapStart Experiments
     needs: build_client
     runs-on: [ self-hosted, aws ]
     strategy:
@@ -83,11 +83,11 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: AWS Cold Function Invocation - SnapStart Memory Read
+      - name: AWS Cold Function Invocation - SnapStart Sequential Memory Read
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/tests/aws/hellojava-snapstart-function-size-${{matrix.size}}.json 
+        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/tests/aws/hellojava-snapstart-function-size-${{matrix.size}}-seq.json 
 
       - uses: actions/upload-artifact@v3
         with:
-          name: snapstart-aws-${{matrix.size}}
+          name: snapstart-aws-seq-${{matrix.size}}
           path: ${{ env.working-directory }}/latency-samples

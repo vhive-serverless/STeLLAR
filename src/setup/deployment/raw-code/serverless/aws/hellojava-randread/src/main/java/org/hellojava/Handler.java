@@ -26,11 +26,14 @@ class ResponseEventBody {
 }
 
 public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource{
-    static byte[] pageData;
+    byte[] pageData;
+    public Handler() {
+        Core.getGlobalContext().register(this);
+    }
     @Override
     public void beforeCheckpoint(org.crac.Context<? extends Resource> context) throws Exception {
-        pageData = new byte[4096 * 25600]; // 100 MB
-        new Random().nextBytes(pageData);
+        this.pageData = new byte[1024 * 1024]; // 100 MB
+        new Random().nextBytes(this.pageData);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     }
 
     public void readDataRand() {
-        int totalPages = pageData.length / 4096;
+        int totalPages = this.pageData.length / 4096;
         List<Integer> pages = IntStream.range(0, totalPages).boxed().collect(Collectors.toList());
         Collections.shuffle(pages);
         for (Integer pageNo : pages) {

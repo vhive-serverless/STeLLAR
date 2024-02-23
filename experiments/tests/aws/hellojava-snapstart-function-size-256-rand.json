@@ -4,8 +4,8 @@
   "Runtime": "java11",
   "SubExperiments": [
     {
-      "Title": "snapstart_enabled_256mb",
-      "Function": "hellojava",
+      "Title": "snapstart_enabled_rand_256mb",
+      "Function": "hellojava-randread",
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
 	  "SnapStartEnabled": true,
