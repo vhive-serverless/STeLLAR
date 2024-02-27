@@ -33,7 +33,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     }
     @Override
     public void beforeCheckpoint(org.crac.Context<? extends Resource> context) throws Exception {
-        this.pageData = new byte[1024 * 1024 * 0.5];
+        this.pageData = new byte[1024 * 1024 * 0.25];
         new Random().nextBytes(this.pageData);
     }
 
