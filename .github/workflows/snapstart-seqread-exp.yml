@@ -42,14 +42,6 @@ jobs:
     name: AWS SnapStart Experiments
     needs: build_client
     runs-on: [ self-hosted, aws ]
-    strategy:
-      matrix:
-        size:
-          [
-            128,
-            256, 
-            512
-          ]
     timeout-minutes: 1440
     env:
       working-directory: src
@@ -85,9 +77,9 @@ jobs:
 
       - name: AWS Cold Function Invocation - SnapStart Sequential Memory Read
         working-directory: ${{ env.working-directory }}
-        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/tests/aws/hellojava-snapstart-function-size-${{matrix.size}}-seq.json 
+        run: ./stellar -a 356764711652 -o latency-samples -c ../experiments/tests/aws/hellojava-snapstart-function-size-2gb-seq.json 
 
       - uses: actions/upload-artifact@v3
         with:
-          name: snapstart-aws-seq-${{matrix.size}}
+          name: snapstart-aws-seq-2gb
           path: ${{ env.working-directory }}/latency-samples
