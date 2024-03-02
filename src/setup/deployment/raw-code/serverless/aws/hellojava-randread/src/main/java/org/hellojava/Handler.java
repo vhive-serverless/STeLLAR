@@ -92,8 +92,6 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     }
 
     public void readPage(int pageNo) {
-       for (int i = pageNo * 4096; i< (pageNo * 4096)+4096; i++) {
-           System.out.print(i);
-       }
+        System.out.print(pageNo * 4096);
     }
 }

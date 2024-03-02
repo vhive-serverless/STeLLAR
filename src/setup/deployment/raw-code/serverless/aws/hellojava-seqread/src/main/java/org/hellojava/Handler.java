@@ -84,7 +84,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
     }
 
     public void readDataSeq() {
-        for (int i = 0; i< this.pageData.length; i++) {
+        for (int i = 0; i< this.pageData.length; i+=4096) {
             System.out.print(this.pageData[i]);
         }
     }
