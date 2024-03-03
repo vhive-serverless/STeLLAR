@@ -8,7 +8,7 @@
       "Function": "hellojava-randread",
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
-	  "SnapStartEnabled": true,
+	  "SnapStartEnabled": false,
 	    "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "Bursts": 500,
