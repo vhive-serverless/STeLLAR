@@ -2,7 +2,6 @@ package org.hellojava;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.time.Instant;
 import java.util.Random;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -10,8 +9,6 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
-import org.crac.Resource;
-import org.crac.Core;
 
 class ResponseEventBody {
     String region;
@@ -25,27 +22,15 @@ class ResponseEventBody {
     }
 }
 
-public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource{
+public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>{
     byte[] pageData;
-
-    public Handler() {
-        Core.getGlobalContext().register(this);
-    }
-    @Override
-    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) throws Exception {
-        int size = (int)(1024 * 1024);
-        this.pageData = new byte[size];
-        new Random().nextBytes(this.pageData);
-    }
-
-    @Override
-    public void afterRestore(org.crac.Context<? extends Resource> context) {
-
-    }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context)
     {
+        int size = (int)(1024 * 1024);
+        this.pageData = new byte[size];
+        new Random().nextBytes(this.pageData);
         Gson gson = new Gson();
 	int incrementLimit = 0;
 	if (event.getQueryStringParameters() != null) {
