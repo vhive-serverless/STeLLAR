@@ -8,7 +8,7 @@
       "Function": "hellojava-seqread",
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
-	  "SnapStartEnabled": false,
+	  "SnapStartEnabled": true,
 	    "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "Bursts": 500,

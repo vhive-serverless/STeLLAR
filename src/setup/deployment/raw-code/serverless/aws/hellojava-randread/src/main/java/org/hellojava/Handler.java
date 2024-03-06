@@ -1,6 +1,7 @@
 package org.hellojava;
 
 import java.util.*;
+import java.time.Instant;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -9,6 +10,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.google.gson.Gson;
+import org.crac.Resource;
+import org.crac.Core;
 
 class ResponseEventBody {
     String region;
@@ -22,20 +25,31 @@ class ResponseEventBody {
     }
 }
 
-public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>{
+public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent>, Resource{
     byte[] pageData;
+    public Handler() {
+        Core.getGlobalContext().register(this);
+    }
+    @Override
+    public void beforeCheckpoint(org.crac.Context<? extends Resource> context) throws Exception {
+        int size = (int)(1024 * 1024 * 100);
+        this.pageData = new byte[size];
+        new Random().nextBytes(this.pageData);
+    }
+
+    @Override
+    public void afterRestore(org.crac.Context<? extends Resource> context) {
+
+    }
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent event, Context context)
     {
-        int size = (int)(1024 * 1024);
-        this.pageData = new byte[size];
-        new Random().nextBytes(this.pageData);
         Gson gson = new Gson();
-	int incrementLimit = 0;
-	if (event.getQueryStringParameters() != null) {
-        	incrementLimit = Integer.parseInt(event.getQueryStringParameters().getOrDefault("incrementLimit", "0"));
-	}
+        int incrementLimit = 0;
+        if (event.getQueryStringParameters() != null) {
+            incrementLimit = Integer.parseInt(event.getQueryStringParameters().getOrDefault("incrementLimit", "0"));
+        }
         this.simulateWork(incrementLimit);
         String requestId = "no-context";
         if (context != null) {
@@ -51,8 +65,8 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         String[] timestampChain = new String[]{""+pageReadTime};
         ResponseEventBody resBody = new ResponseEventBody(System.getenv("AWS_REGION"), requestId, timestampChain);
 
-	Map<String, String> responseHeaders = new HashMap<>();
-	responseHeaders.put("Content-Type", "application/json");
+        Map<String, String> responseHeaders = new HashMap<>();
+        responseHeaders.put("Content-Type", "application/json");
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent().withHeaders(responseHeaders);
         response.setIsBase64Encoded(false);
         response.setStatusCode(200);
@@ -73,11 +87,7 @@ public class Handler implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         List<Integer> pages = IntStream.range(0, totalPages).boxed().collect(Collectors.toList());
         Collections.shuffle(pages);
         for (Integer pageNo : pages) {
-            readPage(pageNo);
+            System.out.print(this.pageData[pageNo * 4096]);
         }
-    }
-
-    public void readPage(int pageNo) {
-        System.out.print(pageNo * 4096);
     }
 }
