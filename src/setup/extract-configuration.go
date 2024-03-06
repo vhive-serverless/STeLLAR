@@ -57,6 +57,7 @@ type SubExperiment struct {
 	Parallelism             int      `json:"Parallelism"`
 	Visualization           string   `json:"Visualization"`
 	Function                string   `json:"Function"`
+	Timeout			int	 `json:"Timeout"`
 	FunctionMemoryMB        int64    `json:"FunctionMemoryMB"`
 	FunctionImageSizeMB     float64  `json:"FunctionImageSizeMB"`
 	DataTransferChainLength int      `json:"DataTransferChainLength"`
@@ -80,6 +81,7 @@ const (
 	defaultHandler                 = "producer-consumer"
 	defaultRuntime                 = "go1.x"
 	defaultPackageType             = "Zip"
+	defaultTimeout                 = 900
 	defaultPackagePattern          = "**"
 	defaultParallelism             = 1
 	defaultDataTransferChainLength = 1
@@ -133,6 +135,9 @@ func ExtractConfiguration(configFilePath string) Configuration {
 		}
 		if parsedConfig.SubExperiments[index].Parallelism == 0 {
 			parsedConfig.SubExperiments[index].Parallelism = defaultParallelism
+		}
+		if parsedConfig.SubExperiments[index].Timeout == 0 {
+			parsedConfig.SubExperiments[index].Parallelism = defaultTimeout
 		}
 	}
 

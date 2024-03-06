@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"strconv"
 )
 
 // Serverless describes the serverless.yml contents.
@@ -47,6 +48,7 @@ type Function struct {
 	Events    []Event         `yaml:"events"`
 	Package   FunctionPackage `yaml:"package"`
 	SnapStart bool            `yaml:"snapStart,omitempty"`
+	Timeout   string          `yaml:"timeout"`
 }
 
 type FunctionPackage struct {
@@ -192,7 +194,7 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, rando
 			},
 		}
 
-		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+		f := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events, Timeout: strconv.Itoa(subex.Timeout)}
 		f.AddPackagePattern(subex.PackagePattern)
 		if artifactPath != "" {
 			f.Package.Artifact = artifactPath
