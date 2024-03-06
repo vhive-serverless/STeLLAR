@@ -10,6 +10,7 @@
 	  "PackageType": "Zip",
 	  "SnapStartEnabled": true,
 	    "IATSeconds": 600,
+	    "Timeout": 900,
       "FunctionMemoryMB": 2048,
       "Bursts": 500,
       "BurstSizes": [

@@ -9,6 +9,7 @@
 	  "Handler": "org.hellojava.Handler",
 	  "PackageType": "Zip",
 	  "SnapStartEnabled": true,
+	  "Timeout": 900,
 	    "IATSeconds": 600,
       "FunctionMemoryMB": 2048,
       "Bursts": 500,
