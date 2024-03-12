@@ -60,7 +60,7 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
             return `No data`;
 
           if (typeof y !== 'undefined' && y!== 0 ) {
-            console.log(y);
+            // console.log(y);
             // return y
             return type ? `${(10 ** y).toFixed(0)} ms`  : `${y.toFixed(0)} ms`;
           }

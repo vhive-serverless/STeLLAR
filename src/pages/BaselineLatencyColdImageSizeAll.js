@@ -8,7 +8,7 @@ import {format,subWeeks,subMonths,subDays} from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Link,Divider } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Divider } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -54,6 +54,19 @@ export default function BaselineLatencyDashboard() {
     const [imageSizeOverall, setImageSizeOverall] = useState('50');
     const [provider, setProvider] = useState('aws');
 
+
+    const generateListOfDates = (startDate,endDate) => {
+      let dateList = [];
+      let currentDate = new Date(startDate);
+      while (currentDate <= new Date(endDate)) {
+          dateList = [...dateList, format(currentDate, 'yyyy-MM-dd')];
+          currentDate = new Date(currentDate);
+          currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return dateList;
+    }
+
+    
     const handleChangeDate = (event) => {
 
       const selectedValue = event.target.value;
@@ -122,7 +135,7 @@ export default function BaselineLatencyDashboard() {
     }, [fetchIndividualData]);
 
     // 50 MB Functionality AWS
-    const fetchDataRangeAWS50MB = useCallback(async () => {
+    const fetchDataRange50MB = useCallback(async () => {
         try {
             const responseAWS = await axios.get(`${baseURL}/results`, {
                 params: { experiment_type: `${experimentTypeOverall}-aws`,
@@ -178,11 +191,17 @@ export default function BaselineLatencyDashboard() {
     }
 }, [isMountedRef,startDate,endDate]);
     
+// generate date range list
+    const dateRangeList = useMemo(
+      generateListOfDates(startDate,endDate)
+    ,[startDate,endDate])
+  
+
 
 useMemo(() => {
-      fetchDataRangeAWS50MB();
+      fetchDataRange50MB();
       fetchDataRange100MB();
-    }, [fetchDataRangeAWS50MB,fetchDataRange100MB]);
+    }, [fetchDataRange50MB,fetchDataRange100MB]);
  
     const dateRangeList50MB = useMemo(()=> {
         if(overallStatisticsAWS)
@@ -195,67 +214,72 @@ useMemo(() => {
 
     // 50 MB Data Processing AWS
     
-  const tailLatenciesAWS = useMemo(()=> {
-      if(overallStatisticsAWS)
-          return overallStatisticsAWS.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-      return null
+    // Make below function reusable
+    
+    const calculateLatencies = (overallStatistics, dateRangeList, isTailLatency) => {
+      if (overallStatistics && dateRangeList) {
+        const latencyList = dateRangeList.map(date => {
+          const index = overallStatistics.findIndex(record => record.date === date);
+          if (index >= 0) {
+            const latency = isTailLatency ? overallStatistics[index].tail_latency : overallStatistics[index].median;
+            if(!isTailLatency)
+              console.log(latency)
+            if (latency !== '0') {
+              return isTailLatency ? Math.log10(latency).toFixed(2) : latency;
+            }
+          }
+          return 0;
+        });
+    
+        return latencyList;
+      }
+      return null;
+    };
+    
+    const tailLatenciesAWS = useMemo(() => {
+      if (overallStatisticsAWS && dateRangeList) {
+      return calculateLatencies(overallStatisticsAWS, dateRangeList,true);
+      }
+      return null;
+    }, [overallStatisticsAWS, dateRangeList]);
 
-  },[overallStatisticsAWS])
-  
-    // 50 MB Data Processing GCR
-  const tailLatenciesGCR = useMemo(()=> {
-    if(overallStatisticsGCR)
-        return overallStatisticsGCR.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-    return null
+    const tailLatenciesGCR = useMemo(() => {
+      if (overallStatisticsGCR && dateRangeList) {
+      return calculateLatencies(overallStatisticsGCR, dateRangeList,true);
+      }
+      return null;
+    }, [overallStatisticsGCR, dateRangeList]);
 
-},[overallStatisticsGCR])
+    const tailLatenciesAzure = useMemo(() => {
+      if (overallStatisticsAzure && dateRangeList) {
+      return calculateLatencies(overallStatisticsAzure, dateRangeList,true);
+      }
+      return null;
+    }, [overallStatisticsAzure, dateRangeList]);
 
-    // 50 MB Data Processing Azure
-const tailLatenciesAzure = useMemo(()=> {
-  if(overallStatisticsAzure)
-      return overallStatisticsAzure.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-  return null
-
-},[overallStatisticsAzure])
+  // console.log(tailLatenciesAWS,overallStatisticsAWS)
 
 // Median Latencies AWS
   const medianLatenciesAWS = useMemo(()=> {
-      if(overallStatisticsAWS)
-          return overallStatisticsAWS.map(record => record.median);
-      return null
+    if (overallStatisticsAWS && dateRangeList) {
+          return calculateLatencies(overallStatisticsAWS, dateRangeList,false);
+    }
 
-  },[overallStatisticsAWS])
+  },[overallStatisticsAWS,dateRangeList])
 
   const medianLatenciesGCR = useMemo(()=> {
-    if(overallStatisticsGCR)
-        return overallStatisticsGCR.map(record => record.median);
-    return null
-
-},[overallStatisticsGCR])
+    if (overallStatisticsGCR && dateRangeList) {
+        return calculateLatencies(overallStatisticsGCR, dateRangeList,false);
+    }
+  return null;  
+},[overallStatisticsGCR,dateRangeList])
 
 const medianLatenciesAzure = useMemo(()=> {
-  if(overallStatisticsAzure)
-      return overallStatisticsAzure.map(record => record.median);
-  return null
-
-},[overallStatisticsAzure])
-  // 100 MB Data Processing 
-    
-  const tailLatencies100MB = useMemo(()=> {
-    if(overallStatisticsAWS100MB)
-        return overallStatisticsAWS100MB.map(record => record.tail_latency);
-    return null
-
-},[overallStatisticsAWS100MB])
-
-
-const medianLatencies100MB = useMemo(()=> {
-    if(overallStatisticsAWS100MB)
-        return overallStatisticsAWS100MB.map(record => record.median);
-    return null
-
-},[overallStatisticsAWS100MB])
-
+  if (overallStatisticsAzure && dateRangeList) {
+    return calculateLatencies(overallStatisticsAzure, dateRangeList,false);
+  }
+  return null;
+},[overallStatisticsAzure,dateRangeList])
 
 
 
@@ -269,7 +293,7 @@ const medianLatencies100MB = useMemo(()=> {
     ,[dailyStatistics])
 
     
-
+// console.log(overallStatisticsAzure,overallStatisticsAWS)
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
@@ -407,7 +431,7 @@ const medianLatencies100MB = useMemo(()=> {
             <AppLatency
               title="Median Latency "
               subheader="50th Percentile"
-              chartLabels={dateRangeList50MB}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: `AWS - ${imageSizeOverall} MB`,
@@ -439,7 +463,7 @@ const medianLatencies100MB = useMemo(()=> {
               title="Tail Latency "
               subheader="99th Percentile"
               type={'tail'}
-              chartLabels={dateRangeList50MB}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: `AWS - ${imageSizeOverall} MB`,
