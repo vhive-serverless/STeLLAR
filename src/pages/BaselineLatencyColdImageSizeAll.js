@@ -17,7 +17,7 @@ import {
   AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
-import { disablePreviousDates } from '../utils/timeUtils';
+import { disablePreviousDates,generateListOfDates } from '../utils/timeUtils';
 
 // ----------------------------------------------------------------------
 
@@ -54,17 +54,6 @@ export default function BaselineLatencyDashboard() {
     const [imageSizeOverall, setImageSizeOverall] = useState('50');
     const [provider, setProvider] = useState('aws');
 
-
-    const generateListOfDates = (startDate,endDate) => {
-      let dateList = [];
-      let currentDate = new Date(startDate);
-      while (currentDate <= new Date(endDate)) {
-          dateList = [...dateList, format(currentDate, 'yyyy-MM-dd')];
-          currentDate = new Date(currentDate);
-          currentDate.setDate(currentDate.getDate() + 1);
-      }
-      return dateList;
-    }
 
     
     const handleChangeDate = (event) => {
@@ -202,19 +191,9 @@ useMemo(() => {
       fetchDataRange50MB();
       fetchDataRange100MB();
     }, [fetchDataRange50MB,fetchDataRange100MB]);
- 
-    const dateRangeList50MB = useMemo(()=> {
-        if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => record.date);
-        return null
 
-    },[overallStatisticsAWS])
     
-
-
-    // 50 MB Data Processing AWS
-    
-    // Make below function reusable
+  
     
     const calculateLatencies = (overallStatistics, dateRangeList, isTailLatency) => {
       if (overallStatistics && dateRangeList) {

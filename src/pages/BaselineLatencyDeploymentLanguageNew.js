@@ -17,7 +17,7 @@ import {
   AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
-import { disablePreviousDates } from '../utils/timeUtils';
+import { disablePreviousDates,generateListOfDates } from '../utils/timeUtils';
 // ----------------------------------------------------------------------
 
 export const baseURL = "https://di4g51664l.execute-api.us-west-2.amazonaws.com";
@@ -217,6 +217,31 @@ export default function BaselineLatencyDashboard() {
     }
   }, [fetchDataRangeImageZipAzure,experimentTypeOverall]);
         
+  // generate date range list
+  const dateRangeList = useMemo(()=>
+  generateListOfDates(startDate,endDate)
+,[startDate,endDate])
+
+  const calculateLatencies = (overallStatistics, dateRangeList, isTailLatency) => {
+    if (overallStatistics && dateRangeList) {
+      const latencyList = dateRangeList.map(date => {
+        const index = overallStatistics.findIndex(record => record.date === date);
+        if (index >= 0) {
+          const latency = isTailLatency ? overallStatistics[index].tail_latency : overallStatistics[index].median;
+          if(!isTailLatency)
+            console.log(latency)
+          if (latency !== '0') {
+            return isTailLatency ? Math.log10(latency).toFixed(2) : latency;
+          }
+        }
+        return 0;
+      });
+  
+      return latencyList;
+    }
+    return null;
+  };
+  
 
  
     const dateRangeListAWS = useMemo(()=> {
@@ -228,56 +253,53 @@ export default function BaselineLatencyDashboard() {
     
  // Tail latency calculation
     
-  const [tailLatenciesAWSZip,medianLatenciesAWSZip] = useMemo(()=> {
-   
-      if(overallStatisticsAWS){
-          return [
-            overallStatisticsAWS.zip.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)),
-            // overallStatisticsAWS.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
-            overallStatisticsAWS.zip.map(record => (record.median)),
-          ];
-        }
-      return [null,null]
+//  console.log(overallStatisticsAWS,dateRangeList)
 
-  },[overallStatisticsAWS])
+ const tailLatenciesAWSZip = useMemo(() => {
+  if (overallStatisticsAWS && dateRangeList) {
+  return calculateLatencies(overallStatisticsAWS.zip, dateRangeList,true);
+  }
+  return null;
+}, [overallStatisticsAWS, dateRangeList]);
 
-  const [tailLatenciesGCRImage,medianLatenciesGCRImage] = useMemo(()=> {
-   
-    if(overallStatisticsGCR){
-        return [
-          // overallStatisticsGCR.zip.map(record => Math.log10(record.tail_latency).toFixed(2)),
-          overallStatisticsGCR.image.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)),
-          // overallStatisticsGCR.zip.map(record => (record.median)),
-          overallStatisticsGCR.image.map(record => (record.median))
-        ];
-      }
-    return [null,null]
+const medianLatenciesAWSZip = useMemo(() => {
+  if (overallStatisticsAWS && dateRangeList) {
+  return calculateLatencies(overallStatisticsAWS.zip, dateRangeList,false);
+  }
+  return null;
+}, [overallStatisticsAWS, dateRangeList]);
 
-},[overallStatisticsGCR])
+const tailLatenciesGCRImage = useMemo(() => {
+  if (overallStatisticsGCR && dateRangeList) {
+  return calculateLatencies(overallStatisticsGCR.image, dateRangeList,true);
+  }
+  return null;
+}, [overallStatisticsGCR, dateRangeList]);
 
-const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
-  if(overallStatisticsAzure){
-      return [
-        overallStatisticsAzure.zip.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)),
-        // overallStatisticsAzure.image.map(record => Math.log10(record.tail_latency).toFixed(2)),
-        overallStatisticsAzure.zip.map(record => (record.median)),
-        // overallStatisticsAzure.image.map(record => (record.median))
-        
-      ];
-    }
-  return [null,null]
+const medianLatenciesGCRImage = useMemo(() => {
+  if (overallStatisticsGCR && dateRangeList) {
+  return calculateLatencies(overallStatisticsGCR.image, dateRangeList,false);
+  }
+  return null;
+}, [overallStatisticsGCR, dateRangeList]);
 
-},[overallStatisticsAzure])
+const tailLatenciesAzureZip = useMemo(() => {
+  if (overallStatisticsAzure && dateRangeList) {
+  return calculateLatencies(overallStatisticsAzure.zip, dateRangeList,true);
+  }
+  return null;
+}, [overallStatisticsAzure, dateRangeList]);
 
-
-    const TMR = useMemo(() => {
-            if (dailyStatistics)
-                return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
-            return null
-        }
-    ,[dailyStatistics])
+const medianLatenciesAzureZip = useMemo(() => {
+  if (overallStatisticsAzure && dateRangeList) {
+  return calculateLatencies(overallStatisticsAzure.zip, dateRangeList,false);
+  }
+  return null;
+}, [overallStatisticsAzure, dateRangeList]);
 
 
+
+console.log(dateRangeList)
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
@@ -421,7 +443,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
             <AppLatency
               title="Median Latency "
               subheader="50th Percentile"
-              chartLabels={dateRangeListAWS}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: `AWS  - ${languageRuntime}`,
@@ -430,20 +452,6 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
                   color:theme.palette.chart.blue[0],
                   data: medianLatenciesAWSZip,
                 },
-                // {
-                //   name: `AWS - Image - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.blue[0],
-                //   data: medianLatenciesAWSImage,
-                // },
-                // {
-                //   name: `GCR - Zip - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.green[2],
-                //   data: medianLatenciesGCRZip,
-                // },
                 {
                   name: `GCR - ${languageRuntime}`,
                   type: 'line',
@@ -458,13 +466,6 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
                   color:theme.palette.chart.red[0],
                   data: medianLatenciesAzureZip,
                 },
-                // {
-                //   name: `Azure - Image - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.red[0],
-                //   data: medianLatenciesAzureImage,
-                // },
               ]}
             />
           </Grid>
@@ -473,7 +474,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
           <AppLatency
             title="Median Latency "
             subheader="50th Percentile"
-            chartLabels={dateRangeListAWS}
+            chartLabels={dateRangeList}
             chartData={[
               {
                 name: `AWS - ${languageRuntime}`,
@@ -500,7 +501,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
               title="Tail Latency "
               subheader="99th Percentile"
               type={'tail'}
-              chartLabels={dateRangeListAWS}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: `AWS - ${languageRuntime}`,
@@ -532,7 +533,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
               title="Tail Latency "
               subheader="99th Percentile"
               type={'tail'}
-              chartLabels={dateRangeListAWS}
+              chartLabels={dateRangeList}
               chartData={[
                 {
                   name: `AWS - ${languageRuntime}`,
@@ -541,20 +542,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
                   color:theme.palette.chart.blue[0],
                   data: tailLatenciesAWSZip,
                 },
-                // {
-                //   name: `AWS - Image - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.blue[0],
-                //   data: tailLatenciesAWSImage,
-                // },
-                // {
-                //   name: `GCR - Zip - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.green[2],
-                //   data: tailLatenciesGCRZip,
-                // },
+                
                 {
                   name: `GCR - ${languageRuntime}`,
                   type: 'line',
@@ -562,13 +550,7 @@ const [tailLatenciesAzureZip,medianLatenciesAzureZip] = useMemo(()=> {
                   color:theme.palette.chart.green[0],
                   data: tailLatenciesGCRImage,
                 },
-                // {
-                //   name: `Azure - Image - ${languageRuntime}`,
-                //   type: 'line',
-                //   fill: 'solid',
-                //   color:theme.palette.chart.red[0],
-                //   data: tailLatenciesAzureImage,
-                // },
+               
               ]}
             />
           </Grid>

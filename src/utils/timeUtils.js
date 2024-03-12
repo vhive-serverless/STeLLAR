@@ -23,3 +23,18 @@ export function fToNow(date) {
 export function disablePreviousDates (date) {
   return date.getTime() < new Date('2023-01-20T00:00').getTime()
 }
+
+// dateHelper.js
+
+
+
+export function generateListOfDates (startDate, endDate) {
+    let dateList = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= new Date(endDate)) {
+        dateList = [...dateList, format(currentDate, 'yyyy-MM-dd')];
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dateList;
+}
+
