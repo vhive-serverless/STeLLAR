@@ -192,7 +192,7 @@ export default function BaselineLatencyDashboard() {
 }, [isMountedRef,startDate,endDate]);
     
 // generate date range list
-    const dateRangeList = useMemo(
+    const dateRangeList = useMemo(()=>
       generateListOfDates(startDate,endDate)
     ,[startDate,endDate])
   
