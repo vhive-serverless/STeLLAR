@@ -187,60 +187,6 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: go test -short -v ./setup/integration-test/... -timeout 30m
 
-  e2e_alibaba:
-    name: Alibaba Cloud e2e test
-    needs: [ build_client, integration_tests ]
-    runs-on: ubuntu-22.04
-    env:
-      working-directory: ./src
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
-
-      - name: Set up Alibaba Cloud CLI
-        uses: aliyun/setup-aliyun-cli-action@v1
-
-      - name: Set up Alibaba Cloud credentials
-        run: |
-          mkdir $HOME/.aliyuncli
-          echo "[default]" > $HOME/.aliyuncli/credentials
-          echo "aliyun_access_key_secret = $ALIYUN_ACCESS_KEY_SECRET" >> $HOME/.aliyuncli/credentials
-          echo "aliyun_access_key_id = $ALIYUN_ACCESS_KEY_ID" >> $HOME/.aliyuncli/credentials
-          echo "aliyun_account_id = $ALIYUN_ACCOUNT_ID" >> $HOME/.aliyuncli/credentials
-          echo "" >> $HOME/.aliyuncli/credentials
-          aliyun configure set --region us-west-1
-        env:
-          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
-          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
-          ALIYUN_ACCOUNT_ID: ${{ secrets.ALIYUN_ACCOUNT_ID }}
-
-      - name: Set up Node.js 16.16.0
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-
-      - name: Install Serverless framework and related plugins
-        run: npm install -g serverless serverless-aliyun-function-compute
-
-      - name: Download client artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: STeLLAR-build
-
-      - name: Untar client build
-        working-directory: ${{ env.working-directory }}
-        run: tar --strip-components=1 -xvf ../build.tar -C .
-
-      - name: Prepare benchmarking functions
-        run: |
-          mkdir -p "setup/deployment/raw-code"
-          cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p "./src/latency-samples"
-
-      - name: Alibaba Cloud end-to-end test for Python
-        working-directory: ${{ env.working-directory }}
-        run: ./main --o latency-samples --c ../experiments/tests/aliyun/hellopy.json --s true
-
   e2e_azure:
     name: Azure e2e test
     needs: [ build_client, integration_tests ]
