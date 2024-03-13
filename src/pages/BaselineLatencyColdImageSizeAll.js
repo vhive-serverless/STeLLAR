@@ -219,24 +219,23 @@ useMemo(() => {
       if (overallStatisticsAWS && dateRangeList) {
       return calculateLatencies(overallStatisticsAWS, dateRangeList,true);
       }
-      return null;
+
     }, [overallStatisticsAWS, dateRangeList]);
 
     const tailLatenciesGCR = useMemo(() => {
       if (overallStatisticsGCR && dateRangeList) {
       return calculateLatencies(overallStatisticsGCR, dateRangeList,true);
       }
-      return null;
+
     }, [overallStatisticsGCR, dateRangeList]);
 
     const tailLatenciesAzure = useMemo(() => {
       if (overallStatisticsAzure && dateRangeList) {
       return calculateLatencies(overallStatisticsAzure, dateRangeList,true);
       }
-      return null;
+
     }, [overallStatisticsAzure, dateRangeList]);
 
-  // console.log(tailLatenciesAWS,overallStatisticsAWS)
 
 // Median Latencies AWS
   const medianLatenciesAWS = useMemo(()=> {
@@ -259,8 +258,6 @@ const medianLatenciesAzure = useMemo(()=> {
   }
   return null;
 },[overallStatisticsAzure,dateRangeList])
-
-
 
 
 
