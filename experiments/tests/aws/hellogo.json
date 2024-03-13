@@ -6,9 +6,8 @@
     {
       "Title": "parallelism1",
       "Function": "hellogo",
-      "Handler": "main",
+      "Handler": "bootstrap",
       "PackageType": "Zip",
-      "PackagePattern": "main.go",
       "Bursts": 2,
       "BurstSizes": [
         2
@@ -21,9 +20,8 @@
     {
       "Title": "parallelism2",
       "Function": "hellogo",
-      "Handler": "main",
+      "Handler": "bootstrap",
       "PackageType": "Zip",
-      "PackagePattern": "main.go",
       "Bursts": 3,
       "BurstSizes": [
         4
