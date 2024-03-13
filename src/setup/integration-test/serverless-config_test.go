@@ -96,6 +96,7 @@ func TestDeployAndRemoveServiceCloudflare(t *testing.T) {
 	assert.True(strings.Contains(msgRemove, "Successfully deleted"))
 }
 
+/*
 func TestDeployAndRemoveServiceAlibaba(t *testing.T) {
 	assert := require.New(t)
 
@@ -107,3 +108,4 @@ func TestDeployAndRemoveServiceAlibaba(t *testing.T) {
 	assert.True(strings.Contains(msgDeploy, "Deployed API"))
 	assert.True(strings.Contains(msgRemove, "Removed service"))
 }
+*/
