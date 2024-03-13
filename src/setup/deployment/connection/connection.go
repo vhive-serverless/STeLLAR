@@ -29,13 +29,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"path"
-	"strings"
-	"time"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
+	"strings"
+	"time"
 )
 
-//Endpoint is the schema for the configuration of provider endpoints.
+// Endpoint is the schema for the configuration of provider endpoints.
 type Endpoint struct {
 	GatewayID        string  `json:"GatewayID"`
 	FunctionMemoryMB int64   `json:"FunctionMemoryMB"`
@@ -43,7 +43,7 @@ type Endpoint struct {
 	PackageType      string  `json:"PackageType"`
 }
 
-//ServerlessInterface creates an interface through which to interact with various providers
+// ServerlessInterface creates an interface through which to interact with various providers
 type ServerlessInterface struct {
 	//ListAPIs will list all endpoints corresponding to all serverless functions.
 	ListAPIs func() []Endpoint
@@ -60,10 +60,10 @@ type ServerlessInterface struct {
 	UpdateFunction func(packageType string, uniqueID string, memoryAssigned int64)
 }
 
-//Singleton allows the client to interact with various serverless actions
+// Singleton allows the client to interact with various serverless actions
 var Singleton *ServerlessInterface
 
-//Initialize will create a new provider connection to interact with
+// Initialize will create a new provider connection to interact with
 func Initialize(provider string, endpointsDirectoryPath string, apiTemplatePath string) {
 	switch strings.ToLower(provider) {
 	case "aws":
@@ -103,7 +103,7 @@ func setupAWSConnection(apiTemplatePath string) {
 							GatewayID:        strings.Split(*function.FunctionName, "_")[1],
 							FunctionMemoryMB: *function.MemorySize,
 							PackageType:      *function.PackageType,
-							ImageSizeMB:      util.BytesToMB(*function.CodeSize),
+							ImageSizeMB:      util.BytesToMebibyte(*function.CodeSize),
 						})
 					}
 				}

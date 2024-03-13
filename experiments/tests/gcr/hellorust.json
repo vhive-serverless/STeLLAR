@@ -1,0 +1,21 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "rust",
+  "SubExperiments": [
+    {
+      "Title": "hellorust",
+      "Function": "hellorust",
+	    "Handler": "Dockerfile",
+	    "PackageType": "Container",
+      "Bursts": 2,
+      "BurstSizes": [
+        1
+      ],
+      "IATSeconds": 3,
+      "DesiredServiceTimes": [
+        "0ms"
+      ]
+    }
+  ]
+}

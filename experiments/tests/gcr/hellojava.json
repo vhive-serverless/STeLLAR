@@ -1,0 +1,36 @@
+{
+  "Sequential": false,
+  "Provider": "gcr",
+  "Runtime": "java11",
+  "SubExperiments": [
+    {
+      "Title": "parallelism1",
+      "Function": "hellogo",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+      "Bursts": 2,
+      "BurstSizes": [
+        2
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 24
+    },
+    {
+      "Title": "parallelism2",
+      "Function": "hellojava",
+	  "Handler": "Dockerfile",
+	  "PackageType": "Container",
+      "Bursts": 3,
+      "BurstSizes": [
+        4
+      ],
+      "DesiredServiceTimes": [
+        "0ms"
+      ],
+      "FunctionImageSizeMB": 48,
+      "Parallelism": 2
+    }
+  ]
+}

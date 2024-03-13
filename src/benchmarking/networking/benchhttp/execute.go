@@ -35,27 +35,35 @@ const (
 	timeout = 15 * time.Minute
 )
 
-//ExecuteRequest will send an HTTP request, check its status code and return the response body.
-func ExecuteRequest(req http.Request) ([]byte, time.Time, time.Time) {
+// ExecuteRequest will send an HTTP request, check its status code and return the response body.
+func ExecuteRequest(req http.Request) (bool, []byte, time.Time, time.Time) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ok := true
 	defer cancel()
 
-	resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
+	err, resp, reqSentTime, reqReceivedTime := sendTimedRequest(ctx, req)
+	if err != nil {
+		ok = false
+		log.Errorf("Could not send HTTP request: %s", err.Error())
+		return ok, nil, reqSentTime, reqReceivedTime
+	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
+		ok = false
 		log.Errorf("Could not read HTTP response body: %s", err.Error())
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		ok = false
 		log.Errorf("Response from %s had status %s: %s", req.URL.Hostname(), resp.Status, string(bodyBytes))
 	}
 
-	return bodyBytes, reqSentTime, reqReceivedTime
+	return ok, bodyBytes, reqSentTime, reqReceivedTime
 }
 
-//https://stackoverflow.com/questions/48077098/getting-ttfb-time-to-first-byte-value-in-golang/48077762#48077762
-func sendTimedRequest(ctx context.Context, req http.Request) (*http.Response, time.Time, time.Time) {
+// https://stackoverflow.com/questions/48077098/getting-ttfb-time-to-first-byte-value-in-golang/48077762#48077762
+func sendTimedRequest(ctx context.Context, req http.Request) (error, *http.Response, time.Time, time.Time) {
 	var receivedFirstByte time.Time
 
 	trace := &httptrace.ClientTrace{
@@ -66,10 +74,7 @@ func sendTimedRequest(ctx context.Context, req http.Request) (*http.Response, ti
 
 	reqSentTime := time.Now()
 	resp, err := http.DefaultTransport.RoundTrip(req.WithContext(httptrace.WithClientTrace(ctx, trace)))
-	if err != nil {
-		log.Fatalf("HTTP request failed with error %s", err.Error())
-	}
 
 	// For total time, return resp, reqSentTime, time.Now()
-	return resp, reqSentTime, receivedFirstByte
+	return err, resp, reqSentTime, receivedFirstByte
 }

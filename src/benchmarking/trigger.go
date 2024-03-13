@@ -29,14 +29,14 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
-	"sync"
-	"time"
 	"stellar/benchmarking/writers"
 	"stellar/setup"
+	"sync"
+	"time"
 )
 
-//TriggerSubExperiments will run the sub-experiments specified by the passed configuration object. It creates
-//a directory for each sub-experiment, as well as separate visualizations and latency files.
+// TriggerSubExperiments will run the sub-experiments specified by the passed configuration object. It creates
+// a directory for each sub-experiment, as well as separate visualizations and latency files.
 func TriggerSubExperiments(config setup.Configuration, outputDirectoryPath string, specificExperiment int) {
 	var experimentsWaitGroup sync.WaitGroup
 

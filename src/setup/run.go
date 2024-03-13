@@ -25,14 +25,24 @@
 package setup
 
 import (
-	log "github.com/sirupsen/logrus"
+	"fmt"
+	"math"
 	"os"
-	"time"
+	"os/exec"
+	"path/filepath"
+	"stellar/setup/building"
+	code_generation "stellar/setup/code-generation"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"stellar/setup/deployment/packaging"
+	"stellar/util"
+	"sync"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
-//ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+// ProvisionFunctions will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
 func ProvisionFunctions(config Configuration) {
 	const (
 		nicContentionWarnThreshold = 800 // Experimentally found
@@ -78,5 +88,196 @@ func ProvisionFunctions(config Configuration) {
 	if amazon.AWSSingletonInstance != nil && amazon.AWSSingletonInstance.ImageURI != "" {
 		log.Info("A deployment was made using container images, waiting 10 seconds for changes to take effect with the provider...")
 		time.Sleep(time.Second * 10)
+	}
+}
+
+// ProvisionFunctionsServerless will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+func ProvisionFunctionsServerless(config *Configuration, serverlessDirPath string) {
+	switch config.Provider {
+	case "aws":
+		ProvisionFunctionsServerlessAWS(config, serverlessDirPath)
+	case "azure":
+		ProvisionFunctionsServerlessAzure(config, serverlessDirPath)
+	case "gcr":
+		ProvisionFunctionsGCR(config, serverlessDirPath)
+	case "cloudflare":
+		ProvisionFunctionsCloudflare(config, serverlessDirPath)
+	case "aliyun":
+		ProvisionFunctionsServerlessAlibaba(config, serverlessDirPath)
+	default:
+		log.Fatalf("Provider %s not supported for deployment", config.Provider)
+	}
+}
+
+// ProvisionFunctionsServerlessAWS will deploy, reconfigure, etc. functions to get ready for the sub-experiments.
+func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath string) {
+	slsConfig := &Serverless{}
+	builder := &building.Builder{}
+
+	randomTag := util.GenerateRandLowercaseLetters(5)
+	slsConfig.CreateHeaderConfig(config, fmt.Sprintf("STeLLAR-%s", randomTag))
+	slsConfig.packageIndividually()
+
+	for index, subExperiment := range config.SubExperiments {
+		//TODO: generate the code
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		// TODO: build the functions (Java and Golang)
+		artifactPathRelativeToServerlessConfigFile := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+		slsConfig.AddFunctionConfigAWS(&config.SubExperiments[index], index, randomTag, artifactPathRelativeToServerlessConfigFile)
+
+		// generate filler files and zip used as Serverless artifacts
+		packaging.GenerateServerlessZIPArtifacts(subExperiment.ID, config.Provider, subExperiment.Runtime, subExperiment.Function, subExperiment.FunctionImageSizeMB)
+	}
+
+	slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%sserverless.yml", serverlessDirPath))
+
+	log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+	slsDeployMessage := DeployService(serverlessDirPath)
+	log.Info(slsDeployMessage)
+
+	// TODO: assign endpoints to subexperiments
+	// Get the endpoints by scraping the serverless deploy message.
+
+	endpointID := GetAWSEndpointID(slsDeployMessage)
+
+	// Assign Endpoint ID to each deployed function
+	for i := range config.SubExperiments {
+		config.SubExperiments[i].AssignEndpointIDs(endpointID)
+	}
+
+}
+
+func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
+	randomExperimentTag := util.GenerateRandLowercaseLetters(5)
+
+	for subExperimentIndex, subExperiment := range config.SubExperiments {
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		builder := &building.Builder{}
+		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+
+		if config.SubExperiments[subExperimentIndex].Endpoints == nil {
+			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
+		}
+
+		deploySubExperimentParallelismInBatches(config, serverlessDirPath, randomExperimentTag, subExperimentIndex, 1)
+	}
+}
+
+func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDirPath string, randomExperimentTag string, subExperimentIndex int, functionsPerBatch int) {
+	subExperiment := config.SubExperiments[subExperimentIndex]
+
+	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
+
+	endpoints := make(map[int]EndpointInfo)
+	routes := make(map[int]string)
+
+	for batchNumber := 0; batchNumber < numberOfBatches; batchNumber++ {
+		mu := sync.Mutex{}
+		wg := sync.WaitGroup{}
+
+		for parallelism := batchNumber * functionsPerBatch; parallelism < (batchNumber+1)*functionsPerBatch && parallelism < subExperiment.Parallelism; parallelism++ {
+			wg.Add(1)
+
+			go func(parallelism int) {
+				defer wg.Done()
+
+				artifactsPath := filepath.Join(serverlessDirPath, "artifacts", subExperiment.Function, subExperiment.PackagePattern)
+				deploymentDir := filepath.Join(serverlessDirPath, fmt.Sprintf("sub-experiment-%d", subExperimentIndex), fmt.Sprintf("parallelism-%d", parallelism))
+				if err := os.MkdirAll(deploymentDir, os.ModePerm); err != nil {
+					log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+				}
+				util.RunCommandAndLog(exec.Command("cp", artifactsPath, deploymentDir))
+
+				deploymentCodePath := filepath.Join(deploymentDir, subExperiment.PackagePattern)
+				currentSizeInBytes := packaging.GetZippedBinaryFileSize(subExperiment.ID, deploymentCodePath)
+				targetSizeInBytes := util.MebibyteToBytes(subExperiment.FunctionImageSizeMB)
+
+				fillerFileSize := packaging.CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
+				fillerFilePath := filepath.Join(deploymentDir, "filler.file")
+				packaging.GenerateFillerFile(subExperiment.ID, fillerFilePath, fillerFileSize)
+
+				slsConfig := &Serverless{}
+				slsConfig.CreateHeaderConfig(config, fmt.Sprintf("%s-subex%d-para%d", randomExperimentTag, subExperimentIndex, parallelism))
+				slsConfig.addPlugin("serverless-azure-functions")
+				name := createName(&subExperiment, subExperimentIndex, parallelism)
+				slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, name)
+				slsConfig.CreateServerlessConfigFile(filepath.Join(deploymentDir, "serverless.yml"))
+
+				log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+				slsDeployMessage := DeployService(deploymentDir)
+
+				endpointID := GetAzureEndpointID(slsDeployMessage)
+				mu.Lock()
+				defer mu.Unlock()
+				endpoints[parallelism] = EndpointInfo{ID: endpointID}
+				routes[parallelism] = name
+			}(parallelism)
+		}
+		wg.Wait()
+	}
+
+	for i := 0; i < subExperiment.Parallelism; i++ {
+		config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, endpoints[i])
+		config.SubExperiments[subExperimentIndex].Routes = append(config.SubExperiments[subExperimentIndex].Routes, routes[i])
+	}
+}
+
+func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
+	slsConfig := &Serverless{}
+	slsConfig.CreateHeaderConfig(config, "STeLLAR-GCR")
+
+	for index, subExperiment := range config.SubExperiments {
+		switch subExperiment.PackageType {
+		case "Container":
+			// size of compressed images of GCR functions on Docker Hub are experimentally found to be approximately 21.84 MiB
+			currentSizeInBytes := util.MebibyteToBytes(21.84)
+			targetSizeInBytes := util.MebibyteToBytes(subExperiment.FunctionImageSizeMB)
+			fillerFileSize := packaging.CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
+			fillerFilePath := filepath.Join(serverlessDirPath, subExperiment.Function, "filler.file")
+			packaging.GenerateFillerFile(subExperiment.ID, fillerFilePath, fillerFileSize)
+
+			imageLink := packaging.SetupContainerImageDeployment(subExperiment.Function, config.Provider, subExperiment.FunctionImageSizeMB)
+			randomTag := util.GenerateRandLowercaseLetters(5)
+			slsConfig.DeployGCRContainerService(&config.SubExperiments[index], index, randomTag, imageLink, serverlessDirPath, slsConfig.Provider.Region)
+		default:
+			log.Fatalf("Package type %s is not supported", subExperiment.PackageType)
+		}
+	}
+}
+
+func ProvisionFunctionsCloudflare(config *Configuration, serverlessDirPath string) {
+	for index := range config.SubExperiments {
+		randomTag := util.GenerateRandLowercaseLetters(5)
+		DeployCloudflareWorkers(&config.SubExperiments[index], index, randomTag, serverlessDirPath)
+	}
+}
+
+func ProvisionFunctionsServerlessAlibaba(config *Configuration, serverlessDirPath string) {
+	for index, subExperiment := range config.SubExperiments {
+		code_generation.GenerateCode(subExperiment.Function, config.Provider)
+
+		builder := &building.Builder{}
+		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+
+		preDeploymentDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/sub-experiment-%d", config.Provider, index)
+		if err := os.MkdirAll(preDeploymentDir, os.ModePerm); err != nil {
+			log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+		}
+		artifactsPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/artifacts/%s/main.py", config.Provider, subExperiment.Function)
+		util.RunCommandAndLog(exec.Command("cp", artifactsPath, preDeploymentDir))
+
+		slsConfig := &Serverless{}
+		slsConfig.CreateHeaderConfig(config, fmt.Sprintf("stellar-aliyun-subex%d", index))
+		slsConfig.addPlugin("serverless-aliyun-function-compute")
+		slsConfig.AddFunctionConfigAlibaba(&config.SubExperiments[index], index, "")
+		slsConfig.CreateServerlessConfigFile(fmt.Sprintf("%s/sub-experiment-%d/serverless.yml", serverlessDirPath, index))
+
+		log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+		slsDeployMessage := DeployService(fmt.Sprintf("%ssub-experiment-%d", serverlessDirPath, index))
+
+		endpointID := GetAlibabaEndpointID(slsDeployMessage)
+		config.SubExperiments[index].AssignEndpointIDs(endpointID)
 	}
 }

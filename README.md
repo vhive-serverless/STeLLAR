@@ -136,6 +136,20 @@ Below are listed key packages and components that are most essential to serverle
     - The serverless.yml file is stored inside each provider's subdirectory.
     - Function source code is stored in each provider’s subdirectories (e.g. aws/hellogo, azure/hellopy).
 
+### Current support & integration with Cloud Providers
+
+|                          | AWS Lambda | Azure Function | Google Cloud Run | Cloudflare |
+| ------------------------ | ---------- | -------------- | ---------------- | ---------- |
+| Deploy function - zip    | Yes        | Yes            | No               | Yes        |
+| Deploy function - docker | Yes        | No             | Yes              | No         |
+| Python Runtime           | Yes        | Yes            | Yes              | Yes*       |
+| Go Runtime               | Yes        | No             | Yes              | Yes*       |
+| Java Runtime             | Yes        | No             | Yes              | Yes*       |
+| Node JS                  | Yes        | Yes            | Yes              | Yes        |
+| HTTP trigger             | Yes        | Yes            | Yes              | Yes        |
+
+*\* Requires transpilation*
+
 ## Data Transfer Measurement
 We integrate all necessary server-side functionality into a single function that we call a _measurement function_. This approach is similar to that taken in [40] and other serverless performance evaluation frameworks. A measurement function can perform up to three tasks, depending on the use case:
 
@@ -144,3 +158,32 @@ We integrate all necessary server-side functionality into a single function that
 3. If applicable, the function records invocation timing. This is particularly useful for our data transfer studies where we complement client-measured round-trip time with internal function timestamps for validation purposes.
 
 ![transfer method](design/transfer-method.png)
+
+## Notes
+
+- `Zip` packaging deployments only apply to `producer-consumer` images and will not be supported by any future images.
+
+## Known problems
+
+### AWS
+- Code storage limit
+```
+Cannot update function code: CodeStorageExceededException: Code storage limit exceeded.
+{
+  RespMetadata: {
+    StatusCode: 400,
+    RequestID: "886339b1-63ae-4f80-a923-7c1ed4201b6e"
+  },
+  Message_: "Code storage limit exceeded.",
+  Type: "User"
+}
+```
+
+- Regional APIs limit `600`
+
+- Rare AWS errors (solved by restarting experiment)
+
+```
+HTTP request failed with error dial tcp: lookup msi6v4vdwk.execute-api.us-west-1.amazonaws.com on 128.110.156.4:53: no such host 
+HTTP request failed with error dial tcp: lookup 10m09hsby0.execute-api.us-west-1.amazonaws.com on 128.110.156.4:53: server misbehaving 
+```

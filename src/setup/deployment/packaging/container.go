@@ -25,14 +25,19 @@ package packaging
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"os/exec"
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/util"
 )
 
-//SetupContainerImageDeployment will package the function using container images
-func SetupContainerImageDeployment(function string, provider string, rawCodePath string) {
-	var privateRepoURI string
+var builtImages = make(map[string]bool)
+var privateRepoURI string = ""
+var loggedIn bool = false
+
+// SetupContainerImageDeployment will package the function using container images and push to registry
+func SetupContainerImageDeployment(function string, provider string, compressedImageSizeMebibyte float64) string {
+	functionDir := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/%s", provider, function)
 	switch provider {
 	case "aws":
 		privateRepoURI = fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com", amazon.UserARNNumber, amazon.AWSRegion)
@@ -40,22 +45,31 @@ func SetupContainerImageDeployment(function string, provider string, rawCodePath
 		log.Info("Authenticating Docker CLI to the Amazon ECR registry...")
 		util.RunCommandAndLog(exec.Command("docker", "login", "-u", "AWS", "-p",
 			amazon.GetECRAuthorizationToken(), privateRepoURI))
+	case "gcr":
+		fallthrough
 	case "vhive":
 		log.Info("Authenticating Docker CLI to the DockerHub registry...")
 
-		privateRepoURI = *promptForString("Please enter your DockerHub username: ")
-		util.RunCommandAndLog(exec.Command("docker", "login", "-u",
-			privateRepoURI, "-p", *promptForString("Please enter your DockerHub password: ")))
+		if !loggedIn {
+			privateRepoURI = os.Getenv("DOCKER_HUB_USERNAME")
+			privateRepoToken := os.Getenv("DOCKER_HUB_ACCESS_TOKEN")
+			util.RunCommandAndLog(exec.Command("docker", "login", "-u",
+				privateRepoURI, "-p", privateRepoToken))
+			loggedIn = true
+		}
 	default:
-		log.Warnf("Provider %s does not support container image deployment, skipping...", provider)
-		return
+		log.Fatalf("Provider %s does not support container image deployment.", provider)
 	}
 
-	taggedImage := fmt.Sprintf("%s:latest", function)
-
-	util.RunCommandAndLog(exec.Command("docker", "build", "-t", taggedImage, rawCodePath))
-
+	taggedImage := fmt.Sprintf("%s_%v_stellar:latest", function, compressedImageSizeMebibyte)
 	imageName := fmt.Sprintf("%s/%s", privateRepoURI, taggedImage)
+	if builtImages[taggedImage] {
+		log.Infof("Container image for function %q is already built. Skipping...", taggedImage)
+		return imageName
+	}
+
+	util.RunCommandAndLog(exec.Command("docker", "build", "-t", taggedImage, functionDir))
+
 	log.Infof("Pushing container image to %q...", imageName)
 
 	util.RunCommandAndLog(exec.Command("docker", "tag", taggedImage, imageName))
@@ -64,4 +78,6 @@ func SetupContainerImageDeployment(function string, provider string, rawCodePath
 	if provider == "aws" {
 		amazon.AWSSingletonInstance.ImageURI = imageName
 	}
+	builtImages[taggedImage] = true
+	return imageName
 }

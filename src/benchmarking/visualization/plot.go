@@ -32,9 +32,9 @@ import (
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
 	"gonum.org/v1/plot/vg"
+	"stellar/setup"
 	"strings"
 	"time"
-	"stellar/setup"
 )
 
 func plotBurstsBarChart(plotPath string, experiment setup.SubExperiment, coldThreshold float64, latenciesDF dataframe.DataFrame) {
@@ -113,7 +113,7 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 	plotInstance.Y.Label.Text = "Requests"
 
 	latencies := make(plotter.Values, len(burstLatencies))
-	
+
 	copy(latencies, burstLatencies)
 
 	histogram, err := plotter.NewHist(latencies, 1<<5)
@@ -129,14 +129,13 @@ func plotBurstLatenciesHistogram(plotPath string, burstLatencies []float64, burs
 
 func plotLatenciesCDF(plotPath string, sortedLatencies []float64, experiment setup.SubExperiment) {
 	plotInstance := plot.New()
-
-	plotInstance.Title.Text = fmt.Sprintf("IAT ~%vs, Burst sizes %v", experiment.IATSeconds, experiment.BurstSizes)
+	plotInstance.Title.Text = fmt.Sprintf("%v\nIAT ~%vs, Burst sizes %v", experiment.Title, experiment.IATSeconds, experiment.BurstSizes)
 	plotInstance.Y.Label.Text = "Portion of requests"
 	plotInstance.Y.Min = 0.
 	plotInstance.Y.Max = 1.
 	plotInstance.X.Label.Text = "Latency (ms)"
 	plotInstance.X.Min = 0.
-	plotInstance.X.Max = 2000.0
+	plotInstance.X.Max = sortedLatencies[len(sortedLatencies)-1]
 
 	// Uncomment below for hard X limit
 	//var maxIndexKept int
