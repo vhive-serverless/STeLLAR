@@ -68,7 +68,6 @@ jobs:
             ./setup/building/test/...,
             ./setup/code-generation/test/...,
             ./setup/deployment/packaging/test/...,
-            ./setup/deployment/connection/...,
           ]
     needs: [ build_client ]
     runs-on: ubuntu-22.04
