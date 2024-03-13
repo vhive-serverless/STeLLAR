@@ -43,6 +43,7 @@ jobs:
     runs-on: [ self-hosted, aws ]
     timeout-minutes: 1200
     strategy:
+      fail-fast: false
       matrix:
         runtime:
           [
@@ -177,6 +178,7 @@ jobs:
     runs-on: [ self-hosted, gcr ]
     timeout-minutes: 1200
     strategy:
+      fail-fast: false
       matrix:
         runtime:
           [
@@ -309,6 +311,7 @@ jobs:
     runs-on: [ self-hosted, azure ]
     timeout-minutes: 1200
     strategy:
+      fail-fast: false
       matrix:
         runtime:
           [
