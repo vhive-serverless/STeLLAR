@@ -131,25 +131,31 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName strin
 	s.Service = serviceName
 	s.FrameworkVersion = "3"
 
+	runtimeValue := config.Runtime
+	if config.Runtime == "go1.x" {
+		log.Warnf("`go1.x` runtime is deprecated. Runtime `provided.al2023` will be used instead...")
+		runtimeValue = "provided.al2023"
+	}
+
 	switch config.Provider {
 	case "azure":
 		s.Provider = Provider{
 			Name:        config.Provider,
-			Runtime:     config.Runtime,
+			Runtime:     runtimeValue,
 			Region:      region,
 			FunctionApp: FunctionApp{ExtensionVersion: "~4"},
 		}
 	case "aliyun":
 		s.Provider = Provider{
 			Name:        config.Provider,
-			Runtime:     config.Runtime,
+			Runtime:     runtimeValue,
 			Region:      region,
 			Credentials: "~/.aliyuncli/credentials",
 		}
 	default:
 		s.Provider = Provider{
 			Name:    config.Provider,
-			Runtime: config.Runtime,
+			Runtime: runtimeValue,
 			Region:  region,
 		}
 	}
@@ -177,9 +183,14 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, rando
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
+	
 	for i := 0; i < subex.Parallelism; i++ {
 		handler := subex.Handler
 		runtime := subex.Runtime
+		if runtime == "go1.x" {
+			log.Warnf("`go1.x` runtime is deprecated. Using `provided.al2023` runtime instead...")
+			runtime = "provided.al2023"
+		}
 		name := fmt.Sprintf("%s-%s", randomTag, createName(subex, index, i))
 		events := []Event{
 			{

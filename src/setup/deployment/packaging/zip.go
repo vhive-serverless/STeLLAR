@@ -121,7 +121,7 @@ func GenerateServerlessZIPArtifacts(experimentID int, provider string, runtime s
 func generateServerlessZIPArtifactsGeneral(experimentID int, provider string, runtime string, functionName string, functionImageSizeMB float64) {
 	defaultBinaryName := map[string]string{
 		"python3.9":  "main.py",
-		"go1.x":      "main",
+		"go1.x":      "bootstrap",
 		"nodejs18.x": "index.js",
 		"ruby3.2":    "function.rb",
 	}
