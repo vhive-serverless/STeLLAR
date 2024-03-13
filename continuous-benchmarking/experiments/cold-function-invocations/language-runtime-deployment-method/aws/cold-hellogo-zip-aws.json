@@ -6,9 +6,8 @@
     {
       "Title": "cold-hellogo-zip-aws",
       "Function": "hellogo",
-	  "Handler": "main",
+	  "Handler": "bootstrap",
 	  "PackageType": "Zip",
-	  "PackagePattern": "main.go",
       "Bursts": 1000,
       "BurstSizes": [
         1
