@@ -29,7 +29,7 @@ func (s *BuildingTestSuite) TestBuildFunctionJava() {
 func (s *BuildingTestSuite) TestBuildFunctionGolang() {
 	b := &building.Builder{}
 	b.BuildFunction("aws", "hellogo", "go1.x")
-	assert.FileExists(s.T(), "setup/deployment/raw-code/serverless/aws/artifacts/hellogo/main")
+	assert.FileExists(s.T(), "setup/deployment/raw-code/serverless/aws/artifacts/hellogo/bootstrap")
 }
 
 func (s *BuildingTestSuite) TestBuildFunctionUnsupported() {
