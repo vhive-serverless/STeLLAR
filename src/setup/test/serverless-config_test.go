@@ -16,7 +16,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 		FrameworkVersion: "3",
 		Provider: setup.Provider{
 			Name:    "aws",
-			Runtime: "go1.x",
+			Runtime: "python3.9",
 			Region:  "us-west-1",
 		},
 	}
@@ -24,7 +24,7 @@ func TestCreateHeaderConfig(t *testing.T) {
 	// Define the Configuration struct for testing
 	config := &setup.Configuration{
 		Provider: "aws",
-		Runtime:  "go1.x",
+		Runtime:  "python3.9",
 	}
 
 	actual := &setup.Serverless{}
