@@ -1,11 +1,5 @@
-name: feature-serverless-framework-deployment
-on:
-  push:
-    branches:
-      - feature-serverless-framework-deployment
-  pull_request:
-    branches:
-      - feature-serverless-framework-deployment
+name: STeLLAR Test Pipeline
+on: [ push, pull_request ]
 
 jobs:
   check_syntax:
