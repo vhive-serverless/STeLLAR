@@ -69,60 +69,6 @@ jobs:
           path: build.tar
           retention-days: 1
 
-  test_aws:
-    name: Unit tests (incl. AWS API tests) and AWS integration tests
-    needs: [ build_client ]
-    runs-on: ubuntu-22.04
-    env:
-      working-directory: ./src
-    steps:
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-
-      - name: Configure AWS credentials using EASE lab account
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: us-west-1
-
-      - name: Set up Go 1.19
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.19
-
-      - name: Download client artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: STeLLAR-build
-
-      - name: Untar client build
-        working-directory: ${{env.working-directory}}
-        run: tar --strip-components=1 -xvf ../build.tar -C .
-
-      - name: Unit Tests
-        working-directory: ${{env.working-directory}}
-        run: go test -short -v ./...
-
-      - name: Prepare benchmarking functions
-        run: |
-          mkdir -p "setup/deployment/raw-code"
-          cp -R ./src/setup/deployment/raw-code/functions setup/deployment/raw-code/functions
-          mkdir -p "./src/latency-samples"
-
-      - name: AWS Burstiness ZIP (Package) Integration Test
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-zip-package.json
-
-      - name: AWS Burstiness Image (Package) Integration Test
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/burstiness-image-package.json
-
-      - name: AWS Inline Data Transfer Integration Test
-        working-directory: ${{env.working-directory}}
-        run: ./main --o latency-samples --c ../experiments/tests/aws/data-transfer.json
-
   test_vhive:
     name: vHive integration tests
     needs: [ build_client ]

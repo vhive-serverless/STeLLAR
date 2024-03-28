@@ -1,0 +1,17 @@
+{
+  "Sequential": false,
+  "Provider": "aws",
+  "Runtime": "nodejs18.x",
+  "SubExperiments": [
+    {
+      "Title": "hellonode",
+      "Function": "hellonode",
+      "Handler": "index.handler",
+      "PackageType": "Zip",
+      "PackagePattern": "index.js",
+      "Bursts": 2,
+      "BurstSizes": [2],
+      "DesiredServiceTimes": ["0ms"]
+    }
+  ]
+}

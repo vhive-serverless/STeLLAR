@@ -26,10 +26,10 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"net/http"
-	"testing"
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"testing"
 )
 
 const randomGatewayID = "uicnaywo3rb3nsci"
@@ -44,19 +44,19 @@ func TestCreateAWSRequest(t *testing.T) {
 	connection.Initialize("aws", "", "../../../setup/deployment/raw-code/functions/producer-consumer/api-template.json")
 
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement, false)
+	req := CreateRequest("aws", randomPayloadLength, randomEndpoint, randomAssignedIncrement, false, "route1")
 
 	expectedHostname := fmt.Sprintf("%s.execute-api.%s.amazonaws.com", randomEndpoint.ID, amazon.AWSRegion)
 	require.Equal(t, expectedHostname, req.Host)
 	require.Equal(t, expectedHostname, req.URL.Host)
-	require.Equal(t, http.MethodPost, req.Method)
+	require.Equal(t, http.MethodGet, req.Method)
 	require.Equal(t, "https", req.URL.Scheme)
 }
 
 func TestCreateExternalRequest(t *testing.T) {
 	randomPayloadLength := 7
 	randomAssignedIncrement := int64(1482911482)
-	req := CreateRequest("www.google.com", randomPayloadLength, setup.EndpointInfo{}, randomAssignedIncrement, false)
+	req := CreateRequest("www.google.com", randomPayloadLength, setup.EndpointInfo{}, randomAssignedIncrement, false, "route1")
 
 	require.Equal(t, "www.google.com", req.Host)
 	require.Equal(t, "www.google.com", req.URL.Host)

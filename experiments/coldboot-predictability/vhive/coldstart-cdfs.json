@@ -31,6 +31,9 @@
     {
       "Title": "hellopy",
       "Function": "hellopy",
+	  "Handler": "hellopy/lambda_function.lambda_handler",
+	  "PackageType": "Zip",
+	  "PackagePattern": "hellopy/lambda_function.py",
       "Bursts": 500,
       "BurstSizes": [
         1

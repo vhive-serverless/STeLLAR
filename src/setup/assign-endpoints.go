@@ -43,7 +43,7 @@ func assignEndpoints(availableEndpoints []connection.Endpoint, experiment *SubEx
 		experiment.FunctionImageSizeMB, assignedHandler = deployment.SetupDeployment(
 			fmt.Sprintf("setup/deployment/raw-code/functions/%s/%s", experiment.Function, provider),
 			provider,
-			util.MBToBytes(experiment.FunctionImageSizeMB),
+			util.MebibyteToBytes(experiment.FunctionImageSizeMB),
 			experiment.PackageType,
 			experiment.ID,
 			experiment.Function,
@@ -134,4 +134,18 @@ func specsMatch(endpoint connection.Endpoint, experiment *SubExperiment) bool {
 	}
 
 	return math.Abs(endpoint.ImageSizeMB-experiment.FunctionImageSizeMB) <= 5
+}
+
+// AssignEndpointIDs assigns a given endpoint to all deployed functions of the subexperiment.
+func (s *SubExperiment) AssignEndpointIDs(endpointID string) {
+	if s.Endpoints == nil {
+		s.Endpoints = []EndpointInfo{}
+	}
+	for i := 0; i < s.Parallelism; i++ {
+		s.Endpoints = append(s.Endpoints, EndpointInfo{ID: endpointID})
+	}
+}
+
+func (s *SubExperiment) AddRoute(path string) {
+	s.Routes = append(s.Routes, path)
 }

@@ -27,18 +27,19 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"time"
+	"google.golang.org/grpc/credentials/insecure"
 	"stellar/benchmarking/networking/benchgrpc/proto_gen"
 	"stellar/setup"
+	"time"
 )
 
 const (
 	timeout = 3 * time.Minute // 15 minutes are not practical for vHive
 )
 
-//ExecuteRequest will send a gRPC request and return the timestamp chain (if any).
+// ExecuteRequest will send a gRPC request and return the timestamp chain (if any).
 func ExecuteRequest(payloadLengthBytes int, gatewayEndpoint setup.EndpointInfo, incrementLimit int64, storageTransfer bool) (string, time.Time, time.Time) {
-	conn, err := grpc.Dial(gatewayEndpoint.ID, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(gatewayEndpoint.ID, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("Did not connect: %v", err)
 	}

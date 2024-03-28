@@ -26,14 +26,13 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"math"
-	"math/rand"
 	"os"
 	"stellar/setup/deployment/packaging"
 	"stellar/util"
 )
 
-//SetupDeployment will create the serverless function zip deployment for the given provider,
-//in the given language and of the given size in bytes. Returns size of deployment in MB and the handler path for AWS automation.
+// SetupDeployment will create the serverless function zip deployment for the given provider,
+// in the given language and of the given size in bytes. Returns size of deployment in MB and the handler path for AWS automation.
 func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes int64, packageType string, experimentID int, function string) (float64, string) {
 	fillerFilePath := rawCodePath + "/filler.file"
 
@@ -46,7 +45,7 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		if deploymentSizeBytes == 0 {
 			log.Infof("[sub-experiment %d] Desired image size is set to default (0MB), assigning size of zipped binary (%vMB)...",
 				experimentID,
-				util.BytesToMB(zippedBinaryFileSizeBytes),
+				util.BytesToMebibyte(zippedBinaryFileSizeBytes),
 			)
 			deploymentSizeBytes = zippedBinaryFileSizeBytes
 		}
@@ -54,44 +53,28 @@ func SetupDeployment(rawCodePath string, provider string, deploymentSizeBytes in
 		if deploymentSizeBytes < zippedBinaryFileSizeBytes {
 			log.Fatalf("[sub-experiment %d] Total size (~%vMB) cannot be smaller than zipped binary size (~%vMB).",
 				experimentID,
-				util.BytesToMB(deploymentSizeBytes),
-				util.BytesToMB(zippedBinaryFileSizeBytes),
+				util.BytesToMebibyte(deploymentSizeBytes),
+				util.BytesToMebibyte(zippedBinaryFileSizeBytes),
 			)
 		}
 
-		generateFillerFile(experimentID, fillerFilePath, deploymentSizeBytes-zippedBinaryFileSizeBytes)
-		zipPath := packaging.GenerateZIP(experimentID, fillerFilePath, binaryPath)
+		packaging.GenerateFillerFile(experimentID, fillerFilePath, deploymentSizeBytes-zippedBinaryFileSizeBytes)
+		zipPath := packaging.GenerateZIP(experimentID, fillerFilePath, binaryPath, "benchmarking.zip")
 		packaging.SetupZIPDeployment(provider, deploymentSizeBytes, zipPath)
 
-		return util.BytesToMB(deploymentSizeBytes), handlerPath
+		return util.BytesToMebibyte(deploymentSizeBytes), handlerPath
 	case "Image":
 		log.Warn("Container image deployment does not support code size verification on AWS, making the image size benchmarks unreliable.")
 
 		// TODO: Size of containerized binary should be subtracted, seems to be 134MB in Amazon ECR...
-		generateFillerFile(experimentID, fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
-		packaging.SetupContainerImageDeployment(function, provider, rawCodePath)
+		packaging.GenerateFillerFile(experimentID, fillerFilePath, int64(math.Max(float64(deploymentSizeBytes)-134, 0)))
+		//packaging.SetupContainerImageDeployment(function, provider, rawCodePath)
 
 	default:
 		log.Fatalf("[sub-experiment %d] Unrecognized package type: %s", experimentID, packageType)
 	}
 
-	return util.BytesToMB(deploymentSizeBytes), ""
-}
-
-func generateFillerFile(experimentID int, fillerFilePath string, sizeBytes int64) {
-	log.Infof("[sub-experiment %d] Generating filler file to be included in deployment...", experimentID)
-
-	buffer := make([]byte, sizeBytes)
-	_, err := rand.Read(buffer) // The slice should now contain random bytes instead of only zeroes (prevents efficient archiving).
-	if err != nil {
-		log.Fatalf("[sub-experiment %d] Failed to fill buffer with random bytes: `%s`", experimentID, err.Error())
-	}
-
-	if err := os.WriteFile(fillerFilePath, buffer, 0666); err != nil {
-		log.Fatalf("[sub-experiment %d] Could not generate random file with size %d bytes: %v", experimentID, sizeBytes, err)
-	}
-
-	log.Infof("[sub-experiment %d] Successfully generated the filler file.", experimentID)
+	return util.BytesToMebibyte(deploymentSizeBytes), ""
 }
 
 func getExecutableInfo(rawCodePath string, experimentID int, function string) (int64, string, string) {

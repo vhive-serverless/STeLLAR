@@ -24,16 +24,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
 	"stellar/benchmarking"
 	"stellar/setup"
 	"stellar/setup/deployment/connection"
 	"stellar/setup/deployment/connection/amazon"
+	"strconv"
+	"time"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")
@@ -42,6 +44,7 @@ var configPathFlag = flag.String("c", "experiments/tests/aws/data-transfer.json"
 var endpointsDirectoryPathFlag = flag.String("g", "endpoints", "Directory containing provider endpoints to be used.")
 var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experiment.")
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
+var serverlessDeployment = flag.Bool("s", true, "Use serverless.com framework for deployment. ")
 
 func main() {
 	startTime := time.Now()
@@ -49,7 +52,7 @@ func main() {
 	rand.Seed(randomSeed) // comment line for reproducible inter-arrival times
 	flag.Parse()
 
-	outputDirectoryPath := filepath.Join(*outputPathFlag, time.Now().Format(time.RFC850))
+	outputDirectoryPath := filepath.Join(*outputPathFlag, strconv.FormatInt(time.Now().Unix(), 10))
 	log.Infof("Creating directory for this run at `%s`", outputDirectoryPath)
 	if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
 		log.Fatal(err)
@@ -72,11 +75,20 @@ func main() {
 	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
 	setup.FindBusySpinIncrements(&config)
 
+	// Pick between deployment methods
 	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
+	if *serverlessDeployment {
+		serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
+		setup.ProvisionFunctionsServerless(&config, serverlessDirPath)
+		log.Infof("number of routes %d, numebr of endpoints %d", len(config.SubExperiments[0].Routes), len(config.SubExperiments[0].Endpoints))
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
 
-	setup.ProvisionFunctions(config)
-
-	benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+		log.Info("Starting functions removal from cloud.")
+		setup.RemoveService(&config, serverlessDirPath)
+	} else {
+		setup.ProvisionFunctions(config)
+		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
 }

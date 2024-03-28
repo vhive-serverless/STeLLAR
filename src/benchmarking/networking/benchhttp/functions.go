@@ -27,18 +27,18 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-	"strings"
 	"stellar/setup"
 	"stellar/setup/deployment/connection/amazon"
+	"strings"
 )
 
-//ProducerConsumerResponse is the structure holding the response from a producer-consumer function
+// ProducerConsumerResponse is the structure holding the response from a producer-consumer function
 type ProducerConsumerResponse struct {
 	RequestID      string   `json:"RequestID"`
 	TimestampChain []string `json:"TimestampChain"`
 }
 
-//ExtractProducerConsumerResponse will process an HTTP response body coming from a producer-consumer function
+// ExtractProducerConsumerResponse will process an HTTP response body coming from a producer-consumer function
 func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 	respBodyString := string(respBody[:])
 	respBodyString = strings.ReplaceAll(respBodyString, "&#34;", "\"")
@@ -52,7 +52,7 @@ func ExtractProducerConsumerResponse(respBody []byte) ProducerConsumerResponse {
 }
 
 func appendProducerConsumerParameters(provider string, request *http.Request, payloadLengthBytes int,
-	assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool) *http.Request {
+	assignedFunctionIncrementLimit int64, gatewayEndpoint setup.EndpointInfo, storageTransfer bool, route string) *http.Request {
 	const (
 		googleBucket = "stellar-us-west-2"
 	)
@@ -65,20 +65,13 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 
 	switch provider {
 	case "aws":
-		request.URL.Path = "/prod/benchmarking"
+		request.URL.Path = fmt.Sprintf("/%s", route)
 
 		if storageTransfer {
 			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", amazon.AWSSingletonInstance.S3Bucket)
 		}
 	case "azure":
-		// Example Azure Functions URL:
-		// stellar.azurewebsites.net/api/hellopy-19?code=2FXks0D4k%2FmEvTc6RNQmfIBa%2FBvN2OPxaxgh4fVVFQbVaencM1PLTw%3D%3D
-
-		path := strings.Split(gatewayEndpoint.ID, request.Host)[1] // path is after the host
-		request.URL.Path = strings.Split(path, "?")[0]             // but before the raw query
-
-		queryCode := strings.Split(gatewayEndpoint.ID, "code=")[1]
-		request.URL.RawQuery += fmt.Sprintf("&code=%v", queryCode)
+		request.URL.Path = fmt.Sprintf("/api/%s", route)
 	case "google":
 		// Example Google Cloud Functions URL:
 		// us-west2-zinc-hour-315914.cloudfunctions.net/hellopy-1
@@ -88,7 +81,11 @@ func appendProducerConsumerParameters(provider string, request *http.Request, pa
 		if storageTransfer {
 			request.URL.RawQuery += fmt.Sprintf("&Bucket=%v&StorageTransfer=true", googleBucket)
 		}
-		// there is no raw query
+	case "cloudflare":
+	case "gcr":
+		break // there is no raw query for GCR and Cloudflare
+	case "aliyun":
+		request.URL.Path = fmt.Sprintf("/%s", route)
 	default:
 		log.Fatalf("Unrecognized provider %q", provider)
 	}
