@@ -49,7 +49,7 @@ Summary of experiment JSON file values:
 | BurstSizes | array | Specifies the size of each burst when invoking the deployed function(s). STeLLAR iterates and cycles through the array for each burst. |
 | IATSeconds | number | Specifies the interarrival time between each burst. |
 | DesiredServiceTimes | array | Specifies the desired service execution time(s) when invoking the deployed function(s). STeLLAR iterates and cycles through the array for each burst. These execution times are achieved by calculating the corresponding busy spin count for the desired time on the **host running the STeLLAR client**. |
-| FunctionImageSizeMB | number | Specifies the target size of the function to upload. Currently only supported for ZIP file deployment under AWS. |
+| FunctionImageSizeMB | number | Specifies the target size of the function to upload. |
 | Parallelism | number | Specifies the number of concurrent endpoints to deploy and benchmark. Useful for obtaining cold-start samples within a shorter period of time. |
 
 ## Benchmarking
