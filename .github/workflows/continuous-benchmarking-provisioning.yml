@@ -1,0 +1,83 @@
+name: Provision VM and setup self-hosted runner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 23 * * 0"
+
+jobs:
+  setup-azure-vm:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Azure CLI
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Azure resource group
+        run: az group create --name github-actions-runners --location westus
+
+      - name: Create SSH public key file
+        run: |
+          mkdir -p $HOME/.ssh
+          echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
+          cat $HOME/.ssh/id_rsa.pub
+
+      - name: Create Azure SSH Key resource
+        run: |
+          az sshkey create \
+            --resource-group github-actions-runners \
+            --name stellar-ssh-key \
+            --location westus \
+            --public-key @$HOME/.ssh/id_rsa.pub
+
+      - name: Create Azure VM
+        run: |
+          az vm create \
+            --name github-actions-runner \
+            --resource-group github-actions-runners \
+            --image Ubuntu2204 \
+            --public-ip-sku Standard \
+            --size Standard_B1ms \
+            --ssh-key-name stellar-ssh-key
+        id: create-vm
+
+      - name: Get public IP address
+        run: echo ip=$(az vm show --show-details --resource-group github-actions-runners --name github-actions-runner --query publicIps --output tsv) >> $GITHUB_OUTPUT
+        id: get-ip
+
+      - name: Create a registration token for self-hosted runners
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+          | echo token=$(jq -r .token) > $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        id: get-registration-token
+
+      - name: Setup SSH key on current GitHub-hosted runner
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Setup self-hosted runner
+        run: |
+          ssh -o StrictHostKeyChecking=no runner@${{ steps.get-ip.outputs.ip }} "
+            echo 'Installing STeLLAR dependencies'
+            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+            chmod +x stellar-setup.sh
+            ./stellar-setup.sh
+
+            echo 'Setup self-hosted runner'
+            mkdir actions-runner && cd actions-runner
+            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-azure --labels azure
+            tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+          "
