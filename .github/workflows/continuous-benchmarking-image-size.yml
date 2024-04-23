@@ -3,7 +3,7 @@ name: Continuous benchmarking - Image size experiments
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 12 * * 1"
 
 jobs:
   build_client:
@@ -357,7 +357,7 @@ jobs:
   cold-image-size-100-azure:
     name: Azure 100MB image size experiment
     needs: build_client
-    runs-on: [ self-hosted, azure, large ]
+    runs-on: [ self-hosted, azure ]
     timeout-minutes: 1200
     env:
       working-directory: src
