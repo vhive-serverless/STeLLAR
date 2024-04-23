@@ -1,0 +1,42 @@
+name: Teardown VM and remove self-hosted runner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 3"
+
+jobs:
+  teardown-azure-vm:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Azure CLI
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get self-hosted runner ID
+        id: get-runner-id
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        run: |
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners \
+          | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-azure") | .id') > $GITHUB_OUTPUT
+
+      - name: Remove self-hosted runner
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        run: |
+          gh api \
+            --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+
+      - name: Delete Azure resource group
+        run: az group delete --resource-group github-actions-runners --yes
