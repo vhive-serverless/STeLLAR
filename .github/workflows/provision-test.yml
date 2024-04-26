@@ -1,0 +1,52 @@
+name: Provision Test GCR
+on: push
+
+jobs:
+  setup-gcr-vm:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        name: Configure GCR credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: ">= 363.0.0"
+
+      - name: Create a registration token for self-hosted runners
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+          | echo token=$(jq -r .token) > $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        id: get-registration-token
+
+      - name: Create GCR VM
+        run: gcloud compute instances create github-actions-runner-gcr --zone=us-west1-a  --image=stellar-continuous-gcr-disk --image-project=stellar-benchmarking
+
+      - name: Setup self-hosted runner
+        run: |
+          gcloud compute ssh --zone "us-west1-a" "User@github-actions-runner-gcr" --project "stellar-benchmarking" --command '
+            sudo rm -r ./actions-runner
+            echo 'Installing STeLLAR dependencies'
+            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+            chmod +x stellar-setup.sh
+            ./stellar-setup.sh
+
+            echo 'Setup self-hosted runner'
+            mkdir actions-runner && cd actions-runner
+            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-gcr --labels gcr
+            tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+          '
