@@ -40,3 +40,44 @@ jobs:
 
       - name: Delete Azure resource group
         run: az group delete --resource-group github-actions-runners --yes
+
+  teardown-gcr-vm:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        name: Configure GCR credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: ">= 363.0.0"
+
+      - name: Get self-hosted runner ID
+        id: get-runner-id
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        run: |
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners \
+          | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-gcr") | .id') > $GITHUB_OUTPUT
+
+      - name: Remove self-hosted runner
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        run: |
+          gh api \
+            --method DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+
+      - name: Delete GCloud Compute Engine VM 
+        run: gcloud compute instances delete github-actions-runner-gcr --zone=us-west1-a
