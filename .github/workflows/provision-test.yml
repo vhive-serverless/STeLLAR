@@ -37,16 +37,15 @@ jobs:
       - name: Setup self-hosted runner
         run: |
           gcloud compute ssh --zone "us-west1-a" "User@github-actions-runner-gcr" --project "stellar-benchmarking" --command '
-            sudo rm -r ./actions-runner
-            echo 'Installing STeLLAR dependencies'
-            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-            chmod +x stellar-setup.sh
-            ./stellar-setup.sh
-
-            echo 'Setup self-hosted runner'
-            mkdir actions-runner && cd actions-runner
-            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-gcr --labels gcr
+            sudo rm -r ./actions-runner &&
+            echo "Installing STeLLAR dependencies" &&
+            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh &&
+            chmod +x stellar-setup.sh &&
+            ./stellar-setup.sh &&
+            echo "Setup self-hosted runner" &&
+            mkdir actions-runner && cd actions-runner &&
+            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz &&
+            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz &&
+            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-gcr --labels gcr &&
             tmux new-session -d -s github-actions-runner 'bash ./run.sh'
           '
