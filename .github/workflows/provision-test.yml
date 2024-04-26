@@ -47,5 +47,5 @@ jobs:
             curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz &&
             tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz &&
             ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-gcr --labels gcr &&
-            tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+            tmux new-session -d -s github-actions-runner-gcr "bash ./run.sh"
           '
