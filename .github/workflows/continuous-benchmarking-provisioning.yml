@@ -6,6 +6,74 @@ on:
     - cron: "0 23 * * 0"
 
 jobs:
+  setup-aws-vm:
+    runs-on: ubuntu-latest
+    env:
+      AWS_RUNNER_NAME: stellar-continuous-aws
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
+
+      - name: Create SSH public key file
+        run: |
+          mkdir -p $HOME/.ssh
+          echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
+          cat $HOME/.ssh/id_rsa.pub
+
+      - name: Create AWS EC2 instance
+        run: |
+          aws ec2 run-instances \
+            --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
+            --image-id ami-08012c0a9ee8e21c4 \
+            --instance-type t2.micro \
+            --key-name stellar-ssh-key \
+            --region us-west-1 \
+            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]'
+        id: create-vm
+
+      - name: Get public IP address
+        run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+        id: get-ip
+
+      - name: Create a registration token for self-hosted runners
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+          | echo token=$(jq -r .token) > $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        id: get-registration-token
+
+      - name: Setup SSH key on current GitHub-hosted runner
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Setup self-hosted runner
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+            echo 'Installing STeLLAR dependencies'
+            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+            chmod +x stellar-setup.sh
+            ./stellar-setup.sh
+
+            echo 'Setup self-hosted runner'
+            mkdir actions-runner && cd actions-runner
+            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
+            tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+          "
+
   setup-azure-vm:
     runs-on: ubuntu-latest
     permissions: write-all
@@ -81,6 +149,7 @@ jobs:
             ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-azure --labels azure
             tmux new-session -d -s github-actions-runner 'bash ./run.sh'
           "
+
   setup-gcr-vm:
     runs-on: ubuntu-latest
     permissions: write-all
