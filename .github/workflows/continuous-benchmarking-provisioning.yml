@@ -30,7 +30,7 @@ jobs:
         run: |
           aws ec2 run-instances \
             --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
-            --image-id ami-08012c0a9ee8e21c4 \
+            --image-id ami-036cafe742923b3d9 \
             --instance-type t2.micro \
             --key-name stellar-ssh-key \
             --region us-west-1 \
@@ -98,7 +98,7 @@ jobs:
           run: |
             aws ec2 run-instances \
               --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
-              --image-id ami-04a4e0a5175618353 \
+              --image-id ami-0f30a9c3a48f3fa79 \
               --instance-type t2.micro \
               --key-name stellar-ssh-key \
               --region us-east-2 \
