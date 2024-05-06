@@ -2,4 +2,5 @@
 # Install Wrangler CLI
 npm install -g wrangler --save-dev
 
-wrangler login
+# Login to Wrangler (via web browser)
+# wrangler login
