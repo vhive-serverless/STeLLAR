@@ -76,9 +76,9 @@ const (
 	defaultVisualization           = "cdf"
 	defaultIATType                 = "stochastic"
 	defaultProvider                = "aws"
-	defaultFunction                = "producer-consumer"
-	defaultHandler                 = "producer-consumer"
-	defaultRuntime                 = "go1.x"
+	defaultFunction                = "hellopy"
+	defaultHandler                 = "main.lambda_handler"
+	defaultRuntime                 = "python3.9"
 	defaultPackageType             = "Zip"
 	defaultPackagePattern          = "**"
 	defaultParallelism             = 1

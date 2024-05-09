@@ -52,4 +52,4 @@ sudo sh -c "echo \"root hard nofile 1000000\" >> /etc/security/limits.conf"
 sudo mkdir ../latency-samples
 echo "Please run: ulimit -n 8192"
 echo "Recommended: tmux new -s stellar"
-echo "AWS example run: sudo ./main -o latency-samples -g endpoints -c experiments/tests/aws/data-transfer.json"
+echo "AWS example run: sudo ./main -c experiments/tests/aws/hellopy.json"
