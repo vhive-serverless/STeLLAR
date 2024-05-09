@@ -2,7 +2,7 @@
 
 To begin with, we provide an overview of our benchmarking solution and define the main terms used throughout the rest of the codebase:
 
-![design](../../design/diagram.png)
+![design](https://github.com/vhive-serverless/STeLLAR/blob/main/design/diagram.png)
 
 - The coordinator orchestrates the entire benchmarking procedure.
 - The experiment configuration is an input JSON file used to specify and customize the experiments.
@@ -16,7 +16,7 @@ To begin with, we provide an overview of our benchmarking solution and define th
 ## Flow Chart
 Finally, we look at the procedural steps adopted by the framework:
 
-![flow chart](../../design/flow-chart.png)
+![flow chart](https://github.com/vhive-serverless/STeLLAR/blob/main/design/flow-chart.png)
 
 
 1. The JSON configuration file is read and parsed, and any default field values are assigned. If the configuration file is missing, the program throws a fatal error.
@@ -29,7 +29,7 @@ Finally, we look at the procedural steps adopted by the framework:
 
 Stellar uses serverless.com framework to deploy serverless functions to cloud.
 
-![deployment](../../design/deployment.jpg)
+![deployment](https://github.com/vhive-serverless/STeLLAR/blob/main/design/deployment.jpg)
 
 1. The JSON experiment configuration file is parsed and serverless.yml service configuration file is written.
 2. The function source code is compiled if needed. (e.g. Java and Go functions)
@@ -78,4 +78,4 @@ We integrate all necessary server-side functionality into a single function that
 2. If applicable, the function will simulate work by incrementing a variable in a busy-spin loop. This can be as simple as “for i := 0; i\<incrementLimit; i++{}”.
 3. If applicable, the function records invocation timing. This is particularly useful for our data transfer studies where we complement client-measured round-trip time with internal function timestamps for validation purposes.
 
-![transfer method](../../design/transfer-method.png)
+![transfer method](https://github.com/vhive-serverless/STeLLAR/blob/main/design/transfer-method.png)
