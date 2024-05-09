@@ -1,4 +1,4 @@
-## Welcome to the STeLLAR wiki! [![vHive-bench Pipeline](https://github.com/ease-lab/vhive-bench/actions/workflows/pipeline.yml/badge.svg)](https://github.com/ease-lab/vhive-bench/actions/workflows/pipeline.yml) [![Function images build](https://github.com/ease-lab/vhive-bench/actions/workflows/image-build.yml/badge.svg)](https://github.com/ease-lab/vhive-bench/actions/workflows/image-build.yml)
+## Welcome to the STeLLAR wiki!
 
 Serverless computing has seen rapid adoption because of its instant scalability, flexible billing model, and economies of scale. In serverless, developers structure their applications as a collection of functions invoked by various events like clicks, and cloud providers take responsibility for cloud infrastructure management. As with other cloud services, serverless deployments require responsiveness and performance predictability manifested through low average and tail latencies. While the average end-to-end latency has been extensively studied in prior works, existing papers lack a detailed characterization of the effects of tail latency in real-world serverless scenarios and their root causes.
 
