@@ -1,4 +1,4 @@
-service: stellar-azure-itgr-test
+service: stellar-azure-integration-test
 
 frameworkVersion: "3"
 
