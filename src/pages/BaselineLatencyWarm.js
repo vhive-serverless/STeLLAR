@@ -1,5 +1,5 @@
 // @mui
-import {useCallback, useMemo, useState} from "react";
+import {useCallback, useMemo, useState,useEffect} from "react";
 import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
@@ -9,13 +9,12 @@ import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, s
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid,Container,Link,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid,Container,Link,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem,CircularProgress } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
 import {
   AppLatency,
-  AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
 
@@ -37,7 +36,7 @@ export default function BaselineLatencyDashboard() {
     const experimentTypeAzure = 'warm-baseline-azure';
     const experimentTypeCloudflare = 'warm-baseline-cloudflare';
 
-    const oneMonthBefore = subMonths(today,1);
+    const threeMonthsBefore = subMonths(today,3);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
@@ -49,11 +48,12 @@ export default function BaselineLatencyDashboard() {
     const [overallStatisticsCloudflare,setOverallStatisticsCloudflare] = useState(null);
 
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
-    const [dateRange, setDateRange] = useState('month');
+    const [dateRange, setDateRange] = useState('3-months');
     const [individualProvider,setIndividualProvider] = useState(experimentTypeAWS);
+    const [loading, setLoading] = useState(true);
 
     const handleChange = (event) => {
 
@@ -80,113 +80,49 @@ export default function BaselineLatencyDashboard() {
       setIndividualProvider(selectedValueProvider);
     };
 
-    const fetchIndividualDataAWS = useCallback(async () => {
-        try {
-            const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: individualProvider,
-                    selected_date:selectedDate
-                },
-            });
-            if (isMountedRef.current) {
-                setDailyStatistics(response.data);
-            }
-        } catch (err) {
-            setIsErrorDailyStatistics(true);
-        }
-    }, [isMountedRef,selectedDate,individualProvider]);
-
-    useMemo(() => {
-        fetchIndividualDataAWS();
-    }, [fetchIndividualDataAWS]);
-
-    const fetchDataRangeAWS = useCallback(async () => {
-        try {
-            const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentTypeAWS,
-                    start_date:startDate,
-                    end_date:endDate,
-                },
-            });
-            if (isMountedRef.current) {
-                setOverallStatisticsAWS(response.data)
-            }
-        } catch (err) {
-            setIsErrorDataRangeStatistics(true);
-        }
-    }, [isMountedRef,startDate,endDate,experimentTypeAWS]);
-
-    const fetchDataRangeGCR = useCallback(async () => {
+    useEffect(() => {
+      return () => {
+        isMountedRef.current = false;
+      };
+    }, []);
+  
+    const fetchData = useCallback(async () => {
+      setLoading(true);
       try {
-          const response = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: experimentTypeGCR,
-                  start_date:startDate,
-                  end_date:endDate,
-              },
-          });
-          if (isMountedRef.current) {
-              setOverallStatisticsGCR(response.data)
-          }
-      } catch (err) {
-          setIsErrorDataRangeStatistics(true);
-      }
-  }, [isMountedRef,startDate,endDate,experimentTypeGCR]);
-
-  const fetchDataRangeAzure = useCallback(async () => {
-    try {
-        const response = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeAzure,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
-        // console.log(response.data)
+        const [awsResponse, gcrResponse, azureResponse, cloudflareResponse] = await Promise.all([
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeAWS, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeGCR, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeAzure, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeCloudflare, start_date: startDate, end_date: endDate },
+          }),
+        ]);
+  
         if (isMountedRef.current) {
-            setOverallStatisticsAzure(response.data)
+          setOverallStatisticsAWS(awsResponse.data);
+          setOverallStatisticsGCR(gcrResponse.data);
+          setOverallStatisticsAzure(azureResponse.data);
+          setOverallStatisticsCloudflare(cloudflareResponse.data);
         }
-    } catch (err) {
+      } catch (err) {
         setIsErrorDataRangeStatistics(true);
-    }
-}, [isMountedRef,startDate,endDate,experimentTypeAzure]);
-
-const fetchDataRangeCloudflare = useCallback(async () => {
-  try {
-      const response = await axios.get(`${baseURL}/results`, {
-          params: { experiment_type: experimentTypeCloudflare,
-              start_date:startDate,
-              end_date:endDate,
-          },
-      });
-      if (isMountedRef.current) {
-          setOverallStatisticsCloudflare(response.data)
+      } finally {
+        setLoading(false);
       }
-  } catch (err) {
-      setIsErrorDataRangeStatistics(true);
-  }
-}, [isMountedRef,startDate,endDate,experimentTypeCloudflare]);
+    }, [baseURL, startDate, endDate, experimentTypeAWS, experimentTypeGCR, experimentTypeAzure, experimentTypeCloudflare]);
+  
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]);
 
-    useMemo(() => {
-        fetchDataRangeAWS();
-    }, [fetchDataRangeAWS]);
 
-    useMemo(() => {
-      fetchDataRangeGCR();
-  }, [fetchDataRangeGCR]);
-
-  useMemo(() => {
-    fetchDataRangeAzure();
-}, [fetchDataRangeAzure]);
-
-useMemo(() => {
-  fetchDataRangeCloudflare();
-}, [fetchDataRangeCloudflare]);
-
-    // const dateRangeList = useMemo(()=> {
-    //     if(overallStatisticsAWS)
-    //         return overallStatisticsAWS.map(record => record.date);
-    //     return null
-
-    // },[overallStatisticsAWS])
-
+// Baseline warm and cold experiments are run on every monday
 const getMondaysInRange = (endDate, numberOfWeeks) => {
   const end = startOfWeek(new Date(endDate), { weekStartsOn: 1 }); // Last Monday
   const start = subWeeks(end, numberOfWeeks - 1); // Go back the required number of weeks
@@ -244,82 +180,12 @@ const medianLatenciesGCR = useMemo(() => getFilteredMedianLatencies(overallStati
 const medianLatenciesAzure = useMemo(() => getFilteredMedianLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
 const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overallStatisticsCloudflare, dateRangeList), [overallStatisticsCloudflare, dateRangeList]);
 
-//     const tailLatenciesAWS = useMemo(()=> {
-//         if(overallStatisticsAWS)
-//             return overallStatisticsAWS.map(record => record.tail_latency);
-//         return null
-
-//     },[overallStatisticsAWS])
-
-//     const tailLatenciesGCR = useMemo(()=> {
-//       if(overallStatisticsGCR)
-//           return overallStatisticsGCR.map(record => record.tail_latency);
-//       return null
-
-//   },[overallStatisticsGCR])
-
-
-//   const tailLatenciesAzure = useMemo(()=> {
-//     if(overallStatisticsAzure)
-//         return overallStatisticsAzure.map(record => record.tail_latency);
-//     return null
-
-// },[overallStatisticsAzure])
-
-
-// const tailLatenciesCloudflare = useMemo(()=> {
-//   if(overallStatisticsCloudflare)
-//       return overallStatisticsCloudflare.map(record => record.tail_latency);
-//   return null
-
-// },[overallStatisticsCloudflare])
-
-
-
-
-//     const medianLatenciesAWS = useMemo(()=> {
-//         if(overallStatisticsAWS)
-//             return overallStatisticsAWS.map(record => record.median);
-//         return null
-
-//     },[overallStatisticsAWS])
-
-//     const medianLatenciesGCR = useMemo(()=> {
-//       if(overallStatisticsGCR)
-//           return overallStatisticsGCR.map(record => record.median);
-//       return null
-
-//   },[overallStatisticsGCR])
-
-
-//   const medianLatenciesAzure = useMemo(()=> {
-//     if(overallStatisticsAzure)
-//         return overallStatisticsAzure.map(record => record.median);
-//     return null
-
-// },[overallStatisticsAzure])
-
-// const medianLatenciesCloudflare = useMemo(()=> {
-//   if(overallStatisticsCloudflare)
-//       return overallStatisticsCloudflare.map(record => record.median);
-//   return null
-
-// },[overallStatisticsCloudflare])
-
-
     const TMR = useMemo(() => {
             if (dailyStatistics)
                 return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
             return null
         }
     ,[dailyStatistics])
-
-    // useMemo(()=>{
-    //   if(startDate <'2023-01-20'){
-    //     setStartDate('2023-01-20');
-    //   }
-    // },[startDate])
-
 
     // console.log(dateRangeList,tailLatenciesAWS,tailLatenciesGCR,tailLatenciesAzure,tailLatenciesCloudflare)
   
@@ -451,7 +317,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
             </Stack>
             }
 
-{ dateRangeList.length >= 1 && 
+{loading ? (<CircularProgress />) : <>
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency"
@@ -490,7 +356,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
               ]}
             />
           </Grid>
-}
+
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Tail Latency"
@@ -529,6 +395,8 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
               ]}
             />
           </Grid>
+          </>}
+
        </CardContent>
           </Card>
           </Grid>

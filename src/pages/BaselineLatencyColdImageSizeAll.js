@@ -1,5 +1,5 @@
 // @mui
-import {useCallback, useMemo, useState} from "react";
+import {useCallback, useMemo, useState,useEffect} from "react";
 import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
@@ -8,16 +8,15 @@ import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, s
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Divider } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Divider,CircularProgress } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
 import {
   AppLatency,
-  AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
-import { disablePreviousDates,generateListOfDates } from '../utils/timeUtils';
+import { disablePreviousDates } from '../utils/timeUtils';
 
 // ----------------------------------------------------------------------
 
@@ -35,16 +34,16 @@ export default function BaselineLatencyDashboard() {
     const experimentTypeAWS50 = 'cold-image-size-50-aws';
     // const experimentTypeAWS100 = 'cold-image-size-100-aws';
 
-    const oneMonthBefore = subMonths(today,1);
+    const threeMonthsBefore = subMonths(today,3);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
-    const [overallStatisticsAWS,setoverallStatisticsAWS] = useState(null);
-    const [overallStatisticsGCR,setoverallStatisticsGCR] = useState(null);
-    const [overallStatisticsAzure,setoverallStatisticsAzure] = useState(null);
+    const [overallStatisticsAWS,setOverallStatisticsAWS] = useState(null);
+    const [overallStatisticsGCR,setOverallStatisticsGCR] = useState(null);
+    const [overallStatisticsAzure,setOverallStatisticsAzure] = useState(null);
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     const [experimentType,setExperimentType] = useState(experimentTypeAWS50);
     const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold-image-size-50');
@@ -53,7 +52,7 @@ export default function BaselineLatencyDashboard() {
     const [imageSizeOverall, setImageSizeOverall] = useState('50');
     const [provider, setProvider] = useState('aws');
 
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     
     const handleChangeDate = (event) => {
 
@@ -116,34 +115,45 @@ export default function BaselineLatencyDashboard() {
         fetchIndividualData();
     }, [fetchIndividualData]);
 
-    const fetchDataRange = useCallback(async () => {
+
+    useEffect(() => {
+      return () => {
+        isMountedRef.current = false;
+      };
+    }, []);
+  
+    const fetchData = useCallback(async () => {
+      setLoading(true);
       try {
-          const [responseAWS, responseGCR, responseAzure] = await Promise.all([
-              axios.get(`${baseURL}/results`, { params: { experiment_type: `${experimentTypeOverall}-aws`, start_date: startDate, end_date: endDate } }),
-              axios.get(`${baseURL}/results`, { params: { experiment_type: `${experimentTypeOverall}-gcr`, start_date: startDate, end_date: endDate } }),
-              axios.get(`${baseURL}/results`, { params: { experiment_type: `${experimentTypeOverall}-azure`, start_date: startDate, end_date: endDate } })
-          ]);
+        const [awsResponse, gcrResponse, azureResponse] = await Promise.all([
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-aws`, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-gcr`, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-azure`, start_date: startDate, end_date: endDate },
+          }),
+        ]);
   
-          if (isMountedRef.current) {
-              setoverallStatisticsAWS(responseAWS.data.length > 0 ? responseAWS.data : null);
-              setoverallStatisticsGCR(responseGCR.data.length > 0 ? responseGCR.data : null);
-              setoverallStatisticsAzure(responseAzure.data.length > 0 ? responseAzure.data : null);
-          }
+        if (isMountedRef.current) {
+          setOverallStatisticsAWS(awsResponse.data);
+          setOverallStatisticsGCR(gcrResponse.data);
+          setOverallStatisticsAzure(azureResponse.data);
+        }
       } catch (err) {
-          setIsErrorDataRangeStatistics(true);
+        setIsErrorDataRangeStatistics(true);
+      } finally {
+        setLoading(false);
       }
-  }, [isMountedRef, startDate, endDate, experimentTypeOverall]);
+    }, [baseURL, startDate, endDate, experimentTypeOverall]);
   
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]);
 
-
-
-useMemo(() => {
-  fetchDataRange();
-    }, [fetchDataRange]);
-
-    
-  
-
+// Image size experiments and Language runtime experiments are run on every tuesday
 
 const getTuesdaysInRange = (endDate, numberOfWeeks) => {
   const end = startOfWeek(new Date(endDate), { weekStartsOn: 2 }); // Last Tuesday
@@ -343,7 +353,7 @@ console.log(overallStatisticsAWS)
             
             </Stack>
             }
-
+{loading ? (<CircularProgress />) : <>
           <Grid item xs={12} mt={3}>
             
             <AppLatency
@@ -407,6 +417,7 @@ console.log(overallStatisticsAWS)
               ]}
             />
           </Grid>
+          </>}
           </CardContent>
           </Card>
           </Grid>

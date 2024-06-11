@@ -35,7 +35,7 @@ export default function BaselineLatencyDashboard() {
     const experimentTypeAzure = 'cold-baseline-azure';
     const experimentTypeCloudflare = 'cold-baseline-cloudflare';
 
-    const oneMonthBefore = subMonths(today,1);
+    const threeMonthsBefore = subMonths(today,3);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
@@ -47,13 +47,13 @@ export default function BaselineLatencyDashboard() {
     const [overallStatisticsCloudflare,setOverallStatisticsCloudflare] = useState(null);
 
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
     const [dateRange, setDateRange] = useState('3-months');
     const [individualProvider,setIndividualProvider] = useState(experimentTypeAWS);
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const handleChange = (event) => {
 
@@ -134,88 +134,6 @@ export default function BaselineLatencyDashboard() {
       fetchData();
     }, [fetchData]);
 
-//     const fetchDataRangeAWS = useCallback(async () => {
-//         try {
-//             const response = await axios.get(`${baseURL}/results`, {
-//                 params: { experiment_type: experimentTypeAWS,
-//                     start_date:startDate,
-//                     end_date:endDate,
-//                 },
-//             });
-//             if (isMountedRef.current) {
-//                 setOverallStatisticsAWS(response.data)
-//             }
-//         } catch (err) {
-//             setIsErrorDataRangeStatistics(true);
-//         }
-//     }, [isMountedRef,startDate,endDate,experimentTypeAWS]);
-
-//     const fetchDataRangeGCR = useCallback(async () => {
-//       try {
-//           const response = await axios.get(`${baseURL}/results`, {
-//               params: { experiment_type: experimentTypeGCR,
-//                   start_date:startDate,
-//                   end_date:endDate,
-//               },
-//           });
-//           if (isMountedRef.current) {
-//               setOverallStatisticsGCR(response.data)
-//           }
-//       } catch (err) {
-//           setIsErrorDataRangeStatistics(true);
-//       }
-//   }, [isMountedRef,startDate,endDate,experimentTypeGCR]);
-
-//   const fetchDataRangeAzure = useCallback(async () => {
-//     try {
-//         const response = await axios.get(`${baseURL}/results`, {
-//             params: { experiment_type: experimentTypeAzure,
-//                 start_date:startDate,
-//                 end_date:endDate,
-//             },
-//         });
-//         if (isMountedRef.current) {
-//             setOverallStatisticsAzure(response.data)
-//         }
-//     } catch (err) {
-//         setIsErrorDataRangeStatistics(true);
-//     }
-// }, [isMountedRef,startDate,endDate,experimentTypeAzure]);
-
-// const fetchDataRangeCloudflare = useCallback(async () => {
-//   try {
-//       const response = await axios.get(`${baseURL}/results`, {
-//           params: { experiment_type: experimentTypeCloudflare,
-//               start_date:startDate,
-//               end_date:endDate,
-//           },
-//       });
-//       if (isMountedRef.current) {
-//           setOverallStatisticsCloudflare(response.data)
-//       }
-//   } catch (err) {
-//       setIsErrorDataRangeStatistics(true);
-//   }
-// }, [isMountedRef,startDate,endDate,experimentTypeCloudflare]);
-
-//     useMemo(() => {
-//       // console.log()
-//         fetchDataRangeAWS();
-//     }, [fetchDataRangeAWS]);
-
-//     useMemo(() => {
-//       fetchDataRangeGCR();
-//   }, [fetchDataRangeGCR]);
-
-//   useMemo(() => {
-//     fetchDataRangeAzure();
-// }, [fetchDataRangeAzure]);
-
-// useMemo(() => {
-//   fetchDataRangeCloudflare();
-// }, [fetchDataRangeCloudflare]);
-
-
 
 const getMondaysInRange = (endDate, numberOfWeeks) => {
   const end = startOfWeek(new Date(endDate), { weekStartsOn: 1 }); // Last Monday
@@ -282,11 +200,6 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
         }
     ,[dailyStatistics])
 
-    // useMemo(()=>{
-    //   if(startDate <'2023-01-20'){
-    //     setStartDate('2023-01-20');
-    //   }
-    // },[startDate])
 
     console.log(tailLatenciesAWS)
     // console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)

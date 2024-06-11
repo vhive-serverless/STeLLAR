@@ -1,5 +1,5 @@
 // @mui
-import {useCallback, useMemo, useState} from "react";
+import {useCallback, useMemo, useState,useEffect} from "react";
 import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
@@ -8,16 +8,15 @@ import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, s
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Link,Divider } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Link,Divider,CircularProgress } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
 import {
   AppLatency,
-  AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
-import { disablePreviousDates,generateListOfDates } from '../utils/timeUtils';
+import { disablePreviousDates } from '../utils/timeUtils';
 // ----------------------------------------------------------------------
 
 export const baseURL = "https://di4g51664l.execute-api.us-west-2.amazonaws.com";
@@ -31,19 +30,19 @@ export default function BaselineLatencyDashboard() {
     const yesterday = subDays(today,1);
 
     const experimentTypeAWSPythonZip = 'cold-hellopy-zip-aws';
-    const oneMonthBefore = subMonths(today,1);
+    const threeMonthsBefore = subMonths(today,3);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
-    const [overallStatisticsAWS,setoverallStatisticsAWS] = useState({'zip':[]});
-    const [overallStatisticsAWS100MB,setoverallStatisticsAWS100MB] = useState(null);
-    const [overallStatisticsGCR,setoverallStatisticsGCR] = useState({'image':[]});
-    const [overallStatisticsAzure,setoverallStatisticsAzure] = useState({
+    const [overallStatisticsAWS,setOverallStatisticsAWS] = useState({'zip':[]});
+    // const [overallStatisticsAWS100MB,setoverallStatisticsAWS100MB] = useState(null);
+    const [overallStatisticsGCR,setOverallStatisticsGCR] = useState({'image':[]});
+    const [overallStatisticsAzure,setOverallStatisticsAzure] = useState({
       'zip': []
     });
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     const [experimentType,setExperimentType] = useState(experimentTypeAWSPythonZip);
     const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold');
@@ -51,6 +50,8 @@ export default function BaselineLatencyDashboard() {
     const [imageSize, setImageSize] = useState('50');
     const [languageRuntime, setLanguageRuntime] = useState('python');
     const [provider, setProvider] = useState('aws');
+
+    const [loading, setLoading] = useState(true);
 
     const handleChangeDate = (event) => {
 
@@ -81,10 +82,6 @@ export default function BaselineLatencyDashboard() {
       const selectedValue = event.target.value;  
       setProvider(selectedValue);
     };
-    
-    // useMemo(()=>{
-    //   setExperimentType(`cold-${languageRuntime}-${provider}`)
-    // },[languageRuntime,provider])
 
     useMemo(()=>{
       let app = 'hellopy';
@@ -104,144 +101,49 @@ export default function BaselineLatencyDashboard() {
       setExperimentTypeOverall(`cold-${app}`)
     },[languageRuntime,experimentType])
 
-    // useMemo(()=>{
-    //   if(startDate <'2023-01-20'){
-    //     setStartDate('2023-01-20');
-    //   }
-    // },[startDate])
 
-    const fetchDataRangeImageZipAWS = useCallback(async () => {
-        try {
-            const responseAWSZip = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: `${experimentTypeOverall}-zip-aws`,
-                    start_date:startDate,
-                    end_date:endDate,
-                },
-            });
-
-          const [resultAWSZip] = await Promise.all([responseAWSZip]);
-          
-          console.log(resultAWSZip)
-
-         if (isMountedRef.current) {
-             
-              if(resultAWSZip.data){
-                setoverallStatisticsAWS({
-                  // 'image': resultAWSImage.data ,
-                  'zip': resultAWSZip.data
-                })
-                
-              }
-            }
-        } catch (err) {
-            setIsErrorDataRangeStatistics(true);
-        }
-    }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
-
-    const fetchDataRangeImageZipGCR = useCallback(async () => {
+    useEffect(() => {
+      return () => {
+        isMountedRef.current = false;
+      };
+    }, []);
+  
+    const fetchData = useCallback(async () => {
+      setLoading(true);
       try {
-          // console.log('GCR',startDate,endDate,experimentTypeOverall)
-          const responseGCRImage= await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-img-gcr`,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
-
-        // const [resultGCRZip, resultGCRImage] = await Promise.all([responseGCRZip, responseGCRImage]);
-        const [resultGCRImage] = await Promise.all([responseGCRImage]);
-
-       if (isMountedRef.current) {
-           
-            if(resultGCRImage.data){
-              // console.log(resultAWSImage,resultAWSImage)
-              setoverallStatisticsGCR({
-                'image': resultGCRImage.data ,
-                // 'zip': resultGCRZip.data
-              })
-              
-            }
-          }
-      } catch (err) {
-          setIsErrorDataRangeStatistics(true);
-      }
-  }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
-
-    const fetchDataRangeImageZipAzure = useCallback(async () => {
-      try {
-   
-          const responseAzureZip = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: `${experimentTypeOverall}-zip-azure`,
-                  start_date:startDate,
-                  end_date:endDate,
-              },
+        const [awsResponse, gcrResponse, azureResponse] = await Promise.all([
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-zip-aws`, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-img-gcr`, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: `${experimentTypeOverall}-zip-azure`, start_date: startDate, end_date: endDate },
+          }),
+        ]);
+  
+        if (isMountedRef.current) {
+          setOverallStatisticsAWS({
+            'zip': awsResponse.data
           });
-
-        const [resultAzureZip] = await Promise.all([responseAzureZip]);
-
-       if (isMountedRef.current) {
-           
-            // if(resultAzureZip.data){
-              setoverallStatisticsAzure({
-                // 'image': resultAzureImage.data ,
-                'zip': resultAzureZip.data
-              })
-              
-            // }
+          setOverallStatisticsGCR({
+            'image': gcrResponse.data
+          });
+          setOverallStatisticsAzure({
+            'zip':azureResponse.data
+          });
         }
       } catch (err) {
-          setIsErrorDataRangeStatistics(true);
+        setIsErrorDataRangeStatistics(true);
+      } finally {
+        setLoading(false);
       }
-  }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
-
-    
-
-  useMemo(() => {
-    if(experimentTypeOverall.includes('-')){
-      fetchDataRangeImageZipAWS();
-    }
-
-  }, [fetchDataRangeImageZipAWS,experimentTypeOverall]);
-      
-
-  useMemo(() => {
-    if(experimentTypeOverall.includes('-')){
-    fetchDataRangeImageZipGCR();
-    }
-  }, [fetchDataRangeImageZipGCR,experimentTypeOverall]);
-        
-
-  useMemo(() => {
-    if(experimentTypeOverall.includes('-')){
-      fetchDataRangeImageZipAzure();
-    }
-  }, [fetchDataRangeImageZipAzure,experimentTypeOverall]);
-        
-//   // generate date range list
-//   const dateRangeList = useMemo(()=>
-//   generateListOfDates(startDate,endDate)
-// ,[startDate,endDate])
-
-//   const calculateLatencies = (overallStatistics, dateRangeList, isTailLatency) => {
-//     if (overallStatistics && dateRangeList) {
-//       const latencyList = dateRangeList.map(date => {
-//         const index = overallStatistics.findIndex(record => record.date === date);
-//         if (index >= 0) {
-//           const latency = isTailLatency ? overallStatistics[index].tail_latency : overallStatistics[index].median;
-//           if(!isTailLatency)
-//             console.log(latency)
-//           if (latency !== '0') {
-//             return isTailLatency ? Math.log10(latency).toFixed(2) : latency;
-//           }
-//         }
-//         return 0;
-//       });
+    }, [baseURL, startDate, endDate, experimentTypeOverall]);
   
-//       return latencyList;
-//     }
-//     return null;
-//   };
-  
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]);
 
 const getTuesdaysInRange = (endDate, numberOfWeeks) => {
   const end = startOfWeek(new Date(endDate), { weekStartsOn: 2 }); // Last Tuesday
@@ -487,7 +389,9 @@ console.log(dateRangeList,overallStatisticsAWS)
             </Stack>
             }
 
-    {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
+{loading ? (<CircularProgress />) : <> 
+      
+      {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
       <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency "
@@ -543,8 +447,12 @@ console.log(dateRangeList,overallStatisticsAWS)
           />
           </Grid>
       }
+
+  </>}
           
-          {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
+      {loading ? (<CircularProgress />) : <>           
+      
+      {(languageRuntime !== 'go' && languageRuntime !== 'java') ? 
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Tail Latency "
@@ -604,7 +512,7 @@ console.log(dateRangeList,overallStatisticsAWS)
             />
           </Grid>
           }
-
+  </>}
           </CardContent>
           </Card>
           </Grid>
