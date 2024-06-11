@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers';
 // import {format,subWeeks,subMonths,subDays} from 'date-fns';
-import { format, subWeeks, subMonths,subDays, startOfWeek, isSameDay, eachWeekOfInterval, startOfDay } from 'date-fns';
+import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, startOfDay } from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -139,7 +139,7 @@ export default function BaselineLatencyDashboard() {
                 end_date:endDate,
             },
         });
-        console.log(response.data)
+        // console.log(response.data)
         if (isMountedRef.current) {
             setOverallStatisticsAzure(response.data)
         }
@@ -206,10 +206,14 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
       } else if (dateRange === '3-months') {
         mondays = getMondaysInRange(today, 12);
       }
+      else if (dateRange === 'custom') { 
+        mondays = eachWeekOfInterval({ start: startOfDay(new Date(startDate)), end: startOfDay(new Date(endDate))}, { weekStartsOn: 1 });
+        mondays = mondays.map(monday => format(monday, 'yyyy-MM-dd'));
+      }
     
-      console.log(mondays)
+      // console.log(mondays)
       return mondays;
-    }, [dateRange]);
+    }, [dateRange, startDate, endDate]);
 
     const getFilteredTailLatencies = (overallStatistics, dateRangeList) => {
       if (!overallStatistics || !dateRangeList) return null;
@@ -219,13 +223,26 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
       return dateRangeList.map(date => dateToLatencyMap.get(date) || '0');
     };
     
-    const tailLatenciesAWS = useMemo(() => getFilteredTailLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
-    
-    const tailLatenciesGCR = useMemo(() => getFilteredTailLatencies(overallStatisticsGCR, dateRangeList), [overallStatisticsGCR, dateRangeList]);
-    
-    const tailLatenciesAzure = useMemo(() => getFilteredTailLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
-    
-    const tailLatenciesCloudflare = useMemo(() => getFilteredTailLatencies(overallStatisticsCloudflare, dateRangeList), [overallStatisticsCloudflare, dateRangeList]);
+    // Function to get filtered median latencies
+const getFilteredMedianLatencies = (overallStatistics, dateRangeList) => {
+  if (!overallStatistics || !dateRangeList) return null;
+
+  const dateToLatencyMap = new Map(overallStatistics.map(record => [record.date, record.median]));
+
+  return dateRangeList.map(date => dateToLatencyMap.get(date) || '0');
+};
+
+// Memoized tail latencies
+const tailLatenciesAWS = useMemo(() => getFilteredTailLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
+const tailLatenciesGCR = useMemo(() => getFilteredTailLatencies(overallStatisticsGCR, dateRangeList), [overallStatisticsGCR, dateRangeList]);
+const tailLatenciesAzure = useMemo(() => getFilteredTailLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
+const tailLatenciesCloudflare = useMemo(() => getFilteredTailLatencies(overallStatisticsCloudflare, dateRangeList), [overallStatisticsCloudflare, dateRangeList]);
+
+// Memoized median latencies
+const medianLatenciesAWS = useMemo(() => getFilteredMedianLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
+const medianLatenciesGCR = useMemo(() => getFilteredMedianLatencies(overallStatisticsGCR, dateRangeList), [overallStatisticsGCR, dateRangeList]);
+const medianLatenciesAzure = useMemo(() => getFilteredMedianLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
+const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overallStatisticsCloudflare, dateRangeList), [overallStatisticsCloudflare, dateRangeList]);
 
 //     const tailLatenciesAWS = useMemo(()=> {
 //         if(overallStatisticsAWS)
@@ -260,34 +277,34 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
 
 
 
-    const medianLatenciesAWS = useMemo(()=> {
-        if(overallStatisticsAWS)
-            return overallStatisticsAWS.map(record => record.median);
-        return null
+//     const medianLatenciesAWS = useMemo(()=> {
+//         if(overallStatisticsAWS)
+//             return overallStatisticsAWS.map(record => record.median);
+//         return null
 
-    },[overallStatisticsAWS])
+//     },[overallStatisticsAWS])
 
-    const medianLatenciesGCR = useMemo(()=> {
-      if(overallStatisticsGCR)
-          return overallStatisticsGCR.map(record => record.median);
-      return null
+//     const medianLatenciesGCR = useMemo(()=> {
+//       if(overallStatisticsGCR)
+//           return overallStatisticsGCR.map(record => record.median);
+//       return null
 
-  },[overallStatisticsGCR])
+//   },[overallStatisticsGCR])
 
 
-  const medianLatenciesAzure = useMemo(()=> {
-    if(overallStatisticsAzure)
-        return overallStatisticsAzure.map(record => record.median);
-    return null
+//   const medianLatenciesAzure = useMemo(()=> {
+//     if(overallStatisticsAzure)
+//         return overallStatisticsAzure.map(record => record.median);
+//     return null
 
-},[overallStatisticsAzure])
+// },[overallStatisticsAzure])
 
-const medianLatenciesCloudflare = useMemo(()=> {
-  if(overallStatisticsCloudflare)
-      return overallStatisticsCloudflare.map(record => record.median);
-  return null
+// const medianLatenciesCloudflare = useMemo(()=> {
+//   if(overallStatisticsCloudflare)
+//       return overallStatisticsCloudflare.map(record => record.median);
+//   return null
 
-},[overallStatisticsCloudflare])
+// },[overallStatisticsCloudflare])
 
 
     const TMR = useMemo(() => {
@@ -297,11 +314,11 @@ const medianLatenciesCloudflare = useMemo(()=> {
         }
     ,[dailyStatistics])
 
-    useMemo(()=>{
-      if(startDate <'2023-01-20'){
-        setStartDate('2023-01-20');
-      }
-    },[startDate])
+    // useMemo(()=>{
+    //   if(startDate <'2023-01-20'){
+    //     setStartDate('2023-01-20');
+    //   }
+    // },[startDate])
 
 
     console.log(dateRangeList,tailLatenciesAWS,tailLatenciesGCR,tailLatenciesAzure,tailLatenciesCloudflare)
@@ -400,7 +417,7 @@ const medianLatenciesCloudflare = useMemo(()=> {
                 label="dateRange"
                 onChange={handleChange}
               >
-                <MenuItem value={'week'}>Last week</MenuItem>
+                {/* <MenuItem value={'week'}>Last week</MenuItem> */}
                 <MenuItem value={'month'}>Last month</MenuItem>
                 <MenuItem value={'3-months'}>Last 3 months</MenuItem>
                 <MenuItem value={'custom'}>Custom range</MenuItem>
