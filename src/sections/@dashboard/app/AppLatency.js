@@ -26,8 +26,20 @@ export default function AppLatency({ title, subheader, chartLabels, chartData, d
       colors: chartData.map((i) => i.color),
       opacity:1,
     },
-    labels: chartLabels,
-    xaxis: { type: 'datetime' },
+    // labels: chartLabels,
+    xaxis: {
+      type: 'datetime',
+      categories: chartLabels, // Use categories for datetime type
+      labels: {
+        show: true,
+        formatter: (value) => {
+          const date = new Date(value);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = date.toLocaleString('default', { month: 'short' });
+          return `${day} ${month}`;
+        }
+      }
+    },
     yaxis:{
       min: 0, 
       tickAmount: 6,
