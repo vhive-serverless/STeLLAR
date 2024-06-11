@@ -202,7 +202,7 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
         mondays = getMondaysInRange(today, 1);
       } else if (dateRange === 'month') {
         mondays = getMondaysInRange(today, 4);
-        console.log(mondays)
+        // console.log(mondays)
       } else if (dateRange === '3-months') {
         mondays = getMondaysInRange(today, 12);
       }
@@ -321,8 +321,8 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
     // },[startDate])
 
 
-    console.log(dateRangeList,tailLatenciesAWS,tailLatenciesGCR,tailLatenciesAzure,tailLatenciesCloudflare)
-    // console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
+    // console.log(dateRangeList,tailLatenciesAWS,tailLatenciesGCR,tailLatenciesAzure,tailLatenciesCloudflare)
+  
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
@@ -451,6 +451,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
             </Stack>
             }
 
+{ dateRangeList.length >= 1 && 
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency"
@@ -489,6 +490,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
               ]}
             />
           </Grid>
+}
           <Grid item xs={12} mt={3}>
             <AppLatency
               title="Tail Latency"
