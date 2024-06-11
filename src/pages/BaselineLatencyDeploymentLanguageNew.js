@@ -31,8 +31,7 @@ export default function BaselineLatencyDashboard() {
     const yesterday = subDays(today,1);
 
     const experimentTypeAWSPythonZip = 'cold-hellopy-zip-aws';
-
-    const oneWeekBefore = subWeeks(today,1);
+    const oneMonthBefore = subMonths(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
@@ -44,11 +43,11 @@ export default function BaselineLatencyDashboard() {
       'zip': []
     });
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     const [experimentType,setExperimentType] = useState(experimentTypeAWSPythonZip);
     const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold');
-    const [dateRange, setDateRange] = useState('month');
+    const [dateRange, setDateRange] = useState('3-months');
     const [imageSize, setImageSize] = useState('50');
     const [languageRuntime, setLanguageRuntime] = useState('python');
     const [provider, setProvider] = useState('aws');

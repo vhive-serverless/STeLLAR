@@ -37,7 +37,7 @@ export default function BaselineLatencyDashboard() {
     const experimentTypeAzure = 'warm-baseline-azure';
     const experimentTypeCloudflare = 'warm-baseline-cloudflare';
 
-    const oneWeekBefore = subWeeks(today,1);
+    const oneMonthBefore = subMonths(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
@@ -49,7 +49,7 @@ export default function BaselineLatencyDashboard() {
     const [overallStatisticsCloudflare,setOverallStatisticsCloudflare] = useState(null);
 
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
     const [dateRange, setDateRange] = useState('month');
@@ -533,7 +533,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
           </Card>
           </Grid>
 
-          
+{/*           
             <Grid item xs={12} sx={{mt:5}}>
               <Card>
                 <CardContent>
@@ -601,7 +601,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
 </Stack>
 </CardContent>
               </Card>
-            </Grid>
+            </Grid> */}
 
         </Grid>
       </Container>

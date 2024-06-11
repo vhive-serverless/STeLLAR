@@ -33,28 +33,27 @@ export default function BaselineLatencyDashboard() {
 
 
     const experimentTypeAWS50 = 'cold-image-size-50-aws';
-    const experimentTypeAWS100 = 'cold-image-size-100-aws';
+    // const experimentTypeAWS100 = 'cold-image-size-100-aws';
 
-    const oneWeekBefore = subWeeks(today,1);
+    const oneMonthBefore = subMonths(today,1);
 
     const [dailyStatistics, setDailyStatistics] = useState(null);
     const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
     const [overallStatisticsAWS,setoverallStatisticsAWS] = useState(null);
-    const [overallStatisticsAWS100MB,setoverallStatisticsAWS100MB] = useState(null);
     const [overallStatisticsGCR,setoverallStatisticsGCR] = useState(null);
     const [overallStatisticsAzure,setoverallStatisticsAzure] = useState(null);
     const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
-    const [startDate,setStartDate] = useState(format(oneWeekBefore, 'yyyy-MM-dd'));
+    const [startDate,setStartDate] = useState(format(oneMonthBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     const [experimentType,setExperimentType] = useState(experimentTypeAWS50);
     const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold-image-size-50');
-    const [dateRange, setDateRange] = useState('month');
+    const [dateRange, setDateRange] = useState('3-months');
     const [imageSize, setImageSize] = useState('50');
     const [imageSizeOverall, setImageSizeOverall] = useState('50');
     const [provider, setProvider] = useState('aws');
 
-
+    const [isLoading, setIsLoading] = useState(true);
     
     const handleChangeDate = (event) => {
 
@@ -98,12 +97,6 @@ export default function BaselineLatencyDashboard() {
       setExperimentTypeOverall(`cold-image-size-${imageSizeOverall}`)
     },[imageSizeOverall])
 
-    // useMemo(()=>{
-    //   if(startDate <'2023-01-20'){
-    //     setStartDate('2023-01-20');
-    //   }
-    // },[startDate])
-
     const fetchIndividualData = useCallback(async () => {
         try {
             const response = await axios.get(`${baseURL}/results`, {
@@ -123,141 +116,34 @@ export default function BaselineLatencyDashboard() {
         fetchIndividualData();
     }, [fetchIndividualData]);
 
-    // 50 MB Functionality AWS
-    const fetchDataRange50MB = useCallback(async () => {
-        try {
-            const responseAWS = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: `${experimentTypeOverall}-aws`,
-                    start_date:startDate,
-                    end_date:endDate,
-                },
-            });
-            const responseGCR = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: `${experimentTypeOverall}-gcr`,
-                  start_date:startDate,
-                  end_date:endDate,
-              },
-          });
-          const responseAzure = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-azure`,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
-        // console.log(responseAWS.data,responseGCR.data,responseAzure.data)
-            if (isMountedRef.current) {
-              if(responseGCR.data.length>0){
-                setoverallStatisticsGCR(responseGCR.data)
-              }
-              if(responseAzure.data.length>0){
-                setoverallStatisticsAzure(responseAzure.data)
-              }
-              if(responseAWS.data.length>0){
-                setoverallStatisticsAWS(responseAWS.data)
-              }
-            }
-        } catch (err) {
-            setIsErrorDataRangeStatistics(true);
-        }
-    }, [isMountedRef,startDate,endDate,experimentTypeOverall]);
-
-
-  // 100 MB Functionality
-
-  const fetchDataRange100MB = useCallback(async () => {
-    try {
-        const response = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeAWS100,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
-        if (isMountedRef.current) {
-            setoverallStatisticsAWS100MB(response.data)
-        }
-    } catch (err) {
-        setIsErrorDataRangeStatistics(true);
-    }
-}, [isMountedRef,startDate,endDate]);
-    
-// // generate date range list
-//     const dateRangeList = useMemo(()=>
-//       generateListOfDates(startDate,endDate)
-//     ,[startDate,endDate])
+    const fetchDataRange = useCallback(async () => {
+      try {
+          const [responseAWS, responseGCR, responseAzure] = await Promise.all([
+              axios.get(`${baseURL}/results`, { params: { experiment_type: `${experimentTypeOverall}-aws`, start_date: startDate, end_date: endDate } }),
+              axios.get(`${baseURL}/results`, { params: { experiment_type: `${experimentTypeOverall}-gcr`, start_date: startDate, end_date: endDate } }),
+              axios.get(`${baseURL}/results`, { params: { experiment_type: `${experimentTypeOverall}-azure`, start_date: startDate, end_date: endDate } })
+          ]);
   
+          if (isMountedRef.current) {
+              setoverallStatisticsAWS(responseAWS.data.length > 0 ? responseAWS.data : null);
+              setoverallStatisticsGCR(responseGCR.data.length > 0 ? responseGCR.data : null);
+              setoverallStatisticsAzure(responseAzure.data.length > 0 ? responseAzure.data : null);
+          }
+      } catch (err) {
+          setIsErrorDataRangeStatistics(true);
+      }
+  }, [isMountedRef, startDate, endDate, experimentTypeOverall]);
+  
+
 
 
 useMemo(() => {
-      fetchDataRange50MB();
-      fetchDataRange100MB();
-    }, [fetchDataRange50MB,fetchDataRange100MB]);
+  fetchDataRange();
+    }, [fetchDataRange]);
 
     
   
-    
-    // const calculateLatencies = (overallStatistics, dateRangeList, isTailLatency) => {
-    //   if (overallStatistics && dateRangeList) {
-    //     const latencyList = dateRangeList.map(date => {
-    //       const index = overallStatistics.findIndex(record => record.date === date);
-    //       if (index >= 0) {
-    //         const latency = isTailLatency ? overallStatistics[index].tail_latency : overallStatistics[index].median;
-    //         if(!isTailLatency)
-    //           console.log(latency)
-    //         if (latency !== '0') {
-    //           return isTailLatency ? Math.log10(latency).toFixed(2) : latency;
-    //         }
-    //       }
-    //       return 0;
-    //     });
-    
-    //     return latencyList;
-    //   }
-    //   return null;
-    // };
-    
-    // const tailLatenciesAWS = useMemo(() => {
-    //   if (overallStatisticsAWS && dateRangeList) {
-    //   return calculateLatencies(overallStatisticsAWS, dateRangeList,true);
-    //   }
 
-    // }, [overallStatisticsAWS, dateRangeList]);
-
-    // const tailLatenciesGCR = useMemo(() => {
-    //   if (overallStatisticsGCR && dateRangeList) {
-    //   return calculateLatencies(overallStatisticsGCR, dateRangeList,true);
-    //   }
-
-    // }, [overallStatisticsGCR, dateRangeList]);
-
-    // const tailLatenciesAzure = useMemo(() => {
-    //   if (overallStatisticsAzure && dateRangeList) {
-    //   return calculateLatencies(overallStatisticsAzure, dateRangeList,true);
-    //   }
-
-    // }, [overallStatisticsAzure, dateRangeList]);
-
-
-// // Median Latencies AWS
-//   const medianLatenciesAWS = useMemo(()=> {
-//     if (overallStatisticsAWS && dateRangeList) {
-//           return calculateLatencies(overallStatisticsAWS, dateRangeList,false);
-//     }
-
-//   },[overallStatisticsAWS,dateRangeList])
-
-//   const medianLatenciesGCR = useMemo(()=> {
-//     if (overallStatisticsGCR && dateRangeList) {
-//         return calculateLatencies(overallStatisticsGCR, dateRangeList,false);
-//     }
-//   return null;  
-// },[overallStatisticsGCR,dateRangeList])
-
-// const medianLatenciesAzure = useMemo(()=> {
-//   if (overallStatisticsAzure && dateRangeList) {
-//     return calculateLatencies(overallStatisticsAzure, dateRangeList,false);
-//   }
-//   return null;
-// },[overallStatisticsAzure,dateRangeList])
 
 const getTuesdaysInRange = (endDate, numberOfWeeks) => {
   const end = startOfWeek(new Date(endDate), { weekStartsOn: 2 }); // Last Tuesday
@@ -459,6 +345,7 @@ console.log(overallStatisticsAWS)
             }
 
           <Grid item xs={12} mt={3}>
+            
             <AppLatency
               title="Median Latency "
               subheader="50th Percentile"
@@ -524,7 +411,7 @@ console.log(overallStatisticsAWS)
           </Card>
           </Grid>
 
-          <Grid item xs={12} sx={{mt:5}}>
+          {/* <Grid item xs={12} sx={{mt:5}}>
               <Card>
                 <CardContent>
             <Grid item xs={12}>
@@ -599,7 +486,7 @@ console.log(overallStatisticsAWS)
 
           </CardContent>
               </Card>
-          </Grid>
+          </Grid> */}
 
         </Grid>
         
