@@ -1,5 +1,5 @@
 // @mui
-import {useCallback, useMemo, useState} from "react";
+import {useCallback, useMemo, useState,useEffect} from "react";
 import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
@@ -8,13 +8,12 @@ import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, s
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid,Container,Link,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
+import { Grid,Container,Link,CircularProgress,Typography,Divider,TextField,Alert,Stack,Card,CardContent,Box,ListItem } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
 import {
   AppLatency,
-  AppWidgetSummary,
 } from '../sections/@dashboard/app';
 
 
@@ -54,6 +53,8 @@ export default function BaselineLatencyDashboard() {
     const [dateRange, setDateRange] = useState('3-months');
     const [individualProvider,setIndividualProvider] = useState(experimentTypeAWS);
 
+    const [loading, setLoading] = useState(false);
+
     const handleChange = (event) => {
 
       const selectedValue = event.target.value;
@@ -72,12 +73,6 @@ export default function BaselineLatencyDashboard() {
       setDateRange(event.target.value);
     };
 
-
-    const handleChangeProvider = (event) => {
-
-      const selectedValueProvider = event.target.value;
-      setIndividualProvider(selectedValueProvider);
-    };
 
     const fetchIndividualDataAWS = useCallback(async () => {
         try {
@@ -98,153 +93,128 @@ export default function BaselineLatencyDashboard() {
         fetchIndividualDataAWS();
     }, [fetchIndividualDataAWS]);
 
-    const fetchDataRangeAWS = useCallback(async () => {
-        try {
-            const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentTypeAWS,
-                    start_date:startDate,
-                    end_date:endDate,
-                },
-            });
-            if (isMountedRef.current) {
-                setOverallStatisticsAWS(response.data)
-            }
-        } catch (err) {
-            setIsErrorDataRangeStatistics(true);
-        }
-    }, [isMountedRef,startDate,endDate,experimentTypeAWS]);
-
-    const fetchDataRangeGCR = useCallback(async () => {
+    useEffect(() => {
+      return () => {
+        isMountedRef.current = false;
+      };
+    }, []);
+  
+    const fetchData = useCallback(async () => {
+      setLoading(true);
       try {
-          const response = await axios.get(`${baseURL}/results`, {
-              params: { experiment_type: experimentTypeGCR,
-                  start_date:startDate,
-                  end_date:endDate,
-              },
-          });
-          if (isMountedRef.current) {
-              setOverallStatisticsGCR(response.data)
-          }
-      } catch (err) {
-          setIsErrorDataRangeStatistics(true);
-      }
-  }, [isMountedRef,startDate,endDate,experimentTypeGCR]);
-
-  const fetchDataRangeAzure = useCallback(async () => {
-    try {
-        const response = await axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeAzure,
-                start_date:startDate,
-                end_date:endDate,
-            },
-        });
+        const [awsResponse, gcrResponse, azureResponse, cloudflareResponse] = await Promise.all([
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeAWS, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeGCR, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeAzure, start_date: startDate, end_date: endDate },
+          }),
+          axios.get(`${baseURL}/results`, {
+            params: { experiment_type: experimentTypeCloudflare, start_date: startDate, end_date: endDate },
+          }),
+        ]);
+  
         if (isMountedRef.current) {
-            setOverallStatisticsAzure(response.data)
+          setOverallStatisticsAWS(awsResponse.data);
+          setOverallStatisticsGCR(gcrResponse.data);
+          setOverallStatisticsAzure(azureResponse.data);
+          setOverallStatisticsCloudflare(cloudflareResponse.data);
         }
-    } catch (err) {
+      } catch (err) {
         setIsErrorDataRangeStatistics(true);
-    }
-}, [isMountedRef,startDate,endDate,experimentTypeAzure]);
-
-const fetchDataRangeCloudflare = useCallback(async () => {
-  try {
-      const response = await axios.get(`${baseURL}/results`, {
-          params: { experiment_type: experimentTypeCloudflare,
-              start_date:startDate,
-              end_date:endDate,
-          },
-      });
-      if (isMountedRef.current) {
-          setOverallStatisticsCloudflare(response.data)
+      } finally {
+        setLoading(false);
       }
-  } catch (err) {
-      setIsErrorDataRangeStatistics(true);
-  }
-}, [isMountedRef,startDate,endDate,experimentTypeCloudflare]);
+    }, [baseURL, startDate, endDate, experimentTypeAWS, experimentTypeGCR, experimentTypeAzure, experimentTypeCloudflare]);
+  
+    useEffect(() => {
+      fetchData();
+    }, [fetchData]);
 
-    useMemo(() => {
-      // console.log()
-        fetchDataRangeAWS();
-    }, [fetchDataRangeAWS]);
+//     const fetchDataRangeAWS = useCallback(async () => {
+//         try {
+//             const response = await axios.get(`${baseURL}/results`, {
+//                 params: { experiment_type: experimentTypeAWS,
+//                     start_date:startDate,
+//                     end_date:endDate,
+//                 },
+//             });
+//             if (isMountedRef.current) {
+//                 setOverallStatisticsAWS(response.data)
+//             }
+//         } catch (err) {
+//             setIsErrorDataRangeStatistics(true);
+//         }
+//     }, [isMountedRef,startDate,endDate,experimentTypeAWS]);
 
-    useMemo(() => {
-      fetchDataRangeGCR();
-  }, [fetchDataRangeGCR]);
+//     const fetchDataRangeGCR = useCallback(async () => {
+//       try {
+//           const response = await axios.get(`${baseURL}/results`, {
+//               params: { experiment_type: experimentTypeGCR,
+//                   start_date:startDate,
+//                   end_date:endDate,
+//               },
+//           });
+//           if (isMountedRef.current) {
+//               setOverallStatisticsGCR(response.data)
+//           }
+//       } catch (err) {
+//           setIsErrorDataRangeStatistics(true);
+//       }
+//   }, [isMountedRef,startDate,endDate,experimentTypeGCR]);
 
-  useMemo(() => {
-    fetchDataRangeAzure();
-}, [fetchDataRangeAzure]);
+//   const fetchDataRangeAzure = useCallback(async () => {
+//     try {
+//         const response = await axios.get(`${baseURL}/results`, {
+//             params: { experiment_type: experimentTypeAzure,
+//                 start_date:startDate,
+//                 end_date:endDate,
+//             },
+//         });
+//         if (isMountedRef.current) {
+//             setOverallStatisticsAzure(response.data)
+//         }
+//     } catch (err) {
+//         setIsErrorDataRangeStatistics(true);
+//     }
+// }, [isMountedRef,startDate,endDate,experimentTypeAzure]);
 
-useMemo(() => {
-  fetchDataRangeCloudflare();
-}, [fetchDataRangeCloudflare]);
+// const fetchDataRangeCloudflare = useCallback(async () => {
+//   try {
+//       const response = await axios.get(`${baseURL}/results`, {
+//           params: { experiment_type: experimentTypeCloudflare,
+//               start_date:startDate,
+//               end_date:endDate,
+//           },
+//       });
+//       if (isMountedRef.current) {
+//           setOverallStatisticsCloudflare(response.data)
+//       }
+//   } catch (err) {
+//       setIsErrorDataRangeStatistics(true);
+//   }
+// }, [isMountedRef,startDate,endDate,experimentTypeCloudflare]);
 
-//     const dateRangeList = useMemo(()=> {
-//         if(overallStatisticsAWS)
-//             return overallStatisticsAWS.map(record => record.date);
-//         return null
+//     useMemo(() => {
+//       // console.log()
+//         fetchDataRangeAWS();
+//     }, [fetchDataRangeAWS]);
 
-//     },[overallStatisticsAWS])
+//     useMemo(() => {
+//       fetchDataRangeGCR();
+//   }, [fetchDataRangeGCR]);
 
-//     const tailLatenciesAWS = useMemo(()=> {
-//         if(overallStatisticsAWS)
-//             return overallStatisticsAWS.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-//         return null
+//   useMemo(() => {
+//     fetchDataRangeAzure();
+// }, [fetchDataRangeAzure]);
 
-//     },[overallStatisticsAWS])
+// useMemo(() => {
+//   fetchDataRangeCloudflare();
+// }, [fetchDataRangeCloudflare]);
 
-//     const tailLatenciesGCR = useMemo(()=> {
-//       if(overallStatisticsGCR)
-//           return overallStatisticsGCR.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-//       return null
-
-//   },[overallStatisticsGCR])
-
-
-//   const tailLatenciesAzure = useMemo(()=> {
-//     if(overallStatisticsAzure)
-//         return overallStatisticsAzure.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-//     return null
-
-// },[overallStatisticsAzure])
-
-
-// const tailLatenciesCloudflare = useMemo(()=> {
-//   if(overallStatisticsCloudflare)
-//       return overallStatisticsCloudflare.map(record => record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2));
-//   return null
-
-// },[overallStatisticsCloudflare])
-
-
-//     const medianLatenciesAWS = useMemo(()=> {
-//         if(overallStatisticsAWS)
-//             return overallStatisticsAWS.map(record => record.median);
-//         return null
-
-//     },[overallStatisticsAWS])
-
-//     const medianLatenciesGCR = useMemo(()=> {
-//       if(overallStatisticsGCR)
-//           return overallStatisticsGCR.map(record => record.median);
-//       return null
-
-//   },[overallStatisticsGCR])
-
-
-//   const medianLatenciesAzure = useMemo(()=> {
-//     if(overallStatisticsAzure)
-//         return overallStatisticsAzure.map(record => record.median);
-//     return null
-
-// },[overallStatisticsAzure])
-
-// const medianLatenciesCloudflare = useMemo(()=> {
-//   if(overallStatisticsCloudflare)
-//       return overallStatisticsCloudflare.map(record => record.median);
-//   return null
-
-// },[overallStatisticsCloudflare])
 
 
 const getMondaysInRange = (endDate, numberOfWeeks) => {
@@ -320,7 +290,8 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
 
     console.log(tailLatenciesAWS)
     // console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
-  return (
+
+    return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
 
@@ -435,7 +406,9 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
             </Grid>
             </Stack>
             }
-                      <Grid item xs={12} mt={3}>
+
+          {loading ? (<CircularProgress />) : <>
+          <Grid item xs={12} mt={3}>
             <AppLatency
               title="Median Latency"
               subheader={<>50<sup>th</sup> Percentile</>}
@@ -513,7 +486,7 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
               ]}
             />
           </Grid>
-
+</>}
        </CardContent>
           </Card>
           </Grid>
