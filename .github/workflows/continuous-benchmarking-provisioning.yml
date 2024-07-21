@@ -195,7 +195,7 @@ jobs:
             --method POST \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+            /repos/kavi-99/STeLLAR/actions/runners/registration-token \
           | echo token=$(jq -r .token) > $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
