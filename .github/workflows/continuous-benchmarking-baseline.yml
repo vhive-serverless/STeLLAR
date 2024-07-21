@@ -36,7 +36,7 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
         with:
-          ref: continuous-benchmarking
+          # ref: continuous-benchmarking
 
       - name: Set up Go 1.21
         uses: actions/setup-go@v2
