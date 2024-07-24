@@ -166,7 +166,7 @@ jobs:
       - name: Setup Azure CLI
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS_TEST }}
 
       - name: Create Azure resource group
         run: az group create --name github-actions-runners --location westus
