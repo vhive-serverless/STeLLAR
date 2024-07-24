@@ -209,7 +209,7 @@ jobs:
             /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
           | echo token=$(jq -r .token) > $GITHUB_OUTPUT
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         id: get-registration-token
 
       - name: Setup SSH key on current GitHub-hosted runner
