@@ -110,12 +110,12 @@ jobs:
       - name: Setup Azure CLI
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_CREDENTIALS_TEST }}
 
       - name: Get self-hosted runner ID
         id: get-runner-id
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         run: |
           gh api \
             -H "Accept: application/vnd.github+json" \
@@ -125,7 +125,7 @@ jobs:
 
       - name: Remove self-hosted runner
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         run: |
           gh api \
             --method DELETE \
