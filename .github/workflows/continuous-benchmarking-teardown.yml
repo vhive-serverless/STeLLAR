@@ -67,7 +67,7 @@ jobs:
         -   name: Get self-hosted runner ID
             id: get-runner-id
             env:
-              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
             run: |
               # gh api \
               #   -H "Accept: application/vnd.github+json" \
