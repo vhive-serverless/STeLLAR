@@ -51,6 +51,15 @@ jobs:
           | echo token=$(jq -r .token) > $GITHUB_OUTPUT
           response=$(curl -i -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/json" -H "Accept: application/vnd.github.merge-info-preview+json" https://api.github.com/graphql -d '{"query": "{ viewer { login } }"}')
           echo "$response"
+
+          repos_response=$(curl -H "Authorization: token $GH_TOKEN" \
+                         -H "Accept: application/vnd.github.v3+json" \
+                         https://api.github.com/user/repos)
+
+          # Print the list of repositories
+          echo "Repositories accessible by the token:"
+          echo "$repos_response" | jq '.[] | {name: .name, full_name: .full_name, permissions: .permissions}'
+
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         id: get-registration-token
