@@ -393,6 +393,17 @@ jobs:
       #   uses: actions/setup-node@v3
       #   with:
       #     node-version: 16.16.0
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        # functions-have-names appears to be a dependency of serverless-azure-functions
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+
+      # - name: Install Cloudflare Wrangler
+      #   run: npm install -g wrangler
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
