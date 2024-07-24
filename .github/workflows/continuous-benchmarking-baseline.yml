@@ -389,10 +389,10 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      # - name: Set up Node 16.16.0
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.16.0
+      - name: Set up Node 16.16.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.16.0
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -799,10 +799,10 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      # - name: Set up Node 16.16.0
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.16.0
+      - name: Set up Node 16.16.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.16.0
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
