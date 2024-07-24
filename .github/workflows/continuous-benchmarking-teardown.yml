@@ -31,6 +31,13 @@ jobs:
               /repos/vhive-serverless/STeLLAR/actions/runners \
             | echo id=$(jq '.runners[] | select(.name == "${{ env.AWS_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
 
+            response=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/vhive-serverless/STeLLAR/actions/runners)
+            
+            echo "$response"
+
       -   name: Remove self-hosted runner
           env:
             GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
