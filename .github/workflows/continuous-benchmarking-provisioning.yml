@@ -50,7 +50,7 @@ jobs:
             /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
           | echo token=$(jq -r .token) > $GITHUB_OUTPUT
           response=$(curl -i -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/json" -H "Accept: application/vnd.github.merge-info-preview+json" https://api.github.com/graphql -d '{"query": "{ viewer { login } }"}')
-          echo response
+          echo "$response"
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         id: get-registration-token
