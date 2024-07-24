@@ -157,7 +157,7 @@ jobs:
             /repos/vhive-serverless/STeLLAR/actions/runners \
           | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-gcr") | .id') > $GITHUB_OUTPUT
 
-          response = $(gh api \
+          response=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/vhive-serverless/STeLLAR/actions/runners)
