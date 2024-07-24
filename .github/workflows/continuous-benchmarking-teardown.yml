@@ -67,26 +67,13 @@ jobs:
         -   name: Get self-hosted runner ID
             id: get-runner-id
             env:
-              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
             run: |
-              # gh api \
-              #   -H "Accept: application/vnd.github+json" \
-              #   -H "X-GitHub-Api-Version: 2022-11-28" \
-              #   /repos/vhive-serverless/STeLLAR/actions/runners \
-              # | echo id=$(jq '.runners[] | select(.name == "${{ env.CLOUDFLARE_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
-
-                  response=$(gh api \
-                                -H "Accept: application/vnd.github+json" \
-                                -H "X-GitHub-Api-Version: 2022-11-28" \
-                                -H "Authorization: Bearer $GH_TOKEN" \
-                                /repos/vhive-serverless/STeLLAR/actions/runners)
-            
-                expiration=$(curl -s -I -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/vhive-serverless/STeLLAR/actions/runners | grep GitHub-Authentication-Token-Expiration)
-            
-                echo "Token expiration: $expiration"
-            
-                echo id=$(echo $response | jq '.runners[] | select(.name == "${{ env.CLOUDFLARE_RUNNER_NAME }}") | .id') >> $GITHUB_OUTPUT
-
+              gh api \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                /repos/vhive-serverless/STeLLAR/actions/runners \
+              | echo id=$(jq '.runners[] | select(.name == "${{ env.CLOUDFLARE_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
 
         -   name: Remove self-hosted runner
             env:
