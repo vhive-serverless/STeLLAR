@@ -221,7 +221,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no runner@${{ steps.get-ip.outputs.ip }} "
             echo 'Installing STeLLAR dependencies'
-            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+            # curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/kavi-99/fix-provision-VM/scripts/setup.sh
             chmod +x stellar-setup.sh
             ./stellar-setup.sh
 
