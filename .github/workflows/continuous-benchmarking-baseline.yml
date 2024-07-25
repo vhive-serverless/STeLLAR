@@ -822,10 +822,10 @@ jobs:
     timeout-minutes: 1200
     env:
       working-directory: src
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID_TEST }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID_TEST }}
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID_TEST }}
-      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET_TEST }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
     steps:
       - name: "Cleanup build folder"
