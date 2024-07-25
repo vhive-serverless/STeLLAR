@@ -97,7 +97,7 @@ jobs:
           node-version: 18
           
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless serverless-azure-functions functions-have-names
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -415,7 +415,7 @@ jobs:
           node-version: 18
 
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless serverless-azure-functions functions-have-names
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -529,7 +529,7 @@ jobs:
           node-version: 18
           
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless serverless-azure-functions functions-have-names
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
         
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -848,7 +848,7 @@ jobs:
           node-version: 18
           
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless serverless-azure-functions functions-have-names
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
       
       - name: Download client artifact
         uses: actions/download-artifact@v3
