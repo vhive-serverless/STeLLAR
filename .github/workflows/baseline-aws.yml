@@ -2,8 +2,8 @@ name: Continuous benchmarking - Baseline experiments - AWS
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "0 0 * * 1"
+  schedule:
+    - cron: "0 0 * * 5"
 
 jobs:
   build_client:
