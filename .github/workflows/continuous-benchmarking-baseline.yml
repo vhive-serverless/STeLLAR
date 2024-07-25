@@ -287,7 +287,7 @@ jobs:
     timeout-minutes: 1200
     env:
       working-directory: src
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_TEST }}
     steps:
       - name: "Cleanup build folder"
         run: |
@@ -719,7 +719,7 @@ jobs:
     timeout-minutes: 1200
     env:
       working-directory: src
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN_TEST }}
     steps:
       - name: "Cleanup build folder"
         run: |
