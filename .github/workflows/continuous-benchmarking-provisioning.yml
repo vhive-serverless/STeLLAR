@@ -61,7 +61,7 @@ jobs:
           echo "$repos_response" | jq '.[] | {name: .name, full_name: .full_name, permissions: .permissions}'
 
         env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         id: get-registration-token
 
       - name: Setup SSH key on current GitHub-hosted runner
