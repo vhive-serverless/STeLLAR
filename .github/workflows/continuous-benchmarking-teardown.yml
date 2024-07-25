@@ -40,7 +40,7 @@ jobs:
 
       -   name: Remove self-hosted runner
           env:
-            GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+            GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
           run: |
             gh api \
               --method DELETE \
