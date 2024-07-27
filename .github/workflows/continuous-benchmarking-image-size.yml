@@ -64,10 +64,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - name: Set up Node.js 16.16.0
+      # - name: Set up Node.js 16.16.0
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.16.0
+
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -171,10 +179,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      - name: Set up Node.js 16.16.0
+      # - name: Set up Node.js 16.16.0
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.16.0
+
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -274,10 +290,18 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Node 16.16.0
+      # - name: Set up Node 16.16.0
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.16.0
+
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -377,10 +401,18 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Node 16.16.0
+      # - name: Set up Node 16.16.0
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.16.0
+
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
