@@ -87,15 +87,24 @@ jobs:
             echo "Node.js 18 is not installed"
             echo "::set-output name=node_installed::false"
           fi
-        
+      
       - name: Set up Node.js 18
         if: steps.check-node.outputs.node_installed == 'false'
         uses: actions/setup-node@v3
         with: 
           node-version: 18
-
+          
+      - name: Update PATH to use Node.js 18
+      if: steps.check-node.outputs.node_installed == 'true'
+      run: |
+            NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
+            echo "$NODE_CACHE_DIR/bin" >> $GITHUB_PATH
+      
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+        run: |
+        NODE_VERSION=$(node -v)
+        echo "$NODE_VERSION"
+        npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
         
       - name: Set up Go 1.21
         if: ${{ matrix.runtime == 'go'}}
