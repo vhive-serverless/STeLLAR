@@ -67,11 +67,19 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Node.js 16.16.0
+      # - name: Set up Node.js 16.16.0
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16.16.0
+      
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
+        with: 
+          node-version: 18
 
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+        
       - name: Set up Go 1.21
         if: ${{ matrix.runtime == 'go'}}
         uses: actions/setup-go@v3
@@ -334,6 +342,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: continuous-benchmarking
+          
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
