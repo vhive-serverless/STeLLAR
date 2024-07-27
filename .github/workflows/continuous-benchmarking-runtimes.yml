@@ -77,7 +77,8 @@ jobs:
         run: |
           if command -v node > /dev/null && node -v | grep -q '^v18\.'; then
             echo "Node.js 18 is already installed"
-            node -v
+            NODE_VERSION=$(node -v)
+            echo "$NODE_VERSION"
             echo "::set-output name=node_installed::true"
           else
             echo "Node.js 18 is not installed"
