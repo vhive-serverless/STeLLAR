@@ -78,7 +78,9 @@ jobs:
           NODE_VERSION=$(node -v)
           echo "$NODE_VERSION"
           echo "$(pwd)"
-          if command -v node > /dev/null && node -v | grep -q '^v18'; then
+          # if command -v node > /dev/null && node -v | grep -q '^v18'; then
+          NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
+          if [ -d "$NODE_CACHE_DIR" ]; then
             echo "Node.js 18 is already installed"
             echo "::set-output name=node_installed::true"
           else
