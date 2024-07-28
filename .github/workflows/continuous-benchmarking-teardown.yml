@@ -74,7 +74,7 @@ jobs:
         -   name: Get self-hosted runner ID
             id: get-runner-id
             env:
-              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
             run: |
               gh api \
                 -H "Accept: application/vnd.github+json" \
@@ -84,7 +84,7 @@ jobs:
 
         -   name: Remove self-hosted runner
             env:
-              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN_TEST }}
+              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
             run: |
               gh api \
                 --method DELETE \
