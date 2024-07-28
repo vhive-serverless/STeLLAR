@@ -160,6 +160,7 @@ jobs:
                   fi
 
                   attempts=$((attempts + 1))
+                done
 
         - name: Setup self-hosted runner
           run: |
