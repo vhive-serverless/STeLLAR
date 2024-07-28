@@ -114,7 +114,7 @@ jobs:
       #   run: free -m
 
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute --loglevel verbose
+        run: npm install -g serverless@3.38.0 
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -576,7 +576,7 @@ jobs:
               echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
           
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
+        run: npm install -g serverless@3.38.0 
         
       - name: Download client artifact
         uses: actions/download-artifact@v3
