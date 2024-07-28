@@ -302,13 +302,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: Azure Image Size 50MB
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1440
-          max_attempts: 5
-          retry_wait_seconds: 60
-          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-azure.json -db
+      # - name: Azure Image Size 50MB
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 1440
+      #     max_attempts: 5
+      #     retry_wait_seconds: 60
+      #     command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-azure.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -413,13 +413,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: Azure Image Size 100MB
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1440
-          max_attempts: 5
-          retry_wait_seconds: 60
-          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-azure.json -db
+      # - name: Azure Image Size 100MB
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 1440
+      #     max_attempts: 5
+      #     retry_wait_seconds: 60
+      #     command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-azure.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -520,13 +520,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: GCR Image Size 50MB
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1440
-          max_attempts: 5
-          retry_wait_seconds: 60
-          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-gcr.json -db
+      # - name: GCR Image Size 50MB
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 1440
+      #     max_attempts: 5
+      #     retry_wait_seconds: 60
+      #     command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-gcr.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -627,13 +627,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: GCR Image Size 100MB
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1440
-          max_attempts: 5
-          retry_wait_seconds: 60
-          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-gcr.json -db
+      # - name: GCR Image Size 100MB
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 1440
+      #     max_attempts: 5
+      #     retry_wait_seconds: 60
+      #     command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-gcr.json -db
 
       - uses: actions/upload-artifact@v3
         with:
