@@ -87,31 +87,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      # - name: Set up Node.js 16.16.0
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.16.0
-
-      - name: Check Instance Connection Status 
-        run: |
-              echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-              echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
-      
       - name: Set up Node.js 18
         uses: actions/setup-node@v3
         with: 
           node-version: 18
-
-      - name: Check Instance Connection Status - after Node
-        run: |
-              echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-              echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
-              
-      - name: Check Disk Space
-        run: df -h
-      
-      # - name: Check Memory Usage
-      #   run: free -m
 
       - name: Install Serverless framework and related plugins
         run: npm install -g serverless@3.38.0 
@@ -187,20 +166,6 @@ jobs:
                 }
               ]
             }
-
-      - name: Uninstall Serverless framework and related plugins
-        run: |
-              npm uninstall -g serverless serverless-azure-functions functions-have-names serverless-aliyun-function-compute
-
-      - name: Remove Node.js installation
-        run: |
-              NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
-              if [ -d "$NODE_CACHE_DIR" ]; then
-                echo "Removing Node.js installation from $NODE_CACHE_DIR"
-                rm -rf "$NODE_CACHE_DIR"
-              else
-                echo "Node.js cache directory not found"
-              fi
 
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -552,29 +517,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-west-1
 
-      # - name: Set up Node.js 16.16.0
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.16.0
-
-      - name: Check Instance Connection Status 
-        run: |
-              echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-              echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
-      
       - name: Set up Node.js 18
         uses: actions/setup-node@v3
         with: 
           node-version: 18
-          
-      - name: Check Disk Space
-        run: df -h
-
-      - name: Check Instance Connection Status 
-        run: |
-              echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-              echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
-          
+        
       - name: Install Serverless framework and related plugins
         run: npm install -g serverless@3.38.0 
         
@@ -650,19 +597,6 @@ jobs:
               ]
             }
 
-      - name: Uninstall Serverless framework and related plugins
-        run: |
-              npm uninstall -g serverless serverless-azure-functions functions-have-names serverless-aliyun-function-compute
-
-      - name: Remove Node.js installation
-        run: |
-              NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
-              if [ -d "$NODE_CACHE_DIR" ]; then
-                echo "Removing Node.js installation from $NODE_CACHE_DIR"
-                rm -rf "$NODE_CACHE_DIR"
-              else
-                echo "Node.js cache directory not found"
-              fi
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
