@@ -144,7 +144,7 @@ jobs:
 
         - name: Check Instance Connection Status
           run: |
-                max_attempts=5
+                max_attempts=3
                 attempts=1
                 while [ attempts -le max_attempts ]; do
                   echo "Attempt $attempts of $max_attempts."
@@ -152,10 +152,11 @@ jobs:
                   // Check Instance Connection Status  
                   echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
                   echo CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
-                  if [[ "$CONNECTION_READY_STATUS"== *"pending"* ]]; then
+                  if [[ "$CONNECTION_READY_STATUS" == *"pending"* ]]; then
                       echo "Instance is at Initialization Stage..."
                   else 
                       echo "Instance is ready SSH Connection."
+                      break
                   fi
 
                   attempts=$((attempts + 1))
