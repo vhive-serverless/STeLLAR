@@ -146,7 +146,7 @@ jobs:
           run: |
                 max_attempts=3
                 attempts=1
-                while [ attempts -le max_attempts ]; do
+                while [ $attempts -le $max_attempts ]; do
                   echo "Attempt $attempts of $max_attempts."
                   
                   // Check Instance Connection Status  
