@@ -148,8 +148,6 @@ jobs:
                 attempts=1
                 while [ $attempts -le $max_attempts ]; do
                   echo "Attempt $attempts of $max_attempts."
-                  
-                  // Check Instance Connection Status  
                   echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
                   echo CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
                   if [[ "$CONNECTION_READY_STATUS" == *"pending"* ]]; then
