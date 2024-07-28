@@ -104,13 +104,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: AWS Warm Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db -w
+      - name: AWS Warm Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
@@ -211,13 +211,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: GCR Warm Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-gcr.json -db -w
+      - name: GCR Warm Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-gcr.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
@@ -313,13 +313,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: Cloudflare Warm Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-cloudflare.json -db -w
+      - name: Cloudflare Warm Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-cloudflare.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
@@ -402,10 +402,6 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      # - name: Set up Node 16.16.0
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.16.0
       - name: Set up Node.js 18
         uses: actions/setup-node@v3
         with: 
@@ -423,13 +419,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: Azure Warm Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
+      - name: Azure Warm Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
 
       - uses: actions/upload-artifact@v3
         with:
@@ -534,13 +530,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: AWS Cold Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
+      - name: AWS Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -641,13 +637,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: GCR Cold Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-gcr.json -db
+      - name: GCR Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-gcr.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -743,13 +739,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: Cloudflare Cold Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-cloudflare.json -db
+      - name: Cloudflare Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-cloudflare.json -db
 
       - uses: actions/upload-artifact@v3
         with:
@@ -849,13 +845,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: Azure Cold Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
+      - name: Azure Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
 
       - uses: actions/upload-artifact@v3
         with:
