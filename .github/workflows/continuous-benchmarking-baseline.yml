@@ -32,7 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       working-directory: ./src
-      AWS_RUNNER_NAME: stellar-continuous-aws
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
@@ -68,6 +67,7 @@ jobs:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_RUNNER_NAME: stellar-continuous-aws
 
     steps:
       - name: "Cleanup build folder"
@@ -533,6 +533,7 @@ jobs:
       working-directory: src
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_RUNNER_NAME: stellar-continuous-aws
     steps:
       - name: "Cleanup build folder"
         run: |
@@ -555,6 +556,12 @@ jobs:
       #   uses: actions/setup-node@v3
       #   with:
       #     node-version: 16.16.0
+
+      - name: Check Instance Connection Status 
+        run: |
+              echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+              echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
+      
       - name: Set up Node.js 18
         uses: actions/setup-node@v3
         with: 
@@ -562,6 +569,11 @@ jobs:
           
       - name: Check Disk Space
         run: df -h
+
+      - name: Check Instance Connection Status 
+        run: |
+              echo instance_id==$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+              echo pending_instances=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values='pending'" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
           
       - name: Install Serverless framework and related plugins
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
