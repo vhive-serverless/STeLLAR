@@ -96,8 +96,14 @@ jobs:
         with: 
           node-version: 18
 
+      - name: Check Disk Space
+        run: df -h
+      
+      # - name: Check Memory Usage
+      #   run: free -m
+
       - name: Install Serverless framework and related plugins
-        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute --loglevel verbose
 
       - name: Download client artifact
         uses: actions/download-artifact@v3
@@ -527,6 +533,9 @@ jobs:
         uses: actions/setup-node@v3
         with: 
           node-version: 18
+          
+      - name: Check Disk Space
+        run: df -h
           
       - name: Install Serverless framework and related plugins
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
