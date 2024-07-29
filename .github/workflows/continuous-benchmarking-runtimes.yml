@@ -138,13 +138,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: AWS Runtime ${{ matrix.runtime }}
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
+      - name: AWS Runtime ${{ matrix.runtime }}
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
 
       - uses: actions/upload-artifact@v3
         with:
