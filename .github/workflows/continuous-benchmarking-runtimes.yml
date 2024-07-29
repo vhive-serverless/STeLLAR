@@ -95,6 +95,10 @@ jobs:
       #         NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
       #         echo "$NODE_CACHE_DIR/bin" >> $GITHUB_PATH
       
+      - name: Uninstall Serverless framework and related plugins
+        run: |
+          npm uninstall -g serverless   
+          
       - name: Install Serverless framework and related plugins
         run: |
               NODE_VERSION=$(node -v)
@@ -197,10 +201,7 @@ jobs:
                 }
               ]
             }
-
-      - name: Uninstall Serverless framework and related plugins
-        run: |
-          npm uninstall -g serverless    
+ 
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
