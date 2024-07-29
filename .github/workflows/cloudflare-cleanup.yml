@@ -25,7 +25,7 @@ name: Cloudflare Workers Cleanup
 on:
   workflow_dispatch:
   schedule:
-    - cron: "55 23 * * *"
+    - cron: "30 19 * * *"
     
 jobs:
   delete-cloudflare-workers:
