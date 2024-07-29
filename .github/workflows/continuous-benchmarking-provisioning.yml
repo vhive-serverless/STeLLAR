@@ -76,10 +76,11 @@ jobs:
                 while [ $attempts -le $max_attempts ]; do
                 
                   echo "Attempt $attempts of $max_attempts."
+                  target_ip=${{ steps.get-ip.outputs.ip }}
                   echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-                  CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+                  CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --filters "Name=ip-address,Values=$target_ip" --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
                   echo "$CONNECTION_READY_STATUS"
-                  
+                  # also check the ip - steps.get-ip.outputs.ip
                   if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
                       echo "Instance is at Initialization Stage..."
                   elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
