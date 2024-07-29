@@ -2,7 +2,7 @@
 
 # Cloudflare API details
 CLOUDFLARE_ACCOUNT_ID="efb0ce8ef67369c42f4056264dac6f8c"
-CLOUDFLARE_API_TOKEN="ngA1ttp8_LoIz-YGF20262sM9HGK6Nd--d47bsIU"
+CLOUDFLARE_API_TOKEN= $CLOUDFLARE_API_TOKEN 
 
 # List and count Cloudflare Workers
 response=$(curl -X GET "https://api.cloudflare.com/client/v4/accounts/CLOUDFLARE_ACCOUNT_ID/workers/scripts" \
