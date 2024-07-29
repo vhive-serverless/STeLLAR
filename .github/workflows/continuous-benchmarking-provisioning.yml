@@ -80,9 +80,11 @@ jobs:
                   echo "$CONNECTION_READY_STATUS"
                   if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
                       echo "Instance is at Initialization Stage..."
-                  else 
-                      echo "Instance is ready SSH Connection."
-                      break
+                  elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
+                    echo "Instance is ready for SSH Connection."
+                    break
+                  else
+                    echo "Instance has stopped or terminated due to internal error."
                   fi
 
                   attempts=$((attempts + 1))
