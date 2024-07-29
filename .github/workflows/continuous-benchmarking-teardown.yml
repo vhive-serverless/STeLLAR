@@ -6,56 +6,56 @@ on:
     - cron: "0 0 * * 3"
 
 jobs:
-  # teardown-aws-vm:
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     AWS_RUNNER_NAME: stellar-continuous-aws
-  #   steps:
-  #     -   uses: actions/checkout@v4
+  teardown-aws-vm:
+    runs-on: ubuntu-latest
+    env:
+      AWS_RUNNER_NAME: stellar-continuous-aws
+    steps:
+      -   uses: actions/checkout@v4
 
-  #     -   name: Configure AWS credentials using EASE lab account
-  #         uses: aws-actions/configure-aws-credentials@v4
-  #         with:
-  #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-  #           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-  #           aws-region: us-west-1
+      -   name: Configure AWS credentials using EASE lab account
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+            aws-region: us-west-1
 
-  #     -   name: Get self-hosted runner ID
-  #         id: get-runner-id
-  #         env:
-  #           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-  #         run: |
-  #           gh api \
-  #             -H "Accept: application/vnd.github+json" \
-  #             -H "X-GitHub-Api-Version: 2022-11-28" \
-  #             /repos/vhive-serverless/STeLLAR/actions/runners \
-  #           | echo id=$(jq '.runners[] | select(.name == "${{ env.AWS_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
+      -   name: Get self-hosted runner ID
+          id: get-runner-id
+          env:
+            GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+          run: |
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/vhive-serverless/STeLLAR/actions/runners \
+            | echo id=$(jq '.runners[] | select(.name == "${{ env.AWS_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
 
-  #           response=$(gh api \
-  #             -H "Accept: application/vnd.github+json" \
-  #             -H "X-GitHub-Api-Version: 2022-11-28" \
-  #             /repos/vhive-serverless/STeLLAR/actions/runners)
+            response=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/vhive-serverless/STeLLAR/actions/runners)
             
-  #           echo "$response"
+            echo "$response"
 
-  #     -   name: Remove self-hosted runner
-  #         env:
-  #           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-  #         run: |
-  #           gh api \
-  #             --method DELETE \
-  #             -H "Accept: application/vnd.github+json" \
-  #             -H "X-GitHub-Api-Version: 2022-11-28" \
-  #             /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+      -   name: Remove self-hosted runner
+          env:
+            GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+          run: |
+            gh api \
+              --method DELETE \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
 
-  #     -   name: Get AWS EC2 instance ID
-  #         run: |
-  #           echo id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text) > $GITHUB_OUTPUT
-  #         id: get-instance-id
+      -   name: Get AWS EC2 instance ID
+          run: |
+            echo id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text) > $GITHUB_OUTPUT
+          id: get-instance-id
 
-  #     -   name: Terminate AWS EC2 instance
-  #         run: |
-  #           aws ec2 terminate-instances --instance-ids ${{ steps.get-instance-id.outputs.id }}
+      -   name: Terminate AWS EC2 instance
+          run: |
+            aws ec2 terminate-instances --instance-ids ${{ steps.get-instance-id.outputs.id }}
 
   # teardown-cloudflare-vm:
   #     runs-on: ubuntu-latest
@@ -101,40 +101,40 @@ jobs:
   #           run: |
   #             aws ec2 terminate-instances --instance-ids ${{ steps.get-instance-id.outputs.id }}
 
-  teardown-azure-vm:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
+  # teardown-azure-vm:
+  #   runs-on: ubuntu-latest
+  #   permissions: write-all
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Setup Azure CLI
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS_TEST }}
+  #     - name: Setup Azure CLI
+  #       uses: azure/login@v2
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS_TEST }}
 
-      - name: Get self-hosted runner ID
-        id: get-runner-id
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-        run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners \
-          | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-azure-TEST") | .id') > $GITHUB_OUTPUT
+  #     - name: Get self-hosted runner ID
+  #       id: get-runner-id
+  #       env:
+  #         GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+  #       run: |
+  #         gh api \
+  #           -H "Accept: application/vnd.github+json" \
+  #           -H "X-GitHub-Api-Version: 2022-11-28" \
+  #           /repos/vhive-serverless/STeLLAR/actions/runners \
+  #         | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-azure-TEST") | .id') > $GITHUB_OUTPUT
 
-      - name: Remove self-hosted runner
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-        run: |
-          gh api \
-            --method DELETE \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+  #     - name: Remove self-hosted runner
+  #       env:
+  #         GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+  #       run: |
+  #         gh api \
+  #           --method DELETE \
+  #           -H "Accept: application/vnd.github+json" \
+  #           -H "X-GitHub-Api-Version: 2022-11-28" \
+  #           /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
 
-      - name: Delete Azure resource group
-        run: az group delete --resource-group github-actions-runners --yes
+  #     - name: Delete Azure resource group
+  #       run: az group delete --resource-group github-actions-runners --yes
 
   # teardown-gcr-vm:
   #   runs-on: ubuntu-latest
