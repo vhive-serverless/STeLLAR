@@ -89,11 +89,11 @@ jobs:
         with: 
           node-version: 18
           
-      - name: Update PATH to use Node.js 18
-        if: steps.check-node.outputs.node_installed == 'true'
-        run: |
-              NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
-              echo "$NODE_CACHE_DIR/bin" >> $GITHUB_PATH
+      # - name: Update PATH to use Node.js 18
+      #   if: steps.check-node.outputs.node_installed == 'true'
+      #   run: |
+      #         NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
+      #         echo "$NODE_CACHE_DIR/bin" >> $GITHUB_PATH
       
       - name: Install Serverless framework and related plugins
         run: |
