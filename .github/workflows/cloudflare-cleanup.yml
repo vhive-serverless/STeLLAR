@@ -26,7 +26,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "00 20 * * *"
-  push: 
   
 jobs:
   delete-cloudflare-workers:
