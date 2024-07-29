@@ -154,7 +154,7 @@ jobs:
         if: ${{ failure() }}
         run: |
           curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
-
+              
       - name: Send Slack message using Incoming Webhooks
         if: ${{ failure() }}
         uses: slackapi/slack-github-action@v1.24.0
@@ -198,10 +198,9 @@ jobs:
               ]
             }
 
-        - name: Uninstall Serverless framework and related plugins
-          run: |
-            npm uninstall -g serverless
-            
+      - name: Uninstall Serverless framework and related plugins
+        run: |
+          npm uninstall -g serverless    
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
