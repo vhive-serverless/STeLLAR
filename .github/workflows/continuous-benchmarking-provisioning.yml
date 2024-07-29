@@ -71,7 +71,7 @@ jobs:
 
       - name: Check Instance Connection Status
         run: |
-                max_attempts=3
+                max_attempts=5
                 attempts=1
                 while [ $attempts -le $max_attempts ]; do
                 
