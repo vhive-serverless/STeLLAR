@@ -197,7 +197,11 @@ jobs:
                 }
               ]
             }
-      
+
+        - name: Uninstall Serverless framework and related plugins
+          run: |
+            npm uninstall -g serverless
+            
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
