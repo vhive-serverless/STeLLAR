@@ -20,6 +20,19 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
             aws-region: us-west-1
 
+      -   name: Get public IP address
+          run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+          id: get-ip    
+          
+      -   name: Check runner health
+          run: |
+              ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+              echo 'Checking Instance connection and space/usage'
+              df -h
+              free -m
+              uptime
+              "
+
       -   name: Get self-hosted runner ID
           id: get-runner-id
           env:
