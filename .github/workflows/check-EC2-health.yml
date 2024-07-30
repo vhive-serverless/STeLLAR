@@ -1,0 +1,28 @@
+name: Health Check EC2
+
+on: 
+  schedule:
+    - cron: "0 * * * *" # Run every hour
+  workflow_dispatch:
+  push:
+
+jobs:
+  health-check:
+    runs-on: [ self-hosted, aws ]
+    
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      
+    steps:
+    - name: Check disk space
+      run: df -h
+
+    - name: Check memory usage
+      run: free -m
+
+    - name: Check CPU load
+      run: uptime
+
+    - name: Check network connectivity
+      run: ping -c 4 github.com
