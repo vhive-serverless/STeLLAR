@@ -84,6 +84,9 @@ jobs:
                   if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
                       echo "Instance is at Initialization Stage..."
                   elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
+                    # update public ip
+                    echo ip = $(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+                    echo "Ip: $ip"
                     echo "Instance is ready for SSH Connection."
                     break
                   else
@@ -93,13 +96,14 @@ jobs:
                   attempts=$((attempts + 1))
                   sleep 10
                 done
-                
+        id: connection-status 
+          
       - name: Setup self-hosted runner
         run: |
           CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
           echo "$CONNECTION_READY_STATUS"
           sleep 10
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.connection-status.outputs.ip }} "
             echo 'Installing STeLLAR dependencies'
             curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
             chmod +x stellar-setup.sh
