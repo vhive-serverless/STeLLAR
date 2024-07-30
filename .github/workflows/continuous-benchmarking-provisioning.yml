@@ -98,6 +98,7 @@ jobs:
         run: |
           CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
           echo "$CONNECTION_READY_STATUS"
+          sleep 10
           ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
             echo 'Installing STeLLAR dependencies'
             curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
