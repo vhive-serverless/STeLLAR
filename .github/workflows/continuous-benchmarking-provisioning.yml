@@ -224,7 +224,7 @@ jobs:
       - name: Setup Azure CLI
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS_TEST }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Create Azure resource group
         run: az group create --name github-actions-runners --location westus
@@ -287,7 +287,7 @@ jobs:
             mkdir actions-runner && cd actions-runner
             curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
             tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-azure-TEST --labels azure
+            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-azure --labels azure
             tmux new-session -d -s github-actions-runner 'bash ./run.sh'
           "
 
