@@ -178,6 +178,14 @@ jobs:
         uses: actions/setup-node@v3
         with: 
           node-version: 18
+      
+      - name: Cleanup serverless folder 
+        run: |
+              rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
+              
+      - name: Cleanup serverless folder 
+        run: |
+              rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless 
 
       - name: Install Serverless framework and related plugins
         run: npm install -g serverless@3.38.0
