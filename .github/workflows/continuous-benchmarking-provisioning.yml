@@ -85,7 +85,7 @@ jobs:
                       echo "Instance is at Initialization Stage..."
                   elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
                     # update public ip
-                    ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+                    ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text | head -n 1)
                     echo "ip=$ip" >> $GITHUB_OUTPUT
                     echo "IP: $ip"
                     echo "Instance is ready for SSH Connection."
