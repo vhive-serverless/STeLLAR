@@ -123,7 +123,7 @@ jobs:
       - name: Setup Azure CLI
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS_TEST }}
+          creds: ${{ secrets.AZURE_CREDENTIALS}}
 
       - name: Get self-hosted runner ID
         id: get-runner-id
