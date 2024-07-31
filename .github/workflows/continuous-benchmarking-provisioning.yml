@@ -213,11 +213,13 @@ jobs:
             retry_wait_seconds: 10
             command: |
                 echo "Checking if runner is already set up"
-                RUNNER_STATUS=$(ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.connection-status.outputs.ip }} "ps aux | grep 'actions-runner' | grep -v grep")
+                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'cloudflare')
+                echo "$RUNNER_STATUS"
                 if [ -n "$RUNNER_STATUS" ]; then
-                  echo "Runner is already set up and running"
+                  echo "Runner with label 'cloudflare' is already set up and running"
                   exit 0
                 fi
+
                 CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
                 echo "$CONNECTION_READY_STATUS"
                 sleep 10
