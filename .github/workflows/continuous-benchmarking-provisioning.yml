@@ -127,6 +127,7 @@ jobs:
       runs-on: ubuntu-latest
       env:
         CLOUDFLARE_RUNNER_NAME: stellar-continuous-cloudflare
+
       steps:
         - uses: actions/checkout@v4
 
@@ -207,6 +208,8 @@ jobs:
             
         - name: Setup self-hosted runner
           uses: nick-fields/retry@v2
+          env:
+              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
           with:
             timeout_minutes: 30
             max_attempts: 5
