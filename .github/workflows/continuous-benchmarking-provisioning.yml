@@ -96,17 +96,16 @@ jobs:
             max_attempts: 5
             retry_wait_seconds: 10
             command: |
-                echo "Exit if runner is already set up"
-
+                # Exit if runner is already set up
                 RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'aws')
                 echo "Runner Status: $RUNNER_STATUS"
-
                 if [ -n "$RUNNER_STATUS" ]; then
                   echo "Runner with label 'aws' is already set up and running."
                   exit 0
                 fi
 
-                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
+                # Connection status
+                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
                 echo "$CONNECTION_READY_STATUS"
 
                 sleep 10
@@ -216,17 +215,17 @@ jobs:
             max_attempts: 5
             retry_wait_seconds: 10
             command: |
-                echo "Exit if runner is already set up"
+                # "Exit if runner is already set up"
 
                 RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'cloudflare')
                 echo "Runner Status: $RUNNER_STATUS"
-
                 if [ -n "$RUNNER_STATUS" ]; then
                   echo "Runner with label 'cloudflare' is already set up and running"
                   exit 0
                 fi
 
-                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name}' --output table)
+                # connection status
+                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,,PublicIP:PublicIpAddress}' --output table)
                 echo "$CONNECTION_READY_STATUS"
 
                 sleep 10
