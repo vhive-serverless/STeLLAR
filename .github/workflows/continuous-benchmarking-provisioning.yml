@@ -90,6 +90,8 @@ jobs:
       #   id: connection-status 
           
       - name: Setup self-hosted runner
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         uses: nick-fields/retry@v2
         with:
             timeout_minutes: 30
