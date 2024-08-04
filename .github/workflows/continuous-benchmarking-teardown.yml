@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: "0 0 * * 3"
 
-# jobs:
+jobs:
 #   teardown-aws-vm:
 #     runs-on: ubuntu-latest
 #     env:
