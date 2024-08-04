@@ -67,11 +67,18 @@ jobs:
         with:
           ref: continuous-benchmarking
 
-      - name: Set up Node.js 16.16.0
+      - name: Set up Node.js 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 16.16.0
-
+        with: 
+          node-version: 18
+          
+      - name: Cleanup serverless folder 
+        run: |
+              rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
+          
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 
+  
       - name: Set up Go 1.21
         if: ${{ matrix.runtime == 'go'}}
         uses: actions/setup-go@v3
@@ -335,6 +342,14 @@ jobs:
         with:
           ref: continuous-benchmarking
 
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
+
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+  
       - name: Download client artifact
         uses: actions/download-artifact@v3
         with:

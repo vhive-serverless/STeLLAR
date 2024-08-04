@@ -59,20 +59,40 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Setup self-hosted runner
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
-            echo 'Installing STeLLAR dependencies'
-            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-            chmod +x stellar-setup.sh
-            ./stellar-setup.sh
+        env:
+          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        uses: nick-fields/retry@v2
+        with:
+            timeout_minutes: 30
+            max_attempts: 5
+            retry_wait_seconds: 10
+            command: |
+                # Exit if runner is already set up
+                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'aws')
+                echo "Runner Status: $RUNNER_STATUS"
+                if [ -n "$RUNNER_STATUS" ]; then
+                  echo "Runner with label 'aws' is already set up and running."
+                  exit 0
+                fi
 
-            echo 'Setup self-hosted runner'
-            mkdir actions-runner && cd actions-runner
-            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
-            tmux new-session -d -s github-actions-runner 'bash ./run.sh'
-          "
+                # Connection status
+                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+                echo "$CONNECTION_READY_STATUS"
+
+                # Connect via SSH to instance
+                ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+                  echo 'Installing STeLLAR dependencies'
+                  curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+                  chmod +x stellar-setup.sh
+                  ./stellar-setup.sh
+      
+                  echo 'Setup self-hosted runner'
+                  mkdir actions-runner && cd actions-runner
+                  curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+                  tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+                  ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
+                  tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+                "
 
   setup-cloudflare-vm:
       runs-on: ubuntu-latest
@@ -127,24 +147,44 @@ jobs:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
         - name: Setup self-hosted runner
-          run: |
-            ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
-              echo 'Installing STeLLAR dependencies'
-              curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-              chmod +x stellar-setup.sh
-              ./stellar-setup.sh
+          env:
+              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+          with:
+            timeout_minutes: 30
+            max_attempts: 5
+            retry_wait_seconds: 10
+            command: |
+                # "Exit if runner is already set up"
 
-              curl -o cloudflare-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/cloudflare/setup.sh
-              chmod +x cloudflare-setup.sh
-              ./cloudflare-setup.sh
+                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'cloudflare')
+                echo "Runner Status: $RUNNER_STATUS"
+                if [ -n "$RUNNER_STATUS" ]; then
+                  echo "Runner with label 'cloudflare' is already set up and running"
+                  exit 0
+                fi
 
-              echo 'Setup self-hosted runner'
-              mkdir actions-runner && cd actions-runner
-              curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-              tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-              ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.CLOUDFLARE_RUNNER_NAME }} --labels cloudflare
-              tmux new-session -d -s github-actions-runner 'bash ./run.sh'
-            "
+                # connection status
+                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,,PublicIP:PublicIpAddress}' --output table)
+                echo "$CONNECTION_READY_STATUS"
+
+                # connect via SSH to instance
+                ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+                  echo 'Installing STeLLAR dependencies'
+                  curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+                  chmod +x stellar-setup.sh
+                  ./stellar-setup.sh
+
+                  curl -o cloudflare-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/cloudflare/setup.sh
+                  chmod +x cloudflare-setup.sh
+                  ./cloudflare-setup.sh
+      
+                  echo 'Setup self-hosted runner'
+                  mkdir actions-runner && cd actions-runner
+                  curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+                  tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+                  ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.CLOUDFLARE_RUNNER_NAME }} --labels cloudflare
+                  tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+                "
 
   setup-azure-vm:
     runs-on: ubuntu-latest
