@@ -37,188 +37,188 @@ jobs:
           path: ${{ env.working-directory }}/build.tar
           retention-days: 1
 
-  # cold-aws-experiments:
-  #   name: AWS Cold Runtime Experiments
-  #   needs: build_client
-  #   runs-on: [ self-hosted, aws ]
-  #   timeout-minutes: 1200
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       runtime:
-  #         [
-  #           go,
-  #           py,
-  #           node,
-  #           java,
-  #         ]
-  #   env:
-  #     working-directory: src
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-  #   steps:
-  #     - name: "Cleanup build folder"
-  #       run: |
-  #         sudo rm -rf ./* || true
-  #         sudo rm -rf ./.??* || true
+  cold-aws-experiments:
+    name: AWS Cold Runtime Experiments
+    needs: build_client
+    runs-on: [ self-hosted, aws ]
+    timeout-minutes: 1200
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          [
+            go,
+            py,
+            node,
+            java,
+          ]
+    env:
+      working-directory: src
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
 
-  #     - name: Check out code into the Go module directory
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: continuous-benchmarking
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: continuous-benchmarking
 
-  #     - name: Check disk space
-  #       run: df -h
+      - name: Check disk space
+        run: df -h
   
-  #     - name: Check memory usage
-  #       run: free -m
+      - name: Check memory usage
+        run: free -m
   
-  #     - name: Check CPU load
-  #       run: uptime
+      - name: Check CPU load
+        run: uptime
   
-  #     - name: Check network connectivity
-  #       run: ping -c 4 github.com
+      - name: Check network connectivity
+        run: ping -c 4 github.com
       
-  #     # - name: Check if Node.js is installed
-  #     #   id: check-node
-  #     #   run: |
-  #     #     NODE_VERSION=$(node -v)
-  #     #     echo "$NODE_VERSION"
-  #     #     echo "$(pwd)"
-  #     #     # if command -v node > /dev/null && node -v | grep -q '^v18'; then
-  #     #     NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
-  #     #     if [ -d "$NODE_CACHE_DIR" ]; then
-  #     #       echo "Node.js 18 is already installed"
-  #     #       echo "::set-output name=node_installed::true"
-  #     #     else
-  #     #       echo "Node.js 18 is not installed"
-  #     #       echo "::set-output name=node_installed::false"
-  #     #     fi
+      # - name: Check if Node.js is installed
+      #   id: check-node
+      #   run: |
+      #     NODE_VERSION=$(node -v)
+      #     echo "$NODE_VERSION"
+      #     echo "$(pwd)"
+      #     # if command -v node > /dev/null && node -v | grep -q '^v18'; then
+      #     NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
+      #     if [ -d "$NODE_CACHE_DIR" ]; then
+      #       echo "Node.js 18 is already installed"
+      #       echo "::set-output name=node_installed::true"
+      #     else
+      #       echo "Node.js 18 is not installed"
+      #       echo "::set-output name=node_installed::false"
+      #     fi
 
-  #     - name: Set up Node.js 18
-  #       # if: steps.check-node.outputs.node_installed == 'false'
-  #       uses: actions/setup-node@v3
-  #       with: 
-  #         node-version: 18
+      - name: Set up Node.js 18
+        # if: steps.check-node.outputs.node_installed == 'false'
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
           
-  #     # - name: Update PATH to use Node.js 18
-  #     #   if: steps.check-node.outputs.node_installed == 'true'
-  #     #   run: |
-  #     #         NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
-  #     #         echo "$NODE_CACHE_DIR/bin" >> $GITHUB_PATH
-  #     - name: Clear npm cache
-  #       run: npm cache clean --force
+      # - name: Update PATH to use Node.js 18
+      #   if: steps.check-node.outputs.node_installed == 'true'
+      #   run: |
+      #         NODE_CACHE_DIR="/home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64"
+      #         echo "$NODE_CACHE_DIR/bin" >> $GITHUB_PATH
+      # - name: Clear npm cache
+      #   run: npm cache clean --force
       
-  #     - name: Cleanup serverless folder 
-  #       run: |
-  #             rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
+      - name: Cleanup serverless folder 
+        run: |
+              rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
           
-  #     - name: Install Serverless framework and related plugins
-  #       run: |
-  #             NODE_VERSION=$(node -v)
-  #             echo "$NODE_VERSION"
-  #             npm install -g serverless@3.38.0
+      - name: Install Serverless framework and related plugins
+        run: |
+              # NODE_VERSION=$(node -v)
+              # echo "$NODE_VERSION"
+              npm install -g serverless@3.38.0
         
-  #     - name: Set up Go 1.21
-  #       if: ${{ matrix.runtime == 'go'}}
-  #       uses: actions/setup-go@v3
-  #       with:
-  #         go-version: 1.21
+      - name: Set up Go 1.21
+        if: ${{ matrix.runtime == 'go'}}
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
 
-  #     - name: Set up Java11
-  #       if: ${{ matrix.runtime == 'java' }}
-  #       uses: actions/setup-java@v3
-  #       with:
-  #         distribution: 'zulu'
-  #         java-version: '11'
+      - name: Set up Java11
+        if: ${{ matrix.runtime == 'java' }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
 
-  #     - name: Set up Gradle
-  #       if: ${{ matrix.runtime == 'java'}}
-  #       uses: gradle/gradle-build-action@v2
+      - name: Set up Gradle
+        if: ${{ matrix.runtime == 'java'}}
+        uses: gradle/gradle-build-action@v2
 
-  #     - name: Configure AWS credentials using EASE lab account
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-  #         aws-region: us-west-1
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
 
-  #     - name: Download client artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: STeLLAR-build
+      - name: Download client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: STeLLAR-build
 
-  #     - name: Untar client build
-  #       working-directory: ${{ env.working-directory }}
-  #       run: tar --strip-components=1 -xvf ../build.tar -C .
+      - name: Untar client build
+        working-directory: ${{ env.working-directory }}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
 
-  #     - name: AWS Runtime ${{ matrix.runtime }}
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 1440
-  #         max_attempts: 5
-  #         retry_wait_seconds: 60
-  #         command: cd src && ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
+      - name: AWS Runtime ${{ matrix.runtime }}
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: cold-hello${{ matrix.runtime }}-zip-aws
-  #         path: ${{ env.working-directory }}/latency-samples-aws
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cold-hello${{ matrix.runtime }}-zip-aws
+          path: ${{ env.working-directory }}/latency-samples-aws
 
-  #     - name: Add zero'ed data (Failed experiment)
-  #       env:
-  #         name: cold-hello${{ matrix.runtime }}-zip-aws
-  #         DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
-  #       if: ${{ failure() }}
-  #       run: |
-  #         curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+      - name: Add zero'ed data (Failed experiment)
+        env:
+          name: cold-hello${{ matrix.runtime }}-zip-aws
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        if: ${{ failure() }}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
               
-  #     - name: Send Slack message using Incoming Webhooks
-  #       if: ${{ failure() }}
-  #       uses: slackapi/slack-github-action@v1.24.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "blocks": [
-  #               {
-  #                 "type": "header",
-  #                 "text": {
-  #                   "type": "plain_text",
-  #                   "text": "Scheduled experiment (Job status)"
-  #                 }
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Workflow Name*: ${{ github.workflow }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Name*: ${{ github.job }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Status*: ${{ job.status }} ❌"
-  #                   }
-  #                 ]
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "<!channel>"
-  #                   }
-  #                 ]
-  #               }
-  #             ]
-  #           }
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
  
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   # cold-gcr-experiments:
   #   name: GCR Cold Runtime Experiments
