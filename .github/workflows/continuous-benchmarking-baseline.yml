@@ -58,122 +58,122 @@ jobs:
           path: ${{ env.working-directory }}/build.tar
           retention-days: 1
 
-  # warm-baseline-aws:
-  #   name: AWS warm baseline experiment
-  #   needs: build_client
-  #   runs-on: [ self-hosted, aws ]
-  #   timeout-minutes: 1200
-  #   env:
-  #     working-directory: src
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-  #     AWS_RUNNER_NAME: stellar-continuous-aws
+  warm-baseline-aws:
+    name: AWS warm baseline experiment
+    needs: build_client
+    runs-on: [ self-hosted, aws ]
+    timeout-minutes: 1200
+    env:
+      working-directory: src
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_RUNNER_NAME: stellar-continuous-aws
 
-  #   steps:
-  #     - name: "Cleanup build folder"
-  #       run: |
-  #         sudo rm -rf ./* || true
-  #         sudo rm -rf ./.??* || true
+    steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
 
-  #     - name: Check out code into the Go module directory
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: continuous-benchmarking
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: continuous-benchmarking
 
-  #     - name: Configure AWS credentials using EASE lab account
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-  #         aws-region: us-west-1
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
 
-  #     - name: Set up Node.js 18
-  #       uses: actions/setup-node@v3
-  #       with: 
-  #         node-version: 18
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
           
-  #     - name: Cleanup serverless folder 
-  #       run: |
-  #             rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
+      - name: Cleanup serverless folder 
+        run: |
+              rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
           
-  #     - name: Install Serverless framework and related plugins
-  #       run: npm install -g serverless@3.38.0 
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 
 
-  #     - name: Download client artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: STeLLAR-build
+      - name: Download client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: STeLLAR-build
 
-  #     - name: Untar client build
-  #       working-directory: ${{ env.working-directory }}
-  #       run: tar --strip-components=1 -xvf ../build.tar -C .
+      - name: Untar client build
+        working-directory: ${{ env.working-directory }}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
 
-  #     - name: AWS Warm Function Invocation - Baseline
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 1440
-  #         max_attempts: 5
-  #         retry_wait_seconds: 60
-  #         command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db -w
+      - name: AWS Warm Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db -w
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: warm-baseline-aws
-  #         path: ${{ env.working-directory }}/latency-samples
+      - uses: actions/upload-artifact@v3
+        with:
+          name: warm-baseline-aws
+          path: ${{ env.working-directory }}/latency-samples
 
-  #     - name: Add zero'ed data (Failed experiment)
-  #       if: ${{ failure() }}
-  #       env: 
-  #         DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
-  #       run: |
-  #         curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
 
-  #     - name: Send Slack message using Incoming Webhooks
-  #       if: ${{ failure() }}
-  #       uses: slackapi/slack-github-action@v1.24.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "blocks": [
-  #               {
-  #                 "type": "header",
-  #                 "text": {
-  #                   "type": "plain_text",
-  #                   "text": "Scheduled experiment (Job status)"
-  #                 }
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Workflow Name*: ${{ github.workflow }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Name*: ${{ github.job }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Status*: ${{ job.status }} ❌"
-  #                   }
-  #                 ]
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "<!channel>"
-  #                   }
-  #                 ]
-  #               }
-  #             ]
-  #           }
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
 
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   # warm-baseline-gcr:
   #   name: GCR warm baseline experiment
@@ -383,227 +383,227 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  # warm-baseline-azure:
-  #   name: Azure warm baseline experiment
-  #   needs: build_client
-  #   runs-on: [ self-hosted, azure ]
-  #   timeout-minutes: 1200
-  #   env:
-  #     working-directory: src
-  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #     AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  warm-baseline-azure:
+    name: Azure warm baseline experiment
+    needs: build_client
+    runs-on: [ self-hosted, azure ]
+    timeout-minutes: 1200
+    env:
+      working-directory: src
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-  #   steps:
-  #     - name: "Cleanup build folder"
-  #       run: |
-  #         sudo rm -rf ./* || true
-  #         sudo rm -rf ./.??* || true
+    steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
 
-  #     - name: Check out code into the Go module directory
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: continuous-benchmarking
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: continuous-benchmarking
 
-  #     - name: Set up Node.js 18
-  #       uses: actions/setup-node@v3
-  #       with: 
-  #         node-version: 18
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
 
-  #     - name: Install Serverless framework and related plugins
-  #       run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
-  #     - name: Download client artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: STeLLAR-build
+      - name: Download client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: STeLLAR-build
 
-  #     - name: Untar client build
-  #       working-directory: ${{ env.working-directory }}
-  #       run: tar --strip-components=1 -xvf ../build.tar -C .
+      - name: Untar client build
+        working-directory: ${{ env.working-directory }}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
 
-  #     - name: Azure Warm Function Invocation - Baseline
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 1440
-  #         max_attempts: 5
-  #         retry_wait_seconds: 60
-  #         command: cd src && ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
+      - name: Azure Warm Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: warm-baseline-azure
-  #         path: ${{ env.working-directory }}/latency-samples
+      - uses: actions/upload-artifact@v3
+        with:
+          name: warm-baseline-azure
+          path: ${{ env.working-directory }}/latency-samples
 
-  #     - name: Add zero'ed data (Failed experiment)
-  #       if: ${{ failure() }}
-  #       env: 
-  #         DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
-  #       run: |
-  #         curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"warm-baseline-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
-  #     - name: Send Slack message using Incoming Webhooks
-  #       if: ${{ failure() }}
-  #       uses: slackapi/slack-github-action@v1.24.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "blocks": [
-  #               {
-  #                 "type": "header",
-  #                 "text": {
-  #                   "type": "plain_text",
-  #                   "text": "Scheduled experiment (Job status)"
-  #                 }
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Workflow Name*: ${{ github.workflow }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Name*: ${{ github.job }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Status*: ${{ job.status }} ❌"
-  #                   }
-  #                 ]
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "<!channel>"
-  #                   }
-  #                 ]
-  #               }
-  #             ]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  # cold-baseline-aws:
-  #   name: AWS cold baseline experiment
-  #   needs: build_client
-  #   runs-on: [ self-hosted, aws ]
-  #   timeout-minutes: 1200
-  #   env:
-  #     working-directory: src
-  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-  #     AWS_RUNNER_NAME: stellar-continuous-aws
-  #   steps:
-  #     - name: "Cleanup build folder"
-  #       run: |
-  #         sudo rm -rf ./* || true
-  #         sudo rm -rf ./.??* || true
+  cold-baseline-aws:
+    name: AWS cold baseline experiment
+    needs: build_client
+    runs-on: [ self-hosted, aws ]
+    timeout-minutes: 1200
+    env:
+      working-directory: src
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_RUNNER_NAME: stellar-continuous-aws
+    steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
 
-  #     - name: Check out code into the Go module directory
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: continuous-benchmarking
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: continuous-benchmarking
 
-  #     - name: Configure AWS credentials using EASE lab account
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-  #         aws-region: us-west-1
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
 
-  #     - name: Set up Node.js 18
-  #       uses: actions/setup-node@v3
-  #       with: 
-  #         node-version: 18
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
           
-  #     - name: Cleanup serverless folder 
-  #       run: |
-  #             rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
+      - name: Cleanup serverless folder 
+        run: |
+              rm -rf /home/ubuntu/actions-runner/_work/_tool/node/18.20.4/x64/lib/node_modules/serverless   
         
-  #     - name: Install Serverless framework and related plugins
-  #       run: npm install -g serverless@3.38.0 
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 
         
-  #     - name: Download client artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: STeLLAR-build
+      - name: Download client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: STeLLAR-build
 
-  #     - name: Untar client build
-  #       working-directory: ${{ env.working-directory }}
-  #       run: tar --strip-components=1 -xvf ../build.tar -C .
+      - name: Untar client build
+        working-directory: ${{ env.working-directory }}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
 
-  #     - name: AWS Cold Function Invocation - Baseline
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 1440
-  #         max_attempts: 5
-  #         retry_wait_seconds: 60
-  #         command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
+      - name: AWS Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: cold-baseline-aws
-  #         path: ${{ env.working-directory }}/latency-samples
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cold-baseline-aws
+          path: ${{ env.working-directory }}/latency-samples
 
-  #     - name: Add zero'ed data (Failed experiment)
-  #       if: ${{ failure() }}
-  #       env: 
-  #         DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
-  #       run: |
-  #         curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-aws","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"aws"}' $DATA_INSERT_URL
 
-  #     - name: Send Slack message using Incoming Webhooks
-  #       if: ${{ failure() }}
-  #       uses: slackapi/slack-github-action@v1.24.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "blocks": [
-  #               {
-  #                 "type": "header",
-  #                 "text": {
-  #                   "type": "plain_text",
-  #                   "text": "Scheduled experiment (Job status)"
-  #                 }
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Workflow Name*: ${{ github.workflow }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Name*: ${{ github.job }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Status*: ${{ job.status }} ❌"
-  #                   }
-  #                 ]
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "<!channel>"
-  #                   }
-  #                 ]
-  #               }
-  #             ]
-  #           }
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
 
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   # cold-baseline-gcr:
   #   name: GCR cold baseline experiment
@@ -709,7 +709,7 @@ jobs:
   #           }
   #       env:
   #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   cold-baseline-cloudflare:
     name: Cloudflare cold baseline experiment
@@ -813,108 +813,108 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  # cold-baseline-azure:
-  #   name: Azure cold baseline experiment
-  #   needs: build_client
-  #   runs-on: [ self-hosted, azure ]
-  #   timeout-minutes: 1200
-  #   env:
-  #     working-directory: src
-  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #     AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  cold-baseline-azure:
+    name: Azure cold baseline experiment
+    needs: build_client
+    runs-on: [ self-hosted, azure ]
+    timeout-minutes: 1200
+    env:
+      working-directory: src
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-  #   steps:
-  #     - name: "Cleanup build folder"
-  #       run: |
-  #         sudo rm -rf ./* || true
-  #         sudo rm -rf ./.??* || true
+    steps:
+      - name: "Cleanup build folder"
+        run: |
+          sudo rm -rf ./* || true
+          sudo rm -rf ./.??* || true
 
-  #     - name: Check out code into the Go module directory
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: continuous-benchmarking
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: continuous-benchmarking
       
-  #     - name: Set up Node.js 18
-  #       uses: actions/setup-node@v3
-  #       with: 
-  #         node-version: 18
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 18
           
-  #     - name: Install Serverless framework and related plugins
-  #       run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+      - name: Install Serverless framework and related plugins
+        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
       
-  #     - name: Download client artifact
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: STeLLAR-build
+      - name: Download client artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: STeLLAR-build
 
-  #     - name: Untar client build
-  #       working-directory: ${{ env.working-directory }}
-  #       run: tar --strip-components=1 -xvf ../build.tar -C .
+      - name: Untar client build
+        working-directory: ${{ env.working-directory }}
+        run: tar --strip-components=1 -xvf ../build.tar -C .
 
-  #     - name: Azure Cold Function Invocation - Baseline
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #         timeout_minutes: 1440
-  #         max_attempts: 5
-  #         retry_wait_seconds: 60
-  #         command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
+      - name: Azure Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
 
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: cold-baseline-azure
-  #         path: ${{ env.working-directory }}/latency-samples
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cold-baseline-azure
+          path: ${{ env.working-directory }}/latency-samples
 
-  #     - name: Add zero'ed data (Failed experiment)
-  #       if: ${{ failure() }}
-  #       env: 
-  #         DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
-  #       run: |
-  #         curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
+      - name: Add zero'ed data (Failed experiment)
+        if: ${{ failure() }}
+        env: 
+          DATA_INSERT_URL: ${{ secrets.DATA_INSERT_URL}}
+        run: |
+          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"cold-baseline-azure","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
-  #     - name: Send Slack message using Incoming Webhooks
-  #       if: ${{ failure() }}
-  #       uses: slackapi/slack-github-action@v1.24.0
-  #       with:
-  #         payload: |
-  #           {
-  #             "blocks": [
-  #               {
-  #                 "type": "header",
-  #                 "text": {
-  #                   "type": "plain_text",
-  #                   "text": "Scheduled experiment (Job status)"
-  #                 }
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Workflow Name*: ${{ github.workflow }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Name*: ${{ github.job }}"
-  #                   },
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "*Job Status*: ${{ job.status }} ❌"
-  #                   }
-  #                 ]
-  #               },
-  #               {
-  #                 "type": "section",
-  #                 "fields": [
-  #                   {
-  #                     "type": "mrkdwn",
-  #                     "text": "<!channel>"
-  #                   }
-  #                 ]
-  #               }
-  #             ]
-  #           }
-  #       env:
-  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+      - name: Send Slack message using Incoming Webhooks
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "Scheduled experiment (Job status)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow Name*: ${{ github.workflow }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Name*: ${{ github.job }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Job Status*: ${{ job.status }} ❌"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "<!channel>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
