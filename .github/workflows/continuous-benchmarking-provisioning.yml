@@ -44,7 +44,11 @@ jobs:
               echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
               CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
               echo "$CONNECTION_READY_STATUS"
+
+              INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+              echo "$INSTANCE_IP"
               # check RAM usage on this runner instance 
+              ssh -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP 'free -m'
         id: get-ip
 
       # - name: Create a registration token for self-hosted runners
@@ -172,7 +176,11 @@ jobs:
               echo "instance_id"
               CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
               echo "$CONNECTION_READY_STATUS"
+              INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
+              echo "$INSTANCE_IP"
               # check RAM usage on this runner instance 
+              ssh -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP 'free -m'
+
           id: get-ip
 
         # - name: Create a registration token for self-hosted runners
