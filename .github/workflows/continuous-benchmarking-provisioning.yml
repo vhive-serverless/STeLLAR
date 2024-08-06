@@ -6,19 +6,276 @@ on:
     - cron: "0 23 * * 0"
 
 jobs:
-  # setup-aws-vm:
+  setup-aws-vm:
+    runs-on: ubuntu-latest
+    env:
+      AWS_RUNNER_NAME: stellar-continuous-aws
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials using EASE lab account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: us-west-1
+
+      # - name: Create SSH public key file
+      #   run: |
+      #     mkdir -p $HOME/.ssh
+      #     echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
+      #     cat $HOME/.ssh/id_rsa.pub
+
+      # - name: Create AWS EC2 instance
+      #   run: |
+      #     aws ec2 run-instances \
+      #       --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
+      #       --image-id ami-036cafe742923b3d9 \
+      #       --instance-type t2.micro \
+      #       --key-name stellar-ssh-key \
+      #       --region us-west-1 \
+      #       --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]'
+      #   id: create-vm
+
+      - name: Get public IP address
+        run: |
+              echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+              # check connection status of this instance
+              echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+              CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+              echo "$CONNECTION_READY_STATUS"
+              # check RAM usage on this runner instance 
+        id: get-ip
+
+      # - name: Create a registration token for self-hosted runners
+      #   run: |
+      #     gh api \
+      #       --method POST \
+      #       -H "Accept: application/vnd.github+json" \
+      #       -H "X-GitHub-Api-Version: 2022-11-28" \
+      #       /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+      #     | echo token=$(jq -r .token) > $GITHUB_OUTPUT
+
+      #   env:
+      #     GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+      #   id: get-registration-token
+
+      # - name: Setup SSH key on current GitHub-hosted runner
+      #   uses: webfactory/ssh-agent@v0.5.3
+      #   with:
+      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # - name: Check Instance Connection Status
+      #   run: |
+      #           max_attempts=5
+      #           attempts=1
+      #           while [ $attempts -le $max_attempts ]; do
+                
+      #             echo "Attempt $attempts of $max_attempts."
+      #             # target_ip=${{ steps.get-ip.outputs.ip }}
+      #             echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+      #             CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+      #             echo "$CONNECTION_READY_STATUS"
+      #             # also check the ip - steps.get-ip.outputs.ip
+      #             if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
+      #                 echo "Instance is at Initialization Stage..."
+      #             elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
+      #               # update public ip
+      #               ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text | head -n 1)
+      #               echo "ip=$ip" >> $GITHUB_OUTPUT
+      #               echo "IP: $ip"
+      #               echo "Instance is ready for SSH Connection."
+      #               break
+      #             else
+      #               echo "Instance has stopped or terminated due to internal error."
+      #             fi
+
+      #             attempts=$((attempts + 1))
+      #             sleep 10
+      #           done
+      #   id: connection-status 
+          
+      # - name: Setup self-hosted runner
+      #   env:
+      #     GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #       timeout_minutes: 30
+      #       max_attempts: 5
+      #       retry_wait_seconds: 10
+      #       command: |
+      #           # Exit if runner is already set up
+      #           RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'aws')
+      #           echo "Runner Status: $RUNNER_STATUS"
+      #           if [ -n "$RUNNER_STATUS" ]; then
+      #             echo "Runner with label 'aws' is already set up and running."
+      #             exit 0
+      #           fi
+
+      #           # Connection status
+      #           CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+      #           echo "$CONNECTION_READY_STATUS"
+
+      #           sleep 10
+      #           ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+      #             echo 'Installing STeLLAR dependencies'
+      #             curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+      #             chmod +x stellar-setup.sh
+      #             ./stellar-setup.sh
+      
+      #             echo 'Setup self-hosted runner'
+      #             mkdir actions-runner && cd actions-runner
+      #             curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+      #             tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+      #             ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
+      #             tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+      #           "
+
+  setup-cloudflare-vm:
+      runs-on: ubuntu-latest
+      env:
+        CLOUDFLARE_RUNNER_NAME: stellar-continuous-cloudflare
+
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Configure AWS credentials using EASE lab account
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+            aws-region: us-east-2
+
+        # - name: Create SSH public key file
+        #   run: |
+        #     mkdir -p $HOME/.ssh
+        #     echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
+        #     cat $HOME/.ssh/id_rsa.pub
+
+        # - name: Create AWS EC2 instance
+        #   run: |
+        #     aws ec2 run-instances \
+        #       --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
+        #       --image-id ami-0f30a9c3a48f3fa79 \
+        #       --instance-type t2.micro \
+        #       --key-name stellar-ssh-key \
+        #       --region us-east-2 \
+        #       --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.CLOUDFLARE_RUNNER_NAME }}}]'
+        #   id: create-vm
+
+        - name: Get public IP address
+          run: |
+              echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+              echo "$ip"
+              # check connection status of this instance
+              echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+              echo "instance_id"
+              CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+              echo "$CONNECTION_READY_STATUS"
+              # check RAM usage on this runner instance 
+          id: get-ip
+
+        # - name: Create a registration token for self-hosted runners
+        #   run: |
+        #     gh api \
+        #       --method POST \
+        #       -H "Accept: application/vnd.github+json" \
+        #       -H "X-GitHub-Api-Version: 2022-11-28" \
+        #       /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+        #     | echo token=$(jq -r .token) > $GITHUB_OUTPUT
+        #   env:
+        #     GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        #   id: get-registration-token
+
+        # - name: Setup SSH key on current GitHub-hosted runner
+        #   uses: webfactory/ssh-agent@v0.5.3
+        #   with:
+        #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+        # - name: Check Instance Connection Status
+        #   run: |
+        #           max_attempts=5
+        #           attempts=1
+        #           while [ $attempts -le $max_attempts ]; do
+                  
+        #             echo "Attempt $attempts of $max_attempts."
+        #             # target_ip=${{ steps.get-ip.outputs.ip }}
+        #             echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+        #             CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
+        #             echo "$CONNECTION_READY_STATUS"
+        #             # also check the ip - steps.get-ip.outputs.ip
+        #             if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
+        #                 echo "Instance is at Initialization Stage..."
+        #             elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
+        #               # update public ip
+        #               ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text | head -n 1)
+        #               echo "ip=$ip" >> $GITHUB_OUTPUT
+        #               echo "IP: $ip"
+        #               echo "Instance is ready for SSH Connection."
+        #               break
+        #             else
+        #               echo "Instance has stopped or terminated due to internal error."
+        #             fi
+  
+        #             attempts=$((attempts + 1))
+        #             sleep 10
+        #           done
+        #   id: connection-status 
+            
+        # - name: Setup self-hosted runner
+        #   uses: nick-fields/retry@v2
+        #   env:
+        #       GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+        #   with:
+        #     timeout_minutes: 30
+        #     max_attempts: 5
+        #     retry_wait_seconds: 10
+        #     command: |
+        #         # "Exit if runner is already set up"
+
+        #         RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'cloudflare')
+        #         echo "Runner Status: $RUNNER_STATUS"
+        #         if [ -n "$RUNNER_STATUS" ]; then
+        #           echo "Runner with label 'cloudflare' is already set up and running"
+        #           exit 0
+        #         fi
+
+        #         # connection status
+        #         CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,,PublicIP:PublicIpAddress}' --output table)
+        #         echo "$CONNECTION_READY_STATUS"
+
+        #         sleep 10
+        #         ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+        #           echo 'Installing STeLLAR dependencies'
+        #           curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+        #           chmod +x stellar-setup.sh
+        #           ./stellar-setup.sh
+
+        #           curl -o cloudflare-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/cloudflare/setup.sh
+        #           chmod +x cloudflare-setup.sh
+        #           ./cloudflare-setup.sh
+      
+        #           echo 'Setup self-hosted runner'
+        #           mkdir actions-runner && cd actions-runner
+        #           curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+        #           tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+        #           ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.CLOUDFLARE_RUNNER_NAME }} --labels cloudflare
+        #           tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+        #         "
+
+  # setup-azure-vm:
   #   runs-on: ubuntu-latest
-  #   env:
-  #     AWS_RUNNER_NAME: stellar-continuous-aws
+  #   permissions: write-all
   #   steps:
   #     - uses: actions/checkout@v4
 
-  #     - name: Configure AWS credentials using EASE lab account
-  #       uses: aws-actions/configure-aws-credentials@v4
+  #     - name: Setup Azure CLI
+  #       uses: azure/login@v2
   #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-  #         aws-region: us-west-1
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #     - name: Create Azure resource group
+  #       run: az group create --name github-actions-runners --location westus
 
   #     - name: Create SSH public key file
   #       run: |
@@ -26,19 +283,27 @@ jobs:
   #         echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
   #         cat $HOME/.ssh/id_rsa.pub
 
-  #     - name: Create AWS EC2 instance
+  #     - name: Create Azure SSH Key resource
   #       run: |
-  #         aws ec2 run-instances \
-  #           --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
-  #           --image-id ami-036cafe742923b3d9 \
-  #           --instance-type t2.micro \
-  #           --key-name stellar-ssh-key \
-  #           --region us-west-1 \
-  #           --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]'
+  #         az sshkey create \
+  #           --resource-group github-actions-runners \
+  #           --name stellar-ssh-key \
+  #           --location westus \
+  #           --public-key @$HOME/.ssh/id_rsa.pub
+
+  #     - name: Create Azure VM
+  #       run: |
+  #         az vm create \
+  #           --name github-actions-runner \
+  #           --resource-group github-actions-runners \
+  #           --image Ubuntu2204 \
+  #           --public-ip-sku Standard \
+  #           --size Standard_B1ms \
+  #           --ssh-key-name stellar-ssh-key
   #       id: create-vm
 
   #     - name: Get public IP address
-  #       run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+  #       run: echo ip=$(az vm show --show-details --resource-group github-actions-runners --name github-actions-runner --query publicIps --output tsv) >> $GITHUB_OUTPUT
   #       id: get-ip
 
   #     - name: Create a registration token for self-hosted runners
@@ -49,7 +314,6 @@ jobs:
   #           -H "X-GitHub-Api-Version: 2022-11-28" \
   #           /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
   #         | echo token=$(jq -r .token) > $GITHUB_OUTPUT
-
   #       env:
   #         GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
   #       id: get-registration-token
@@ -59,316 +323,66 @@ jobs:
   #       with:
   #         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-  #     # - name: Check Instance Connection Status
-  #     #   run: |
-  #     #           max_attempts=5
-  #     #           attempts=1
-  #     #           while [ $attempts -le $max_attempts ]; do
-                
-  #     #             echo "Attempt $attempts of $max_attempts."
-  #     #             # target_ip=${{ steps.get-ip.outputs.ip }}
-  #     #             echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-  #     #             CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
-  #     #             echo "$CONNECTION_READY_STATUS"
-  #     #             # also check the ip - steps.get-ip.outputs.ip
-  #     #             if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
-  #     #                 echo "Instance is at Initialization Stage..."
-  #     #             elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
-  #     #               # update public ip
-  #     #               ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text | head -n 1)
-  #     #               echo "ip=$ip" >> $GITHUB_OUTPUT
-  #     #               echo "IP: $ip"
-  #     #               echo "Instance is ready for SSH Connection."
-  #     #               break
-  #     #             else
-  #     #               echo "Instance has stopped or terminated due to internal error."
-  #     #             fi
-
-  #     #             attempts=$((attempts + 1))
-  #     #             sleep 10
-  #     #           done
-  #     #   id: connection-status 
-          
   #     - name: Setup self-hosted runner
+  #       run: |
+  #         ssh -o StrictHostKeyChecking=no runner@${{ steps.get-ip.outputs.ip }} "
+  #           echo 'Installing STeLLAR dependencies'
+  #           curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+  #           chmod +x stellar-setup.sh
+  #           ./stellar-setup.sh
+
+  #           echo 'Setup self-hosted runner'
+  #           mkdir actions-runner && cd actions-runner
+  #           curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+  #           tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
+  #           ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-azure --labels azure
+  #           tmux new-session -d -s github-actions-runner 'bash ./run.sh'
+  #         "
+
+  # setup-gcr-vm:
+  #   runs-on: ubuntu-latest
+  #   permissions: write-all
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - id: auth
+  #       name: Configure GCR credentials
+  #       uses: google-github-actions/auth@v1
+  #       with:
+  #         credentials_json: ${{ secrets.GCR_CREDENTIALS }}
+
+  #     - name: Set up gcloud
+  #       uses: google-github-actions/setup-gcloud@v1
+  #       with:
+  #         version: ">= 363.0.0"
+
+  #     - name: Create a registration token for self-hosted runners
+  #       run: |
+  #         gh api \
+  #           --method POST \
+  #           -H "Accept: application/vnd.github+json" \
+  #           -H "X-GitHub-Api-Version: 2022-11-28" \
+  #           /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
+  #         | echo token=$(jq -r .token) > $GITHUB_OUTPUT
   #       env:
   #         GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-  #       uses: nick-fields/retry@v2
-  #       with:
-  #           timeout_minutes: 30
-  #           max_attempts: 5
-  #           retry_wait_seconds: 10
-  #           command: |
-  #               # Exit if runner is already set up
-  #               RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'aws')
-  #               echo "Runner Status: $RUNNER_STATUS"
-  #               if [ -n "$RUNNER_STATUS" ]; then
-  #                 echo "Runner with label 'aws' is already set up and running."
-  #                 exit 0
-  #               fi
+  #       id: get-registration-token
 
-  #               # Connection status
-  #               CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
-  #               echo "$CONNECTION_READY_STATUS"
+  #     - name: Create GCloud Compute Engine VM
+  #       run: gcloud compute instances create github-actions-runner-gcr --zone=us-west1-a  --image=stellar-continuous-gcr-disk --image-project=stellar-benchmarking --machine-type=e2-small
 
-  #               sleep 10
-  #               ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
-  #                 echo 'Installing STeLLAR dependencies'
-  #                 curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-  #                 chmod +x stellar-setup.sh
-  #                 ./stellar-setup.sh
-      
-  #                 echo 'Setup self-hosted runner'
-  #                 mkdir actions-runner && cd actions-runner
-  #                 curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-  #                 tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-  #                 ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
-  #                 tmux new-session -d -s github-actions-runner 'bash ./run.sh'
-  #               "
-
-  # setup-cloudflare-vm:
-  #     runs-on: ubuntu-latest
-  #     env:
-  #       CLOUDFLARE_RUNNER_NAME: stellar-continuous-cloudflare
-
-  #     steps:
-  #       - uses: actions/checkout@v4
-
-  #       - name: Configure AWS credentials using EASE lab account
-  #         uses: aws-actions/configure-aws-credentials@v4
-  #         with:
-  #           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-  #           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-  #           aws-region: us-east-2
-
-  #       - name: Create SSH public key file
-  #         run: |
-  #           mkdir -p $HOME/.ssh
-  #           echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
-  #           cat $HOME/.ssh/id_rsa.pub
-
-  #       - name: Create AWS EC2 instance
-  #         run: |
-  #           aws ec2 run-instances \
-  #             --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
-  #             --image-id ami-0f30a9c3a48f3fa79 \
-  #             --instance-type t2.micro \
-  #             --key-name stellar-ssh-key \
-  #             --region us-east-2 \
-  #             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.CLOUDFLARE_RUNNER_NAME }}}]'
-  #         id: create-vm
-
-  #       - name: Get public IP address
-  #         run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
-  #         id: get-ip
-
-  #       - name: Create a registration token for self-hosted runners
-  #         run: |
-  #           gh api \
-  #             --method POST \
-  #             -H "Accept: application/vnd.github+json" \
-  #             -H "X-GitHub-Api-Version: 2022-11-28" \
-  #             /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
-  #           | echo token=$(jq -r .token) > $GITHUB_OUTPUT
-  #         env:
-  #           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-  #         id: get-registration-token
-
-  #       - name: Setup SSH key on current GitHub-hosted runner
-  #         uses: webfactory/ssh-agent@v0.5.3
-  #         with:
-  #           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-  #       # - name: Check Instance Connection Status
-  #       #   run: |
-  #       #           max_attempts=5
-  #       #           attempts=1
-  #       #           while [ $attempts -le $max_attempts ]; do
-                  
-  #       #             echo "Attempt $attempts of $max_attempts."
-  #       #             # target_ip=${{ steps.get-ip.outputs.ip }}
-  #       #             echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
-  #       #             CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
-  #       #             echo "$CONNECTION_READY_STATUS"
-  #       #             # also check the ip - steps.get-ip.outputs.ip
-  #       #             if echo "$CONNECTION_READY_STATUS" | grep -q "pending"; then
-  #       #                 echo "Instance is at Initialization Stage..."
-  #       #             elif echo "$CONNECTION_READY_STATUS" | grep -q "running"; then
-  #       #               # update public ip
-  #       #               ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text | head -n 1)
-  #       #               echo "ip=$ip" >> $GITHUB_OUTPUT
-  #       #               echo "IP: $ip"
-  #       #               echo "Instance is ready for SSH Connection."
-  #       #               break
-  #       #             else
-  #       #               echo "Instance has stopped or terminated due to internal error."
-  #       #             fi
-  
-  #       #             attempts=$((attempts + 1))
-  #       #             sleep 10
-  #       #           done
-  #       #   id: connection-status 
-            
-  #       - name: Setup self-hosted runner
-  #         uses: nick-fields/retry@v2
-  #         env:
-  #             GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-  #         with:
-  #           timeout_minutes: 30
-  #           max_attempts: 5
-  #           retry_wait_seconds: 10
-  #           command: |
-  #               # "Exit if runner is already set up"
-
-  #               RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'cloudflare')
-  #               echo "Runner Status: $RUNNER_STATUS"
-  #               if [ -n "$RUNNER_STATUS" ]; then
-  #                 echo "Runner with label 'cloudflare' is already set up and running"
-  #                 exit 0
-  #               fi
-
-  #               # connection status
-  #               CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,,PublicIP:PublicIpAddress}' --output table)
-  #               echo "$CONNECTION_READY_STATUS"
-
-  #               sleep 10
-  #               ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
-  #                 echo 'Installing STeLLAR dependencies'
-  #                 curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-  #                 chmod +x stellar-setup.sh
-  #                 ./stellar-setup.sh
-
-  #                 curl -o cloudflare-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/cloudflare/setup.sh
-  #                 chmod +x cloudflare-setup.sh
-  #                 ./cloudflare-setup.sh
-      
-  #                 echo 'Setup self-hosted runner'
-  #                 mkdir actions-runner && cd actions-runner
-  #                 curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-  #                 tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-  #                 ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.CLOUDFLARE_RUNNER_NAME }} --labels cloudflare
-  #                 tmux new-session -d -s github-actions-runner 'bash ./run.sh'
-  #               "
-
-  setup-azure-vm:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Azure CLI
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Create Azure resource group
-        run: az group create --name github-actions-runners --location westus
-
-      - name: Create SSH public key file
-        run: |
-          mkdir -p $HOME/.ssh
-          echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
-          cat $HOME/.ssh/id_rsa.pub
-
-      - name: Create Azure SSH Key resource
-        run: |
-          az sshkey create \
-            --resource-group github-actions-runners \
-            --name stellar-ssh-key \
-            --location westus \
-            --public-key @$HOME/.ssh/id_rsa.pub
-
-      - name: Create Azure VM
-        run: |
-          az vm create \
-            --name github-actions-runner \
-            --resource-group github-actions-runners \
-            --image Ubuntu2204 \
-            --public-ip-sku Standard \
-            --size Standard_B1ms \
-            --ssh-key-name stellar-ssh-key
-        id: create-vm
-
-      - name: Get public IP address
-        run: echo ip=$(az vm show --show-details --resource-group github-actions-runners --name github-actions-runner --query publicIps --output tsv) >> $GITHUB_OUTPUT
-        id: get-ip
-
-      - name: Create a registration token for self-hosted runners
-        run: |
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
-          | echo token=$(jq -r .token) > $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-        id: get-registration-token
-
-      - name: Setup SSH key on current GitHub-hosted runner
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Setup self-hosted runner
-        run: |
-          ssh -o StrictHostKeyChecking=no runner@${{ steps.get-ip.outputs.ip }} "
-            echo 'Installing STeLLAR dependencies'
-            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-            chmod +x stellar-setup.sh
-            ./stellar-setup.sh
-
-            echo 'Setup self-hosted runner'
-            mkdir actions-runner && cd actions-runner
-            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
-            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-            ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name stellar-continuous-azure --labels azure
-            tmux new-session -d -s github-actions-runner 'bash ./run.sh'
-          "
-
-  setup-gcr-vm:
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-
-      - id: auth
-        name: Configure GCR credentials
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCR_CREDENTIALS }}
-
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          version: ">= 363.0.0"
-
-      - name: Create a registration token for self-hosted runners
-        run: |
-          gh api \
-            --method POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners/registration-token \
-          | echo token=$(jq -r .token) > $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-        id: get-registration-token
-
-      - name: Create GCloud Compute Engine VM
-        run: gcloud compute instances create github-actions-runner-gcr --zone=us-west1-a  --image=stellar-continuous-gcr-disk --image-project=stellar-benchmarking --machine-type=e2-small
-
-      - name: Setup self-hosted runner
-        run: |
-          gcloud compute ssh --zone "us-west1-a" "User@github-actions-runner-gcr" --project "stellar-benchmarking" --command '
-            sudo rm -r ./actions-runner &&
-            echo "Installing STeLLAR dependencies" &&
-            curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh &&
-            chmod +x stellar-setup.sh &&
-            ./stellar-setup.sh &&
-            echo "Setup self-hosted runner" &&
-            mkdir actions-runner && cd actions-runner &&
-            curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz &&
-            tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz &&
-            printf "\nstellar-continuous-gcr\ngcr\n" | ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} &&
-            tmux new-session -d -s github-actions-runner-gcr "bash ./run.sh"
-          '
+  #     - name: Setup self-hosted runner
+  #       run: |
+  #         gcloud compute ssh --zone "us-west1-a" "User@github-actions-runner-gcr" --project "stellar-benchmarking" --command '
+  #           sudo rm -r ./actions-runner &&
+  #           echo "Installing STeLLAR dependencies" &&
+  #           curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh &&
+  #           chmod +x stellar-setup.sh &&
+  #           ./stellar-setup.sh &&
+  #           echo "Setup self-hosted runner" &&
+  #           mkdir actions-runner && cd actions-runner &&
+  #           curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz &&
+  #           tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz &&
+  #           printf "\nstellar-continuous-gcr\ngcr\n" | ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} &&
+  #           tmux new-session -d -s github-actions-runner-gcr "bash ./run.sh"
+  #         '
