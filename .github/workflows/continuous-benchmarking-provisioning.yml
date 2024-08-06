@@ -38,7 +38,12 @@ jobs:
       #   id: create-vm
 
       - name: Get public IP address
-        run: |
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: |
               echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
               # check connection status of this instance
               echo instance_id=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].InstanceId" --output text)
@@ -168,7 +173,12 @@ jobs:
         #   id: create-vm
 
         - name: Get public IP address
-          run: |
+          uses: nick-fields/retry@v2
+          with:
+            timeout_minutes: 5
+            max_attempts: 3
+            retry_wait_seconds: 10
+            command: |
               echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
               echo "$ip"
               # check connection status of this instance
@@ -179,7 +189,7 @@ jobs:
               INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
               echo "$INSTANCE_IP"
               # check RAM usage on this runner instance 
-              ssh -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP 'free -m'
+              ssh -o StrictHostKeyChecking=no ec2-user@3.144.86.114 'free -m'
 
           id: get-ip
 
