@@ -53,7 +53,7 @@ jobs:
               INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
               echo "$INSTANCE_IP"
               # check RAM usage on this runner instance 
-              ssh -o StrictHostKeyChecking=no ec2-user@$INSTANCE_IP 'free -m'
+              ssh -o StrictHostKeyChecking=no ubuntu@$INSTANCE_IP 'free -m'
         id: get-ip
 
       # - name: Create a registration token for self-hosted runners
@@ -189,7 +189,7 @@ jobs:
               INSTANCE_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" "Name=instance-state-name,Values=running" --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
               echo "$INSTANCE_IP"
               # check RAM usage on this runner instance 
-              ssh -o StrictHostKeyChecking=no ec2-user@3.144.86.114 'free -m'
+              ssh -o StrictHostKeyChecking=no ubuntu@3.144.86.114 'free -m'
 
           id: get-ip
 
