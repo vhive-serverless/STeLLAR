@@ -353,117 +353,117 @@ jobs:
   #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
-  cold-azure-experiments:
-    name: Azure Cold Runtime Experiments
-    needs: build_client
-    runs-on: [ self-hosted, azure ]
-    timeout-minutes: 1200
-    strategy:
-      fail-fast: false
-      matrix:
-        runtime:
-          [
-            py,
-            node,
-          ]
-    env:
-      working-directory: src
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-    steps:
-      - name: "Cleanup build folder"
-        run: |
-          sudo rm -rf ./* || true
-          sudo rm -rf ./.??* || true
+  # cold-azure-experiments:
+  #   name: Azure Cold Runtime Experiments
+  #   needs: build_client
+  #   runs-on: [ self-hosted, azure ]
+  #   timeout-minutes: 1200
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       runtime:
+  #         [
+  #           py,
+  #           node,
+  #         ]
+  #   env:
+  #     working-directory: src
+  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  #     AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  #   steps:
+  #     - name: "Cleanup build folder"
+  #       run: |
+  #         sudo rm -rf ./* || true
+  #         sudo rm -rf ./.??* || true
 
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
-        with:
-          ref: continuous-benchmarking
+  #     - name: Check out code into the Go module directory
+  #       uses: actions/checkout@v4
+  #       with:
+  #         ref: continuous-benchmarking
           
-      - name: Set up Node.js 18
-        uses: actions/setup-node@v3
-        with: 
-          node-version: 18
+  #     - name: Set up Node.js 18
+  #       uses: actions/setup-node@v3
+  #       with: 
+  #         node-version: 18
 
-      - name: Install Serverless framework and related plugins
-        run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
+  #     - name: Install Serverless framework and related plugins
+  #       run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
-      - name: Download client artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: STeLLAR-build
+  #     - name: Download client artifact
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: STeLLAR-build
 
-      - name: Untar client build
-        working-directory: ${{env.working-directory}}
-        run: tar --strip-components=1 -xvf ../build.tar -C .
+  #     - name: Untar client build
+  #       working-directory: ${{env.working-directory}}
+  #       run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      - name: Azure Runtime ${{ matrix.runtime }}
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 1440
-          max_attempts: 5
-          retry_wait_seconds: 60
-          command: cd src && ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
+  #     - name: Azure Runtime ${{ matrix.runtime }}
+  #       uses: nick-fields/retry@v2
+  #       with:
+  #         timeout_minutes: 1440
+  #         max_attempts: 5
+  #         retry_wait_seconds: 60
+  #         command: cd src && ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: cold-hello${{ matrix.runtime }}-zip-azure
-          path: ${{env.working-directory}}/latency-samples-azure
+  #     - uses: actions/upload-artifact@v3
+  #       with:
+  #         name: cold-hello${{ matrix.runtime }}-zip-azure
+  #         path: ${{env.working-directory}}/latency-samples-azure
 
-      - name: Add zero'ed data (Failed experiment)
-        env:
-          name: cold-hello${{ matrix.runtime }}-zip-azure
-        if: ${{ failure() }}
-        run: |
-          curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
+  #     - name: Add zero'ed data (Failed experiment)
+  #       env:
+  #         name: cold-hello${{ matrix.runtime }}-zip-azure
+  #       if: ${{ failure() }}
+  #       run: |
+  #         curl -XPOST -H "Content-type: application/json" -d '{"experiment_type":"'$name'","date":"'$(date +%F)'","min":"0","max":"0","median":"0","tail_latency":"0","first_quartile":"0","third_quartile":"0","standard_deviation":"0","payload_size":"0","burst_size":"0","IATType":"0","count":"0","provider":"azure"}' $DATA_INSERT_URL
 
-      - name: Send Slack message using Incoming Webhooks
-        if: ${{ failure() }}
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "Scheduled experiment (Job status)"
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Workflow Name*: ${{ github.workflow }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Job Name*: ${{ github.job }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Job Status*: ${{ job.status }} ❌"
-                    }
-                  ]
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "<!channel>"
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+  #     - name: Send Slack message using Incoming Webhooks
+  #       if: ${{ failure() }}
+  #       uses: slackapi/slack-github-action@v1.24.0
+  #       with:
+  #         payload: |
+  #           {
+  #             "blocks": [
+  #               {
+  #                 "type": "header",
+  #                 "text": {
+  #                   "type": "plain_text",
+  #                   "text": "Scheduled experiment (Job status)"
+  #                 }
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "fields": [
+  #                   {
+  #                     "type": "mrkdwn",
+  #                     "text": "*Workflow Name*: ${{ github.workflow }}"
+  #                   },
+  #                   {
+  #                     "type": "mrkdwn",
+  #                     "text": "*Job Name*: ${{ github.job }}"
+  #                   },
+  #                   {
+  #                     "type": "mrkdwn",
+  #                     "text": "*Job Status*: ${{ job.status }} ❌"
+  #                   }
+  #                 ]
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "fields": [
+  #                   {
+  #                     "type": "mrkdwn",
+  #                     "text": "<!channel>"
+  #                   }
+  #                 ]
+  #               }
+  #             ]
+  #           }
+  #       env:
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  #         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
 
