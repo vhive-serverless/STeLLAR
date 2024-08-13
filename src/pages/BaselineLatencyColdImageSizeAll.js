@@ -72,11 +72,6 @@ export default function BaselineLatencyDashboard() {
       setDateRange(event.target.value);
     };
 
-    const handleChangeImageSize = (event) => {
-      const selectedValue = event.target.value;  
-      setImageSize(selectedValue);
-    };
-
 
     const handleChangeImageSizeOverall = (event) => {
       const selectedValue = event.target.value;  
@@ -153,41 +148,67 @@ export default function BaselineLatencyDashboard() {
       fetchData();
     }, [fetchData]);
 
-// Image size experiments and Language runtime experiments are run on every tuesday
 
-const getTuesdaysInRange = (endDate, numberOfWeeks) => {
-  const end = startOfWeek(new Date(endDate), { weekStartsOn: 2 }); // Last Tuesday
-  const start = subWeeks(end, numberOfWeeks - 1); // Go back the required number of weeks
-  const tuesdays = eachWeekOfInterval({ start, end }, { weekStartsOn: 2 });
-  return tuesdays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
+
+    // Function to extract dates from the data
+const extractDates = (statistics) => {
+  return statistics.map(record => record.date);
 };
 
-    const dateRangeList = useMemo(() => {
-      const today = new Date();
-      let tuesdays = [];
+// Memoized dateRangeList creation
+const dateRangeList = useMemo(() => {
+  if (!overallStatisticsAWS || !overallStatisticsGCR ||!overallStatisticsAzure ) return null;
+  // Extract dates from each provider's statistics
+  const awsDates = extractDates(overallStatisticsAWS);
+  const gcrDates = extractDates(overallStatisticsGCR);
+  const azureDates = extractDates(overallStatisticsAzure);
 
-      if (dateRange === 'week') {
-        tuesdays = getTuesdaysInRange(today, 1);
-      } else if (dateRange === 'month') {
-        tuesdays = getTuesdaysInRange(today, 4);
-        // console.log(tuesdays)
-      } else if (dateRange === '3-months') {
-        tuesdays = getTuesdaysInRange(today, 12);
-      }
-      else if (dateRange === 'custom') { 
-        tuesdays = eachWeekOfInterval({ start: startOfDay(new Date(startDate)), end: startOfDay(new Date(endDate))}, { weekStartsOn: 2 });
-        tuesdays = tuesdays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
-      }
+  // Create a Set to hold unique dates from all providers
+  const uniqueDatesSet = new Set([...awsDates, ...gcrDates, ...azureDates]);
+
+  // Convert the Set back to an array and sort it
+  const sortedUniqueDates = Array.from(uniqueDatesSet).sort((a, b) => new Date(a) - new Date(b));
+
+  return sortedUniqueDates;
+}, [overallStatisticsAWS, overallStatisticsGCR, overallStatisticsAzure]);
+
+
+// // Image size experiments and Language runtime experiments are run on every tuesday
+
+// const getTuesdaysInRange = (endDate, numberOfWeeks) => {
+//   const end = startOfWeek(new Date(endDate), { weekStartsOn: 2 }); // Last Tuesday
+//   const start = subWeeks(end, numberOfWeeks - 1); // Go back the required number of weeks
+//   const tuesdays = eachWeekOfInterval({ start, end }, { weekStartsOn: 2 });
+//   return tuesdays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
+// };
+
+//     const dateRangeList = useMemo(() => {
+//       const today = new Date();
+//       let tuesdays = [];
+
+//       if (dateRange === 'week') {
+//         tuesdays = getTuesdaysInRange(today, 1);
+//       } else if (dateRange === 'month') {
+//         tuesdays = getTuesdaysInRange(today, 4);
+//         // console.log(tuesdays)
+//       } else if (dateRange === '3-months') {
+//         tuesdays = getTuesdaysInRange(today, 12);
+//       }
+//       else if (dateRange === 'custom') { 
+//         tuesdays = eachWeekOfInterval({ start: startOfDay(new Date(startDate)), end: startOfDay(new Date(endDate))}, { weekStartsOn: 2 });
+//         tuesdays = tuesdays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
+//       }
     
-      // console.log(tuesdays)
-      return tuesdays;
-    }, [dateRange, startDate, endDate]);
+//       // console.log(tuesdays)
+
+//       return tuesdays;
+//     }, [dateRange, startDate, endDate]);
 
     const getFilteredTailLatencies = (overallStatistics, dateRangeList) => {
       if (!overallStatistics || !dateRangeList) return null;
     
       const dateToLatencyMap = new Map(overallStatistics.map(record => [record.date, record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)]));
-      
+      console.log(dateToLatencyMap)
       return dateRangeList.map(date => dateToLatencyMap.get(date) || '0');
     };
     
@@ -200,10 +221,12 @@ const getFilteredMedianLatencies = (overallStatistics, dateRangeList) => {
   return dateRangeList.map(date => dateToLatencyMap.get(date) || '0');
 };
 
+
 // Memoized tail latencies
 const tailLatenciesAWS = useMemo(() => getFilteredTailLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
 const tailLatenciesGCR = useMemo(() => getFilteredTailLatencies(overallStatisticsGCR, dateRangeList), [overallStatisticsGCR, dateRangeList]);
 const tailLatenciesAzure = useMemo(() => getFilteredTailLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
+
 
 // Memoized median latencies
 const medianLatenciesAWS = useMemo(() => getFilteredMedianLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
@@ -220,7 +243,8 @@ const medianLatenciesAzure = useMemo(() => getFilteredMedianLatencies(overallSta
     ,[dailyStatistics])
 
     
-console.log(overallStatisticsAWS)
+console.log(tailLatenciesAWS,tailLatenciesGCR,tailLatenciesAzure)
+console.log(dateRangeList)
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
