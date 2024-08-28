@@ -47,7 +47,7 @@ jobs:
       matrix:
         runtime:
           [
-            go,
+            # go,
             # py,
             # node,
             java,
