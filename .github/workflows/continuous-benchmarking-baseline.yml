@@ -538,13 +538,13 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: tar --strip-components=1 -xvf ../build.tar -C .
 
-      # - name: AWS Cold Function Invocation - Baseline
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 1440
-      #     max_attempts: 5
-      #     retry_wait_seconds: 60
-      #     command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
+      - name: AWS Cold Function Invocation - Baseline
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 1440
+          max_attempts: 5
+          retry_wait_seconds: 60
+          command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
 
       - uses: actions/upload-artifact@v3
         with:
