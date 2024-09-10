@@ -1,4 +1,4 @@
-rname: Provision VM and setup self-hosted runner
+name: Provision VM and setup self-hosted runner
 
 on:
   workflow_dispatch:
