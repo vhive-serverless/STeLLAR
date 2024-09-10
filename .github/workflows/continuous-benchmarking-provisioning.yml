@@ -9,7 +9,6 @@ jobs:
   setup-aws-vm:
     runs-on: ubuntu-latest
     env:
-      # AWS_RUNNER_NAME: stellar-continuous-aws
       AWS_RUNNER_NAME: stellar-aws-t3
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +38,11 @@ jobs:
         id: create-vm
 
       - name: Get public IP address
-        run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+        run: |
+              echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+              table=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].{Name:Name; PublicIP:PublicIpAddress}" --output table
+              
+
         id: get-ip
 
       - name: Create a registration token for self-hosted runners
