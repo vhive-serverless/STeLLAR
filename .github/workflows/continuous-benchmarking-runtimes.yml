@@ -49,7 +49,7 @@ jobs:
           [
             # go,
             # py,
-            # node,
+            node,
             java,
           ]
     env:
