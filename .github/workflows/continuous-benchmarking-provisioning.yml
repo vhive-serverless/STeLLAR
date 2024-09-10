@@ -26,12 +26,6 @@ jobs:
           echo ${{ vars.SSH_PUBLIC_KEY }} > $HOME/.ssh/id_rsa.pub
           cat $HOME/.ssh/id_rsa.pub
 
-      - name: Get public IP address
-        run: |
-              echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
-              table=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query 'Reservations[*].Instances[*].{Instance:InstanceType,PublicIP:PublicIpAddress}' --output table)
-        id: get-ip
-
       - name: Create AWS EC2 instance
         run: |
           aws ec2 run-instances \
@@ -42,6 +36,13 @@ jobs:
             --region us-west-1 \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]'
         id: create-vm
+
+      - name: Get public IP address
+        run: |
+              echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
+              table=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query 'Reservations[*].Instances[*].{Instance:InstanceType,PublicIP:PublicIpAddress}' --output table)
+              echo "$table"
+        id: get-ip
 
       - name: Create a registration token for self-hosted runners
         run: |
