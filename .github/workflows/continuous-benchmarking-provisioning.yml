@@ -29,7 +29,7 @@ jobs:
       - name: Get public IP address
         run: |
               echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
-              table=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].{Instance:InstanceType; PublicIP:PublicIpAddress}" --output table
+              table=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].{Instance:InstanceType; PublicIP:PublicIpAddress}" --output table)
         id: get-ip
 
       - name: Create AWS EC2 instance
