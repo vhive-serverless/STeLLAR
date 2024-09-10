@@ -9,7 +9,8 @@ jobs:
   setup-aws-vm:
     runs-on: ubuntu-latest
     env:
-      AWS_RUNNER_NAME: stellar-continuous-aws
+      # AWS_RUNNER_NAME: stellar-continuous-aws
+      AWS_RUNNER_NAME: stellar-aws-t3
     steps:
       - uses: actions/checkout@v4
 
@@ -99,7 +100,7 @@ jobs:
             retry_wait_seconds: 10
             command: |
                 # Exit if runner is already set up
-                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'aws')
+                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'awst3')
                 echo "Runner Status: $RUNNER_STATUS"
                 if [ -n "$RUNNER_STATUS" ]; then
                   echo "Runner with label 'aws' is already set up and running."
@@ -121,7 +122,7 @@ jobs:
                   mkdir actions-runner && cd actions-runner
                   curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
                   tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-                  ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
+                  ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels awst3
                   tmux new-session -d -s github-actions-runner 'bash ./run.sh'
                 "
 
