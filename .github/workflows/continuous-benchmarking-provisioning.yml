@@ -31,7 +31,7 @@ jobs:
           aws ec2 run-instances \
             --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
             --image-id ami-036cafe742923b3d9 \
-            --instance-type t3a.micro \
+            --instance-type t3a.small \
             --key-name stellar-ssh-key \
             --region us-west-1 \
             --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]'
