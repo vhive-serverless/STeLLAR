@@ -4,7 +4,7 @@ import useIsMountedRef from 'use-is-mounted-ref';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers';
-import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, startOfDay } from 'date-fns';
+import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, startOfDay, addDays } from 'date-fns';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
@@ -78,10 +78,6 @@ export default function BaselineLatencyDashboard() {
       setImageSizeOverall(selectedValue);
     };
 
-    const handleChangeProvider = (event) => {
-      const selectedValue = event.target.value;  
-      setProvider(selectedValue);
-    };
     
     useMemo(()=>{
       setExperimentType(`cold-image-size-${imageSize}-${provider}`)
@@ -172,79 +168,52 @@ const dateRangeList = useMemo(() => {
   return sortedUniqueDates;
 }, [overallStatisticsAWS, overallStatisticsGCR, overallStatisticsAzure]);
 
+// Function to get the Mondays in a given range
 
-// // Image size experiments and Language runtime experiments are run on every tuesday
-
-// const getTuesdaysInRange = (endDate, numberOfWeeks) => {
-//   const end = startOfWeek(new Date(endDate), { weekStartsOn: 2 }); // Last Tuesday
-//   const start = subWeeks(end, numberOfWeeks - 1); // Go back the required number of weeks
-//   const tuesdays = eachWeekOfInterval({ start, end }, { weekStartsOn: 2 });
-//   return tuesdays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
-// };
-
-//     const dateRangeList = useMemo(() => {
-//       const today = new Date();
-//       let tuesdays = [];
-
-//       if (dateRange === 'week') {
-//         tuesdays = getTuesdaysInRange(today, 1);
-//       } else if (dateRange === 'month') {
-//         tuesdays = getTuesdaysInRange(today, 4);
-//         // console.log(tuesdays)
-//       } else if (dateRange === '3-months') {
-//         tuesdays = getTuesdaysInRange(today, 12);
-//       }
-//       else if (dateRange === 'custom') { 
-//         tuesdays = eachWeekOfInterval({ start: startOfDay(new Date(startDate)), end: startOfDay(new Date(endDate))}, { weekStartsOn: 2 });
-//         tuesdays = tuesdays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
-//       }
-    
-//       // console.log(tuesdays)
-
-//       return tuesdays;
-//     }, [dateRange, startDate, endDate]);
-
-    const getFilteredTailLatencies = (overallStatistics, dateRangeList) => {
-      if (!overallStatistics || !dateRangeList) return null;
-    
-      const dateToLatencyMap = new Map(overallStatistics.map(record => [record.date, record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2)]));
-      console.log(dateToLatencyMap)
-      return dateRangeList.map(date => dateToLatencyMap.get(date) || '0');
-    };
-    
-    // Function to get filtered median latencies
-const getFilteredMedianLatencies = (overallStatistics, dateRangeList) => {
-  if (!overallStatistics || !dateRangeList) return null;
-
-  const dateToLatencyMap = new Map(overallStatistics.map(record => [record.date, record.median]));
-
-  return dateRangeList.map(date => dateToLatencyMap.get(date) || '0');
+const getMondaysInRange = (endDate, numberOfWeeks) => {
+  const end = startOfWeek(new Date(endDate), { weekStartsOn: 1 }); // Last Monday
+  const start = subWeeks(end, numberOfWeeks - 1); // Go back the required number of weeks
+  const mondays = eachWeekOfInterval({ start, end }, { weekStartsOn: 1 });
+  return mondays.map(tuesday => format(tuesday, 'yyyy-MM-dd'));
 };
 
 
-// Memoized tail latencies
-const tailLatenciesAWS = useMemo(() => getFilteredTailLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
-const tailLatenciesGCR = useMemo(() => getFilteredTailLatencies(overallStatisticsGCR, dateRangeList), [overallStatisticsGCR, dateRangeList]);
-const tailLatenciesAzure = useMemo(() => getFilteredTailLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
 
-
-// Memoized median latencies
-const medianLatenciesAWS = useMemo(() => getFilteredMedianLatencies(overallStatisticsAWS, dateRangeList), [overallStatisticsAWS, dateRangeList]);
-const medianLatenciesGCR = useMemo(() => getFilteredMedianLatencies(overallStatisticsGCR, dateRangeList), [overallStatisticsGCR, dateRangeList]);
-const medianLatenciesAzure = useMemo(() => getFilteredMedianLatencies(overallStatisticsAzure, dateRangeList), [overallStatisticsAzure, dateRangeList]);
-
-
-
-    const TMR = useMemo(() => {
-            if (dailyStatistics)
-                return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
-            return null
-        }
-    ,[dailyStatistics])
-
+    const groupLatenciesByMonday = (overallStatistics, mondays) => {
+      if (!overallStatistics || !mondays) return null;
     
-console.log(tailLatenciesAWS,tailLatenciesGCR,tailLatenciesAzure)
-console.log(dateRangeList)
+      // Initialize a map where the key is the Monday and the value is an array of latencies for that week
+      const latenciesGroupedByMonday = new Map(mondays.map(monday => [monday, []]));
+    
+      overallStatistics.forEach(record => {
+        const recordDate = new Date(record.date);
+    
+        // Find the Monday this record belongs to
+        for (let i = 0; i < mondays.length; i+=1) {
+          const mondayDate = new Date(mondays[i]);
+          const nextMondayDate = new Date(addDays(mondayDate, 7));
+          if (recordDate >= mondayDate && recordDate < nextMondayDate) {
+            latenciesGroupedByMonday.get(mondays[i]).push({
+              tailLatency: record.tail_latency === '0' ? 0 : Math.log10(record.tail_latency).toFixed(2),
+              medianLatency: record.median,
+              date: record.date
+            });
+            break;
+          }
+        }
+      });
+    
+      return latenciesGroupedByMonday;
+    };
+    
+    // Mondays list for the last 3 months
+    const mondays = useMemo(() => getMondaysInRange(today, 12), [today]);
+    
+    // Group latencies for AWS, GCR, and Azure
+    const awsLatenciesGroupedByMonday = useMemo(() => groupLatenciesByMonday(overallStatisticsAWS, mondays), [overallStatisticsAWS, mondays]);
+    const gcrLatenciesGroupedByMonday = useMemo(() => groupLatenciesByMonday(overallStatisticsGCR, mondays), [overallStatisticsGCR, mondays]);
+    const azureLatenciesGroupedByMonday = useMemo(() => groupLatenciesByMonday(overallStatisticsAzure, mondays), [overallStatisticsAzure, mondays]);
+    
   return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
@@ -380,148 +349,92 @@ console.log(dateRangeList)
 {loading ? (<CircularProgress />) : <>
           <Grid item xs={12} mt={3}>
             
-            <AppLatency
-              title="Median Latency "
-              subheader="50th Percentile"
-              chartLabels={dateRangeList}
-              chartData={[
-                {
-                  name: `AWS - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: medianLatenciesAWS,
-                },
-                {
-                  name: `GCR - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[0],
-                  data: medianLatenciesGCR,
-                },
-                {
-                  name: `Azure - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: medianLatenciesAzure,
-                },
-                
-              ]}
-            />
+          <AppLatency
+            title="Median Latency"
+            subheader="50th Percentile"
+            chartLabels={mondays} // Using the Mondays as the chart labels
+            chartData={[
+              {
+                name: `AWS - ${imageSizeOverall} MB`,
+                type: 'line',
+                fill: 'solid',
+                color: theme.palette.chart.blue[0],
+                data: mondays.map(monday => {
+                  const latencies = awsLatenciesGroupedByMonday.get(monday);
+                  return latencies?.length > 0 ? parseFloat(latencies[0].medianLatency) : 0;
+                }),
+              },
+              {
+                name: `GCR - ${imageSizeOverall} MB`,
+                type: 'line',
+                fill: 'solid',
+                color: theme.palette.chart.green[0],
+                data: mondays.map(monday => {
+                  const latencies = gcrLatenciesGroupedByMonday.get(monday);
+                  return latencies?.length > 0 ? parseFloat(latencies[0].medianLatency) : 0;
+                }),
+              },
+              {
+                name: `Azure - ${imageSizeOverall} MB`,
+                type: 'line',
+                fill: 'solid',
+                color: theme.palette.chart.red[0],
+                data: mondays.map(monday => {
+                  const latencies = azureLatenciesGroupedByMonday.get(monday);
+                  return latencies?.length > 0 ? parseFloat(latencies[0].medianLatency) : 0;
+                }),
+            },
+          ]}
+        />
           </Grid>
+
+        
+
           <Grid item xs={12} mt={3}>
-            <AppLatency
-              title="Tail Latency "
-              subheader="99th Percentile"
-              type={'tail'}
-              chartLabels={dateRangeList}
-              chartData={[
-                {
-                  name: `AWS - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.blue[0],
-                  data: tailLatenciesAWS,
-                },
-                {
-                  name: `GCR - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.green[0],
-                  data: tailLatenciesGCR,
-                },
-                {
-                  name: `Azure - ${imageSizeOverall} MB`,
-                  type: 'line',
-                  fill: 'solid',
-                  color:theme.palette.chart.red[0],
-                  data: tailLatenciesAzure,
-                },
-              ]}
-            />
+          <AppLatency
+            title="Tail Latency"
+            subheader="99th Percentile"
+            type={'tail'}
+            chartLabels={mondays} // Using the Mondays as the chart labels
+            chartData={[
+              {
+                name: `AWS - ${imageSizeOverall} MB`,
+                type: 'line',
+                fill: 'solid',
+                color: theme.palette.chart.blue[0],
+                data: mondays.map(monday => {
+                  const latencies = awsLatenciesGroupedByMonday.get(monday);
+                  return latencies?.length > 0 ? parseFloat(latencies[0].tailLatency): 0;
+                }),
+              },
+              {
+                name: `GCR - ${imageSizeOverall} MB`,
+                type: 'line',
+                fill: 'solid',
+                color: theme.palette.chart.green[0],
+                data: mondays.map(monday => {
+                  const latencies = gcrLatenciesGroupedByMonday.get(monday);
+                  return latencies?.length > 0 ? parseFloat(latencies[0].tailLatency): 0;
+                }),
+              },
+              {
+                name: `Azure - ${imageSizeOverall} MB`,
+                type: 'line',
+                fill: 'solid',
+                color: theme.palette.chart.red[0],
+                data: mondays.map(monday => {
+                  const latencies = azureLatenciesGroupedByMonday.get(monday);
+                  return latencies?.length > 0 ? parseFloat(latencies[0].tailLatency): 0;
+                }),
+            },
+          ]}
+        />
           </Grid>
           </>}
           </CardContent>
           </Card>
           </Grid>
 
-          {/* <Grid item xs={12} sx={{mt:5}}>
-              <Card>
-                <CardContent>
-            <Grid item xs={12}>
-            
-            <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocations <br/> Varying Image Sizes
-            </Typography>
-            <Stack direction="row" alignItems="center">
-            <InputLabel sx={{mr:3}}>View Results on : </InputLabel>
-                <DatePicker
-                    value={selectedDate}
-                    shouldDisableDate={disablePreviousDates}
-                    onChange={(newValue) => {
-
-                        setSelectedDate(format(newValue, 'yyyy-MM-dd'));
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
-                 <InputLabel sx={{mx:3}}> with the Image Size of :</InputLabel>
-                <Select
-                  value={imageSize}
-                  label="imageSize"
-                  onChange={handleChangeImageSize}
-                >
-                  <MenuItem value={'50'}>50 MB</MenuItem>
-                  <MenuItem value={'100'}>100 MB</MenuItem>
-                </Select>
-                <InputLabel sx={{mx:3}}> for : </InputLabel>
-                <Select
-                  value={provider}
-                  label="provider"
-                  onChange={handleChangeProvider}
-                >
-                  <MenuItem value={'aws'}>AWS</MenuItem>
-                  <MenuItem value={'gcr'}>GCR</MenuItem>
-                  <MenuItem value={'azure'}>Azure</MenuItem>
-                </Select>
-                </Stack>
-               
-            </Grid>
-            {
-                dailyStatistics?.length < 1 ? <Grid item xs={12}>
-            <Typography sx={{fontSize:'14px', color: 'error.main',mt:-2}}>
-                No results found!
-            </Typography>
-            </Grid> : null
-            }
-             <Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
-             <Grid container >
-          
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>25<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} shortenNumber={false} color="info" textPictogram={<>50<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info"  shortenNumber={false} textPictogram={<>75<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" shortenNumber={false} textPictogram={<>99<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
-          </Grid>
-</Grid>
-          </Stack>
-
-          </CardContent>
-              </Card>
-          </Grid> */}
 
         </Grid>
         
