@@ -49,8 +49,7 @@ func ProvisionFunctions(config Configuration) {
 		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
 	)
 
-	// To filter out re-usable endpoints for continuous-benchmarking
-	availableEndpoints := connection.Singleton.ListAPIs(config.SubExperiments[0].RepurposeIdentifier)
+	availableEndpoints := connection.Singleton.ListAPIs()
 
 	for index, subExperiment := range config.SubExperiments {
 		config.SubExperiments[index].ID = index
@@ -149,132 +148,33 @@ func ProvisionFunctionsServerlessAWS(config *Configuration, serverlessDirPath st
 
 }
 
-// Code replace the logic that sets up Azure Functions deployment with Azure Databricks job submission
 func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath string) {
 	randomExperimentTag := util.GenerateRandLowercaseLetters(5)
 
 	for subExperimentIndex, subExperiment := range config.SubExperiments {
-		// Generate the code for the sub-experiment
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
-		// Build the function (Java/Python)
 		builder := &building.Builder{}
 		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 
-		// Initialize Databricks job submission
-		submitDatabricksJob(config, subExperimentIndex, randomExperimentTag, subExperiment)
-	}
-}
-
-// Add-on code: Handle submitting the Spark job to Azure Databricks
-func submitDatabricksJob(config *Configuration, subExperimentIndex int, randomExperimentTag string, subExperiment SubExperiment) {
-	// Define the Databricks Job Payload
-	jobPayload := createDatabricksJobPayload(config, randomExperimentTag, subExperimentIndex, subExperiment)
-
-	// Submit the Job to Databricks using the REST API
-	jobID, err := sendDatabricksJobRequest(jobPayload)
-	if err != nil {
-		log.Fatalf("Failed to submit job to Azure Databricks: %v", err)
-	}
-
-	// Wait for the Job to complete
-	jobStatus, err := waitForDatabricksJobCompletion(jobID)
-	if err != nil || jobStatus != "SUCCESS" {
-		log.Fatalf("Databricks job %s failed or did not complete successfully", jobID)
-	}
-
-	log.Infof("Databricks job completed successfully. Job ID: %s", jobID)
-
-	// Assign the Job ID as an endpoint identifier (or other metadata)
-	config.SubExperiments[subExperimentIndex].AssignEndpointIDs(jobID)
-}
-
-// Add-on code: Define the Databricks job submission payload
-func createDatabricksJobPayload(config *Configuration, randomExperimentTag string, subExperimentIndex int, subExperiment SubExperiment) string {
-	
-	return fmt.Sprintf(`{
-		"name": "job-%s-subex%d",
-		"new_cluster": {
-			"spark_version": "7.3.x-scala2.12",
-			"node_type_id": "Standard_DS3_v2",
-			"autoscale": {
-				"min_workers": 1,
-				"max_workers": 8
-			}
-		},
-		"notebook_task": {
-			"notebook_path": "/path/to/your/notebook",
-			"base_parameters": {
-				"param1": "value1"
-			}
+		if config.SubExperiments[subExperimentIndex].Endpoints == nil {
+			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
 		}
-	}`, randomExperimentTag, subExperimentIndex)
-}
 
-// Add-on code: Sends the job request to Azure Databricks using their REST API
-func sendDatabricksJobRequest(jobPayload string) (string, error) {
-	url := "https://<databricks-instance>/api/2.0/jobs/runs/submit"
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jobPayload)))
-	if err != nil {
-		return "", err
-	}
-
-	// Set headers, including authentication token
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer <your-databricks-token>")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
-
-	return result["run_id"].(string), nil
-}
-
-// Add-on code: Wait for job to complete
-func waitForDatabricksJobCompletion(jobID string) (string, error) {
-	for {
-		status, err := getDatabricksJobStatus(jobID)
-		if err != nil {
-			return "", err
-		}
-		if status == "SUCCESS" || status == "FAILED" {
-			return status, nil
-		}
-		time.Sleep(30 * time.Second) // Poll every 30 seconds
+		deploySubExperimentParallelismInBatches(config, serverlessDirPath, randomExperimentTag, subExperimentIndex, 1)
 	}
 }
 
-func getDatabricksJobStatus(jobID string) (string, error) {
-	url := fmt.Sprintf("https://<databricks-instance>/api/2.0/jobs/runs/get?run_id=%s", jobID)
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer <your-databricks-token>")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]interface{}
-	json.NewDecoder(resp.Body).Decode(&result)
-
-	return result["state"].(map[string]interface{})["life_cycle_state"].(string), nil
-}
-
-// Replace the deployment of these serverless functions with submitting Databricks jobs
 func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDirPath string, randomExperimentTag string, subExperimentIndex int, functionsPerBatch int) {
 	subExperiment := config.SubExperiments[subExperimentIndex]
 
 	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
 
+	endpoints := make(map[int]EndpointInfo)
+	routes := make(map[int]string)
+
 	for batchNumber := 0; batchNumber < numberOfBatches; batchNumber++ {
+		mu := sync.Mutex{}
 		wg := sync.WaitGroup{}
 
 		for parallelism := batchNumber * functionsPerBatch; parallelism < (batchNumber+1)*functionsPerBatch && parallelism < subExperiment.Parallelism; parallelism++ {
@@ -282,15 +182,47 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 
 			go func(parallelism int) {
 				defer wg.Done()
-				// Submit a Databricks job for each function in parallel
-				submitDatabricksJob(config, subExperimentIndex, randomExperimentTag, subExperiment)
+
+				artifactsPath := filepath.Join(serverlessDirPath, "artifacts", subExperiment.Function, subExperiment.PackagePattern)
+				deploymentDir := filepath.Join(serverlessDirPath, fmt.Sprintf("sub-experiment-%d", subExperimentIndex), fmt.Sprintf("parallelism-%d", parallelism))
+				if err := os.MkdirAll(deploymentDir, os.ModePerm); err != nil {
+					log.Fatalf("Error creating pre-deployment directory for function %s: %s", subExperiment.Function, err.Error())
+				}
+				util.RunCommandAndLog(exec.Command("cp", artifactsPath, deploymentDir))
+
+				deploymentCodePath := filepath.Join(deploymentDir, subExperiment.PackagePattern)
+				currentSizeInBytes := packaging.GetZippedBinaryFileSize(subExperiment.ID, deploymentCodePath)
+				targetSizeInBytes := util.MebibyteToBytes(subExperiment.FunctionImageSizeMB)
+
+				fillerFileSize := packaging.CalculateFillerFileSizeInBytes(currentSizeInBytes, targetSizeInBytes)
+				fillerFilePath := filepath.Join(deploymentDir, "filler.file")
+				packaging.GenerateFillerFile(subExperiment.ID, fillerFilePath, fillerFileSize)
+
+				slsConfig := &Serverless{}
+				slsConfig.CreateHeaderConfig(config, fmt.Sprintf("%s-subex%d-para%d", randomExperimentTag, subExperimentIndex, parallelism))
+				slsConfig.addPlugin("serverless-azure-functions")
+				name := createName(&subExperiment, subExperimentIndex, parallelism)
+				slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, name)
+				slsConfig.CreateServerlessConfigFile(filepath.Join(deploymentDir, "serverless.yml"))
+
+				log.Infof("Starting functions deployment. Deploying %d functions to %s.", len(slsConfig.Functions), config.Provider)
+				slsDeployMessage := DeployService(deploymentDir)
+
+				endpointID := GetAzureEndpointID(slsDeployMessage)
+				mu.Lock()
+				defer mu.Unlock()
+				endpoints[parallelism] = EndpointInfo{ID: endpointID}
+				routes[parallelism] = name
 			}(parallelism)
 		}
+		wg.Wait()
+	}
 
-		wg.Wait() // Wait for all jobs in the batch to finish
+	for i := 0; i < subExperiment.Parallelism; i++ {
+		config.SubExperiments[subExperimentIndex].Endpoints = append(config.SubExperiments[subExperimentIndex].Endpoints, endpoints[i])
+		config.SubExperiments[subExperimentIndex].Routes = append(config.SubExperiments[subExperimentIndex].Routes, routes[i])
 	}
 }
-
 
 func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 	slsConfig := &Serverless{}

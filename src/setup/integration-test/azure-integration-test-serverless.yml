@@ -6,3 +6,20 @@ provider:
     name: azure
     region: West US
     runtime: python3.8
+    functionApp:
+        extensionVersion: '~4'
+
+plugins:
+    - serverless-azure-functions
+
+functions:
+    stellar-azure-integration-test-0:
+        package:
+            patterns:
+                - 'main.py'
+        handler: main.main
+        events:
+            -   http: true
+                methods:
+                    - GET
+                authLevel: anonymous
