@@ -206,8 +206,28 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
       return latenciesGroupedByMonday;
     };
     
-    // Mondays list for the last 3 months
-    const mondays = useMemo(() => getMondaysInRange(today, 12), [today]);
+    
+    // Mondays list 
+
+    const mondays = useMemo(() => {
+      let mondays = [];
+    
+      if (dateRange === 'week') {
+        mondays = getMondaysInRange(today, 1);
+      } else if (dateRange === 'month') {
+        mondays = getMondaysInRange(today, 4);
+      } else if (dateRange === '3-months') {
+        mondays = getMondaysInRange(today, 12);
+      } else if (dateRange === 'custom') {
+        mondays = eachWeekOfInterval({ 
+          start: startOfDay(new Date(startDate)), 
+          end: startOfDay(new Date(endDate)) 
+        }, { weekStartsOn: 1 }); // Start on Tuesday
+        mondays = mondays.map(monday => format(mondays, 'yyyy-MM-dd'));
+      }
+    
+      return mondays;
+    }, [dateRange, today, startDate, endDate]);
     
     // Group latencies for AWS, GCR, and Azure
     const awsLatenciesGroupedByMonday = useMemo(() => groupLatenciesByMonday(overallStatisticsAWS, mondays), [overallStatisticsAWS, mondays]);
