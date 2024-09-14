@@ -1,7 +1,7 @@
 name: STeLLAR Test Pipeline
 on:
+  workflow_dispatch:
   push:
-    workflow_dispatch:
     branches: [ main ]
   pull_request:
     branches: [ main ]
