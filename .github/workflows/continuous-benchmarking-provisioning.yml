@@ -102,13 +102,13 @@ jobs:
             max_attempts: 5
             retry_wait_seconds: 10
             command: |
-                # Exit if runner is already set up
-                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'awst3')
-                echo "Runner Status: $RUNNER_STATUS"
-                if [ -n "$RUNNER_STATUS" ]; then
-                  echo "Runner with label 'aws' is already set up and running."
-                  exit 0
-                fi
+                # # Exit if runner is already set up
+                # RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'awst3')
+                # echo "Runner Status: $RUNNER_STATUS"
+                # if [ -n "$RUNNER_STATUS" ]; then
+                #   echo "Runner with label 'aws' is already set up and running."
+                #   exit 0
+                # fi
 
                 # Connection status
                 CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
