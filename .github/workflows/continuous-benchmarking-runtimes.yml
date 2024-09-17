@@ -48,9 +48,9 @@ jobs:
         runtime:
           [
             # go,
-            # py,
+            py,
             # node,
-            java,
+            # java,
           ]
     env:
       working-directory: src
