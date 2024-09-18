@@ -17,13 +17,7 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
-      - name: Lint files individually
-        run: |
-          find . -name "*.go" | grep -v "/raw-code/" | while read file; do
-            echo "Linting $file"
-            golangci-lint run "$file" || true
-          done
-        working-directory: ${{ env.working-directory }}
+
       - name: Check syntax
         uses: golangci/golangci-lint-action@v3
         with:
