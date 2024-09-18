@@ -25,7 +25,8 @@ package packaging
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"math/rand"
+	// "math/rand"
+	"crypto/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
