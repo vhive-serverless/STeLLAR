@@ -17,15 +17,12 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
-        with:
-          ref: kavi-99/fix-provisionVM
-
-
+        
       - name: Check syntax
         uses: golangci/golangci-lint-action@v3
         with:
           working-directory: ${{ env.working-directory }}
-          args: --timeout 5m --skip-dirs raw-code
+          args: --timeout 5m --skip-dirs raw-code --verbose
           skip-pkg-cache: true
           skip-build-cache: true
 
