@@ -9,7 +9,7 @@ jobs:
   teardown-aws-vm:
     runs-on: ubuntu-latest
     env:
-      AWS_RUNNER_NAME: stellar-aws-t3
+      AWS_RUNNER_NAME: stellar-aws
     steps:
       -   uses: actions/checkout@v4
 
