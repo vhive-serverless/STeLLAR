@@ -27,7 +27,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"math/rand"
+	// "math/rand"
 	"os"
 	"path/filepath"
 	"stellar/benchmarking"
