@@ -22,7 +22,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           working-directory: ${{ env.working-directory }}
-          args: --timeout 5m --skip-dirs raw-code --verbose
+          args: --timeout 5m --skip-dirs raw-code
           skip-pkg-cache: true
           skip-build-cache: true
 
