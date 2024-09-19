@@ -26,7 +26,7 @@ package setup
 
 import (
 	"fmt"
-	"math"
+	//"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -36,7 +36,8 @@ import (
 	"stellar/setup/deployment/connection/amazon"
 	"stellar/setup/deployment/packaging"
 	"stellar/util"
-	"sync"
+
+	//"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -49,7 +50,7 @@ func ProvisionFunctions(config Configuration) {
 		storageSpaceWarnThreshold  = 500 // 500 * ~18KiB = 10MB just for 1 sub-experiment
 	)
 
-	availableEndpoints := connection.Singleton.ListAPIs()
+	availableEndpoints := connection.Singleton.ListAPIs("default")
 
 	for index, subExperiment := range config.SubExperiments {
 		config.SubExperiments[index].ID = index
@@ -152,19 +153,42 @@ func ProvisionFunctionsServerlessAzure(config *Configuration, serverlessDirPath 
 	randomExperimentTag := util.GenerateRandLowercaseLetters(5)
 
 	for subExperimentIndex, subExperiment := range config.SubExperiments {
+		// Generate the function code
 		code_generation.GenerateCode(subExperiment.Function, config.Provider)
 
+		// Build the function (if necessary)
 		builder := &building.Builder{}
-		builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
+		artifactPath := builder.BuildFunction(config.Provider, subExperiment.Function, subExperiment.Runtime)
 
-		if config.SubExperiments[subExperimentIndex].Endpoints == nil {
-			config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{}
+		// Prepare the deployment directory
+		deploymentDir := filepath.Join(serverlessDirPath, fmt.Sprintf("sub-experiment-%d", subExperimentIndex))
+		if err := os.MkdirAll(deploymentDir, os.ModePerm); err != nil {
+			log.Fatalf("Error creating deployment directory: %s", err)
 		}
 
-		deploySubExperimentParallelismInBatches(config, serverlessDirPath, randomExperimentTag, subExperimentIndex, 1)
+		// Copy the built artifact to the deployment directory
+		util.RunCommandAndLog(exec.Command("cp", "-r", artifactPath+"/.", deploymentDir))
+
+		// Generate the Serverless configuration
+		slsConfig := &Serverless{}
+		functionName := fmt.Sprintf("stellar-%s-subex%d", randomExperimentTag, subExperimentIndex)
+		slsConfig.CreateHeaderConfig(config, functionName)
+		slsConfig.AddFunctionConfigAzure(&config.SubExperiments[subExperimentIndex], subExperimentIndex, functionName)
+		slsConfig.CreateServerlessConfigFile(filepath.Join(deploymentDir, "serverless.yml"))
+
+		// Deploy the function
+		log.Infof("Deploying function '%s' to Azure.", functionName)
+		slsDeployMessage := DeployService(deploymentDir)
+		log.Info(slsDeployMessage)
+
+		// Extract the endpoint URL
+		endpointURL := GetAzureEndpointID(slsDeployMessage)
+		config.SubExperiments[subExperimentIndex].Endpoints = []EndpointInfo{{ID: endpointURL}}
 	}
 }
 
+/* //remove for now cause The need to manage parallelism at the deployment level may no longer be necessary.
+//With the switch to Serverless Framework v4 and the updated Azure provider plugin, the deployment process might have been simplified or changed.
 func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDirPath string, randomExperimentTag string, subExperimentIndex int, functionsPerBatch int) {
 	subExperiment := config.SubExperiments[subExperimentIndex]
 
@@ -223,6 +247,7 @@ func deploySubExperimentParallelismInBatches(config *Configuration, serverlessDi
 		config.SubExperiments[subExperimentIndex].Routes = append(config.SubExperiments[subExperimentIndex].Routes, routes[i])
 	}
 }
+*/
 
 func ProvisionFunctionsGCR(config *Configuration, serverlessDirPath string) {
 	slsConfig := &Serverless{}

@@ -2,16 +2,19 @@ package setup
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
-	"math"
+	//"math"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"stellar/util"
 	"strings"
-	"sync"
+
+	//"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 // Serverless describes the serverless.yml contents.
@@ -25,11 +28,15 @@ type Serverless struct {
 }
 
 type Provider struct {
-	Name        string      `yaml:"name"`
-	Runtime     string      `yaml:"runtime"`
-	Region      string      `yaml:"region"`
-	Credentials string      `yaml:"credentials,omitempty"`
-	FunctionApp FunctionApp `yaml:"functionApp,omitempty"`
+	Name           string      `yaml:"name"`
+	Runtime        string      `yaml:"runtime"`
+	Region         string      `yaml:"region"`
+	Credentials    string      `yaml:"credentials,omitempty"`
+	SubscriptionId string      `yaml:"subscriptionId,omitempty"`
+	TenantId       string      `yaml:"tenantId,omitempty"`
+	AppId          string      `yaml:"appId,omitempty"`
+	Password       string      `yaml:"password,omitempty"`
+	FunctionApp    FunctionApp `yaml:"functionApp,omitempty"`
 }
 
 type FunctionApp struct {
@@ -42,10 +49,10 @@ type Package struct {
 
 type Function struct {
 	Handler   string          `yaml:"handler"`
-	Runtime   string          `yaml:"runtime"`
-	Name      string          `yaml:"name"`
+	Runtime   string          `yaml:"runtime,omitempty"`
+	Name      string          `yaml:"name,omitempty"`
 	Events    []Event         `yaml:"events"`
-	Package   FunctionPackage `yaml:"package"`
+	Package   FunctionPackage `yaml:"package,omitempty"`
 	SnapStart bool            `yaml:"snapStart,omitempty"`
 }
 
@@ -56,18 +63,24 @@ type FunctionPackage struct {
 
 type Event struct {
 	AWSEvent     *AWSEvent
-	AzureEvent   *AzureEvent
+	Http         *AzureHttpEvent `yaml:"http,omitempty"`
 	AlibabaEvent *AlibabaEvent
 }
 
 func (event Event) MarshalYAML() (interface{}, error) {
-	if event.AWSEvent != nil {
+	if event.Http != nil {
+		// For Azure HTTP events, wrap the event in a map with the key "http"
+		return map[string]interface{}{
+			"http": event.Http,
+		}, nil
+	} else if event.AWSEvent != nil {
+		// For AWS events, return the AWSEvent as is
 		return event.AWSEvent, nil
-	} else if event.AzureEvent != nil {
-		return event.AzureEvent, nil
 	} else if event.AlibabaEvent != nil {
+		// For Alibaba events, return the AlibabaEvent as is
 		return event.AlibabaEvent, nil
 	} else {
+		// If no events are set, return nil
 		return nil, nil
 	}
 }
@@ -86,9 +99,9 @@ type AzureEvent struct {
 }
 
 type AzureHttpEvent struct {
-	AzureHttp      bool     `yaml:"http"`
-	AzureMethods   []string `yaml:"methods"`
-	AzureAuthLevel string   `yaml:"authLevel"`
+	Method    string `yaml:"method"`
+	Route     string `yaml:"route"`
+	AuthLevel string `yaml:"authLevel,omitempty"`
 }
 
 type AlibabaEvent struct {
@@ -140,10 +153,14 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName strin
 	switch config.Provider {
 	case "azure":
 		s.Provider = Provider{
-			Name:        config.Provider,
-			Runtime:     runtimeValue,
-			Region:      region,
-			FunctionApp: FunctionApp{ExtensionVersion: "~4"},
+			Name:           config.Provider,
+			Runtime:        runtimeValue,
+			Region:         region,
+			SubscriptionId: "${env:AZURE_SUBSCRIPTION_ID}",
+			TenantId:       "${env:AZURE_TENANT_ID}",
+			AppId:          "${env:AZURE_CLIENT_ID}",
+			Password:       "${env:AZURE_CLIENT_SECRET}",
+			FunctionApp:    FunctionApp{ExtensionVersion: "~4"},
 		}
 	case "aliyun":
 		s.Provider = Provider{
@@ -183,7 +200,7 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, rando
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
-	
+
 	for i := 0; i < subex.Parallelism; i++ {
 		handler := subex.Handler
 		runtime := subex.Runtime
@@ -217,30 +234,37 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, rando
 	}
 }
 
-// AddFunctionConfigAzure Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
+// AddFunctionConfigAzure adds a function to the service for Azure provider.
 func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, name string) {
-	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
+	log.Infof("Adding function config for Subexperiment %s, index %d", subex.Function, index)
 
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
 
 	handler := subex.Handler
-	runtime := subex.Runtime
+
+	// Define the HTTP event
 	events := []Event{
 		{
-			AzureEvent: &AzureEvent{
-				AzureHttpEvent: AzureHttpEvent{
-					AzureHttp:      true,
-					AzureMethods:   []string{"GET"},
-					AzureAuthLevel: "anonymous",
-				},
+			Http: &AzureHttpEvent{
+				Method:    "GET",       // Or the appropriate HTTP method
+				Route:     name,        // The route for the function
+				AuthLevel: "anonymous", // Authentication level
 			},
 		},
 	}
 
-	function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+	// Create the function configuration
+	function := &Function{
+		Handler: handler,
+		Events:  events,
+	}
+
+	// Add package patterns if needed
 	function.AddPackagePattern(subex.PackagePattern)
+
+	// Add the function to the service
 	s.Functions[name] = function
 }
 
@@ -323,7 +347,8 @@ func RemoveServerlessService(path string) string {
 	slsRemoveCmd.Dir = path
 	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
 
-	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
+	// Optionally, remove the serverless.yml file if necessary
+	util.RunCommandAndLog(exec.Command("rm", "-f", filepath.Join(path, "serverless.yml")))
 
 	return slsRemoveCmdOutput
 }
@@ -345,12 +370,15 @@ func RemoveServerlessServiceForcefully(path string) string {
 // RemoveAzureAllServices removes all Azure services
 func RemoveAzureAllServices(subExperiments []SubExperiment, path string) []string {
 	var removeServiceMessages []string
-	for subExperimentIndex, subExperiment := range subExperiments {
-		removeSubExperimentParallelismInBatches(path, subExperimentIndex, subExperiment, removeServiceMessages, 3)
+	for subExperimentIndex := range subExperiments {
+		deploymentDir := filepath.Join(path, fmt.Sprintf("sub-experiment-%d", subExperimentIndex))
+		removeMessage := RemoveServerlessService(deploymentDir)
+		removeServiceMessages = append(removeServiceMessages, removeMessage)
 	}
 	return removeServiceMessages
 }
 
+/* //remove for now
 func removeSubExperimentParallelismInBatches(path string, subExperimentIndex int, subExperiment SubExperiment, removeServiceMessages []string, functionsPerBatch int) {
 	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
 
@@ -374,7 +402,7 @@ func removeSubExperimentParallelismInBatches(path string, subExperimentIndex int
 		wg.Wait()
 	}
 }
-
+*/
 // RemoveGCRAllServices removes all GCR services defined in the Subexperiment array
 func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
 	var deleteServiceMessages []string
@@ -479,13 +507,18 @@ func GetGCREndpointID(deployMessage string) string {
 	return endpointID
 }
 
-// GetAzureEndpointID finds the Azure endpoint ID from the deployment message
+// GetAzureEndpointID extracts the Azure function endpoint URL from the deployment output
 func GetAzureEndpointID(message string) string {
-	methodAndEndpointRegex := regexp.MustCompile(`\[GET] .+\n`)
-	methodAndEndpoint := methodAndEndpointRegex.FindString(message) // e.g. [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
-	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
-	endpointId := strings.Split(endpoint, ".")[0]                   // e.g. sls-seasi-dev-stellar-sub-experiment-1
-	return endpointId
+	// Use a regex to find the line containing the endpoint URL
+	regex := regexp.MustCompile(`(?m)Invoke URL:\s+(https://.+)`)
+	matches := regex.FindStringSubmatch(message)
+	if len(matches) > 1 {
+		endpointURL := matches[1]
+		return endpointURL
+	} else {
+		log.Fatalf("Could not find the endpoint URL in deployment output.")
+		return ""
+	}
 }
 
 // GetAlibabaEndpointID finds the Alibaba Cloud endpoint ID from the deployment message
