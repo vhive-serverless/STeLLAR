@@ -51,6 +51,7 @@ func main() {
 	randomSeed := startTime.Unix()
 	// rand.Seed(randomSeed) // comment line for reproducible inter-arrival times
 	// r := rand.New(rand.NewSource(randomSeed)) // comment line for reproducible inter-arrival times
+	r := rand.New(rand.NewSource(randomSeed))
 	flag.Parse()
 
 	outputDirectoryPath := filepath.Join(*outputPathFlag, strconv.FormatInt(time.Now().Unix(), 10))
