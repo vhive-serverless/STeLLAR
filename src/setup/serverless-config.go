@@ -440,7 +440,7 @@ func RemoveAlibabaAllServices(path string, numSubExperiments int) []string {
 func DeployService(path string) string {
 	// 25.09 update to correct syntax issue logrus	
 	// log.Infof(fmt.Sprintf("Deploying service at %s", path))
-	log.Infof("Deploying service at %s", path)	slsDeployCmd := exec.Command("sls", "deploy")
+	log.Infof("Deploying service at %s", path)	
 	slsDeployCmd := exec.Command("sls", "deploy")
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLogWithRetries(slsDeployCmd, 3)
