@@ -311,14 +311,18 @@ func RemoveService(config *Configuration, path string) string {
 		RemoveAlibabaAllServices(path, len(config.SubExperiments))
 		return "All Alibaba Cloud services removed."
 	default:
-		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
+		// 25.09 error correction
+		// log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
+		log.Fatalf("Failed to remove service for unrecognised provider %s", config.Provider)
 		return ""
 	}
 }
 
 // RemoveServerlessService removes a service that was deployed using the Serverless framework
 func RemoveServerlessService(path string) string {
-	log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
+	// 25.09 update to correct syntax issue logrus
+	// log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
+	log.Infof("Removing Serverless service at %s", path)	
 	slsRemoveCmd := exec.Command("sls", "remove")
 	slsRemoveCmd.Dir = path
 	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
@@ -330,7 +334,9 @@ func RemoveServerlessService(path string) string {
 
 // RemoveServerlessServiceForcefully forcefully removes a service that was deployed using the Serverless framework
 func RemoveServerlessServiceForcefully(path string) string {
-	log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
+	// 25.09 update to correct syntax issue logrus
+	// log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
+	log.Infof("Removing Serverless service at %s", path)	
 	slsRemoveCmd := exec.Command("sls", "remove", "--force")
 	slsRemoveCmd.Dir = path
 	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
@@ -432,7 +438,9 @@ func RemoveAlibabaAllServices(path string, numSubExperiments int) []string {
 
 // DeployService deploys the functions defined in the serverless.com file
 func DeployService(path string) string {
-	log.Infof(fmt.Sprintf("Deploying service at %s", path))
+	// 25.09 update to correct syntax issue logrus	
+	// log.Infof(fmt.Sprintf("Deploying service at %s", path))
+	log.Infof("Deploying service at %s", path)	slsDeployCmd := exec.Command("sls", "deploy")
 	slsDeployCmd := exec.Command("sls", "deploy")
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLogWithRetries(slsDeployCmd, 3)
