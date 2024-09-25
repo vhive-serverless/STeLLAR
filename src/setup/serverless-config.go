@@ -311,7 +311,9 @@ func RemoveService(config *Configuration, path string) string {
 		RemoveAlibabaAllServices(path, len(config.SubExperiments))
 		return "All Alibaba Cloud services removed."
 	default:
-		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
+		// 25.09 error correction
+		// log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
+		log.Fatalf("Failed to remove service for unrecognised provider %s", config.Provider)
 		return ""
 	}
 }
