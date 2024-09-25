@@ -25,7 +25,10 @@ package packaging
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"math/rand"
+	// "math/rand"
+	// 25.09 change for go linter syntax check errors 
+	// "math/rand"
+	"crypto/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
