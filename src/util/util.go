@@ -88,7 +88,8 @@ func RunCommandAndLogWithRetries(cmd *exec.Cmd, maxAttempts int) string {
 
 	// 25.09 update for logrus syntax error correction
 	log.Fatalf("Error occurred: %v", err)
-	// log.Fatalf(err.Error())	return err.Error()
+	// log.Fatalf(err.Error())	
+	return err.Error()
 }
 
 func StringContains(s []string, str string) bool {
