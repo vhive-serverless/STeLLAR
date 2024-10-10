@@ -160,8 +160,8 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName strin
 			SubscriptionId: "${env:b1dcfb0e-cca5-40f4-af7c-f5e0d8e55681}",
 			TenantId:       "${env:15ce9348-be2a-462b-8fc0-e1765a9b204a}",
 			AppId:          "${env:afc74a64-222c-4560-a633-ca77a7a00eb5}",
-			//Password:       "${env:P.D8Q~ykEd3VJfRVWcCvYTl~w0UrtpNRd1xX4bA2}",
-			FunctionApp: FunctionApp{ExtensionVersion: "~4"},
+			Password:       "${env:P.D8Q~ykEd3VJfRVWcCvYTl~w0UrtpNRd1xX4bA2}",
+			FunctionApp:    FunctionApp{ExtensionVersion: "~4"},
 		}
 	case "aliyun":
 		s.Provider = Provider{
