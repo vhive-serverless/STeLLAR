@@ -2,10 +2,11 @@ package setup
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/require"
 	"os"
 	"stellar/setup"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateHeaderConfig(t *testing.T) {
@@ -92,21 +93,17 @@ func TestAddFunctionConfigAzure(t *testing.T) {
 	expected := &setup.Serverless{
 		Functions: map[string]*setup.Function{
 			"test1-2-1": {
-				Name:    "test1-2-1",
 				Handler: "main.main",
-				Runtime: "Python3.8",
 				Package: setup.FunctionPackage{
 					Patterns: []string{"main.py"},
 					Artifact: "",
 				},
 				Events: []setup.Event{
 					{
-						AzureEvent: &setup.AzureEvent{
-							AzureHttpEvent: setup.AzureHttpEvent{
-								AzureHttp:      true,
-								AzureMethods:   []string{"GET"},
-								AzureAuthLevel: "anonymous",
-							},
+						Http: &setup.AzureHttpEvent{
+							Method:    "GET",
+							Route:     "test1-2-1",
+							AuthLevel: "anonymous",
 						},
 					},
 				},
@@ -116,7 +113,13 @@ func TestAddFunctionConfigAzure(t *testing.T) {
 
 	actual := &setup.Serverless{}
 
-	subEx := &setup.SubExperiment{Title: "test1", Parallelism: 2, Runtime: "Python3.8", Handler: "main.main", PackagePattern: "main.py"}
+	subEx := &setup.SubExperiment{
+		Title:          "test1",
+		Parallelism:    2,
+		Runtime:        "Python3.8",
+		Handler:        "main.main",
+		PackagePattern: "main.py",
+	}
 	actual.AddFunctionConfigAzure(subEx, 2, "test1-2-1")
 
 	require.Equal(t, expected, actual)

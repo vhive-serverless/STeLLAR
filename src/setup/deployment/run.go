@@ -24,11 +24,16 @@ package deployment
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"math"
 	"os"
 	"stellar/setup/deployment/packaging"
 	"stellar/util"
+
+	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
+
+	"context"
+	"stellar/setup/deployment/raw-code/serverless/azure"
 )
 
 // SetupDeployment will create the serverless function zip deployment for the given provider,
@@ -100,4 +105,109 @@ func getExecutableInfo(rawCodePath string, experimentID int, function string) (i
 
 	log.Infof("[sub-experiment %d] Successfully retrieved exec file size (%d bytes) for deployment.", experimentID, fi.Size())
 	return fi.Size(), binaryPath, handlerPath
+}
+
+func RunDeployment() {
+	// Step 1: Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file:", err)
+	} else {
+		log.Println(".env file loaded successfully.")
+	}
+
+	// Step 2: Load configuration into Config struct
+	config := azure.LoadConfig()
+
+	// Step 3: Validate required environment variables
+	azure.ValidateConfig(config)
+
+	// Step 4: Validate that required commands are available
+	if !azure.IsCommandAvailable("az") {
+		log.Fatal("'az' command is not available. Please install Azure CLI.")
+	}
+
+	if !azure.IsCommandAvailable("func") {
+		log.Fatal("'func' command is not available. Please install Azure Functions Core Tools.")
+	}
+
+	// Step 5: Initialize Azure SDK credentials
+	cred, err := azure.GetAzureCredential()
+	if err != nil {
+		log.Fatalf("Failed to obtain a credential: %v", err)
+	}
+	ctx := context.Background()
+
+	// Step 6: Initialize Azure SDK clients
+	err = azure.InitializeClients(ctx, cred, config)
+	if err != nil {
+		log.Fatalf("Failed to initialize Azure clients: %v", err)
+	}
+
+	// Step 7: Create Resource Group
+	resourceGroup, err := azure.CreateResourceGroup(ctx, config)
+	if err != nil {
+		log.Fatalf("Failed to create resource group: %v", err)
+	}
+	log.Println("Resource Group Created:", *resourceGroup.ID)
+
+	// Step 8: Check Storage Account Name Availability
+	availability, err := azure.CheckNameAvailability(ctx, config)
+	if err != nil {
+		log.Fatalf("Failed to check storage account name availability: %v", err)
+	}
+	if !*availability.NameAvailable {
+		log.Fatalf("Storage account name is not available: %s", *availability.Message)
+	}
+
+	// Step 9: Create Storage Account
+	storageAccount, err := azure.CreateStorageAccount(ctx, config)
+	if err != nil {
+		log.Fatalf("Failed to create storage account: %v", err)
+	}
+	log.Println("Storage Account Created:", *storageAccount.ID)
+
+	// Step 10: Get Storage Account Properties
+	properties, err := azure.StorageAccountProperties(ctx, config)
+	if err != nil {
+		log.Fatalf("Failed to get storage account properties: %v", err)
+	}
+	log.Println("Storage Account Properties ID:", *properties.ID)
+
+	// Step 11: Initialize Function App Project (if not already)
+	err = azure.InitializeFunctionProject()
+	if err != nil {
+		log.Fatalf("Failed to initialize Function App project: %v", err)
+	}
+	log.Println("Function App Project Initialized Successfully.")
+
+	// Step 12: Create New Function using `func new`
+	err = azure.CreateNewFunction(config)
+	if err != nil {
+		log.Fatalf("Failed to create new Function: %v", err)
+	}
+	log.Println("New Function Created Successfully.")
+
+	// Step 13: Execute Azure CLI Command to Create Function App
+	err = azure.CreateFunctionApp(config)
+	if err != nil {
+		log.Fatalf("Failed to create Function App: %v", err)
+	}
+	log.Println("Function App Created Successfully.")
+
+	// Step 14: Publish Function App
+	err = azure.PublishFunctionApp(config)
+	if err != nil {
+		log.Fatalf("Failed to publish Function App: %v", err)
+	}
+	log.Println("Function App Published Successfully.")
+
+	// Step 15: Cleanup Resources if KEEP_RESOURCE is not set
+	if !azure.ShouldKeepResource(config.KeepResource) {
+		err = azure.Cleanup(ctx, config)
+		if err != nil {
+			log.Fatalf("Failed to clean up resources: %v", err)
+		}
+		log.Println("Resources cleaned up successfully.")
+	}
 }

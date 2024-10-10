@@ -2,16 +2,20 @@ package setup
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
-	"math"
+	//"math"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"stellar/setup/deployment"
 	"stellar/util"
 	"strings"
-	"sync"
+
+	//"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 // Serverless describes the serverless.yml contents.
@@ -25,11 +29,15 @@ type Serverless struct {
 }
 
 type Provider struct {
-	Name        string      `yaml:"name"`
-	Runtime     string      `yaml:"runtime"`
-	Region      string      `yaml:"region"`
-	Credentials string      `yaml:"credentials,omitempty"`
-	FunctionApp FunctionApp `yaml:"functionApp,omitempty"`
+	Name           string      `yaml:"name"`
+	Runtime        string      `yaml:"runtime"`
+	Region         string      `yaml:"region"`
+	Credentials    string      `yaml:"credentials,omitempty"`
+	SubscriptionId string      `yaml:"subscriptionId,omitempty"`
+	TenantId       string      `yaml:"tenantId,omitempty"`
+	AppId          string      `yaml:"appId,omitempty"`
+	Password       string      `yaml:"password,omitempty"`
+	FunctionApp    FunctionApp `yaml:"functionApp,omitempty"`
 }
 
 type FunctionApp struct {
@@ -42,10 +50,10 @@ type Package struct {
 
 type Function struct {
 	Handler   string          `yaml:"handler"`
-	Runtime   string          `yaml:"runtime"`
-	Name      string          `yaml:"name"`
+	Runtime   string          `yaml:"runtime,omitempty"`
+	Name      string          `yaml:"name,omitempty"`
 	Events    []Event         `yaml:"events"`
-	Package   FunctionPackage `yaml:"package"`
+	Package   FunctionPackage `yaml:"package,omitempty"`
 	SnapStart bool            `yaml:"snapStart,omitempty"`
 }
 
@@ -56,18 +64,24 @@ type FunctionPackage struct {
 
 type Event struct {
 	AWSEvent     *AWSEvent
-	AzureEvent   *AzureEvent
+	Http         *AzureHttpEvent `yaml:"http,omitempty"`
 	AlibabaEvent *AlibabaEvent
 }
 
 func (event Event) MarshalYAML() (interface{}, error) {
-	if event.AWSEvent != nil {
+	if event.Http != nil {
+		// For Azure HTTP events, wrap the event in a map with the key "http"
+		return map[string]interface{}{
+			"http": event.Http,
+		}, nil
+	} else if event.AWSEvent != nil {
+		// For AWS events, return the AWSEvent as is
 		return event.AWSEvent, nil
-	} else if event.AzureEvent != nil {
-		return event.AzureEvent, nil
 	} else if event.AlibabaEvent != nil {
+		// For Alibaba events, return the AlibabaEvent as is
 		return event.AlibabaEvent, nil
 	} else {
+		// If no events are set, return nil
 		return nil, nil
 	}
 }
@@ -86,9 +100,9 @@ type AzureEvent struct {
 }
 
 type AzureHttpEvent struct {
-	AzureHttp      bool     `yaml:"http"`
-	AzureMethods   []string `yaml:"methods"`
-	AzureAuthLevel string   `yaml:"authLevel"`
+	Method    string `yaml:"method"`
+	Route     string `yaml:"route"`
+	AuthLevel string `yaml:"authLevel,omitempty"`
 }
 
 type AlibabaEvent struct {
@@ -140,10 +154,14 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName strin
 	switch config.Provider {
 	case "azure":
 		s.Provider = Provider{
-			Name:        config.Provider,
-			Runtime:     runtimeValue,
-			Region:      region,
-			FunctionApp: FunctionApp{ExtensionVersion: "~4"},
+			Name:           config.Provider,
+			Runtime:        runtimeValue,
+			Region:         region,
+			SubscriptionId: "${env:b1dcfb0e-cca5-40f4-af7c-f5e0d8e55681}",
+			TenantId:       "${env:15ce9348-be2a-462b-8fc0-e1765a9b204a}",
+			AppId:          "${env:afc74a64-222c-4560-a633-ca77a7a00eb5}",
+			Password:       "${env:P.D8Q~ykEd3VJfRVWcCvYTl~w0UrtpNRd1xX4bA2}",
+			FunctionApp:    FunctionApp{ExtensionVersion: "~4"},
 		}
 	case "aliyun":
 		s.Provider = Provider{
@@ -183,7 +201,7 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, rando
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
-	
+
 	for i := 0; i < subex.Parallelism; i++ {
 		handler := subex.Handler
 		runtime := subex.Runtime
@@ -217,30 +235,37 @@ func (s *Serverless) AddFunctionConfigAWS(subex *SubExperiment, index int, rando
 	}
 }
 
-// AddFunctionConfigAzure Adds a function to the service. If parallelism = n, then it defines n functions. Also deploys all producer-consumer subfunctions.
+// AddFunctionConfigAzure adds a function to the service for Azure provider.
 func (s *Serverless) AddFunctionConfigAzure(subex *SubExperiment, index int, name string) {
-	log.Infof("Adding function config of Subexperiment %s, index %d", subex.Function, index)
+	log.Infof("Adding function config for Subexperiment %s, index %d", subex.Function, index)
 
 	if s.Functions == nil {
 		s.Functions = make(map[string]*Function)
 	}
 
 	handler := subex.Handler
-	runtime := subex.Runtime
+
+	// Define the HTTP event
 	events := []Event{
 		{
-			AzureEvent: &AzureEvent{
-				AzureHttpEvent: AzureHttpEvent{
-					AzureHttp:      true,
-					AzureMethods:   []string{"GET"},
-					AzureAuthLevel: "anonymous",
-				},
+			Http: &AzureHttpEvent{
+				Method:    "GET",       // Or the appropriate HTTP method
+				Route:     name,        // The route for the function
+				AuthLevel: "anonymous", // Authentication level
 			},
 		},
 	}
 
-	function := &Function{Handler: handler, Runtime: runtime, Name: name, Events: events}
+	// Create the function configuration
+	function := &Function{
+		Handler: handler,
+		Events:  events,
+	}
+
+	// Add package patterns if needed
 	function.AddPackagePattern(subex.PackagePattern)
+
+	// Add the function to the service
 	s.Functions[name] = function
 }
 
@@ -311,32 +336,27 @@ func RemoveService(config *Configuration, path string) string {
 		RemoveAlibabaAllServices(path, len(config.SubExperiments))
 		return "All Alibaba Cloud services removed."
 	default:
-		// 25.09 error correction
-		// log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
-		log.Fatalf("Failed to remove service for unrecognised provider %s", config.Provider)
+		log.Fatalf(fmt.Sprintf("Failed to remove service for unrecognised provider %s", config.Provider))
 		return ""
 	}
 }
 
 // RemoveServerlessService removes a service that was deployed using the Serverless framework
 func RemoveServerlessService(path string) string {
-	// 25.09 update to correct syntax issue logrus
-	// log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
-	log.Infof("Removing Serverless service at %s", path)	
+	log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
 	slsRemoveCmd := exec.Command("sls", "remove")
 	slsRemoveCmd.Dir = path
 	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
 
-	util.RunCommandAndLog(exec.Command("rm", fmt.Sprintf("%sserverless.yml", path)))
+	// Optionally, remove the serverless.yml file if necessary
+	util.RunCommandAndLog(exec.Command("rm", "-f", filepath.Join(path, "serverless.yml")))
 
 	return slsRemoveCmdOutput
 }
 
 // RemoveServerlessServiceForcefully forcefully removes a service that was deployed using the Serverless framework
 func RemoveServerlessServiceForcefully(path string) string {
-	// 25.09 update to correct syntax issue logrus
-	// log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
-	log.Infof("Removing Serverless service at %s", path)	
+	log.Infof(fmt.Sprintf("Removing Serverless service at %s", path))
 	slsRemoveCmd := exec.Command("sls", "remove", "--force")
 	slsRemoveCmd.Dir = path
 	slsRemoveCmdOutput := util.RunCommandAndLogWithRetries(slsRemoveCmd, 3)
@@ -351,12 +371,15 @@ func RemoveServerlessServiceForcefully(path string) string {
 // RemoveAzureAllServices removes all Azure services
 func RemoveAzureAllServices(subExperiments []SubExperiment, path string) []string {
 	var removeServiceMessages []string
-	for subExperimentIndex, subExperiment := range subExperiments {
-		removeSubExperimentParallelismInBatches(path, subExperimentIndex, subExperiment, removeServiceMessages, 3)
+	for subExperimentIndex := range subExperiments {
+		deploymentDir := filepath.Join(path, fmt.Sprintf("sub-experiment-%d", subExperimentIndex))
+		removeMessage := RemoveServerlessService(deploymentDir)
+		removeServiceMessages = append(removeServiceMessages, removeMessage)
 	}
 	return removeServiceMessages
 }
 
+/* //remove for now
 func removeSubExperimentParallelismInBatches(path string, subExperimentIndex int, subExperiment SubExperiment, removeServiceMessages []string, functionsPerBatch int) {
 	numberOfBatches := int(math.Ceil(float64(subExperiment.Parallelism) / float64(functionsPerBatch)))
 
@@ -380,7 +403,7 @@ func removeSubExperimentParallelismInBatches(path string, subExperimentIndex int
 		wg.Wait()
 	}
 }
-
+*/
 // RemoveGCRAllServices removes all GCR services defined in the Subexperiment array
 func RemoveGCRAllServices(subExperiments []SubExperiment) []string {
 	var deleteServiceMessages []string
@@ -438,10 +461,8 @@ func RemoveAlibabaAllServices(path string, numSubExperiments int) []string {
 
 // DeployService deploys the functions defined in the serverless.com file
 func DeployService(path string) string {
-	// 25.09 update to correct syntax issue logrus	
-	// log.Infof(fmt.Sprintf("Deploying service at %s", path))
-	log.Infof("Deploying service at %s", path)	
-	slsDeployCmd := exec.Command("sls", "deploy")
+	log.Infof(fmt.Sprintf("Deploying service at %s", path))
+	slsDeployCmd := exec.Command("bash", "-c", "sls deploy")
 	slsDeployCmd.Dir = path
 	slsDeployMessage := util.RunCommandAndLogWithRetries(slsDeployCmd, 3)
 	return slsDeployMessage
@@ -454,13 +475,7 @@ func (s *Serverless) DeployGCRContainerService(subex *SubExperiment, index int, 
 		name := fmt.Sprintf("%s-%s", randomTag, createName(subex, index, i))
 		providerFunctionNames["gcr"] = append(providerFunctionNames["gcr"], name) // Used for function removal
 
-		var gcrDeployCommand *exec.Cmd
-		if subex.CPUBoostEnabled {
-			gcrDeployCommand = exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region, "--cpu-boost")
-		} else {
-			gcrDeployCommand = exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
-		}
-
+		gcrDeployCommand := exec.Command("gcloud", "run", "deploy", name, "--image", imageLink, "--allow-unauthenticated", "--region", region)
 		deployMessage := util.RunCommandAndLog(gcrDeployCommand)
 		subex.Endpoints = append(subex.Endpoints, EndpointInfo{ID: GetGCREndpointID(deployMessage)})
 		subex.AddRoute("")
@@ -493,13 +508,18 @@ func GetGCREndpointID(deployMessage string) string {
 	return endpointID
 }
 
-// GetAzureEndpointID finds the Azure endpoint ID from the deployment message
+// GetAzureEndpointID extracts the Azure function endpoint URL from the deployment output
 func GetAzureEndpointID(message string) string {
-	methodAndEndpointRegex := regexp.MustCompile(`\[GET] .+\n`)
-	methodAndEndpoint := methodAndEndpointRegex.FindString(message) // e.g. [GET] sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
-	endpoint := strings.Split(methodAndEndpoint, " ")[1]            // e.g. sls-seasi-dev-stellar-sub-experiment-1.azurewebsites.net/api/subexperiment2_1_0
-	endpointId := strings.Split(endpoint, ".")[0]                   // e.g. sls-seasi-dev-stellar-sub-experiment-1
-	return endpointId
+	// Use a regex to find the line containing the endpoint URL
+	regex := regexp.MustCompile(`(?m)Invoke URL:\s+(https://.+)`)
+	matches := regex.FindStringSubmatch(message)
+	if len(matches) > 1 {
+		endpointURL := matches[1]
+		return endpointURL
+	} else {
+		log.Fatalf("Could not find the endpoint URL in deployment output.")
+		return ""
+	}
 }
 
 // GetAlibabaEndpointID finds the Alibaba Cloud endpoint ID from the deployment message
@@ -517,4 +537,9 @@ func GetCloudflareEndpointID(message string) string {
 	regex := regexp.MustCompile(`https://.*\.workers\.dev`)
 	endpointID := strings.Split(regex.FindString(message), "//")[1]
 	return endpointID
+}
+
+// Container function that calls RunDeployment
+func RunAzureDeployment() {
+	deployment.RunDeployment()
 }

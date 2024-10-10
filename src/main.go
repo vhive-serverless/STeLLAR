@@ -25,7 +25,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"math/rand"
 	"os"
@@ -36,6 +35,8 @@ import (
 	"stellar/setup/deployment/connection/amazon"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var awsUserArnNumber = flag.String("a", "356764711652", "This is used in AWS benchmarking for client authentication.")
@@ -46,51 +47,60 @@ var specificExperimentFlag = flag.Int("r", -1, "Only run this particular experim
 var logLevelFlag = flag.String("l", "info", "Select logging level.")
 var serverlessDeployment = flag.Bool("s", true, "Use serverless.com framework for deployment. ")
 
+// Create a new variable for the first if statement
+var azureDeployment = flag.Bool("azure", true, "Run Azure deployment.")
+
 func main() {
 	startTime := time.Now()
 	randomSeed := startTime.Unix()
-	// 25.09 Change for go linter syntax check errors 
+	// 25.09 Change for go linter syntax check errors
 	// rand.Seed(randomSeed) // comment line for reproducible inter-arrival times
 	r := rand.New(rand.NewSource(randomSeed)) // comment line for reproducible inter-arrival times
 	fmt.Println(r.Intn(100))
 	flag.Parse()
 
-	outputDirectoryPath := filepath.Join(*outputPathFlag, strconv.FormatInt(time.Now().Unix(), 10))
-	log.Infof("Creating directory for this run at `%s`", outputDirectoryPath)
-	if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
-		log.Fatal(err)
-	}
-
-	logFile := setupLogging(outputDirectoryPath)
-	defer logFile.Close()
-
-	log.Infof("Started benchmarking HTTP client on %v with random seed %d.",
-		time.Now().UTC().Format(time.RFC850), randomSeed)
-	log.Infof("Selected endpoints directory path: %s", *endpointsDirectoryPathFlag)
-	log.Infof("Selected config path: %s", *configPathFlag)
-	log.Infof("Selected output path: %s", *outputPathFlag)
-	log.Infof("Selected experiment (-1 for all): %d", *specificExperimentFlag)
-
-	config := setup.ExtractConfiguration(*configPathFlag)
-
-	amazon.UserARNNumber = *awsUserArnNumber
-
-	// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
-	setup.FindBusySpinIncrements(&config)
-
-	// Pick between deployment methods
-	connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
-	if *serverlessDeployment {
-		serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
-		setup.ProvisionFunctionsServerless(&config, serverlessDirPath)
-		log.Infof("number of routes %d, numebr of endpoints %d", len(config.SubExperiments[0].Routes), len(config.SubExperiments[0].Endpoints))
-		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
-
-		log.Info("Starting functions removal from cloud.")
-		setup.RemoveService(&config, serverlessDirPath)
+	if *azureDeployment {
+		// Call the RunAzureDeployment function
+		setup.RunAzureDeployment()
 	} else {
-		setup.ProvisionFunctions(config)
-		benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+
+		outputDirectoryPath := filepath.Join(*outputPathFlag, strconv.FormatInt(time.Now().Unix(), 10))
+		log.Infof("Creating directory for this run at `%s`", outputDirectoryPath)
+		if err := os.MkdirAll(outputDirectoryPath, os.ModePerm); err != nil {
+			log.Fatal(err)
+		}
+
+		logFile := setupLogging(outputDirectoryPath)
+		defer logFile.Close()
+
+		log.Infof("Started benchmarking HTTP client on %v with random seed %d.",
+			time.Now().UTC().Format(time.RFC850), randomSeed)
+		log.Infof("Selected endpoints directory path: %s", *endpointsDirectoryPathFlag)
+		log.Infof("Selected config path: %s", *configPathFlag)
+		log.Infof("Selected output path: %s", *outputPathFlag)
+		log.Infof("Selected experiment (-1 for all): %d", *specificExperimentFlag)
+
+		config := setup.ExtractConfiguration(*configPathFlag)
+
+		amazon.UserARNNumber = *awsUserArnNumber
+
+		// We find the busy-spinning time based on the host where the tool is run, i.e., not AWS or other providers
+		setup.FindBusySpinIncrements(&config)
+
+		// Pick between deployment methods
+		connection.Initialize(config.Provider, *endpointsDirectoryPathFlag, "./setup/deployment/raw-code/functions/producer-consumer/api-template.json")
+		if *serverlessDeployment {
+			serverlessDirPath := fmt.Sprintf("setup/deployment/raw-code/serverless/%s/", config.Provider)
+			setup.ProvisionFunctionsServerless(&config, serverlessDirPath)
+			log.Infof("number of routes %d, numebr of endpoints %d", len(config.SubExperiments[0].Routes), len(config.SubExperiments[0].Endpoints))
+			benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+
+			log.Info("Starting functions removal from cloud.")
+			setup.RemoveService(&config, serverlessDirPath)
+		} else {
+			setup.ProvisionFunctions(config)
+			benchmarking.TriggerSubExperiments(config, outputDirectoryPath, *specificExperimentFlag)
+		}
 	}
 
 	log.Infof("Done in %v, exiting...", time.Since(startTime))
