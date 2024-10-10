@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"stellar/setup/deployment"
 	"stellar/util"
 	"strings"
 
@@ -156,10 +157,10 @@ func (s *Serverless) CreateHeaderConfig(config *Configuration, serviceName strin
 			Name:           config.Provider,
 			Runtime:        runtimeValue,
 			Region:         region,
-			SubscriptionId: "${env:AZURE_SUBSCRIPTION_ID}",
-			TenantId:       "${env:AZURE_TENANT_ID}",
-			AppId:          "${env:AZURE_CLIENT_ID}",
-			Password:       "${env:AZURE_CLIENT_SECRET}",
+			SubscriptionId: "${env:b1dcfb0e-cca5-40f4-af7c-f5e0d8e55681}",
+			TenantId:       "${env:15ce9348-be2a-462b-8fc0-e1765a9b204a}",
+			AppId:          "${env:afc74a64-222c-4560-a633-ca77a7a00eb5}",
+			Password:       "${env:P.D8Q~ykEd3VJfRVWcCvYTl~w0UrtpNRd1xX4bA2}",
 			FunctionApp:    FunctionApp{ExtensionVersion: "~4"},
 		}
 	case "aliyun":
@@ -536,4 +537,9 @@ func GetCloudflareEndpointID(message string) string {
 	regex := regexp.MustCompile(`https://.*\.workers\.dev`)
 	endpointID := strings.Split(regex.FindString(message), "//")[1]
 	return endpointID
+}
+
+// Container function that calls RunDeployment
+func RunAzureDeployment() {
+	deployment.RunDeployment()
 }

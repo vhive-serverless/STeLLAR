@@ -1,6 +1,6 @@
 service: stellar-azure-itgr-test
 
-frameworkVersion: "3"
+frameworkVersion: "4"
 
 provider:
     name: azure
