@@ -31,26 +31,18 @@ export default function BaselineLatencyDashboard() {
     const yesterday = subDays(today,1);
 
 
-    const experimentTypeAWS50 = 'cold-image-size-50-aws';
-    // const experimentTypeAWS100 = 'cold-image-size-100-aws';
-
     const threeMonthsBefore = subMonths(today,3);
 
-    const [dailyStatistics, setDailyStatistics] = useState(null);
-    const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
     const [overallStatisticsAWS,setOverallStatisticsAWS] = useState(null);
     const [overallStatisticsGCR,setOverallStatisticsGCR] = useState(null);
     const [overallStatisticsAzure,setOverallStatisticsAzure] = useState(null);
-    const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
-    const [experimentType,setExperimentType] = useState(experimentTypeAWS50);
     const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold-image-size-50');
     const [dateRange, setDateRange] = useState('3-months');
-    const [imageSize, setImageSize] = useState('50');
     const [imageSizeOverall, setImageSizeOverall] = useState('50');
-    const [provider, setProvider] = useState('aws');
+  
 
     const [loading, setLoading] = useState(true);
     
@@ -80,31 +72,8 @@ export default function BaselineLatencyDashboard() {
 
     
     useMemo(()=>{
-      setExperimentType(`cold-image-size-${imageSize}-${provider}`)
-    },[imageSize,provider])
-
-    useMemo(()=>{
       setExperimentTypeOverall(`cold-image-size-${imageSizeOverall}`)
     },[imageSizeOverall])
-
-    const fetchIndividualData = useCallback(async () => {
-        try {
-            const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: experimentType,
-                    selected_date:selectedDate
-                },
-            });
-            if (isMountedRef.current) {
-                setDailyStatistics(response.data);
-            }
-        } catch (err) {
-            setIsErrorDailyStatistics(true);
-        }
-    }, [isMountedRef,selectedDate,experimentType]);
-
-    useMemo(() => {
-        fetchIndividualData();
-    }, [fetchIndividualData]);
 
 
     useEffect(() => {
@@ -239,7 +208,7 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
       <Container maxWidth="xl">
 
         <Grid container spacing={3}>
-            {(isErrorDailyStatistics || isErrorDataRangeStatistics) && <Grid item xs={12}>
+            {(isErrorDataRangeStatistics) && <Grid item xs={12}>
             <Alert variant="outlined" severity="error">Something went wrong!</Alert>
             </Grid>
             }
@@ -288,9 +257,6 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
           <ListItem sx={{ display: 'list-item' }}>
             IAT for Google Cloud Run functions : <b>900 seconds</b>
           </ListItem>
-          {/* <ListItem sx={{ display: 'list-item' }}>
-            Function : <Link target="_blank" href={'https://github.com/vhive-serverless/STeLLAR/tree/main/src/setup/deployment/raw-code/functions/producer-consumer/aws'}><b>Go (producer-consumer)</b></Link>
-          </ListItem> */}
           <ListItem sx={{ display: 'list-item' }}>
             Image Sizes : <b>50MB, 100MB</b>
           </ListItem>
@@ -323,7 +289,6 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
     label="dateRange"
     onChange={handleChangeDate}
   >
-    {/* <MenuItem value={'week'}>Last week</MenuItem> */}
     <MenuItem value={'month'}>Last month</MenuItem>
     <MenuItem value={'3-months'}>Last 3 months</MenuItem>
     <MenuItem value={'custom'}>Custom range</MenuItem>

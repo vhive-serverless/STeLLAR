@@ -37,8 +37,6 @@ export default function BaselineLatencyDashboard() {
 
     const threeMonthsBefore = subMonths(today,3);
 
-    const [dailyStatistics, setDailyStatistics] = useState(null);
-    const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
 
     const [overallStatisticsAWS,setOverallStatisticsAWS] = useState(null);
@@ -46,12 +44,10 @@ export default function BaselineLatencyDashboard() {
     const [overallStatisticsAzure,setOverallStatisticsAzure] = useState(null);
     const [overallStatisticsCloudflare,setOverallStatisticsCloudflare] = useState(null);
 
-    const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
     const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
     
     const [dateRange, setDateRange] = useState('3-months');
-    const [individualProvider,setIndividualProvider] = useState(experimentTypeAWS);
 
     const [loading, setLoading] = useState(true);
 
@@ -72,26 +68,6 @@ export default function BaselineLatencyDashboard() {
       }
       setDateRange(event.target.value);
     };
-
-
-    const fetchIndividualDataAWS = useCallback(async () => {
-        try {
-            const response = await axios.get(`${baseURL}/results`, {
-                params: { experiment_type: individualProvider,
-                    selected_date:selectedDate
-                },
-            });
-            if (isMountedRef.current) {
-                setDailyStatistics(response.data);
-            }
-        } catch (err) {
-            setIsErrorDailyStatistics(true);
-        }
-    }, [isMountedRef,selectedDate,individualProvider]);
-
-    useMemo(() => {
-        fetchIndividualDataAWS();
-    }, [fetchIndividualDataAWS]);
 
     useEffect(() => {
       return () => {
@@ -193,23 +169,13 @@ const medianLatenciesAzure = useMemo(() => getFilteredMedianLatencies(overallSta
 const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overallStatisticsCloudflare, dateRangeList), [overallStatisticsCloudflare, dateRangeList]);
 
 
-    const TMR = useMemo(() => {
-            if (dailyStatistics)
-                return (dailyStatistics[0]?.tail_latency / dailyStatistics[0]?.median).toFixed(2)
-            return null
-        }
-    ,[dailyStatistics])
-
-
-    console.log(tailLatenciesAWS)
-    // console.log(overallStatisticsCloudflare,overallStatisticsAWS,tailLatenciesAzure,tailLatenciesCloudflare)
 
     return (
     <Page title="Dashboard">
       <Container maxWidth="xl">
 
         <Grid container spacing={3}>
-            {(isErrorDailyStatistics || isErrorDataRangeStatistics) && <Grid item xs={12}>
+            {(isErrorDataRangeStatistics) && <Grid item xs={12}>
             <Alert variant="outlined" severity="error">Something went wrong!</Alert>
             </Grid>
             }
@@ -326,7 +292,6 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
               title="Median Latency"
               subheader={<>50<sup>th</sup> Percentile</>}
               chartLabels={dateRangeList}
-              // type={'median'}
               chartData={[
                 {
                   name: 'AWS',
@@ -403,76 +368,6 @@ const medianLatenciesCloudflare = useMemo(() => getFilteredMedianLatencies(overa
        </CardContent>
           </Card>
           </Grid>
-
-          
-            {/* <Grid item xs={12} sx={{mt:5}}>
-              <Card>
-                <CardContent>
-            <Grid item xs={12} >
-            <Typography variant={'h6'} sx={{ mb: 2 }}>
-               Individual (Daily) Latency Statistics for Cold Function Invocations
-            </Typography>
-            <Stack direction="row" alignItems="center">
-            <InputLabel sx={{mr:3}}>View Results of : </InputLabel>
-                <DatePicker
-                    value={selectedDate}
-                    shouldDisableDate={disablePreviousDates}
-                    onChange={(newValue) => {
-
-                        setSelectedDate(format(newValue, 'yyyy-MM-dd'));
-                    }}
-                    renderInput={(params) => <TextField {...params} />}
-                />
-
-<InputLabel sx={{ml:3,mr:3}}>Cloud Provider :</InputLabel>
-              <Select
-                id="individual-provider"
-                value={individualProvider}
-                label="provider"
-                onChange={handleChangeProvider}
-              >
-                <MenuItem value={'cold-baseline-aws'}>AWS</MenuItem>
-                <MenuItem value={'cold-baseline-gcr'}>Google Cloud Run</MenuItem>
-                <MenuItem value={'cold-baseline-azure'}>Azure</MenuItem>
-                <MenuItem value={'cold-baseline-cloudflare'}>Cloudflare</MenuItem>
-              </Select>
-                </Stack>
-            </Grid>
-            {
-                dailyStatistics?.length < 1 ? <Grid item xs={12}>
-            <Typography sx={{fontSize:'12px', color: 'error.main',mt:-2}}>
-                No results found!
-            </Typography>
-            </Grid> : null
-            }
-
-<Stack direction="row" alignItems="center" justifyContent="center" sx={{width:'100%',mt:2}}>
-          <Grid container >
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="First Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.first_quartile, 10) : 0} color="info" textPictogram={<>25<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Median Latency (ms)" total={dailyStatistics ? dailyStatistics[0]?.median : 0} color="info" textPictogram={<>50<sup>th</sup></>}/>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Third Quartile Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.third_quartile, 10) : 0} color="info" textPictogram={<>75<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail Latency (ms)" total={dailyStatistics ? parseInt(dailyStatistics[0]?.tail_latency, 10) : 0} color="info" textPictogram={<>99<sup>th</sup></>} />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2.4} sx={{padding:2}}>
-            <AppWidgetSummary title="Tail-to-Median Ratio" total={dailyStatistics ? TMR : 0 } color="error" textPictogram={<>99<sup>th</sup>/50<sup>th</sup></>} small/>
-          </Grid>
-          </Grid>
-
-</Stack>
-</CardContent>
-              </Card>
-            </Grid> */}
 
         </Grid>
       </Container>

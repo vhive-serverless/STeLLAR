@@ -8,7 +8,7 @@ import { format, subWeeks, subMonths,subDays, startOfWeek, eachWeekOfInterval, s
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Link,Divider,CircularProgress } from '@mui/material';
+import { Grid, Container,Typography,TextField,Alert,Stack,Card,CardContent,Box,ListItem,Divider,CircularProgress } from '@mui/material';
 // components
 import Page from '../components/Page';
 // sections
@@ -29,27 +29,20 @@ export default function BaselineLatencyDashboard() {
     const today = new Date();
     const yesterday = subDays(today,1);
 
-    const experimentTypeAWSPythonZip = 'cold-hellopy-zip-aws';
     const threeMonthsBefore = subMonths(today,3);
 
-    const [dailyStatistics, setDailyStatistics] = useState(null);
-    const [isErrorDailyStatistics,setIsErrorDailyStatistics] = useState(false);
     const [isErrorDataRangeStatistics,setIsErrorDataRangeStatistics] = useState(false);
     const [overallStatisticsAWS,setOverallStatisticsAWS] = useState({'zip':[]});
-    // const [overallStatisticsAWS100MB,setoverallStatisticsAWS100MB] = useState(null);
     const [overallStatisticsGCR,setOverallStatisticsGCR] = useState({'image':[]});
     const [overallStatisticsAzure,setOverallStatisticsAzure] = useState({
       'zip': []
     });
-    const [selectedDate,setSelectedDate] = useState(format(yesterday, 'yyyy-MM-dd'));
+
     const [startDate,setStartDate] = useState(format(threeMonthsBefore, 'yyyy-MM-dd'));
     const [endDate,setEndDate] = useState(format(today,'yyyy-MM-dd'));
-    const [experimentType,setExperimentType] = useState(experimentTypeAWSPythonZip);
     const [experimentTypeOverall,setExperimentTypeOverall] = useState('cold');
     const [dateRange, setDateRange] = useState('3-months');
-    const [imageSize, setImageSize] = useState('50');
     const [languageRuntime, setLanguageRuntime] = useState('python');
-    const [provider, setProvider] = useState('aws');
 
     const [loading, setLoading] = useState(true);
 
@@ -78,10 +71,6 @@ export default function BaselineLatencyDashboard() {
       setLanguageRuntime(selectedValue);
     };
 
-    const handleChangeProvider = (event) => {
-      const selectedValue = event.target.value;  
-      setProvider(selectedValue);
-    };
 
     useMemo(()=>{
       let app = 'hellopy';
@@ -99,7 +88,7 @@ export default function BaselineLatencyDashboard() {
         app = 'hellojava'
       }
       setExperimentTypeOverall(`cold-${app}`)
-    },[languageRuntime,experimentType])
+    },[languageRuntime])
 
 
     useEffect(() => {
@@ -216,7 +205,7 @@ const azureLatenciesGroupedByMonday = useMemo(() => groupLatenciesByMonday(overa
       <Container maxWidth="xl">
 
         <Grid container spacing={3}>
-            {(isErrorDailyStatistics || isErrorDataRangeStatistics) && <Grid item xs={12}>
+            {( isErrorDataRangeStatistics) && <Grid item xs={12}>
             <Alert variant="outlined" severity="error">Something went wrong!</Alert>
             </Grid>
             }
