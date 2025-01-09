@@ -40,7 +40,7 @@ jobs:
   cold-aws-experiments:
     name: AWS Cold Runtime Experiments
     needs: build_client
-    runs-on: [ self-hosted, awst3 ]
+    runs-on: [ self-hosted, aws ]
     timeout-minutes: 1200
     strategy:
       fail-fast: false
