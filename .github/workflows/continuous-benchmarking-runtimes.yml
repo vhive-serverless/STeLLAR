@@ -31,7 +31,7 @@ jobs:
         run: tar -czvf build.tar ./stellar
 
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: STeLLAR-build
           path: ${{ env.working-directory }}/build.tar
@@ -104,7 +104,7 @@ jobs:
           aws-region: us-west-1
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -120,7 +120,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -o latency-samples-aws -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/aws/cold-hello${{ matrix.runtime }}-zip-aws.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-hello${{ matrix.runtime }}-zip-aws
           path: ${{ env.working-directory }}/latency-samples-aws
@@ -238,7 +238,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -254,7 +254,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -o latency-samples-gcr -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/gcr/cold-hello${{ matrix.runtime }}-img-gcr.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-hello${{ matrix.runtime }}-img-gcr
           path: ${{ env.working-directory }}/latency-samples-gcr
@@ -351,7 +351,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
   
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -367,7 +367,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -o latency-samples-azure -l debug -c ../continuous-benchmarking/experiments/cold-function-invocations/language-runtime-deployment-method/azure/cold-hello${{matrix.runtime}}-zip-azure.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-hello${{ matrix.runtime }}-zip-azure
           path: ${{env.working-directory}}/latency-samples-azure

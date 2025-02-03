@@ -52,7 +52,7 @@ jobs:
         run: tar -czvf build.tar ./stellar
 
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: STeLLAR-build
           path: ${{ env.working-directory }}/build.tar
@@ -99,7 +99,7 @@ jobs:
         run: npm install -g serverless@3.38.0 
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -115,7 +115,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-aws.json -db -w
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: warm-baseline-aws
           path: ${{ env.working-directory }}/latency-samples
@@ -205,7 +205,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -221,7 +221,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-gcr.json -db -w
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: warm-baseline-gcr
           path: ${{ env.working-directory }}/latency-samples
@@ -307,7 +307,7 @@ jobs:
         run: npm install -g wrangler
       
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -323,7 +323,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-cloudflare.json -db -w
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: warm-baseline-cloudflare
           path: ${{ env.working-directory }}/latency-samples
@@ -413,7 +413,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -429,7 +429,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -c ../continuous-benchmarking/experiments/warm-function-invocations/warm-baseline-azure.json -db -w
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: warm-baseline-azure
           path: ${{ env.working-directory }}/latency-samples
@@ -527,7 +527,7 @@ jobs:
         run: npm install -g serverless@3.38.0
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -543,7 +543,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-aws.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-baseline-aws
           path: ${{ env.working-directory }}/latency-samples
@@ -633,7 +633,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -649,7 +649,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-gcr.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-baseline-gcr
           path: ${{ env.working-directory }}/latency-samples
@@ -735,7 +735,7 @@ jobs:
         run: npm install -g wrangler
         
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -751,7 +751,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-cloudflare.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-baseline-cloudflare
           path: ${{ env.working-directory }}/latency-samples
@@ -841,7 +841,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -857,7 +857,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/cold-baseline-azure.json -db -l debug
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-baseline-azure
           path: ${{ env.working-directory }}/latency-samples

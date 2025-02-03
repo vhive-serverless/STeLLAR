@@ -31,7 +31,7 @@ jobs:
         run: tar -czvf build.tar ./stellar
 
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: STeLLAR-build
           path: ${{ env.working-directory }}/build.tar
@@ -77,7 +77,7 @@ jobs:
         run: npm install -g serverless@3.38.0 
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -93,7 +93,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-aws.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-image-size-50-aws
           path: ${{ env.working-directory }}/latency-samples
@@ -191,7 +191,7 @@ jobs:
         run: npm install -g serverless@3.38.0 
   
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -207,7 +207,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -a 356764711652 -o latency-samples -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-aws.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-image-size-100-aws
           path: ${{ env.working-directory }}/latency-samples
@@ -297,7 +297,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -313,7 +313,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-azure.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-image-size-50-azure
           path: ${{ env.working-directory }}/latency-samples
@@ -403,7 +403,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -419,7 +419,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-azure.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-image-size-100-azure
           path: ${{ env.working-directory }}/latency-samples
@@ -510,7 +510,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -526,7 +526,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-50-gcr.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-image-size-50-gcr
           path: ${{ env.working-directory }}/latency-samples
@@ -617,7 +617,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -633,7 +633,7 @@ jobs:
           retry_wait_seconds: 60
           command: cd src && ./stellar -c ../continuous-benchmarking/experiments/cold-function-invocations/image-size/cold-image-size-100-gcr.json -db
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: cold-image-size-100-gcr
           path: ${{ env.working-directory }}/latency-samples
