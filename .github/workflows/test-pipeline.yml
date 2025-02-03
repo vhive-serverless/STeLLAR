@@ -48,7 +48,7 @@ jobs:
           tar -czvf build.tar ./main ./setup/deployment/raw-code/functions
 
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: STeLLAR-build
           path: build.tar
@@ -96,7 +96,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -169,7 +169,7 @@ jobs:
         run: npm install -g wrangler
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -207,7 +207,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -256,7 +256,7 @@ jobs:
         run: npm install -g serverless@3.38.0
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -303,7 +303,7 @@ jobs:
           node-version: 18
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
@@ -349,7 +349,7 @@ jobs:
         run: npm install -g wrangler
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
