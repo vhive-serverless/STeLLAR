@@ -31,7 +31,7 @@ jobs:
         run: tar -czvf build.tar ./stellar
 
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: STeLLAR-build
           path: ${{ env.working-directory }}/build.tar
