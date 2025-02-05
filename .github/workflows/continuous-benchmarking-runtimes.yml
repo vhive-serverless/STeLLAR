@@ -279,7 +279,7 @@ jobs:
           version: ">= 363.0.0"
 
       - name: Download client artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: STeLLAR-build
 
