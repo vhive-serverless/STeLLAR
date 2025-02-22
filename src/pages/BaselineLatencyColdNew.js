@@ -77,6 +77,11 @@ export default function BaselineLatencyDashboard() {
   
     const fetchData = useCallback(async () => {
       setLoading(true);
+
+      const effectiveStartDate = dateRange === 'custom' && dateRangeList.length > 0 
+        ? dateRangeList[0] 
+        : startDate;
+      
       try {
         const [awsResponse, gcrResponse, azureResponse, cloudflareResponse] = await Promise.all([
           axios.get(`${baseURL}/results`, {
