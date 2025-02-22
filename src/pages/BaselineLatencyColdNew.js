@@ -66,6 +66,10 @@ export default function BaselineLatencyDashboard() {
         setStartDate(format(subMonths(today,3), 'yyyy-MM-dd'));
         setEndDate(format(yesterday, 'yyyy-MM-dd'))
       }
+      else if(selectedValue === 'custom'){
+        const customStart = format(startOfWeek(startOfDay(new Date(startDate)), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+        setStartDate(customStart);
+      }
       setDateRange(event.target.value);
     };
 
@@ -77,11 +81,10 @@ export default function BaselineLatencyDashboard() {
   
     const fetchData = useCallback(async () => {
       setLoading(true);
-
       const effectiveStartDate = dateRange === 'custom' && dateRangeList.length > 0 
-        ? dateRangeList[0] 
-        : startDate;
-      
+      ? dateRangeList[0] 
+      : startDate;
+      console.log("start", effectiveStartDate, dateRangeList[0], startDate)
       try {
         const [awsResponse, gcrResponse, azureResponse, cloudflareResponse] = await Promise.all([
           axios.get(`${baseURL}/results`, {
@@ -139,7 +142,7 @@ const getMondaysInRange = (endDate, numberOfWeeks) => {
         mondays = eachWeekOfInterval({ start: startOfDay(new Date(startDate)), end: startOfDay(new Date(endDate))}, { weekStartsOn: 1 });
         mondays = mondays.map(monday => format(monday, 'yyyy-MM-dd'));
       }
-    
+  
       // console.log(mondays)
       return mondays;
     }, [dateRange, startDate, endDate]);

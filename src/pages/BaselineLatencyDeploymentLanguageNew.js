@@ -61,6 +61,10 @@ export default function BaselineLatencyDashboard() {
         setStartDate(format(subMonths(today,3), 'yyyy-MM-dd'));
         setEndDate(format(yesterday, 'yyyy-MM-dd'))
       }
+      else if(selectedValue === 'custom'){
+        const customStart = format(startOfWeek(startOfDay(new Date(startDate)), { weekStartsOn: 1 }), 'yyyy-MM-dd');
+        setStartDate(customStart);
+      }
       setDateRange(event.target.value);
     };
 
@@ -99,16 +103,20 @@ export default function BaselineLatencyDashboard() {
   
     const fetchData = useCallback(async () => {
       setLoading(true);
+      const effectiveStartDate = (dateRange === 'custom' && mondays && mondays.length > 0)
+      ? mondays[0]
+      : startDate;
+      console.log("start", effectiveStartDate, mondays[0], startDate)
       try {
         const [awsResponse, gcrResponse, azureResponse] = await Promise.all([
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-zip-aws`, start_date: startDate, end_date: endDate },
+            params: { experiment_type: `${experimentTypeOverall}-zip-aws`, start_date: effectiveStartDate, end_date: endDate },
           }),
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-img-gcr`, start_date: startDate, end_date: endDate },
+            params: { experiment_type: `${experimentTypeOverall}-img-gcr`, start_date: effectiveStartDate, end_date: endDate },
           }),
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: `${experimentTypeOverall}-zip-azure`, start_date: startDate, end_date: endDate },
+            params: { experiment_type: `${experimentTypeOverall}-zip-azure`, start_date: effectiveStartDate, end_date: endDate },
           }),
         ]);
   
@@ -188,7 +196,7 @@ const mondays = useMemo(() => {
       start: startOfDay(new Date(startDate)), 
       end: startOfDay(new Date(endDate)) 
     }, { weekStartsOn: 1 }); // Start on Tuesday
-    mondays = mondays.map(monday => format(mondays, 'yyyy-MM-dd'));
+    mondays = mondays.map(monday => format(monday, 'yyyy-MM-dd'));
   }
 
   return mondays;
