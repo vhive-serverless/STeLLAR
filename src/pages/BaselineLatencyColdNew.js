@@ -85,16 +85,16 @@ export default function BaselineLatencyDashboard() {
       try {
         const [awsResponse, gcrResponse, azureResponse, cloudflareResponse] = await Promise.all([
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeAWS, start_date: startDate, end_date: endDate },
+            params: { experiment_type: experimentTypeAWS, start_date: effectiveStartDate, end_date: endDate },
           }),
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeGCR, start_date: startDate, end_date: endDate },
+            params: { experiment_type: experimentTypeGCR, start_date: effectiveStartDate, end_date: endDate },
           }),
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeAzure, start_date: startDate, end_date: endDate },
+            params: { experiment_type: experimentTypeAzure, start_date: effectiveStartDate, end_date: endDate },
           }),
           axios.get(`${baseURL}/results`, {
-            params: { experiment_type: experimentTypeCloudflare, start_date: startDate, end_date: endDate },
+            params: { experiment_type: experimentTypeCloudflare, start_date: effectiveStartDate, end_date: endDate },
           }),
         ]);
   
