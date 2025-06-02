@@ -166,7 +166,7 @@ jobs:
         run: npm install -g serverless@3.38.0 serverless-azure-functions functions-have-names serverless-aliyun-function-compute
 
       - name: Install Cloudflare Wrangler
-        run: npm install -g wrangler
+        run: npm install -g wrangler@4.14.4
 
       - name: Download client artifact
         uses: actions/download-artifact@v4
@@ -346,7 +346,7 @@ jobs:
           node-version: 18
 
       - name: Install Cloudflare Wrangler
-        run: npm install -g wrangler
+        run: npm install -g wrangler@4.14.4
 
       - name: Download client artifact
         uses: actions/download-artifact@v4
