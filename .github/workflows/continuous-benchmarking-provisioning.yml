@@ -31,19 +31,27 @@ jobs:
           cat $HOME/.ssh/id_rsa.pub
 
       - name: Create AWS EC2 instance
+        id: create-vm
         run: |
-          aws ec2 run-instances \
+          set -euo pipefail
+          INSTANCE_ID=$(aws ec2 run-instances \
             --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
             --image-id ami-036cafe742923b3d9 \
             --instance-type t3a.small \
             --key-name stellar-ssh-key \
             --region us-west-1 \
-            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]'
-        id: create-vm
+            --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.AWS_RUNNER_NAME }}}]' \
+            --query 'Instances[0].InstanceId' --output text)
+          echo "instance_id=${INSTANCE_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Get public IP address
-        run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.AWS_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
         id: get-ip
+        run: |
+          set -euo pipefail
+          aws ec2 wait instance-status-ok --instance-ids "${{ steps.create-vm.outputs.instance_id }}"
+          IP=$(aws ec2 describe-instances --instance-ids "${{ steps.create-vm.outputs.instance_id }}" \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' --output text) 
+          echo "ip=${IP}" >> "$GITHUB_OUTPUT"
 
       - name: Create a registration token for self-hosted runners
         run: |
@@ -71,27 +79,30 @@ jobs:
             max_attempts: 5
             retry_wait_seconds: 10
             command: |
+                set -euo pipefail
+
                 # Exit if runner is already set up
-                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'aws')
-                echo "Runner Status: $RUNNER_STATUS"
-                if [ -n "$RUNNER_STATUS" ]; then
-                  echo "Runner with label 'aws' is already set up and running."
+                if gh api "/repos/${GITHUB_REPOSITORY}/actions/runners" \
+                    --jq '.runners[].name' | grep -Fxq '${{ env.AWS_RUNNER_NAME }}'; then
+                  echo "Runner '${{ env.AWS_RUNNER_NAME }}' already exists. Exiting."
                   exit 0
                 fi
 
                 # Connection status
-                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' --output table)
-                echo "$CONNECTION_READY_STATUS"
+                aws ec2 describe-instances --instance-ids "${{ steps.create-vm.outputs.instance_id }}" \
+                  --query 'Reservations[0].Instances[0].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' \
+                  --output table
 
                 # Connect via SSH to instance
                 ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
+                  set -euo pipefail
                   echo 'Installing STeLLAR dependencies'
                   curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
                   chmod +x stellar-setup.sh
                   ./stellar-setup.sh
-      
+
                   echo 'Setup self-hosted runner'
-                  mkdir actions-runner && cd actions-runner
+                  mkdir -p actions-runner && cd actions-runner
                   curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
                   tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
                   ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.AWS_RUNNER_NAME }} --labels aws
@@ -119,19 +130,27 @@ jobs:
             cat $HOME/.ssh/id_rsa.pub
 
         - name: Create AWS EC2 instance
+          id: create-vm
           run: |
-            aws ec2 run-instances \
+            set -euo pipefail
+            INSTANCE_ID=$(aws ec2 run-instances \
               --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=16}' \
               --image-id ami-0f30a9c3a48f3fa79 \
               --instance-type t2.micro \
               --key-name stellar-ssh-key \
               --region us-east-2 \
-              --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.CLOUDFLARE_RUNNER_NAME }}}]'
-          id: create-vm
+              --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=${{ env.CLOUDFLARE_RUNNER_NAME }}}]' \
+              --query 'Instances[0].InstanceId' --output text)
+            echo "instance_id=${INSTANCE_ID}" >> "$GITHUB_OUTPUT"
 
         - name: Get public IP address
-          run: echo ip=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=${{ env.CLOUDFLARE_RUNNER_NAME }}" --query "Reservations[*].Instances[*].PublicIpAddress" --output text) >> $GITHUB_OUTPUT
           id: get-ip
+          run: |
+            set -euo pipefail
+            aws ec2 wait instance-status-ok --instance-ids "${{ steps.create-vm.outputs.instance_id }}"
+            IP=$(aws ec2 describe-instances --instance-ids "${{ steps.create-vm.outputs.instance_id }}" \
+                --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+            echo "ip=${IP}" >> "$GITHUB_OUTPUT"
 
         - name: Create a registration token for self-hosted runners
           run: |
@@ -159,35 +178,56 @@ jobs:
             max_attempts: 5
             retry_wait_seconds: 10
             command: |
-                # "Exit if runner is already set up"
+                set -euo pipefail
+                NAME="${{ env.CLOUDFLARE_RUNNER_NAME }}"
+                TARGET_IP="$(echo '${{ steps.get-ip.outputs.ip }}' | awk '{print $1}')"
+                echo "Using IP: $TARGET_IP"
 
-                RUNNER_STATUS=$(gh api -H "Accept: application/vnd.github+json" /repos/vhive-serverless/STeLLAR/actions/runners | grep 'cloudflare')
-                echo "Runner Status: $RUNNER_STATUS"
-                if [ -n "$RUNNER_STATUS" ]; then
-                  echo "Runner with label 'cloudflare' is already set up and running"
+                RUNNERS="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runners?per_page=100" --paginate --jq '.runners[].name' || true)"
+                if grep -Fxq "$NAME" <<<"$RUNNERS"; then
+                  echo "Runner '$NAME' already exists. Exiting."
                   exit 0
                 fi
 
                 # connection status
-                CONNECTION_READY_STATUS=describe_instance=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].{Instance:InstanceId,State:State.Name,,PublicIP:PublicIpAddress}' --output table)
-                echo "$CONNECTION_READY_STATUS"
+                aws ec2 describe-instances --filters "Name=ip-address,Values=${TARGET_IP}" \
+                  --query 'Reservations[0].Instances[0].{Instance:InstanceId,State:State.Name,PublicIP:PublicIpAddress}' \
+                  --output table
 
                 # connect via SSH to instance
                 ssh -o StrictHostKeyChecking=no ubuntu@${{ steps.get-ip.outputs.ip }} "
-                  echo 'Installing STeLLAR dependencies'
-                  curl -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
-                  chmod +x stellar-setup.sh
-                  ./stellar-setup.sh
+                  set -euo pipefail
 
-                  curl -o cloudflare-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/cloudflare/setup.sh
+                  # keep apt noninteractive
+                  export DEBIAN_FRONTEND=noninteractive
+                  echo 'APT::Get::Assume-Yes "true";' | sudo tee /etc/apt/apt.conf.d/90assume-yes >/dev/null
+                  sudo apt-get update -y  # CHANGED: ensure package lists are fresh
+
+                  # force modern Node (22)
+                  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+                  sudo apt-get update -y
+                  sudo apt-get install -y nodejs
+
+                  mkdir -p \$HOME/.npm-global
+                  npm config set prefix \"\$HOME/.npm-global\"
+                  export PATH=\$HOME/.npm-global/bin:\$PATH
+                  echo 'export PATH=\$HOME/.npm-global/bin:\$PATH' >> \$HOME/.profile
+
+                  echo 'Installing STeLLAR dependencies'
+                  curl -fsSL -o stellar-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/setup.sh
+                  chmod +x stellar-setup.sh
+
+                  ./stellar-setup.sh || [ \"\$?\" -eq 141 ]
+
+                  curl -fsSL -o cloudflare-setup.sh https://raw.githubusercontent.com/vhive-serverless/STeLLAR/main/scripts/cloudflare/setup.sh
                   chmod +x cloudflare-setup.sh
                   ./cloudflare-setup.sh
-      
+
                   echo 'Setup self-hosted runner'
-                  mkdir actions-runner && cd actions-runner
-                  curl -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
+                  mkdir -p actions-runner && cd actions-runner
+                  curl -fsSL -o actions-runner-linux-x64-2.315.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-x64-2.315.0.tar.gz
                   tar xzf ./actions-runner-linux-x64-2.315.0.tar.gz
-                  ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name ${{ env.CLOUDFLARE_RUNNER_NAME }} --labels cloudflare
+                  ./config.sh --url https://github.com/vhive-serverless/STeLLAR --token ${{ steps.get-registration-token.outputs.token }} --name $NAME --labels cloudflare
                   tmux new-session -d -s github-actions-runner 'bash ./run.sh'
                 "
 
