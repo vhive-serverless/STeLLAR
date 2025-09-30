@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "0 0 * * 3"
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   teardown-aws-vm:
     runs-on: ubuntu-latest
