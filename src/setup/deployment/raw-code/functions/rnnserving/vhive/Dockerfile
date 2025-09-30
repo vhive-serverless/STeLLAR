@@ -1,4 +1,4 @@
-FROM petronetto/pytorch-alpine as var_workload
+FROM petronetto/pytorch-alpine AS var_workload
 ENV GRPC_PYTHON_VERSION 1.26.0
 RUN true
 COPY requirements.txt /
