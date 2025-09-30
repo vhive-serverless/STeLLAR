@@ -1,4 +1,4 @@
-FROM docker.io/vhiveease/vhive-golang:latest as build
+FROM docker.io/vhiveease/vhive-golang:latest AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY proto_gen /app/proto_gen/
 RUN go mod download && \
    CGO_ENABLED=0 GOOS=linux go build -v -o /main /app/main.go
 
-FROM docker.io/vhiveease/aws-golang:latest as bin-aws
+FROM docker.io/vhiveease/aws-golang:latest AS bin-aws
 COPY --from=build /main /main
 COPY filler.file /filler.file
 ENTRYPOINT [ "/main" ]

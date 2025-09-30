@@ -1,6 +1,6 @@
 # Use the official Golang image to create a build artifact.
 # This is based on Debian and sets the GOPATH to /go.
-FROM golang:latest as builder
+FROM golang:latest AS builder
 
 ARG TARGETOS
 ARG TARGETARCH

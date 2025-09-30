@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM golang:buster as base
+FROM golang:1.22-bookworm AS base
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GO111MODULE=on
@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install --no-install-recommends --assume-yes  prot
   && go install github.com/golang/protobuf/protoc-gen-go@latest \
   && cp /go/bin/protoc-gen-go /usr/bin/
 
-FROM base as build
+FROM base AS build
 
 WORKDIR /app
 
