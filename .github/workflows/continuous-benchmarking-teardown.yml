@@ -24,26 +24,22 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
             aws-region: us-west-1
 
-      -   name: Get self-hosted runner ID
-          id: get-runner-id
+      -   name: Remove self-hosted runners
           env:
             GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
           run: |
-            gh api \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              /repos/vhive-serverless/STeLLAR/actions/runners \
-            | echo id=$(jq '.runners[] | select(.name == "${{ env.AWS_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
-
-      -   name: Remove self-hosted runner
-          env:
-            GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-          run: |
-            gh api \
-              --method DELETE \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+            set -euo pipefail
+            RUNNER_NAME="${{ env.AWS_RUNNER_NAME }}"
+            IDS=$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runners?per_page=100" --paginate \
+                  --jq '.runners[] | select(.name=="'"${RUNNER_NAME}"'") | .id')
+            if [ -z "${IDS}" ]; then
+              echo "No runners named ${RUNNER_NAME} found; nothing to delete."
+            else
+              for ID in ${IDS}; do
+                echo "Deleting runner id=${ID} name=${RUNNER_NAME}"
+                gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/actions/runners/${ID}"
+              done
+            fi
 
       -   name: Get AWS EC2 instance ID
           run: |
@@ -68,26 +64,22 @@ jobs:
               aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
               aws-region: us-east-2
 
-        -   name: Get self-hosted runner ID
-            id: get-runner-id
+        -   name: Remove self-hosted runners
             env:
               GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
             run: |
-              gh api \
-                -H "Accept: application/vnd.github+json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                /repos/vhive-serverless/STeLLAR/actions/runners \
-              | echo id=$(jq '.runners[] | select(.name == "${{ env.CLOUDFLARE_RUNNER_NAME }}") | .id') > $GITHUB_OUTPUT
-
-        -   name: Remove self-hosted runner
-            env:
-              GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-            run: |
-              gh api \
-                --method DELETE \
-                -H "Accept: application/vnd.github+json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+              set -euo pipefail
+              RUNNER_NAME="${{ env.CLOUDFLARE_RUNNER_NAME }}"
+              IDS=$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runners?per_page=100" --paginate \
+                    --jq '.runners[] | select(.name=="'"${RUNNER_NAME}"'") | .id')
+              if [ -z "${IDS}" ]; then
+                echo "No runners named ${RUNNER_NAME} found; nothing to delete."
+              else
+                for ID in ${IDS}; do
+                  echo "Deleting runner id=${ID} name=${RUNNER_NAME}"
+                  gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/actions/runners/${ID}"
+                done
+              fi
 
         -   name: Get AWS EC2 instance ID
             run: |
@@ -109,26 +101,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Get self-hosted runner ID
-        id: get-runner-id
+      - name: Remove self-hosted runners
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners \
-          | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-azure") | .id') > $GITHUB_OUTPUT
-
-      - name: Remove self-hosted runner
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
-        run: |
-          gh api \
-            --method DELETE \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+          set -euo pipefail
+          RUNNER_NAME="stellar-continuous-azure"
+          IDS=$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runners?per_page=100" --paginate \
+                --jq '.runners[] | select(.name=="'"${RUNNER_NAME}"'") | .id')
+          if [ -z "${IDS}" ]; then
+            echo "No runners named ${RUNNER_NAME} found; nothing to delete."
+          else
+            for ID in ${IDS}; do
+              echo "Deleting runner id=${ID} name=${RUNNER_NAME}"
+              gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/actions/runners/${ID}"
+            done
+          fi
 
       - name: Delete Azure resource group
         run: az group delete --resource-group github-actions-runners --yes
@@ -150,26 +138,34 @@ jobs:
         with:
           version: ">= 363.0.0"
 
-      - name: Get self-hosted runner ID
-        id: get-runner-id
+      - name: Remove self-hosted runners
         env:
           GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
         run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners \
-          | echo id=$(jq '.runners[] | select(.name == "stellar-continuous-gcr") | .id') > $GITHUB_OUTPUT
+          set -euo pipefail
+          RUNNER_NAME="stellar-continuous-gcr"
+          IDS=$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runners?per_page=100" --paginate \
+                --jq '.runners[] | select(.name=="'"${RUNNER_NAME}"'") | .id')
+          if [ -z "${IDS}" ]; then
+            echo "No runners named ${RUNNER_NAME} found; nothing to delete."
+          else
+            for ID in ${IDS}; do
+              echo "Deleting runner id=${ID} name=${RUNNER_NAME}"
+              gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/actions/runners/${ID}"
+            done
+          fi
 
-      - name: Remove self-hosted runner
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_SELF_HOSTED_RUNNER_TOKEN }}
+      - name: Delete GCloud Compute Engine VM (idempotent)
         run: |
-          gh api \
-            --method DELETE \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/vhive-serverless/STeLLAR/actions/runners/${{ steps.get-runner-id.outputs.id }}
+          set -euo pipefail
+          INSTANCE="github-actions-runner-gcr"
+          ZONE="us-west1-a"
+          PROJECT="stellar-benchmarking"
 
-      - name: Delete GCloud Compute Engine VM 
-        run: gcloud compute instances delete github-actions-runner-gcr --zone=us-west1-a
+          if gcloud compute instances describe "$INSTANCE" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
+            echo "Deleting $INSTANCE in $ZONE..."
+            gcloud compute instances delete "$INSTANCE" --zone="$ZONE" --project="$PROJECT" --quiet
+            echo "Deleted $INSTANCE."
+          else
+            echo "Instance $INSTANCE not found in $ZONE ($PROJECT); skipping."
+          fi
