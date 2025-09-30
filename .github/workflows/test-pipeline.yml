@@ -358,10 +358,10 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 18
+      - name: Set up Node.js 20s
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install Cloudflare Wrangler
         run: npm install -g wrangler@4.14.4
