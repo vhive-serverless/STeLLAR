@@ -47,7 +47,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - name: Send Slack message using Incoming Webhooks after failed scheduled experiment run
         uses: slackapi/slack-github-action@v1.24.0
-        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+        if: ${{ github.event.workflow_run.conclusion != 'success' }}
         with:
           payload: |
             {
